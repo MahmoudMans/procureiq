@@ -25,6 +25,7 @@ import {
   Route,
   Layers3,
   Handshake,
+  ScrollText,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -77,6 +78,11 @@ const coreNavigation = [
     label: "Contracts & compliance",
     icon: FileCheck2,
   },  {
+    href: "/commercial-governance",
+    label: "Commercial governance",
+    icon: ScrollText,
+  },
+  {
     href: "/risks",
     label: "Risk register",
     icon: ShieldAlert,
@@ -279,6 +285,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/supplier-resilience"
+          ||
+          item.href ===
+            "/commercial-governance"
 ) {
           return canViewAnalytics;
         }

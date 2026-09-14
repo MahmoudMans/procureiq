@@ -3412,3 +3412,274 @@ export async function getSupplierResilienceContext(): Promise<
     "/supplier-resilience/context-options",
   );
 }
+
+export async function getCommercialGovernanceRecords(
+  currency = "EUR",
+): Promise<
+  import("@/types/commercial-governance").CommercialGovernanceRecord[]
+> {
+  return request<
+    import("@/types/commercial-governance").CommercialGovernanceRecord[]
+  >(
+    `/commercial-governance?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getCommercialGovernanceDetail(
+  governanceId: string,
+): Promise<
+  import("@/types/commercial-governance").CommercialGovernanceDetail
+> {
+  return request<
+    import("@/types/commercial-governance").CommercialGovernanceDetail
+  >(
+    `/commercial-governance/${governanceId}`,
+  );
+}
+
+export async function createCommercialGovernance(
+  input: {
+    contractId: string;
+    noticePeriodDays: number;
+    baselineContractValue: number;
+    currency: string;
+    priceEscalationPct: number;
+    maxPoVariancePct: number;
+    autoRenewal: boolean;
+    ownerUserId?: string;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/commercial-governance").CommercialGovernanceDetail
+> {
+  return request<
+    import("@/types/commercial-governance").CommercialGovernanceDetail
+  >(
+    "/commercial-governance",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startContractRenewalReview(
+  governanceId: string,
+): Promise<
+  import("@/types/commercial-governance").CommercialGovernanceRecord
+> {
+  return request<
+    import("@/types/commercial-governance").CommercialGovernanceRecord
+  >(
+    `/commercial-governance/${governanceId}/renewal/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function decideContractRenewal(
+  governanceId: string,
+  decision:
+    import("@/types/commercial-governance").ContractRenewalDecision,
+  note: string,
+): Promise<
+  import("@/types/commercial-governance").CommercialGovernanceRecord
+> {
+  return request<
+    import("@/types/commercial-governance").CommercialGovernanceRecord
+  >(
+    `/commercial-governance/${governanceId}/renewal/decision`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        decision,
+        note,
+      }),
+    },
+  );
+}
+
+export async function completeContractRenewal(
+  governanceId: string,
+): Promise<
+  import("@/types/commercial-governance").CommercialGovernanceRecord
+> {
+  return request<
+    import("@/types/commercial-governance").CommercialGovernanceRecord
+  >(
+    `/commercial-governance/${governanceId}/renewal/complete`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function deactivateCommercialGovernance(
+  governanceId: string,
+): Promise<
+  import("@/types/commercial-governance").CommercialGovernanceRecord
+> {
+  return request<
+    import("@/types/commercial-governance").CommercialGovernanceRecord
+  >(
+    `/commercial-governance/${governanceId}/deactivate`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function createContractObligation(
+  governanceId: string,
+  input: {
+    obligationType:
+      import("@/types/commercial-governance").ContractObligationType;
+    title: string;
+    description?: string;
+    dueDate: string;
+    critical: boolean;
+    ownerUserId?: string;
+  },
+): Promise<
+  import("@/types/commercial-governance").ContractObligation
+> {
+  return request<
+    import("@/types/commercial-governance").ContractObligation
+  >(
+    `/commercial-governance/${governanceId}/obligations`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function completeContractObligation(
+  obligationId: string,
+  note: string,
+): Promise<
+  import("@/types/commercial-governance").ContractObligation
+> {
+  return request<
+    import("@/types/commercial-governance").ContractObligation
+  >(
+    `/commercial-governance/obligations/${obligationId}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function waiveContractObligation(
+  obligationId: string,
+  note: string,
+): Promise<
+  import("@/types/commercial-governance").ContractObligation
+> {
+  return request<
+    import("@/types/commercial-governance").ContractObligation
+  >(
+    `/commercial-governance/obligations/${obligationId}/waive`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function discoverCommercialLeakage(
+  currency = "EUR",
+): Promise<
+  import("@/types/commercial-governance").CommercialLeakageDiscovery
+> {
+  return request<
+    import("@/types/commercial-governance").CommercialLeakageDiscovery
+  >(
+    `/commercial-governance/leakage/discover?currency=${encodeURIComponent(currency)}`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getCommercialLeakageFindings(
+  currency = "EUR",
+): Promise<
+  import("@/types/commercial-governance").CommercialLeakageFinding[]
+> {
+  return request<
+    import("@/types/commercial-governance").CommercialLeakageFinding[]
+  >(
+    `/commercial-governance/leakage/findings?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function resolveCommercialLeakage(
+  findingId: string,
+  note: string,
+): Promise<
+  import("@/types/commercial-governance").CommercialLeakageFinding
+> {
+  return request<
+    import("@/types/commercial-governance").CommercialLeakageFinding
+  >(
+    `/commercial-governance/leakage/${findingId}/resolve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function dismissCommercialLeakage(
+  findingId: string,
+  note: string,
+): Promise<
+  import("@/types/commercial-governance").CommercialLeakageFinding
+> {
+  return request<
+    import("@/types/commercial-governance").CommercialLeakageFinding
+  >(
+    `/commercial-governance/leakage/${findingId}/dismiss`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function getCommercialGovernanceSummary(
+  currency = "EUR",
+): Promise<
+  import("@/types/commercial-governance").CommercialGovernanceSummary
+> {
+  return request<
+    import("@/types/commercial-governance").CommercialGovernanceSummary
+  >(
+    `/commercial-governance/summary?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getCommercialGovernanceContext(): Promise<
+  import("@/types/commercial-governance").CommercialGovernanceContext
+> {
+  return request<
+    import("@/types/commercial-governance").CommercialGovernanceContext
+  >(
+    "/commercial-governance/context-options",
+  );
+}

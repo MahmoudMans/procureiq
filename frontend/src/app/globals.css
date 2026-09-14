@@ -15430,3 +15430,728 @@ div > strong {
     width: 100%;
   }
 }
+
+/* ====================================================================== */
+/* STEP 26 — CONTRACT RENEWAL, OBLIGATIONS & COMMERCIAL LEAKAGE          */
+/* ====================================================================== */
+
+.commercial-heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.commercial-currency-control {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.commercial-currency-control span {
+  color: var(--text-tertiary);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.commercial-currency-control select {
+  min-width: 100px;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8px;
+}
+
+.commercial-discovery-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #b2ddff;
+  border-radius: 8px;
+  background: #eff8ff;
+  color: #175cd3;
+  font-size: 8.5px;
+}
+
+.commercial-kpi-grid,
+.commercial-detail-kpis {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 14px;
+}
+
+.commercial-money-kpi {
+  font-size: 18px;
+}
+
+.commercial-signal-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 9px;
+}
+
+.commercial-signal-grid article {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.commercial-signal-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.commercial-signal-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 14px;
+}
+
+.commercial-toolbar {
+  display: grid;
+  grid-template-columns:
+    minmax(220px, 1fr)
+    180px;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.commercial-toolbar input,
+.commercial-toolbar select,
+.commercial-status-filter {
+  min-height: 36px;
+  padding: 0 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8px;
+}
+
+.commercial-count {
+  color: var(--text-tertiary);
+  font-size: 8px;
+}
+
+.commercial-renewal,
+.commercial-governance-status,
+.commercial-obligation-status,
+.commercial-severity {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.commercial-renewal--upcoming {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.commercial-renewal--under-review {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.commercial-renewal--renew {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.commercial-renewal--renegotiate {
+  background: #f4f3ff;
+  color: #5925dc;
+}
+
+.commercial-renewal--terminate {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.commercial-renewal--completed {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.commercial-governance-status--active {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.commercial-governance-status--inactive {
+  background: #f2f4f7;
+  color: #667085;
+}
+
+.commercial-overdue,
+.commercial-leakage-value {
+  color: #b42318;
+  font-weight: 700;
+}
+
+.commercial-finding-list,
+.commercial-detail-finding-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.commercial-finding,
+.commercial-detail-finding {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.commercial-finding--critical,
+.commercial-detail-finding--critical {
+  border-left: 3px solid #d92d20;
+}
+
+.commercial-finding--high,
+.commercial-detail-finding--high {
+  border-left: 3px solid #f04438;
+}
+
+.commercial-finding--medium,
+.commercial-detail-finding--medium {
+  border-left: 3px solid #f79009;
+}
+
+.commercial-finding--low,
+.commercial-detail-finding--low {
+  border-left: 3px solid #2e90fa;
+}
+
+.commercial-finding-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.commercial-finding-heading > div:first-child > strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 8.5px;
+}
+
+.commercial-finding-heading > div:first-child > small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.commercial-finding-heading > div:last-child {
+  text-align: right;
+}
+
+.commercial-finding-heading > div:last-child > span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.commercial-finding-heading > div:last-child > strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+}
+
+.commercial-severity--critical {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.commercial-severity--high {
+  background: #fff6ed;
+  color: #c4320a;
+}
+
+.commercial-severity--medium {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.commercial-severity--low {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.commercial-finding p,
+.commercial-detail-finding p {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font-size: 7.5px;
+  line-height: 1.45;
+}
+
+.commercial-finding-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.commercial-empty {
+  padding: 26px;
+  color: var(--text-tertiary);
+  font-size: 8.5px;
+  text-align: center;
+}
+
+.commercial-create-layout {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.25fr)
+    minmax(290px, 0.75fr);
+  gap: 15px;
+  align-items: start;
+}
+
+.commercial-form-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 13px;
+}
+
+.commercial-form-wide {
+  grid-column: 1 / -1;
+}
+
+.commercial-auto-renew,
+.commercial-critical-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.commercial-auto-renew input,
+.commercial-critical-option input {
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+}
+
+.commercial-auto-renew strong {
+  display: block;
+  font-size: 8px;
+}
+
+.commercial-auto-renew span,
+.commercial-critical-option span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7.5px;
+}
+
+.commercial-auto-renew div > span {
+  margin-top: 3px;
+}
+
+.commercial-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.commercial-contract-preview {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+}
+
+.commercial-contract-preview > div {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.commercial-contract-preview span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.commercial-contract-preview strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8.5px;
+}
+
+.commercial-contract-preview small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.commercial-contract-id {
+  overflow-wrap: anywhere;
+}
+
+.commercial-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.commercial-detail-heading h1 {
+  margin: 7px 0 6px;
+  font-size: 28px;
+  letter-spacing: -0.035em;
+}
+
+.commercial-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+
+.commercial-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.commercial-detail-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 15px;
+}
+
+.commercial-control-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+}
+
+.commercial-control-grid > div {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.commercial-control-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.commercial-control-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+}
+
+.commercial-notes {
+  margin-top: 9px;
+  padding: 9px;
+  border-radius: 7px;
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.commercial-renewal-decision {
+  padding: 10px;
+  border: 1px solid #b2ddff;
+  border-radius: 8px;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.commercial-renewal-decision span {
+  display: block;
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.commercial-renewal-decision strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 8.5px;
+  line-height: 1.45;
+}
+
+.commercial-renewal-decision small {
+  display: block;
+  margin-top: 4px;
+  font-size: 7px;
+}
+
+.commercial-renewal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 11px;
+}
+
+.commercial-obligation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.commercial-obligation {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.commercial-obligation--overdue {
+  border-left: 3px solid #d92d20;
+}
+
+.commercial-obligation--critical {
+  border-left: 3px solid #f79009;
+}
+
+.commercial-obligation-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.commercial-obligation-heading > div:first-child > strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 8.5px;
+}
+
+.commercial-obligation-heading > div:first-child > small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.commercial-obligation-heading > div:last-child {
+  text-align: right;
+}
+
+.commercial-obligation-heading > div:last-child span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.commercial-obligation-heading > div:last-child strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px;
+}
+
+.commercial-obligation-status--open {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.commercial-obligation-status--completed {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.commercial-obligation-status--waived {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.commercial-obligation > p {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font-size: 7.5px;
+  line-height: 1.45;
+}
+
+.commercial-obligation-meta {
+  margin-top: 7px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.commercial-completion-note {
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  background: white;
+  color: var(--text-secondary);
+  font-size: 7.5px;
+}
+
+.commercial-inline-controls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.commercial-inline-controls input {
+  flex: 1;
+  min-width: 180px;
+  height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  font-size: 8px;
+}
+
+.commercial-inline-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  color: var(--primary);
+  font-size: 7.5px;
+  font-weight: 700;
+}
+
+.commercial-inline-button:disabled {
+  opacity: 0.5;
+}
+
+.commercial-inline-button--danger {
+  color: #b42318;
+}
+
+.commercial-finding-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 7px;
+}
+
+.commercial-finding-values span {
+  padding: 4px 6px;
+  border-radius: 5px;
+  background: white;
+  color: var(--text-secondary);
+  font-size: 7px;
+}
+
+@media (
+  max-width: 1120px
+) {
+  .commercial-kpi-grid,
+  .commercial-detail-kpis,
+  .commercial-signal-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .commercial-create-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (
+  max-width: 900px
+) {
+  .commercial-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .commercial-toolbar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (
+  max-width: 680px
+) {
+  .commercial-heading-actions,
+  .commercial-detail-actions,
+  .commercial-detail-heading,
+  .commercial-obligation-heading,
+  .commercial-finding-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .commercial-kpi-grid,
+  .commercial-detail-kpis,
+  .commercial-signal-grid,
+  .commercial-form-grid,
+  .commercial-contract-preview,
+  .commercial-control-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .commercial-form-wide {
+    grid-column: auto;
+  }
+
+  .commercial-obligation-heading > div:last-child,
+  .commercial-finding-heading > div:last-child {
+    text-align: left;
+  }
+
+  .commercial-inline-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .commercial-inline-controls input {
+    width: 100%;
+  }
+
+  .commercial-finding-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
