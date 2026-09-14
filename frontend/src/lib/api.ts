@@ -776,3 +776,62 @@ export async function cancelPurchaseOrder(
     },
   );
 }
+
+export async function getDeliverySummary(): Promise<
+  import("@/types/delivery").DeliverySummary
+> {
+  return request<
+    import("@/types/delivery").DeliverySummary
+  >(
+    "/deliveries/summary",
+  );
+}
+
+export async function getPurchaseOrderReceiving(
+  purchaseOrderId: string,
+): Promise<import("@/types/delivery").PurchaseOrderReceiving> {
+  return request<
+    import("@/types/delivery").PurchaseOrderReceiving
+  >(
+    `/purchase-orders/${purchaseOrderId}/receiving`,
+  );
+}
+
+export async function getGoodsReceipts(
+  purchaseOrderId: string,
+): Promise<import("@/types/delivery").GoodsReceipt[]> {
+  return request<
+    import("@/types/delivery").GoodsReceipt[]
+  >(
+    `/purchase-orders/${purchaseOrderId}/receipts`,
+  );
+}
+
+export async function createGoodsReceipt(
+  purchaseOrderId: string,
+  input: import("@/types/delivery").GoodsReceiptInput,
+): Promise<import("@/types/delivery").GoodsReceipt> {
+  return request<
+    import("@/types/delivery").GoodsReceipt
+  >(
+    `/purchase-orders/${purchaseOrderId}/receipts`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getSupplierDeliveryPerformance(
+  supplierId: string,
+): Promise<
+  import("@/types/delivery").SupplierDeliveryPerformance
+> {
+  return request<
+    import("@/types/delivery").SupplierDeliveryPerformance
+  >(
+    `/suppliers/${supplierId}/delivery-performance`,
+  );
+}

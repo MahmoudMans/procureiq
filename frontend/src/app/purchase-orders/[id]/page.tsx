@@ -8,7 +8,6 @@ import {
   CircleAlert,
   FileText,
   PackageCheck,
-  PackageOpen,
   ReceiptText,
 } from "lucide-react";
 
@@ -23,6 +22,10 @@ import {
 import {
   useParams,
 } from "next/navigation";
+
+import {
+  DeliveryWorkspace,
+} from "@/components/deliveries/delivery-workspace";
 
 import {
   cancelPurchaseOrder,
@@ -919,6 +922,22 @@ export default function PurchaseOrderDetailPage() {
           </div>
         </div>
       </section>
+
+      {(
+        order.status ===
+          "ISSUED" ||
+        order.status ===
+          "PARTIALLY_RECEIVED" ||
+        order.status ===
+          "RECEIVED"
+      ) ? (
+        <DeliveryWorkspace
+          order={order}
+          onOrderUpdated={
+            setOrder
+          }
+        />
+      ) : null}
 
       {order.status ===
         "DRAFT" ? (

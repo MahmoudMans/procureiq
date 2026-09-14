@@ -1,6 +1,8 @@
 export type PurchaseOrderStatus =
   | "DRAFT"
   | "ISSUED"
+  | "PARTIALLY_RECEIVED"
+  | "RECEIVED"
   | "CANCELLED";
 
 export interface PurchaseOrderLine {

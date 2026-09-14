@@ -11,6 +11,7 @@ import {
   PackageOpen,
   Settings,
   ShoppingCart,
+  Truck,
   Users,
 } from "lucide-react";
 
@@ -49,6 +50,11 @@ const coreNavigation = [
     href: "/purchase-orders",
     label: "Purchase orders",
     icon: PackageOpen,
+  },
+  {
+    href: "/deliveries",
+    label: "Deliveries",
+    icon: Truck,
   },
   {
     href: "/approvals",
@@ -142,7 +148,9 @@ export function Sidebar() {
           item.href ===
             "/rfqs" ||
           item.href ===
-            "/purchase-orders"
+            "/purchase-orders" ||
+          item.href ===
+            "/deliveries"
         ) {
           return canViewSourcing;
         }

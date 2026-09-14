@@ -6286,3 +6286,557 @@ a {
     min-width: 0;
   }
 }
+
+/* ====================================================================== */
+/* STEP 9 — DELIVERY TRACKING                                             */
+/* ====================================================================== */
+
+.po-status--partially_received {
+  background:
+    #fffaeb;
+
+  color:
+    #b54708;
+}
+
+.po-status--received {
+  background:
+    #ecfdf3;
+
+  color:
+    #027a48;
+}
+
+.delivery-kpi-grid,
+.delivery-performance-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 14px;
+}
+
+.delivery-performance-grid {
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+}
+
+.delivery-workspace {
+  overflow: hidden;
+}
+
+.delivery-loading,
+.delivery-empty {
+  padding: 28px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 10px;
+
+  text-align: center;
+}
+
+.delivery-progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-bottom: 8px;
+}
+
+.delivery-progress-head span {
+  display: block;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8.5px;
+}
+
+.delivery-progress-head strong {
+  display: block;
+
+  margin-top: 3px;
+
+  font-size: 14px;
+}
+
+.delivery-overdue {
+  display: inline-flex !important;
+  align-items: center;
+
+  gap: 5px;
+
+  padding:
+    5px 8px;
+
+  border-radius: 99px;
+
+  background:
+    #fef3f2;
+
+  color:
+    #b42318 !important;
+
+  font-weight: 700;
+}
+
+.delivery-progress-track {
+  height: 8px;
+
+  overflow: hidden;
+
+  border-radius: 99px;
+
+  background:
+    var(--surface-muted);
+}
+
+.delivery-progress-value {
+  height: 100%;
+
+  border-radius: inherit;
+
+  background:
+    currentColor;
+
+  color:
+    var(--primary);
+}
+
+.delivery-line-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+
+  margin-top: 18px;
+}
+
+.delivery-line-card {
+  display: grid;
+
+  grid-template-columns:
+    minmax(
+      180px,
+      1fr
+    )
+    repeat(
+      3,
+      105px
+    )
+    minmax(
+      120px,
+      0.45fr
+    );
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 12px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 8px;
+
+  background:
+    var(--surface-soft);
+}
+
+.delivery-line-card span {
+  display: block;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8px;
+}
+
+.delivery-line-card strong {
+  display: block;
+
+  margin-top: 3px;
+
+  font-size: 9.5px;
+}
+
+.delivery-line-progress {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color:
+    var(--success);
+}
+
+.delivery-line-progress > div {
+  flex: 1;
+
+  height: 5px;
+
+  overflow: hidden;
+
+  border-radius: 99px;
+
+  background:
+    var(--border);
+}
+
+.delivery-line-progress > div > div {
+  height: 100%;
+
+  background:
+    currentColor;
+
+  color:
+    var(--success);
+}
+
+.delivery-receipt-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.delivery-receipt-card {
+  display: grid;
+
+  grid-template-columns:
+    38px
+    minmax(
+      0,
+      1fr
+    )
+    auto
+    auto;
+
+  align-items: center;
+
+  gap: 11px;
+
+  padding: 12px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 8px;
+
+  background: white;
+}
+
+.delivery-receipt-card--late {
+  border-color:
+    #fecdca;
+}
+
+.delivery-receipt-card__icon {
+  width: 35px;
+  height: 35px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 8px;
+
+  background:
+    var(--primary-soft);
+
+  color:
+    var(--primary);
+}
+
+.delivery-receipt-card__main strong {
+  display: block;
+
+  font-size: 10px;
+}
+
+.delivery-receipt-card__main span,
+.delivery-receipt-card__main small {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8.5px;
+}
+
+.delivery-receipt-card__lines {
+  color:
+    var(--text-secondary);
+
+  font-size: 9px;
+}
+
+.delivery-late-badge,
+.delivery-ontime-badge {
+  padding:
+    4px 7px;
+
+  border-radius: 99px;
+
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.delivery-late-badge {
+  background:
+    #fef3f2;
+
+  color:
+    #b42318;
+}
+
+.delivery-ontime-badge {
+  background:
+    #ecfdf3;
+
+  color:
+    #027a48;
+}
+
+.delivery-dialog {
+  width:
+    min(
+      820px,
+      100%
+    );
+}
+
+.delivery-receipt-form {
+  padding:
+    20px 24px 24px;
+}
+
+.delivery-receipt-meta {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 12px;
+
+  margin-bottom: 17px;
+}
+
+.delivery-receipt-lines {
+  overflow: hidden;
+
+  margin-bottom: 17px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 9px;
+}
+
+.delivery-receipt-lines__header,
+.delivery-receipt-lines__row {
+  display: grid;
+
+  grid-template-columns:
+    minmax(
+      200px,
+      1fr
+    )
+    120px
+    140px;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+.delivery-receipt-lines__header {
+  padding:
+    9px 12px;
+
+  background:
+    var(--surface-muted);
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8px;
+  font-weight: 700;
+
+  text-transform:
+    uppercase;
+}
+
+.delivery-receipt-lines__row {
+  padding:
+    10px 12px;
+
+  border-top:
+    1px solid
+    var(--border);
+}
+
+.delivery-receipt-lines__row strong {
+  display: block;
+
+  font-size: 9.5px;
+}
+
+.delivery-receipt-lines__row span {
+  display: block;
+
+  margin-top: 2px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8.5px;
+}
+
+.delivery-receipt-lines__row input {
+  width: 100%;
+  height: 34px;
+
+  padding:
+    0 8px;
+
+  border:
+    1px solid
+    var(--border-strong);
+
+  border-radius: 7px;
+}
+
+.delivery-list-panel {
+  padding: 0;
+
+  overflow: hidden;
+}
+
+.delivery-table th:first-child,
+.delivery-table td:first-child {
+  padding-left: 18px;
+}
+
+.delivery-table th:last-child,
+.delivery-table td:last-child {
+  padding-right: 18px;
+}
+
+.delivery-date-cell span {
+  display: block;
+}
+
+.delivery-date-cell small {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--danger);
+
+  font-size: 8px;
+  font-weight: 700;
+}
+
+@media (
+  max-width: 1100px
+) {
+  .delivery-kpi-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .delivery-performance-grid {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      );
+  }
+
+  .delivery-line-card {
+    grid-template-columns:
+      minmax(
+        180px,
+        1fr
+      )
+      repeat(
+        2,
+        100px
+      );
+
+    row-gap: 10px;
+  }
+
+  .delivery-line-progress {
+    grid-column:
+      2 / -1;
+  }
+}
+
+@media (
+  max-width: 720px
+) {
+  .delivery-kpi-grid,
+  .delivery-performance-grid,
+  .delivery-receipt-meta {
+    grid-template-columns:
+      1fr;
+  }
+
+  .delivery-line-card {
+    display: flex;
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .delivery-line-progress {
+    width: 100%;
+  }
+
+  .delivery-receipt-card {
+    grid-template-columns:
+      38px
+      minmax(0, 1fr);
+  }
+
+  .delivery-receipt-card__lines,
+  .delivery-late-badge,
+  .delivery-ontime-badge {
+    grid-column:
+      2;
+  }
+
+  .delivery-receipt-lines {
+    overflow-x: auto;
+  }
+
+  .delivery-receipt-lines__header,
+  .delivery-receipt-lines__row {
+    min-width: 600px;
+  }
+}

@@ -22,6 +22,11 @@ public interface PurchaseOrderRepository
             UUID rfqId
     );
 
+    List<PurchaseOrderEntity>
+    findAllBySupplier_Id(
+            UUID supplierId
+    );
+
     @Query("""
             select purchaseOrder
             from PurchaseOrderEntity purchaseOrder
