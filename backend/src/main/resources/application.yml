@@ -31,3 +31,11 @@ management:
   endpoint:
     health:
       show-details: always
+
+app:
+  security:
+    jwt:
+      issuer: ${PROCUREIQ_JWT_ISSUER:procureiq}
+      secret: ${PROCUREIQ_JWT_SECRET:procureiq-local-development-signing-key-2026-change-before-deployment}
+      access-token-minutes: ${PROCUREIQ_ACCESS_TOKEN_MINUTES:480}
+    demo-password: ${PROCUREIQ_DEMO_PASSWORD:ProcureIQ!Demo2026}

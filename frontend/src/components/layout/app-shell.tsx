@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Bell,
   Search,
@@ -8,6 +10,19 @@ import type {
 } from "react";
 
 import {
+  useEffect,
+} from "react";
+
+import {
+  usePathname,
+  useRouter,
+} from "next/navigation";
+
+import {
+  useAuth,
+} from "@/components/auth/auth-provider";
+
+import {
   Sidebar,
 } from "@/components/layout/sidebar";
 
@@ -15,9 +30,86 @@ interface AppShellProps {
   children: ReactNode;
 }
 
+function initials(
+  name: string,
+): string {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(
+      part => part[0],
+    )
+    .join("")
+    .toUpperCase();
+}
+
 export function AppShell({
   children,
 }: AppShellProps) {
+  const pathname =
+    usePathname();
+
+  const router =
+    useRouter();
+
+  const {
+    user,
+    loading,
+  } = useAuth();
+
+  const loginRoute =
+    pathname === "/login";
+
+  useEffect(() => {
+    if (
+      !loginRoute &&
+      !loading &&
+      !user
+    ) {
+      router.replace(
+        "/login",
+      );
+    }
+  }, [
+    loginRoute,
+    loading,
+    user,
+    router,
+  ]);
+
+  if (loginRoute) {
+    return <>{children}</>;
+  }
+
+  if (
+    loading ||
+    !user
+  ) {
+    return (
+      <div
+        className={
+          "application-loading"
+        }
+      >
+        <div
+          className={
+            "application-loading__mark"
+          }
+        >
+          PI
+        </div>
+
+        <strong>
+          ProcureIQ
+        </strong>
+
+        <span>
+          Securing workspace...
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className="application-shell">
@@ -51,21 +143,35 @@ export function AppShell({
               aria-label="Notifications"
             >
               <Bell size={19} />
-              <span className="notification-dot" />
+              <span
+                className={
+                  "notification-dot"
+                }
+              />
             </button>
 
             <div className="user-chip">
 
-              <div className="user-chip__avatar">
-                MM
+              <div
+                className={
+                  "user-chip__avatar"
+                }
+              >
+                {initials(
+                  user.fullName,
+                )}
               </div>
 
               <div>
                 <strong>
-                  Procurement Manager
+                  {user.fullName}
                 </strong>
+
                 <span>
-                  Strategic sourcing
+                  {
+                    user
+                      .departmentName
+                  }
                 </span>
               </div>
 

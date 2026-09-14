@@ -17,6 +17,10 @@ import {
 } from "react";
 
 import {
+  useAuth,
+} from "@/components/auth/auth-provider";
+
+import {
   createSupplier,
   getSuppliers,
 } from "@/lib/api";
@@ -54,6 +58,18 @@ CreateSupplierInput = {
 };
 
 export default function SuppliersPage() {
+
+  const {
+    user,
+  } = useAuth();
+
+  const canManageSuppliers =
+    user !== null &&
+    [
+      "ADMIN",
+      "PROCUREMENT_MANAGER",
+      "BUYER",
+    ].includes(user.role);
 
   const [
     suppliers,
@@ -202,18 +218,20 @@ export default function SuppliersPage() {
           </p>
         </div>
 
-        <button
-          className={
-            "button button--primary"
-          }
-          onClick={
-            () =>
-              setDialogOpen(true)
-          }
-        >
-          <Plus size={17} />
-          Add supplier
-        </button>
+        {canManageSuppliers ? (
+          <button
+            className={
+              "button button--primary"
+            }
+            onClick={
+              () =>
+                setDialogOpen(true)
+            }
+          >
+            <Plus size={17} />
+            Add supplier
+          </button>
+        ) : null}
 
       </section>
 

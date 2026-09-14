@@ -1,3 +1,14 @@
+import {
+  clearAccessToken,
+  getAccessToken,
+} from "@/lib/auth-storage";
+
+import type {
+  AuthUser,
+  Department,
+  LoginResponse,
+} from "@/types/auth";
+
 import type {
   CreateSupplierInput,
   Supplier,
@@ -14,18 +25,49 @@ interface ProblemResponse {
   detail?: string;
 }
 
+interface RequestOptions extends RequestInit {
+  authenticated?: boolean;
+}
+
 async function request<T>(
   path: string,
-  options?: RequestInit,
+  options: RequestOptions = {},
 ): Promise<T> {
+  const {
+    authenticated = true,
+    ...fetchOptions
+  } = options;
+
+  const headers = new Headers(
+    fetchOptions.headers,
+  );
+
+  if (
+    fetchOptions.body &&
+    !headers.has("Content-Type")
+  ) {
+    headers.set(
+      "Content-Type",
+      "application/json",
+    );
+  }
+
+  if (authenticated) {
+    const token = getAccessToken();
+
+    if (token) {
+      headers.set(
+        "Authorization",
+        `Bearer ${token}`,
+      );
+    }
+  }
+
   const response = await fetch(
     `${API_BASE_URL}${path}`,
     {
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-      },
+      ...fetchOptions,
+      headers,
     },
   );
 
@@ -42,7 +84,22 @@ async function request<T>(
         problem.title ??
         message;
     } catch {
-      // Keep default message.
+      // Preserve the default HTTP status message.
+    }
+
+    if (
+      response.status === 401 &&
+      authenticated
+    ) {
+      clearAccessToken();
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new Event(
+            "procureiq:unauthorized",
+          ),
+        );
+      }
     }
 
     throw new Error(message);
@@ -55,10 +112,44 @@ async function request<T>(
   return (await response.json()) as T;
 }
 
+export async function login(
+  email: string,
+  password: string,
+): Promise<LoginResponse> {
+  return request<LoginResponse>(
+    "/auth/login",
+    {
+      method: "POST",
+      authenticated: false,
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    },
+  );
+}
+
+export async function getCurrentUser(): Promise<AuthUser> {
+  return request<AuthUser>(
+    "/auth/me",
+  );
+}
+
+export async function getUsers(): Promise<AuthUser[]> {
+  return request<AuthUser[]>(
+    "/users",
+  );
+}
+
+export async function getDepartments(): Promise<Department[]> {
+  return request<Department[]>(
+    "/departments",
+  );
+}
+
 export async function getSuppliers(
   filters: SupplierFilters = {},
 ): Promise<Supplier[]> {
-
   const params =
     new URLSearchParams();
 
@@ -95,9 +186,7 @@ export async function getSuppliers(
   );
 }
 
-export async function getSupplierSummary():
-Promise<SupplierSummary> {
-
+export async function getSupplierSummary(): Promise<SupplierSummary> {
   return request<SupplierSummary>(
     "/suppliers/summary",
   );
@@ -106,7 +195,6 @@ Promise<SupplierSummary> {
 export async function createSupplier(
   input: CreateSupplierInput,
 ): Promise<Supplier> {
-
   return request<Supplier>(
     "/suppliers",
     {

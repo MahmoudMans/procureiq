@@ -2,6 +2,7 @@ package com.procureiq.supplier;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,11 +26,13 @@ public class SupplierController {
     public SupplierController(
             SupplierService supplierService
     ) {
-        this.supplierService = supplierService;
+        this.supplierService =
+                supplierService;
     }
 
     @GetMapping
-    public List<SupplierResponse> findSuppliers(
+    public List<SupplierResponse>
+    findSuppliers(
             @RequestParam(required = false)
             String query,
 
@@ -39,39 +42,58 @@ public class SupplierController {
             @RequestParam(required = false)
             SupplierRiskLevel riskLevel
     ) {
-        return supplierService.findSuppliers(
-                query,
-                status,
-                riskLevel
-        );
+        return supplierService
+                .findSuppliers(
+                        query,
+                        status,
+                        riskLevel
+                );
     }
 
     @GetMapping("/summary")
-    public SupplierSummaryResponse getSummary() {
-        return supplierService.getSummary();
+    public SupplierSummaryResponse
+    getSummary() {
+        return supplierService
+                .getSummary();
     }
 
     @GetMapping("/{id}")
-    public SupplierResponse findSupplier(
-            @PathVariable UUID id
+    public SupplierResponse
+    findSupplier(
+            @PathVariable
+            UUID id
     ) {
-        return supplierService.findSupplier(id);
+        return supplierService
+                .findSupplier(id);
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public SupplierResponse createSupplier(
+    @ResponseStatus(
+            HttpStatus.CREATED
+    )
+    @PreAuthorize(
+            "hasAnyRole('ADMIN','PROCUREMENT_MANAGER','BUYER')"
+    )
+    public SupplierResponse
+    createSupplier(
             @Valid
             @RequestBody
             SupplierCreateRequest request
     ) {
         return supplierService
-                .createSupplier(request);
+                .createSupplier(
+                        request
+                );
     }
 
     @PutMapping("/{id}")
-    public SupplierResponse updateSupplier(
-            @PathVariable UUID id,
+    @PreAuthorize(
+            "hasAnyRole('ADMIN','PROCUREMENT_MANAGER','BUYER')"
+    )
+    public SupplierResponse
+    updateSupplier(
+            @PathVariable
+            UUID id,
 
             @Valid
             @RequestBody
@@ -85,10 +107,17 @@ public class SupplierController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(
+            HttpStatus.NO_CONTENT
+    )
+    @PreAuthorize(
+            "hasAnyRole('ADMIN','PROCUREMENT_MANAGER')"
+    )
     public void archiveSupplier(
-            @PathVariable UUID id
+            @PathVariable
+            UUID id
     ) {
-        supplierService.archiveSupplier(id);
+        supplierService
+                .archiveSupplier(id);
     }
 }

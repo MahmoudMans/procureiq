@@ -10,6 +10,10 @@ import {
   AppShell,
 } from "@/components/layout/app-shell";
 
+import {
+  AuthProvider,
+} from "@/components/auth/auth-provider";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -25,13 +29,14 @@ export default function RootLayout({
 }: Readonly<{
   children: ReactNode;
 }>) {
-
   return (
     <html lang="en">
       <body>
-        <AppShell>
-          {children}
-        </AppShell>
+        <AuthProvider>
+          <AppShell>
+            {children}
+          </AppShell>
+        </AuthProvider>
       </body>
     </html>
   );
