@@ -16,6 +16,7 @@ import {
   Truck,
   Users,
   FileCheck2,
+  ShieldAlert,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -42,7 +43,12 @@ const coreNavigation = [
     href: "/contracts",
     label: "Contracts & compliance",
     icon: FileCheck2,
+  },  {
+    href: "/risks",
+    label: "Risk register",
+    icon: ShieldAlert,
   },
+
 
   {
     href: "/purchase-requests",
@@ -186,7 +192,9 @@ export function Sidebar() {
           item.href ===
             "/analytics" ||
           item.href ===
-            "/reports"
+            "/reports" ||
+          item.href ===
+            "/risks"
         ) {
           return canViewAnalytics;
         }

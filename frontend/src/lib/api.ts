@@ -1217,3 +1217,220 @@ export async function createComplianceDocument(
     },
   );
 }
+
+export async function getRiskCases(
+  query?: string,
+  status?: import("@/types/risk").RiskCaseStatus,
+  severity?: import("@/types/risk").RiskSeverity,
+  category?: import("@/types/risk").RiskCategory,
+): Promise<import("@/types/risk").RiskCase[]> {
+  const params =
+    new URLSearchParams();
+
+  if (query?.trim()) {
+    params.set(
+      "query",
+      query.trim(),
+    );
+  }
+
+  if (status) {
+    params.set(
+      "status",
+      status,
+    );
+  }
+
+  if (severity) {
+    params.set(
+      "severity",
+      severity,
+    );
+  }
+
+  if (category) {
+    params.set(
+      "category",
+      category,
+    );
+  }
+
+  const queryString =
+    params.toString();
+
+  return request<
+    import("@/types/risk").RiskCase[]
+  >(
+    `/risks${
+      queryString
+        ? `?${queryString}`
+        : ""
+    }`,
+  );
+}
+
+export async function getRiskSummary(): Promise<
+  import("@/types/risk").RiskSummary
+> {
+  return request<
+    import("@/types/risk").RiskSummary
+  >(
+    "/risks/summary",
+  );
+}
+
+export async function getRiskContextOptions(): Promise<
+  import("@/types/risk").RiskContextOptions
+> {
+  return request<
+    import("@/types/risk").RiskContextOptions
+  >(
+    "/risks/context-options",
+  );
+}
+
+export async function getRiskCase(
+  riskId: string,
+): Promise<import("@/types/risk").RiskCase> {
+  return request<
+    import("@/types/risk").RiskCase
+  >(
+    `/risks/${riskId}`,
+  );
+}
+
+export async function createRiskCase(
+  input: import("@/types/risk").RiskCaseCreateInput,
+): Promise<import("@/types/risk").RiskCase> {
+  return request<
+    import("@/types/risk").RiskCase
+  >(
+    "/risks",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function updateRiskCase(
+  riskId: string,
+  input: import("@/types/risk").RiskCaseUpdateInput,
+): Promise<import("@/types/risk").RiskCase> {
+  return request<
+    import("@/types/risk").RiskCase
+  >(
+    `/risks/${riskId}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startRiskMitigation(
+  riskId: string,
+): Promise<import("@/types/risk").RiskCase> {
+  return request<
+    import("@/types/risk").RiskCase
+  >(
+    `/risks/${riskId}/start-mitigation`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function escalateRiskCase(
+  riskId: string,
+): Promise<import("@/types/risk").RiskCase> {
+  return request<
+    import("@/types/risk").RiskCase
+  >(
+    `/risks/${riskId}/escalate`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function resolveRiskCase(
+  riskId: string,
+  note: string,
+): Promise<import("@/types/risk").RiskCase> {
+  return request<
+    import("@/types/risk").RiskCase
+  >(
+    `/risks/${riskId}/resolve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function acceptRiskCase(
+  riskId: string,
+  note: string,
+): Promise<import("@/types/risk").RiskCase> {
+  return request<
+    import("@/types/risk").RiskCase
+  >(
+    `/risks/${riskId}/accept`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function addRiskMitigationAction(
+  riskId: string,
+  input: import("@/types/risk").RiskMitigationActionInput,
+): Promise<import("@/types/risk").RiskMitigationAction> {
+  return request<
+    import("@/types/risk").RiskMitigationAction
+  >(
+    `/risks/${riskId}/mitigation-actions`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function completeRiskMitigationAction(
+  actionId: string,
+): Promise<import("@/types/risk").RiskMitigationAction> {
+  return request<
+    import("@/types/risk").RiskMitigationAction
+  >(
+    `/risks/mitigation-actions/${actionId}/complete`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function refreshSystemRiskExceptions(): Promise<
+  import("@/types/risk").SystemRiskRefreshResult
+> {
+  return request<
+    import("@/types/risk").SystemRiskRefreshResult
+  >(
+    "/risks/refresh-system-exceptions",
+    {
+      method: "POST",
+    },
+  );
+}
