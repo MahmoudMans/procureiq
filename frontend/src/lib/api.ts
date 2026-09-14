@@ -5964,3 +5964,235 @@ export async function cancelSupplierRiskEscalation(
     },
   );
 }
+
+export async function getCategoryManagementDashboard(
+  currency = "EUR",
+): Promise<
+  import("@/types/category-management").CategoryManagementDashboard
+> {
+  return request<
+    import("@/types/category-management").CategoryManagementDashboard
+  >(
+    `/category-management?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getCategoryManagementContext(
+  currency = "EUR",
+): Promise<
+  import("@/types/category-management").CategoryContext
+> {
+  return request<
+    import("@/types/category-management").CategoryContext
+  >(
+    `/category-management/context-options?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getCategoryStrategy(
+  strategyId: string,
+): Promise<
+  import("@/types/category-management").CategoryStrategyDetail
+> {
+  return request<
+    import("@/types/category-management").CategoryStrategyDetail
+  >(
+    `/category-management/strategies/${strategyId}`,
+  );
+}
+
+export async function createCategoryStrategy(
+  input: {
+    categoryName: string;
+    currency: string;
+    fiscalYear: number;
+    ownerUserId?: string;
+    savingsTargetPct: number;
+    objectives: string;
+  },
+): Promise<
+  import("@/types/category-management").CategoryStrategyDetail
+> {
+  return request<
+    import("@/types/category-management").CategoryStrategyDetail
+  >(
+    "/category-management/strategies",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function updateCategoryStrategyStatus(
+  strategyId: string,
+  status:
+    import("@/types/category-management").CategoryStrategyStatus,
+): Promise<
+  import("@/types/category-management").CategoryStrategySummary
+> {
+  return request<
+    import("@/types/category-management").CategoryStrategySummary
+  >(
+    `/category-management/strategies/${strategyId}/status`,
+    {
+      method: "PUT",
+      body: JSON.stringify({
+        status,
+      }),
+    },
+  );
+}
+
+export async function createCategoryInitiative(
+  strategyId: string,
+  input: {
+    initiativeType:
+      import("@/types/category-management").CategoryInitiativeType;
+    title: string;
+    description?: string;
+    priority:
+      import("@/types/category-management").CategoryInitiativePriority;
+    ownerUserId?: string;
+    plannedStartDate?: string;
+    plannedEndDate?: string;
+    estimatedValue: number;
+    targetSavings: number;
+  },
+): Promise<
+  import("@/types/category-management").CategoryInitiative
+> {
+  return request<
+    import("@/types/category-management").CategoryInitiative
+  >(
+    `/category-management/strategies/${strategyId}/initiatives`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function readyCategoryInitiative(
+  initiativeId: string,
+): Promise<
+  import("@/types/category-management").CategoryInitiative
+> {
+  return request<
+    import("@/types/category-management").CategoryInitiative
+  >(
+    `/category-management/initiatives/${initiativeId}/ready`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function startCategoryInitiative(
+  initiativeId: string,
+): Promise<
+  import("@/types/category-management").CategoryInitiative
+> {
+  return request<
+    import("@/types/category-management").CategoryInitiative
+  >(
+    `/category-management/initiatives/${initiativeId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function completeCategoryInitiative(
+  initiativeId: string,
+  realizedSavings: number,
+): Promise<
+  import("@/types/category-management").CategoryInitiative
+> {
+  return request<
+    import("@/types/category-management").CategoryInitiative
+  >(
+    `/category-management/initiatives/${initiativeId}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        realizedSavings,
+      }),
+    },
+  );
+}
+
+export async function cancelCategoryInitiative(
+  initiativeId: string,
+): Promise<
+  import("@/types/category-management").CategoryInitiative
+> {
+  return request<
+    import("@/types/category-management").CategoryInitiative
+  >(
+    `/category-management/initiatives/${initiativeId}/cancel`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function createCategoryMilestone(
+  initiativeId: string,
+  input: {
+    title: string;
+    dueDate: string;
+  },
+): Promise<
+  import("@/types/category-management").CategoryMilestone
+> {
+  return request<
+    import("@/types/category-management").CategoryMilestone
+  >(
+    `/category-management/initiatives/${initiativeId}/milestones`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function completeCategoryMilestone(
+  milestoneId: string,
+  note: string,
+): Promise<
+  import("@/types/category-management").CategoryMilestone
+> {
+  return request<
+    import("@/types/category-management").CategoryMilestone
+  >(
+    `/category-management/milestones/${milestoneId}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function cancelCategoryMilestone(
+  milestoneId: string,
+): Promise<
+  import("@/types/category-management").CategoryMilestone
+> {
+  return request<
+    import("@/types/category-management").CategoryMilestone
+  >(
+    `/category-management/milestones/${milestoneId}/cancel`,
+    {
+      method: "POST",
+    },
+  );
+}

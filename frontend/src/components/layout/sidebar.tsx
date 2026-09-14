@@ -110,7 +110,12 @@ const coreNavigation = [
     href: "/demand-consolidation",
     label: "Demand consolidation",
     icon: Layers3,
+  },  {
+    href: "/category-management",
+    label: "Category management",
+    icon: Layers3,
   },
+
 
 
 
@@ -387,6 +392,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/supplier-risk-monitoring"
+          ||
+          item.href ===
+            "/category-management"
 ) {
           return canViewAnalytics;
         }
