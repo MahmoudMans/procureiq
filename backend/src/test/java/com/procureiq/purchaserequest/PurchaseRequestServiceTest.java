@@ -1,5 +1,6 @@
 package com.procureiq.purchaserequest;
 
+import com.procureiq.approval.ApprovalWorkflowService;
 import com.procureiq.organization.DepartmentEntity;
 import com.procureiq.user.AppUserEntity;
 import com.procureiq.user.AppUserRepository;
@@ -28,6 +29,9 @@ class PurchaseRequestServiceTest {
     private AppUserRepository
             appUserRepository;
 
+    private ApprovalWorkflowService
+            approvalWorkflowService;
+
     private PurchaseRequestService
             purchaseRequestService;
 
@@ -49,10 +53,16 @@ class PurchaseRequestServiceTest {
                         AppUserRepository.class
                 );
 
+        approvalWorkflowService =
+                mock(
+                        ApprovalWorkflowService.class
+                );
+
         purchaseRequestService =
                 new PurchaseRequestService(
                         purchaseRequestRepository,
-                        appUserRepository
+                        appUserRepository,
+                        approvalWorkflowService
                 );
 
         userId = UUID.randomUUID();

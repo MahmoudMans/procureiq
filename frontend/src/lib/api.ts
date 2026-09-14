@@ -4,6 +4,12 @@ import {
 } from "@/lib/auth-storage";
 
 import type {
+  ApprovalSummary,
+  ApprovalTask,
+  ApprovalTaskStatus,
+} from "@/types/approval";
+
+import type {
   AuthUser,
   Department,
   LoginResponse,
@@ -52,7 +58,9 @@ async function request<T>(
 
   if (
     fetchOptions.body &&
-    !headers.has("Content-Type")
+    !headers.has(
+      "Content-Type",
+    )
   ) {
     headers.set(
       "Content-Type",
@@ -94,7 +102,7 @@ async function request<T>(
         problem.title ??
         message;
     } catch {
-      // Keep default HTTP error message.
+      // Preserve default HTTP status message.
     }
 
     if (
@@ -115,14 +123,20 @@ async function request<T>(
       }
     }
 
-    throw new Error(message);
+    throw new Error(
+      message,
+    );
   }
 
-  if (response.status === 204) {
+  if (
+    response.status === 204
+  ) {
     return undefined as T;
   }
 
-  return (await response.json()) as T;
+  return (
+    await response.json()
+  ) as T;
 }
 
 export async function login(
@@ -166,7 +180,9 @@ export async function getSuppliers(
   const params =
     new URLSearchParams();
 
-  if (filters.query?.trim()) {
+  if (
+    filters.query?.trim()
+  ) {
     params.set(
       "query",
       filters.query.trim(),
@@ -180,7 +196,9 @@ export async function getSuppliers(
     );
   }
 
-  if (filters.riskLevel) {
+  if (
+    filters.riskLevel
+  ) {
     params.set(
       "riskLevel",
       filters.riskLevel,
@@ -225,7 +243,9 @@ export async function getPurchaseRequests(
   const params =
     new URLSearchParams();
 
-  if (filters.query?.trim()) {
+  if (
+    filters.query?.trim()
+  ) {
     params.set(
       "query",
       filters.query.trim(),
@@ -312,6 +332,75 @@ export async function cancelPurchaseRequest(
     `/purchase-requests/${id}/cancel`,
     {
       method: "POST",
+    },
+  );
+}
+
+export async function getApprovalQueue(
+  status?: ApprovalTaskStatus,
+): Promise<ApprovalTask[]> {
+  const params =
+    new URLSearchParams();
+
+  if (status) {
+    params.set(
+      "status",
+      status,
+    );
+  }
+
+  const queryString =
+    params.toString();
+
+  return request<ApprovalTask[]>(
+    `/approvals${
+      queryString
+        ? `?${queryString}`
+        : ""
+    }`,
+  );
+}
+
+export async function getApprovalSummary(): Promise<ApprovalSummary> {
+  return request<ApprovalSummary>(
+    "/approvals/summary",
+  );
+}
+
+export async function getApprovalHistory(
+  purchaseRequestId: string,
+): Promise<ApprovalTask[]> {
+  return request<ApprovalTask[]>(
+    `/approvals/by-request/${purchaseRequestId}`,
+  );
+}
+
+export async function approveTask(
+  taskId: string,
+  comment: string,
+): Promise<ApprovalTask> {
+  return request<ApprovalTask>(
+    `/approvals/${taskId}/approve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        comment,
+      }),
+    },
+  );
+}
+
+export async function rejectTask(
+  taskId: string,
+  comment: string,
+): Promise<ApprovalTask> {
+  return request<ApprovalTask>(
+    `/approvals/${taskId}/reject`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        comment,
+      }),
     },
   );
 }

@@ -26,6 +26,10 @@ import {
 } from "@/components/auth/auth-provider";
 
 import {
+  ApprovalHistory,
+} from "@/components/purchase-requests/approval-history";
+
+import {
   PurchaseRequestForm,
 } from "@/components/purchase-requests/purchase-request-form";
 
@@ -621,6 +625,12 @@ export default function PurchaseRequestDetailPage() {
           </div>
         </article>
       </section>
+
+      <ApprovalHistory
+        purchaseRequestId={
+          request.id
+        }
+      />
 
       {canEdit ? (
         <PurchaseRequestForm

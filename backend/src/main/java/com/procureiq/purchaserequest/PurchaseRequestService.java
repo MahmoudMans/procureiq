@@ -1,5 +1,6 @@
 package com.procureiq.purchaserequest;
 
+import com.procureiq.approval.ApprovalWorkflowService;
 import com.procureiq.common.exception.ResourceNotFoundException;
 import com.procureiq.user.AppUserEntity;
 import com.procureiq.user.AppUserRepository;
@@ -27,18 +28,27 @@ public class PurchaseRequestService {
     private final AppUserRepository
             appUserRepository;
 
+    private final ApprovalWorkflowService
+            approvalWorkflowService;
+
     public PurchaseRequestService(
             PurchaseRequestRepository
                     purchaseRequestRepository,
 
             AppUserRepository
-                    appUserRepository
+                    appUserRepository,
+
+            ApprovalWorkflowService
+                    approvalWorkflowService
     ) {
         this.purchaseRequestRepository =
                 purchaseRequestRepository;
 
         this.appUserRepository =
                 appUserRepository;
+
+        this.approvalWorkflowService =
+                approvalWorkflowService;
     }
 
     @Transactional(readOnly = true)
@@ -233,10 +243,14 @@ public class PurchaseRequestService {
                 Instant.now()
         );
 
-        return toResponse(
+        PurchaseRequestEntity saved =
                 purchaseRequestRepository
-                        .save(request)
-        );
+                        .save(request);
+
+        approvalWorkflowService
+                .startApproval(saved);
+
+        return toResponse(saved);
     }
 
     public PurchaseRequestResponse
@@ -280,10 +294,14 @@ public class PurchaseRequestService {
                 Instant.now()
         );
 
-        return toResponse(
+        PurchaseRequestEntity saved =
                 purchaseRequestRepository
-                        .save(request)
-        );
+                        .save(request);
+
+        approvalWorkflowService
+                .cancelPendingApproval(saved);
+
+        return toResponse(saved);
     }
 
     @Transactional(readOnly = true)

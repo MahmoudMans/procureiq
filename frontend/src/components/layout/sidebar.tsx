@@ -108,8 +108,20 @@ export function Sidebar() {
     user?.role ===
       "PROCUREMENT_MANAGER";
 
+  const canViewApprovals =
+    user?.role === "ADMIN" ||
+    user?.role ===
+      "PROCUREMENT_MANAGER" ||
+    user?.role ===
+      "APPROVER";
+
   const navigation = [
-    ...coreNavigation,
+    ...coreNavigation.filter(
+      item =>
+        item.href !==
+          "/approvals" ||
+        canViewApprovals,
+    ),
     ...(canViewTeam
       ? [
           {
