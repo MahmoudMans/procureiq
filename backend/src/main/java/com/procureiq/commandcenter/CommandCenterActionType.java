@@ -1,0 +1,14 @@
+package com.procureiq.commandcenter;
+
+public enum CommandCenterActionType {
+    PENDING_REQUEST,
+    RFQ_DEADLINE,
+    OVERDUE_PURCHASE_ORDER,
+    CONTRACT_EXPIRY,
+    COMPLIANCE_EXPIRY,
+    PROCUREMENT_RISK,
+    BUDGET_EXCEPTION,
+    PLANNING_DEMAND,
+    SAVINGS_VALIDATION,
+    SAVINGS_REALIZATION
+}

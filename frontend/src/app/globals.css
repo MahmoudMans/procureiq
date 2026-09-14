@@ -11197,3 +11197,618 @@ div:not(:first-child) strong {
     flex-direction: column;
   }
 }
+
+/* ====================================================================== */
+/* STEP 19 — PROCUREMENT OPERATIONS COMMAND CENTER                       */
+/* ====================================================================== */
+
+.command-center-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+
+  padding: 12px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 9px;
+
+  background: white;
+}
+
+.command-center-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.command-center-controls label span,
+.command-center-generated span {
+  color:
+    var(--text-tertiary);
+
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.command-center-controls select {
+  min-width: 135px;
+  height: 35px;
+
+  padding:
+    0 9px;
+
+  border:
+    1px solid
+    var(--border-strong);
+
+  border-radius: 7px;
+
+  background: white;
+}
+
+.command-center-generated {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin-left: auto;
+
+  padding:
+    8px 10px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 7px;
+
+  background:
+    var(--surface-soft);
+}
+
+.command-center-generated strong {
+  display: block;
+
+  margin-top: 2px;
+
+  font-size: 8.5px;
+}
+
+.command-center-kpis {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 14px;
+}
+
+.command-center-kpi-value {
+  font-size: 20px;
+}
+
+.command-center-domain-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      6,
+      minmax(0, 1fr)
+    );
+
+  gap: 9px;
+}
+
+.command-center-domain-card {
+  display: grid;
+  grid-template-columns:
+    auto
+    minmax(0, 1fr)
+    auto;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 10px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 8px;
+
+  background:
+    var(--surface-soft);
+}
+
+.command-center-domain-card > div {
+  width: 30px;
+  height: 30px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 7px;
+
+  background:
+    var(--primary-soft);
+
+  color:
+    var(--primary);
+}
+
+.command-center-domain-card span {
+  color:
+    var(--text-secondary);
+
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.command-center-domain-card strong {
+  font-size: 16px;
+}
+
+.command-center-main-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 15px;
+}
+
+.command-center-breakdown,
+.command-center-priority-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.command-center-breakdown > article {
+  display: grid;
+
+  grid-template-columns:
+    34px
+    minmax(0, 1fr)
+    auto;
+
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 9px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 8px;
+
+  background:
+    var(--surface-soft);
+}
+
+.command-center-breakdown-icon {
+  width: 32px;
+  height: 32px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 7px;
+
+  background: white;
+
+  color:
+    var(--primary);
+}
+
+.command-center-breakdown article >
+div:nth-child(2) strong {
+  display: block;
+
+  font-size: 9px;
+}
+
+.command-center-breakdown article >
+div:nth-child(2) span {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 7.5px;
+}
+
+.command-center-breakdown article >
+strong {
+  font-size: 14px;
+}
+
+.command-center-mini-action {
+  display: grid;
+
+  grid-template-columns:
+    34px
+    minmax(0, 1fr)
+    auto;
+
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 9px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 8px;
+
+  background:
+    var(--surface-soft);
+
+  color:
+    var(--text);
+}
+
+.command-center-mini-action--critical {
+  border-left:
+    3px solid #d92d20;
+}
+
+.command-center-mini-action--high {
+  border-left:
+    3px solid #f79009;
+}
+
+.command-center-mini-action > div {
+  width: 32px;
+  height: 32px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 7px;
+
+  background: white;
+
+  color:
+    var(--primary);
+}
+
+.command-center-mini-action section strong {
+  display: block;
+
+  font-size: 9px;
+}
+
+.command-center-mini-action section span {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 7.5px;
+}
+
+.command-center-action-count {
+  color:
+    var(--text-tertiary);
+
+  font-size: 8.5px;
+}
+
+.command-center-toolbar {
+  display: grid;
+
+  grid-template-columns:
+    minmax(240px, 1fr)
+    160px
+    210px;
+
+  gap: 8px;
+
+  margin-bottom: 12px;
+}
+
+.command-center-search {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  min-height: 36px;
+
+  padding:
+    0 10px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 7px;
+
+  background: white;
+}
+
+.command-center-search input {
+  flex: 1;
+
+  border: 0;
+  outline: 0;
+
+  background:
+    transparent;
+
+  font-size: 9px;
+}
+
+.command-center-toolbar select {
+  min-height: 36px;
+
+  padding:
+    0 8px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 7px;
+
+  background: white;
+
+  font-size: 8.5px;
+}
+
+.command-center-action-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.command-center-action {
+  display: grid;
+
+  grid-template-columns:
+    40px
+    minmax(0, 1fr);
+
+  gap: 10px;
+
+  padding: 11px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 9px;
+
+  background:
+    var(--surface-soft);
+
+  color:
+    var(--text);
+}
+
+.command-center-action:hover {
+  background: white;
+
+  border-color:
+    var(--border-strong);
+}
+
+.command-center-action--critical {
+  border-left:
+    4px solid #d92d20;
+}
+
+.command-center-action--high {
+  border-left:
+    4px solid #f79009;
+}
+
+.command-center-action--medium {
+  border-left:
+    4px solid #2e90fa;
+}
+
+.command-center-action--info {
+  border-left:
+    4px solid #98a2b3;
+}
+
+.command-center-action-icon {
+  width: 38px;
+  height: 38px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 8px;
+
+  background: white;
+
+  color:
+    var(--primary);
+}
+
+.command-center-action-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+.command-center-action-heading >
+div > span {
+  display: block;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 7px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+.command-center-action-heading >
+div > strong {
+  display: block;
+
+  margin-top: 3px;
+
+  font-size: 10px;
+}
+
+.command-center-action-content p {
+  margin:
+    6px 0 0;
+
+  color:
+    var(--text-secondary);
+
+  font-size: 8.5px;
+
+  line-height: 1.45;
+}
+
+.command-center-action-meta {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 10px;
+
+  margin-top: 7px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 7.5px;
+}
+
+.command-meta-overdue {
+  color: #b42318;
+
+  font-weight: 700;
+}
+
+.command-severity {
+  display: inline-flex;
+
+  padding:
+    4px 7px;
+
+  border-radius: 99px;
+
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.command-severity--critical {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.command-severity--high {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.command-severity--medium {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.command-severity--info {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.command-center-empty {
+  padding: 25px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 9px;
+
+  text-align: center;
+}
+
+@media (
+  max-width: 1180px
+) {
+  .command-center-kpis {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .command-center-domain-grid {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+@media (
+  max-width: 900px
+) {
+  .command-center-main-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .command-center-toolbar {
+    grid-template-columns:
+      1fr;
+  }
+}
+
+@media (
+  max-width: 680px
+) {
+  .command-center-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .command-center-generated {
+    margin-left: 0;
+  }
+
+  .command-center-kpis,
+  .command-center-domain-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .command-center-action-heading {
+    flex-direction: column;
+  }
+}

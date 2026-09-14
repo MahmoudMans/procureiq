@@ -20,6 +20,7 @@ import {
   WalletCards,
   CalendarRange,
   BadgeDollarSign,
+  PanelsTopLeft,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -93,7 +94,12 @@ const coreNavigation = [
     label: "Approvals",
     icon: ClipboardCheck,
   },
-  {
+    {
+    href: "/command-center",
+    label: "Command center",
+    icon: PanelsTopLeft,
+  },
+{
     href: "/analytics",
     label: "Analytics",
     icon: BarChart3,
@@ -221,6 +227,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/savings"
+          ||
+          item.href ===
+            "/command-center"
 ) {
           return canViewAnalytics;
         }

@@ -2151,3 +2151,25 @@ export async function discoverSavingsOpportunities(): Promise<
     },
   );
 }
+
+export async function getProcurementCommandCenter(
+  daysAhead = 60,
+  currency = "EUR",
+): Promise<
+  import("@/types/command-center").CommandCenter
+> {
+  const params =
+    new URLSearchParams({
+      daysAhead:
+        String(
+          daysAhead,
+        ),
+      currency,
+    });
+
+  return request<
+    import("@/types/command-center").CommandCenter
+  >(
+    `/command-center?${params.toString()}`,
+  );
+}
