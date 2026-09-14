@@ -41,6 +41,7 @@ import {
   Landmark,
   GaugeCircle,
   Wrench,
+  Goal,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -142,7 +143,12 @@ const coreNavigation = [
     href: "/continuous-improvement",
     label: "Continuous improvement",
     icon: Wrench,
+  },  {
+    href: "/strategic-objectives",
+    label: "Strategic objectives",
+    icon: Goal,
   },
+
 
 
 
@@ -447,6 +453,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/continuous-improvement"
+          ||
+          item.href ===
+            "/strategic-objectives"
 ) {
           return canViewAnalytics;
         }

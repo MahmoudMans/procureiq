@@ -7317,3 +7317,283 @@ export async function createImprovementCheckpoint(
     },
   );
 }
+
+export async function getStrategicOkrDashboard(
+  currency = "EUR",
+  fiscalYear = new Date().getUTCFullYear(),
+): Promise<
+  import("@/types/strategic-okr").StrategicOkrDashboard
+> {
+  return request<
+    import("@/types/strategic-okr").StrategicOkrDashboard
+  >(
+    `/strategic-okrs?currency=${encodeURIComponent(currency)}&fiscalYear=${encodeURIComponent(String(fiscalYear))}`,
+  );
+}
+
+export async function getStrategicOkrContext(
+  currency = "EUR",
+): Promise<
+  import("@/types/strategic-okr").OkrContext
+> {
+  return request<
+    import("@/types/strategic-okr").OkrContext
+  >(
+    `/strategic-okrs/context-options?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getStrategicObjective(
+  objectiveId: string,
+): Promise<
+  import("@/types/strategic-okr").StrategicObjectiveDetail
+> {
+  return request<
+    import("@/types/strategic-okr").StrategicObjectiveDetail
+  >(
+    `/strategic-okrs/objectives/${objectiveId}`,
+  );
+}
+
+export async function createStrategicObjective(
+  input: {
+    title: string;
+    description: string;
+    currency: string;
+    periodType:
+      import("@/types/strategic-okr").StrategicObjectivePeriodType;
+    fiscalYear: number;
+    quarter?: number;
+    startDate: string;
+    endDate: string;
+    ownerUserId?: string;
+  },
+): Promise<
+  import("@/types/strategic-okr").StrategicObjectiveDetail
+> {
+  return request<
+    import("@/types/strategic-okr").StrategicObjectiveDetail
+  >(
+    "/strategic-okrs/objectives",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function createStrategicKeyResult(
+  objectiveId: string,
+  input: {
+    title: string;
+    description?: string;
+    metricType:
+      import("@/types/strategic-okr").KeyResultMetricType;
+    direction:
+      import("@/types/strategic-okr").KeyResultDirection;
+    sourceType:
+      import("@/types/strategic-okr").KeyResultSourceType;
+    sourceScopeType?:
+      import("@/types/strategic-okr").OkrSourceScopeType;
+    sourceScopeKey?: string;
+    baselineValue: number;
+    targetValue: number;
+    weightPct: number;
+  },
+): Promise<
+  import("@/types/strategic-okr").KeyResult
+> {
+  return request<
+    import("@/types/strategic-okr").KeyResult
+  >(
+    `/strategic-okrs/objectives/${objectiveId}/key-results`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function refreshStrategicObjective(
+  objectiveId: string,
+): Promise<
+  import("@/types/strategic-okr").StrategicObjectiveDetail
+> {
+  return request<
+    import("@/types/strategic-okr").StrategicObjectiveDetail
+  >(
+    `/strategic-okrs/objectives/${objectiveId}/refresh`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function updateManualKeyResultActual(
+  keyResultId: string,
+  actualValue: number,
+  note: string,
+): Promise<
+  import("@/types/strategic-okr").KeyResult
+> {
+  return request<
+    import("@/types/strategic-okr").KeyResult
+  >(
+    `/strategic-okrs/key-results/${keyResultId}/manual-actual`,
+    {
+      method: "PUT",
+      body: JSON.stringify({
+        actualValue,
+        note,
+      }),
+    },
+  );
+}
+
+export async function createOkrContribution(
+  keyResultId: string,
+  input: {
+    improvementInitiativeId: string;
+    contributionWeightPct: number;
+    rationale: string;
+  },
+): Promise<
+  import("@/types/strategic-okr").OkrContribution
+> {
+  return request<
+    import("@/types/strategic-okr").OkrContribution
+  >(
+    `/strategic-okrs/key-results/${keyResultId}/contributions`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startStrategicObjective(
+  objectiveId: string,
+): Promise<
+  import("@/types/strategic-okr").StrategicObjectiveSummary
+> {
+  return request<
+    import("@/types/strategic-okr").StrategicObjectiveSummary
+  >(
+    `/strategic-okrs/objectives/${objectiveId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function holdStrategicObjective(
+  objectiveId: string,
+): Promise<
+  import("@/types/strategic-okr").StrategicObjectiveSummary
+> {
+  return request<
+    import("@/types/strategic-okr").StrategicObjectiveSummary
+  >(
+    `/strategic-okrs/objectives/${objectiveId}/hold`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function resumeStrategicObjective(
+  objectiveId: string,
+): Promise<
+  import("@/types/strategic-okr").StrategicObjectiveSummary
+> {
+  return request<
+    import("@/types/strategic-okr").StrategicObjectiveSummary
+  >(
+    `/strategic-okrs/objectives/${objectiveId}/resume`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function achieveStrategicObjective(
+  objectiveId: string,
+): Promise<
+  import("@/types/strategic-okr").StrategicObjectiveSummary
+> {
+  return request<
+    import("@/types/strategic-okr").StrategicObjectiveSummary
+  >(
+    `/strategic-okrs/objectives/${objectiveId}/achieve`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function closeStrategicObjective(
+  objectiveId: string,
+): Promise<
+  import("@/types/strategic-okr").StrategicObjectiveSummary
+> {
+  return request<
+    import("@/types/strategic-okr").StrategicObjectiveSummary
+  >(
+    `/strategic-okrs/objectives/${objectiveId}/close`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function cancelStrategicObjective(
+  objectiveId: string,
+  note: string,
+): Promise<
+  import("@/types/strategic-okr").StrategicObjectiveSummary
+> {
+  return request<
+    import("@/types/strategic-okr").StrategicObjectiveSummary
+  >(
+    `/strategic-okrs/objectives/${objectiveId}/cancel`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureOkrSnapshot(
+  objectiveId: string,
+): Promise<
+  import("@/types/strategic-okr").OkrSnapshotDetail
+> {
+  return request<
+    import("@/types/strategic-okr").OkrSnapshotDetail
+  >(
+    `/strategic-okrs/objectives/${objectiveId}/snapshots`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getOkrSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/strategic-okr").OkrSnapshotDetail
+> {
+  return request<
+    import("@/types/strategic-okr").OkrSnapshotDetail
+  >(
+    `/strategic-okrs/snapshots/${snapshotId}`,
+  );
+}
