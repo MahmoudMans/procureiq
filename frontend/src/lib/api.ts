@@ -7019,3 +7019,49 @@ export async function dismissControlTowerItem(
     },
   );
 }
+
+export async function getOperatingRhythmDashboard(
+  currency = "EUR",
+): Promise<
+  import("@/types/operating-rhythm").OperatingRhythmDashboard
+> {
+  return request<
+    import("@/types/operating-rhythm").OperatingRhythmDashboard
+  >(
+    `/operating-rhythm?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function captureOperatingRhythmSnapshot(
+  input: {
+    currency: string;
+    periodStart: string;
+    periodEnd: string;
+  },
+): Promise<
+  import("@/types/operating-rhythm").OperatingRhythmSnapshotDetail
+> {
+  return request<
+    import("@/types/operating-rhythm").OperatingRhythmSnapshotDetail
+  >(
+    "/operating-rhythm/snapshots",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getOperatingRhythmSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/operating-rhythm").OperatingRhythmSnapshotDetail
+> {
+  return request<
+    import("@/types/operating-rhythm").OperatingRhythmSnapshotDetail
+  >(
+    `/operating-rhythm/snapshots/${snapshotId}`,
+  );
+}

@@ -39,6 +39,7 @@ import {
   Activity,
   SlidersHorizontal,
   Landmark,
+  GaugeCircle,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -132,7 +133,12 @@ const coreNavigation = [
     href: "/control-tower",
     label: "Control tower",
     icon: Activity,
+  },  {
+    href: "/operating-rhythm",
+    label: "Operating rhythm",
+    icon: GaugeCircle,
   },
+
 
 
 
@@ -429,6 +435,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/control-tower"
+          ||
+          item.href ===
+            "/operating-rhythm"
 ) {
           return canViewAnalytics;
         }

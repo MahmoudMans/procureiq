@@ -27384,3 +27384,283 @@ div > strong {
     flex-direction: column;
   }
 }
+
+/* STEP 43 — PROCUREMENT OPERATING RHYTHM */
+
+.rhythm-currency {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rhythm-currency span {
+  color: var(--text-tertiary);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.rhythm-currency select {
+  min-width: 100px;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8px;
+}
+
+.rhythm-message {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid #b2ddff;
+  border-radius: 8px;
+  background: #eff8ff;
+  color: #175cd3;
+  font-size: 7.5px;
+}
+
+.rhythm-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.rhythm-money-kpi {
+  font-size: 17px;
+}
+
+.rhythm-risk-text {
+  color: #b42318 !important;
+  font-weight: 700;
+}
+
+.rhythm-signal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.rhythm-signal-grid article {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.rhythm-signal-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 6px;
+}
+
+.rhythm-signal-grid strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 9px;
+}
+
+.rhythm-capture-controls {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.5fr) minmax(160px, 0.5fr) auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.rhythm-analysis-grid,
+.rhythm-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 15px;
+}
+
+.rhythm-domain-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rhythm-domain-list article {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) repeat(4, 70px);
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.rhythm-domain-list article > div:first-child strong {
+  display: block;
+  font-size: 7.5px;
+}
+
+.rhythm-domain-list article > div:first-child span {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.rhythm-domain-list article > div:not(:first-child) span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.5px;
+}
+
+.rhythm-domain-list article > div:not(:first-child) strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 7px;
+}
+
+.rhythm-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #b2ddff;
+  border-radius: 8px;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.rhythm-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.rhythm-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.rhythm-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.rhythm-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.rhythm-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.rhythm-captured-card {
+  min-width: 175px;
+  padding: 10px;
+  border: 1px solid #d9d6fe;
+  border-radius: 8px;
+  background: #f4f3ff;
+  color: #5925dc;
+  text-align: right;
+}
+
+.rhythm-captured-card span {
+  display: block;
+  font-size: 6px;
+}
+
+.rhythm-captured-card strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px;
+}
+
+.rhythm-detail-kpis {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.rhythm-detail-kpis article,
+.rhythm-detail-secondary article {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.rhythm-detail-kpis span,
+.rhythm-detail-secondary span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.rhythm-detail-kpis strong,
+.rhythm-detail-secondary strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px;
+}
+
+.rhythm-detail-secondary {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 7px;
+}
+
+@media (max-width: 1150px) {
+  .rhythm-detail-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .rhythm-detail-secondary {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .rhythm-analysis-grid,
+  .rhythm-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 800px) {
+  .rhythm-kpi-grid,
+  .rhythm-signal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rhythm-domain-list article {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .rhythm-kpi-grid,
+  .rhythm-signal-grid,
+  .rhythm-capture-controls,
+  .rhythm-detail-kpis,
+  .rhythm-detail-secondary {
+    grid-template-columns: 1fr;
+  }
+
+  .rhythm-detail-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .rhythm-captured-card {
+    width: 100%;
+    text-align: left;
+  }
+
+  .rhythm-domain-list article {
+    grid-template-columns: 1fr;
+  }
+}
