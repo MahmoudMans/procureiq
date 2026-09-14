@@ -40,6 +40,7 @@ import {
   SlidersHorizontal,
   Landmark,
   GaugeCircle,
+  Wrench,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -137,7 +138,12 @@ const coreNavigation = [
     href: "/operating-rhythm",
     label: "Operating rhythm",
     icon: GaugeCircle,
+  },  {
+    href: "/continuous-improvement",
+    label: "Continuous improvement",
+    icon: Wrench,
   },
+
 
 
 
@@ -438,6 +444,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/operating-rhythm"
+          ||
+          item.href ===
+            "/continuous-improvement"
 ) {
           return canViewAnalytics;
         }

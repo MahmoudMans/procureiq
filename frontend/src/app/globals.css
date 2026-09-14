@@ -27664,3 +27664,541 @@ div > strong {
     grid-template-columns: 1fr;
   }
 }
+
+/* STEP 44 — PROCUREMENT CONTINUOUS IMPROVEMENT */
+
+.improvement-heading-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+}
+
+.improvement-currency {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.improvement-currency span {
+  color: var(--text-tertiary);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.improvement-currency select,
+.improvement-status-filter {
+  min-height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8px;
+}
+
+.improvement-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.improvement-risk-text {
+  color: #b42318 !important;
+  font-weight: 700;
+}
+
+.improvement-snapshot-authority {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+  font-size: 6.5px;
+}
+
+.improvement-snapshot-authority span,
+.improvement-snapshot-authority small {
+  color: var(--text-tertiary);
+}
+
+.improvement-opportunity-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.improvement-opportunity-grid > article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.improvement-opportunity-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.improvement-opportunity-heading > div:first-child > strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 8px;
+}
+
+.improvement-opportunity-heading small,
+.improvement-opportunity-heading > div:last-child span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.improvement-opportunity-heading > div:last-child {
+  text-align: right;
+}
+
+.improvement-opportunity-heading > div:last-child strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+}
+
+.improvement-opportunity-metrics {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.improvement-opportunity-metrics span {
+  padding: 5px;
+  border-radius: 5px;
+  background: white;
+  color: var(--text-tertiary);
+  font-size: 5.5px;
+}
+
+.improvement-opportunity-metrics strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-primary);
+  font-size: 6.5px;
+}
+
+.improvement-opportunity-grid p {
+  margin: 7px 0;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+  line-height: 1.45;
+}
+
+.improvement-priority,
+.improvement-status,
+.improvement-outcome,
+.improvement-action-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 6.2px;
+  font-weight: 700;
+}
+
+.improvement-priority--low {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.improvement-priority--medium {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.improvement-priority--high {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.improvement-priority--critical {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.improvement-status--draft,
+.improvement-action-status--planned {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.improvement-status--active,
+.improvement-action-status--in-progress {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.improvement-status--on-hold {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.improvement-status--completed,
+.improvement-action-status--completed,
+.improvement-outcome--improved {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.improvement-status--cancelled,
+.improvement-action-status--cancelled {
+  background: #f2f4f7;
+  color: #667085;
+}
+
+.improvement-outcome--mixed {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.improvement-outcome--no-change {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.improvement-outcome--regressed {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.improvement-table-sub {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.improvement-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #abefc6;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.improvement-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.improvement-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.improvement-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.improvement-form-wide {
+  grid-column: 1 / -1;
+}
+
+.improvement-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.improvement-baseline-preview {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.improvement-baseline-preview span {
+  padding: 7px;
+  border-radius: 5px;
+  background: var(--surface-soft);
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.improvement-baseline-preview strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-primary);
+  font-size: 7px;
+}
+
+.improvement-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.improvement-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.improvement-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.improvement-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.improvement-description {
+  padding: 10px;
+  border-radius: 7px;
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+  font-size: 7.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.improvement-baseline-grid,
+.improvement-target-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.improvement-baseline-grid article,
+.improvement-target-grid article {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.improvement-baseline-grid span,
+.improvement-target-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.improvement-baseline-grid strong,
+.improvement-target-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 7.5px;
+}
+
+.improvement-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.improvement-action-list,
+.improvement-checkpoint-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.improvement-action,
+.improvement-checkpoint-list > article {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.improvement-action--overdue {
+  border-left: 3px solid #d92d20;
+}
+
+.improvement-action > div:first-child strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 7.5px;
+}
+
+.improvement-action > div:first-child small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.improvement-action > p {
+  margin: 7px 0 0;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+  line-height: 1.45;
+}
+
+.improvement-action-controls {
+  display: flex;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.improvement-action-controls input,
+.improvement-checkpoint-control select,
+.improvement-cancel-control input {
+  flex: 1;
+  min-height: 31px;
+  padding: 0 7px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6.5px;
+}
+
+.improvement-action-controls button,
+.improvement-small-button,
+.improvement-danger-button {
+  min-height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  color: var(--primary);
+  font-size: 6.5px;
+  font-weight: 700;
+}
+
+.improvement-small-button {
+  margin-top: 7px;
+}
+
+.improvement-danger-button {
+  color: #b42318 !important;
+  border-color: #fecdca !important;
+}
+
+.improvement-resolution-note {
+  margin-top: 7px;
+  padding: 7px;
+  border-radius: 5px;
+  background: white;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+}
+
+.improvement-checkpoint-heading strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 8px;
+}
+
+.improvement-checkpoint-heading small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.improvement-checkpoint-metrics {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 7px;
+}
+
+.improvement-checkpoint-metrics span {
+  padding: 5px;
+  border-radius: 5px;
+  background: white;
+  color: var(--text-tertiary);
+  font-size: 5.5px;
+}
+
+.improvement-checkpoint-metrics strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-primary);
+  font-size: 6.5px;
+}
+
+.improvement-checkpoint-author {
+  display: block;
+  margin-top: 6px;
+  color: var(--text-tertiary);
+  font-size: 5.6px;
+}
+
+.improvement-checkpoint-control,
+.improvement-cancel-control {
+  display: flex;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.improvement-empty {
+  padding: 20px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  text-align: center;
+}
+
+@media (max-width: 1150px) {
+  .improvement-baseline-grid,
+  .improvement-target-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .improvement-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .improvement-opportunity-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .improvement-kpi-grid,
+  .improvement-opportunity-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .improvement-heading-actions,
+  .improvement-detail-heading,
+  .improvement-action-controls,
+  .improvement-checkpoint-control,
+  .improvement-cancel-control {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .improvement-kpi-grid,
+  .improvement-opportunity-grid,
+  .improvement-form-grid,
+  .improvement-baseline-preview,
+  .improvement-baseline-grid,
+  .improvement-target-grid,
+  .improvement-opportunity-metrics,
+  .improvement-checkpoint-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .improvement-form-wide {
+    grid-column: auto;
+  }
+
+  .improvement-checkpoint-control select,
+  .improvement-cancel-control input,
+  .improvement-action-controls input {
+    width: 100%;
+  }
+}

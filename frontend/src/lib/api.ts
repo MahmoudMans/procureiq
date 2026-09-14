@@ -7065,3 +7065,255 @@ export async function getOperatingRhythmSnapshot(
     `/operating-rhythm/snapshots/${snapshotId}`,
   );
 }
+
+export async function getContinuousImprovementDashboard(
+  currency = "EUR",
+): Promise<
+  import("@/types/continuous-improvement").ContinuousImprovementDashboard
+> {
+  return request<
+    import("@/types/continuous-improvement").ContinuousImprovementDashboard
+  >(
+    `/continuous-improvement?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getContinuousImprovementContext(
+  currency = "EUR",
+  snapshotId?: string,
+): Promise<
+  import("@/types/continuous-improvement").ImprovementContext
+> {
+  const snapshotQuery =
+    snapshotId
+      ? `&snapshotId=${encodeURIComponent(snapshotId)}`
+      : "";
+
+  return request<
+    import("@/types/continuous-improvement").ImprovementContext
+  >(
+    `/continuous-improvement/context-options?currency=${encodeURIComponent(currency)}${snapshotQuery}`,
+  );
+}
+
+export async function getImprovementInitiative(
+  initiativeId: string,
+): Promise<
+  import("@/types/continuous-improvement").ImprovementInitiativeDetail
+> {
+  return request<
+    import("@/types/continuous-improvement").ImprovementInitiativeDetail
+  >(
+    `/continuous-improvement/initiatives/${initiativeId}`,
+  );
+}
+
+export async function createImprovementInitiative(
+  input: {
+    title: string;
+    description: string;
+    sourceSnapshotId: string;
+    scopeType:
+      import("@/types/continuous-improvement").ImprovementScopeType;
+    scopeKey?: string;
+    ownerUserId?: string;
+    priority:
+      import("@/types/continuous-improvement").ImprovementPriority;
+    targetSlaAttainmentPct: number;
+    targetSlaOverdueReductionPct: number;
+    targetPersistentReductionPct: number;
+    targetResolutionHoursReductionPct: number;
+    targetExposureReductionPct: number;
+    targetDate: string;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/continuous-improvement").ImprovementInitiativeDetail
+> {
+  return request<
+    import("@/types/continuous-improvement").ImprovementInitiativeDetail
+  >(
+    "/continuous-improvement/initiatives",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startImprovementInitiative(
+  initiativeId: string,
+): Promise<
+  import("@/types/continuous-improvement").ImprovementInitiativeSummary
+> {
+  return request<
+    import("@/types/continuous-improvement").ImprovementInitiativeSummary
+  >(
+    `/continuous-improvement/initiatives/${initiativeId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function holdImprovementInitiative(
+  initiativeId: string,
+): Promise<
+  import("@/types/continuous-improvement").ImprovementInitiativeSummary
+> {
+  return request<
+    import("@/types/continuous-improvement").ImprovementInitiativeSummary
+  >(
+    `/continuous-improvement/initiatives/${initiativeId}/hold`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function resumeImprovementInitiative(
+  initiativeId: string,
+): Promise<
+  import("@/types/continuous-improvement").ImprovementInitiativeSummary
+> {
+  return request<
+    import("@/types/continuous-improvement").ImprovementInitiativeSummary
+  >(
+    `/continuous-improvement/initiatives/${initiativeId}/resume`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function completeImprovementInitiative(
+  initiativeId: string,
+): Promise<
+  import("@/types/continuous-improvement").ImprovementInitiativeSummary
+> {
+  return request<
+    import("@/types/continuous-improvement").ImprovementInitiativeSummary
+  >(
+    `/continuous-improvement/initiatives/${initiativeId}/complete`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function cancelImprovementInitiative(
+  initiativeId: string,
+  note: string,
+): Promise<
+  import("@/types/continuous-improvement").ImprovementInitiativeSummary
+> {
+  return request<
+    import("@/types/continuous-improvement").ImprovementInitiativeSummary
+  >(
+    `/continuous-improvement/initiatives/${initiativeId}/cancel`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function createImprovementAction(
+  initiativeId: string,
+  input: {
+    title: string;
+    description?: string;
+    ownerUserId?: string;
+    dueDate: string;
+  },
+): Promise<
+  import("@/types/continuous-improvement").ImprovementAction
+> {
+  return request<
+    import("@/types/continuous-improvement").ImprovementAction
+  >(
+    `/continuous-improvement/initiatives/${initiativeId}/actions`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startImprovementAction(
+  actionId: string,
+): Promise<
+  import("@/types/continuous-improvement").ImprovementAction
+> {
+  return request<
+    import("@/types/continuous-improvement").ImprovementAction
+  >(
+    `/continuous-improvement/actions/${actionId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function completeImprovementAction(
+  actionId: string,
+  note: string,
+): Promise<
+  import("@/types/continuous-improvement").ImprovementAction
+> {
+  return request<
+    import("@/types/continuous-improvement").ImprovementAction
+  >(
+    `/continuous-improvement/actions/${actionId}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function cancelImprovementAction(
+  actionId: string,
+  note: string,
+): Promise<
+  import("@/types/continuous-improvement").ImprovementAction
+> {
+  return request<
+    import("@/types/continuous-improvement").ImprovementAction
+  >(
+    `/continuous-improvement/actions/${actionId}/cancel`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function createImprovementCheckpoint(
+  initiativeId: string,
+  snapshotId: string,
+): Promise<
+  import("@/types/continuous-improvement").ImprovementCheckpoint
+> {
+  return request<
+    import("@/types/continuous-improvement").ImprovementCheckpoint
+  >(
+    `/continuous-improvement/initiatives/${initiativeId}/checkpoints`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        snapshotId,
+      }),
+    },
+  );
+}
