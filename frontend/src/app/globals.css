@@ -14240,3 +14240,612 @@ div > strong {
     grid-template-columns: 1fr;
   }
 }
+
+/* ====================================================================== */
+/* STEP 24 — PROCUREMENT NEGOTIATION WORKSPACE & SCENARIO MODELING       */
+/* ====================================================================== */
+
+.negotiation-kpi-grid,
+.negotiation-detail-kpis {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 14px;
+}
+
+.negotiation-money-kpi {
+  font-size: 19px;
+}
+
+.negotiation-pipeline-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid #abefc6;
+  border-radius: 9px;
+  background: #ecfdf3;
+}
+
+.negotiation-pipeline-banner > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #027a48;
+}
+
+.negotiation-pipeline-banner span {
+  display: block;
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.negotiation-pipeline-banner strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 16px;
+}
+
+.negotiation-pipeline-banner p {
+  margin: 0;
+  color: #027a48;
+  font-size: 8px;
+}
+
+.negotiation-toolbar {
+  display: grid;
+  grid-template-columns:
+    minmax(220px, 1fr)
+    160px;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.negotiation-toolbar input,
+.negotiation-toolbar select {
+  min-height: 36px;
+  padding: 0 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8.5px;
+}
+
+.negotiation-count {
+  color: var(--text-tertiary);
+  font-size: 8.5px;
+}
+
+.negotiation-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.negotiation-status--draft {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.negotiation-status--active {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.negotiation-status--agreed {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.negotiation-status--closed {
+  background: #f4f3ff;
+  color: #5925dc;
+}
+
+.negotiation-status--cancelled {
+  background: #f2f4f7;
+  color: #667085;
+}
+
+.negotiation-savings {
+  color: #027a48;
+}
+
+.negotiation-create-layout {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.2fr)
+    minmax(300px, 0.8fr);
+  gap: 15px;
+  align-items: start;
+}
+
+.negotiation-form-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 13px;
+}
+
+.negotiation-form-wide {
+  grid-column: 1 / -1;
+}
+
+.negotiation-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.negotiation-baseline-preview {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+}
+
+.negotiation-baseline-preview > div {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.negotiation-baseline-preview span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.negotiation-baseline-preview strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 9px;
+}
+
+.negotiation-baseline-preview small {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.negotiation-reference {
+  overflow-wrap: anywhere;
+}
+
+.negotiation-risk-warning {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #b42318;
+  background: #fef3f2 !important;
+  border-color: #fecdca !important;
+}
+
+.negotiation-empty {
+  padding: 27px;
+  color: var(--text-tertiary);
+  font-size: 9px;
+  text-align: center;
+}
+
+.negotiation-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.negotiation-detail-heading h1 {
+  margin: 7px 0 6px;
+  font-size: 28px;
+  letter-spacing: -0.035em;
+}
+
+.negotiation-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+
+.negotiation-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.negotiation-risk-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px;
+  border: 1px solid #fecdca;
+  border-radius: 8px;
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.negotiation-risk-banner strong {
+  display: block;
+  font-size: 8.5px;
+}
+
+.negotiation-risk-banner span {
+  display: block;
+  margin-top: 3px;
+  font-size: 7.5px;
+  line-height: 1.45;
+}
+
+.negotiation-scenario-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 10px;
+}
+
+.negotiation-scenario-card {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+
+.negotiation-scenario-card--preferred {
+  border-color: #84adff;
+  box-shadow:
+    inset 3px 0 0
+    #2e90fa;
+}
+
+.negotiation-scenario-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.negotiation-scenario-heading > div:first-child span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.negotiation-scenario-heading > div:first-child strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 9.5px;
+}
+
+.negotiation-scenario-heading > div:last-child {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.negotiation-preferred-chip {
+  display: inline-flex;
+  padding: 4px 6px;
+  border-radius: 99px;
+  background: #eff8ff;
+  color: #175cd3;
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.negotiation-score {
+  min-width: 34px;
+  text-align: right;
+  font-size: 13px;
+}
+
+.negotiation-scenario-value {
+  margin-top: 11px;
+}
+
+.negotiation-scenario-value > strong {
+  display: block;
+  font-size: 18px;
+}
+
+.negotiation-scenario-value > span {
+  display: block;
+  margin-top: 3px;
+  color: #027a48;
+  font-size: 7.5px;
+  font-weight: 700;
+}
+
+.negotiation-term-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.negotiation-term-grid > div {
+  padding: 7px;
+  border-radius: 6px;
+  background: white;
+}
+
+.negotiation-term-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 6.5px;
+}
+
+.negotiation-term-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 7.5px;
+}
+
+.negotiation-scenario-card > p {
+  margin: 9px 0 0;
+  color: var(--text-secondary);
+  font-size: 7.5px;
+  line-height: 1.45;
+}
+
+.negotiation-agree-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 30px;
+  margin-top: 10px;
+  padding: 0 8px;
+  border: 1px solid #abefc6;
+  border-radius: 6px;
+  background: #ecfdf3;
+  color: #027a48;
+  font-size: 7.5px;
+  font-weight: 700;
+}
+
+.negotiation-preferred-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+  font-size: 8px;
+}
+
+.negotiation-preferred-option input {
+  width: 16px;
+  height: 16px;
+}
+
+.negotiation-round-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.negotiation-round {
+  display: grid;
+  grid-template-columns:
+    34px
+    minmax(0, 1fr);
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.negotiation-round--buyer {
+  border-left: 3px solid #2e90fa;
+}
+
+.negotiation-round--supplier {
+  border-left: 3px solid #f79009;
+}
+
+.negotiation-round-number {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: white;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.negotiation-round-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.negotiation-round-heading strong {
+  font-size: 8.5px;
+}
+
+.negotiation-round-heading span {
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.negotiation-round-value {
+  display: block;
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+.negotiation-round-terms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.negotiation-round-terms span {
+  padding: 3px 5px;
+  border-radius: 5px;
+  background: white;
+  color: var(--text-secondary);
+  font-size: 7px;
+}
+
+.negotiation-round p {
+  margin: 7px 0 0;
+  color: var(--text-secondary);
+  font-size: 7.5px;
+  line-height: 1.45;
+}
+
+.negotiation-round small {
+  display: block;
+  margin-top: 6px;
+  color: var(--text-tertiary);
+  font-size: 6.5px;
+}
+
+.negotiation-comparison-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 15px;
+}
+
+.negotiation-award-grid,
+.negotiation-context-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+}
+
+.negotiation-award-grid > div,
+.negotiation-context-grid > div {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.negotiation-award-grid span,
+.negotiation-context-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.negotiation-award-grid strong,
+.negotiation-context-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8.5px;
+}
+
+.negotiation-award-wide {
+  grid-column: 1 / -1;
+}
+
+.negotiation-context-grid .table-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 5px;
+}
+
+.negotiation-notes {
+  margin-top: 9px;
+  padding: 9px;
+  border-radius: 7px;
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+@media (
+  max-width: 1120px
+) {
+  .negotiation-kpi-grid,
+  .negotiation-detail-kpis {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .negotiation-create-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (
+  max-width: 860px
+) {
+  .negotiation-scenario-grid,
+  .negotiation-comparison-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .negotiation-toolbar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (
+  max-width: 680px
+) {
+  .negotiation-kpi-grid,
+  .negotiation-detail-kpis,
+  .negotiation-form-grid,
+  .negotiation-baseline-preview,
+  .negotiation-term-grid,
+  .negotiation-award-grid,
+  .negotiation-context-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .negotiation-form-wide,
+  .negotiation-award-wide {
+    grid-column: auto;
+  }
+
+  .negotiation-detail-heading,
+  .negotiation-detail-actions,
+  .negotiation-pipeline-banner {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

@@ -3048,3 +3048,186 @@ export async function getDemandConsolidationContext(): Promise<
     "/demand-consolidation/context-options",
   );
 }
+
+export async function getNegotiationWorkspaces(): Promise<
+  import("@/types/negotiation").NegotiationWorkspace[]
+> {
+  return request<
+    import("@/types/negotiation").NegotiationWorkspace[]
+  >(
+    "/negotiations",
+  );
+}
+
+export async function getNegotiationWorkspace(
+  workspaceId: string,
+): Promise<
+  import("@/types/negotiation").NegotiationWorkspace
+> {
+  return request<
+    import("@/types/negotiation").NegotiationWorkspace
+  >(
+    `/negotiations/${workspaceId}`,
+  );
+}
+
+export async function createNegotiationWorkspace(
+  input: {
+    baselineQuotationId: string;
+    ownerUserId?: string;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/negotiation").NegotiationWorkspace
+> {
+  return request<
+    import("@/types/negotiation").NegotiationWorkspace
+  >(
+    "/negotiations",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function activateNegotiationWorkspace(
+  workspaceId: string,
+): Promise<
+  import("@/types/negotiation").NegotiationWorkspace
+> {
+  return request<
+    import("@/types/negotiation").NegotiationWorkspace
+  >(
+    `/negotiations/${workspaceId}/activate`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function addNegotiationScenario(
+  workspaceId: string,
+  input: {
+    name: string;
+    scenarioType:
+      import("@/types/negotiation").NegotiationScenarioType;
+    totalValue: number;
+    paymentTermsDays: number;
+    leadTimeDays: number;
+    warrantyMonths: number;
+    volumeCommitment?: number;
+    preferred: boolean;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/negotiation").NegotiationScenario
+> {
+  return request<
+    import("@/types/negotiation").NegotiationScenario
+  >(
+    `/negotiations/${workspaceId}/scenarios`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function addNegotiationRound(
+  workspaceId: string,
+  input: {
+    actorSide:
+      import("@/types/negotiation").NegotiationRoundSide;
+    offerValue: number;
+    paymentTermsDays: number;
+    leadTimeDays: number;
+    warrantyMonths: number;
+    volumeCommitment?: number;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/negotiation").NegotiationRound
+> {
+  return request<
+    import("@/types/negotiation").NegotiationRound
+  >(
+    `/negotiations/${workspaceId}/rounds`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function agreeNegotiationScenario(
+  workspaceId: string,
+  scenarioId: string,
+): Promise<
+  import("@/types/negotiation").NegotiationWorkspace
+> {
+  return request<
+    import("@/types/negotiation").NegotiationWorkspace
+  >(
+    `/negotiations/${workspaceId}/agree/${scenarioId}`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function closeNegotiationWorkspace(
+  workspaceId: string,
+): Promise<
+  import("@/types/negotiation").NegotiationWorkspace
+> {
+  return request<
+    import("@/types/negotiation").NegotiationWorkspace
+  >(
+    `/negotiations/${workspaceId}/close`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function cancelNegotiationWorkspace(
+  workspaceId: string,
+): Promise<
+  import("@/types/negotiation").NegotiationWorkspace
+> {
+  return request<
+    import("@/types/negotiation").NegotiationWorkspace
+  >(
+    `/negotiations/${workspaceId}/cancel`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getNegotiationSummary(): Promise<
+  import("@/types/negotiation").NegotiationSummary
+> {
+  return request<
+    import("@/types/negotiation").NegotiationSummary
+  >(
+    "/negotiations/summary",
+  );
+}
+
+export async function getNegotiationContext(): Promise<
+  import("@/types/negotiation").NegotiationContext
+> {
+  return request<
+    import("@/types/negotiation").NegotiationContext
+  >(
+    "/negotiations/context-options",
+  );
+}

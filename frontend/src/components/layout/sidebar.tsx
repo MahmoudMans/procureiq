@@ -24,6 +24,7 @@ import {
   ShieldCheck,
   Route,
   Layers3,
+  Handshake,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -101,7 +102,12 @@ const coreNavigation = [
     href: "/rfqs",
     label: "RFQs & sourcing",
     icon: FileText,
+  },  {
+    href: "/negotiations",
+    label: "Negotiations",
+    icon: Handshake,
   },
+
   {
     href: "/purchase-orders",
     label: "Purchase orders",
@@ -262,6 +268,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/demand-consolidation"
+          ||
+          item.href ===
+            "/negotiations"
 ) {
           return canViewAnalytics;
         }
