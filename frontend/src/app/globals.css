@@ -10713,3 +10713,487 @@ div {
       1fr;
   }
 }
+
+/* ====================================================================== */
+/* STEP 18 — PROCUREMENT SAVINGS & VALUE REALIZATION                     */
+/* ====================================================================== */
+
+.savings-heading-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.savings-discovery-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #abefc6;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #027a48;
+  font-size: 9px;
+}
+
+.savings-period-control {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: white;
+}
+
+.savings-period-control label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.savings-period-control span {
+  color: var(--text-secondary);
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.savings-period-control select {
+  min-width: 130px;
+  height: 36px;
+  padding: 0 9px;
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  background: white;
+}
+
+.savings-kpi-grid,
+.savings-detail-kpis {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 14px;
+}
+
+.savings-money-kpi {
+  font-size: 19px;
+}
+
+.savings-main-grid,
+.savings-attribution-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 15px;
+}
+
+.savings-month-list,
+.savings-attribution-list,
+.savings-realization-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.savings-month-row {
+  display: grid;
+  grid-template-columns:
+    80px
+    minmax(120px, 1fr)
+    105px;
+  align-items: center;
+  gap: 10px;
+}
+
+.savings-month-row >
+div:first-child strong {
+  display: block;
+  font-size: 9px;
+}
+
+.savings-month-row >
+div:first-child span {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-tertiary);
+  font-size: 8px;
+}
+
+.savings-month-row >
+strong {
+  font-size: 9px;
+  text-align: right;
+}
+
+.savings-bar-track {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--surface-muted);
+}
+
+.savings-bar-track > div {
+  height: 100%;
+  border-radius: inherit;
+  background: #12b76a;
+}
+
+.savings-mix-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 10px;
+}
+
+.savings-mix-grid article {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+
+.savings-mix-grid span {
+  color: var(--text-tertiary);
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.savings-mix-grid strong {
+  display: block;
+  margin-top: 7px;
+  font-size: 18px;
+}
+
+.savings-mix-grid p {
+  margin: 6px 0 0;
+  color: var(--text-secondary);
+  font-size: 8.5px;
+  line-height: 1.5;
+}
+
+.savings-attribution-row {
+  display: grid;
+  grid-template-columns:
+    minmax(130px, 1fr)
+    auto
+    auto
+    auto;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.savings-attribution-row:last-child {
+  border-bottom: 0;
+}
+
+.savings-attribution-row >
+div:first-child strong {
+  display: block;
+  font-size: 9px;
+}
+
+.savings-attribution-row >
+div:first-child span,
+.savings-attribution-row >
+div:not(:first-child) span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.savings-attribution-row >
+div:not(:first-child) strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8.5px;
+}
+
+.savings-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 7.5px;
+  font-weight: 700;
+}
+
+.savings-status--draft {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.savings-status--submitted {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.savings-status--validated {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.savings-status--rejected {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.savings-status--closed {
+  background: #f2f4f7;
+  color: #344054;
+}
+
+.savings-realized-value {
+  color: #027a48;
+}
+
+.savings-empty {
+  padding: 28px;
+  color: var(--text-tertiary);
+  font-size: 9.5px;
+  text-align: center;
+}
+
+.savings-target-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 13px;
+  border: 1px solid #abefc6;
+  border-radius: 9px;
+  background: #ecfdf3;
+}
+
+.savings-target-preview > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #027a48;
+}
+
+.savings-target-preview span {
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.savings-target-preview > strong {
+  color: #027a48;
+  font-size: 18px;
+}
+
+.savings-form-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 13px;
+}
+
+.savings-form-wide {
+  grid-column: 1 / -1;
+}
+
+.savings-form-actions,
+.savings-decision-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.savings-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.savings-detail-heading h1 {
+  margin: 7px 0 6px;
+  font-size: 28px;
+  letter-spacing: -0.035em;
+}
+
+.savings-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.savings-detail-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.savings-context-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 9px;
+}
+
+.savings-context-grid > div {
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.savings-context-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 8px;
+}
+
+.savings-context-grid strong,
+.savings-context-grid a {
+  display: block;
+  margin-top: 4px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.savings-context-grid a {
+  color: var(--primary);
+}
+
+.savings-decision-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+
+.savings-decision-card span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.savings-decision-card strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 9.5px;
+  line-height: 1.5;
+}
+
+.savings-decision-card small {
+  display: block;
+  margin-top: 5px;
+  color: var(--text-tertiary);
+  font-size: 8px;
+}
+
+.savings-realization-row {
+  display: grid;
+  grid-template-columns:
+    minmax(130px, 1fr)
+    auto
+    auto
+    auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.savings-realization-row >
+div:first-child strong {
+  display: block;
+  color: #027a48;
+  font-size: 10px;
+}
+
+.savings-realization-row span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7.5px;
+}
+
+.savings-realization-row >
+div:not(:first-child) strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8.5px;
+}
+
+@media (
+  max-width: 1100px
+) {
+  .savings-kpi-grid,
+  .savings-detail-kpis,
+  .savings-context-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .savings-main-grid,
+  .savings-attribution-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (
+  max-width: 760px
+) {
+  .savings-heading-actions,
+  .savings-period-control,
+  .savings-detail-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .savings-kpi-grid,
+  .savings-detail-kpis,
+  .savings-form-grid,
+  .savings-context-grid,
+  .savings-mix-grid,
+  .savings-attribution-row,
+  .savings-realization-row {
+    grid-template-columns: 1fr;
+  }
+
+  .savings-form-wide {
+    grid-column: auto;
+  }
+
+  .savings-month-row {
+    grid-template-columns:
+      75px
+      minmax(100px, 1fr);
+  }
+
+  .savings-month-row >
+  strong {
+    grid-column: 2;
+    text-align: left;
+  }
+
+  .savings-detail-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

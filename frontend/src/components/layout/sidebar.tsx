@@ -19,6 +19,7 @@ import {
   ShieldAlert,
   WalletCards,
   CalendarRange,
+  BadgeDollarSign,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -57,7 +58,12 @@ const coreNavigation = [
     href: "/planning",
     label: "Procurement planning",
     icon: CalendarRange,
+  },  {
+    href: "/savings",
+    label: "Savings & value",
+    icon: BadgeDollarSign,
   },
+
 
 
 
@@ -212,6 +218,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/planning"
+          ||
+          item.href ===
+            "/savings"
 ) {
           return canViewAnalytics;
         }

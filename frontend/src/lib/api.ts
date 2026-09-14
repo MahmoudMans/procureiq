@@ -1881,3 +1881,273 @@ export async function getPlanningContextOptions(): Promise<
     "/planning/context-options",
   );
 }
+
+function savingsQuery(
+  fiscalYear?: number,
+  currency?: string,
+): string {
+  const params =
+    new URLSearchParams();
+
+  if (fiscalYear) {
+    params.set(
+      "fiscalYear",
+      String(
+        fiscalYear,
+      ),
+    );
+  }
+
+  if (currency) {
+    params.set(
+      "currency",
+      currency,
+    );
+  }
+
+  const query =
+    params.toString();
+
+  return query
+    ? `?${query}`
+    : "";
+}
+
+export async function getSavingsInitiatives(
+  fiscalYear?: number,
+  currency?: string,
+): Promise<
+  import("@/types/savings").SavingsInitiative[]
+> {
+  return request<
+    import("@/types/savings").SavingsInitiative[]
+  >(
+    `/savings${savingsQuery(
+      fiscalYear,
+      currency,
+    )}`,
+  );
+}
+
+export async function getSavingsInitiative(
+  initiativeId: string,
+): Promise<
+  import("@/types/savings").SavingsInitiative
+> {
+  return request<
+    import("@/types/savings").SavingsInitiative
+  >(
+    `/savings/${initiativeId}`,
+  );
+}
+
+export async function getSavingsSummary(
+  fiscalYear?: number,
+  currency?: string,
+): Promise<
+  import("@/types/savings").SavingsSummary
+> {
+  return request<
+    import("@/types/savings").SavingsSummary
+  >(
+    `/savings/summary${savingsQuery(
+      fiscalYear,
+      currency,
+    )}`,
+  );
+}
+
+export async function getSavingsMonthly(
+  fiscalYear?: number,
+  currency?: string,
+): Promise<
+  import("@/types/savings").SavingsMonthly[]
+> {
+  return request<
+    import("@/types/savings").SavingsMonthly[]
+  >(
+    `/savings/monthly${savingsQuery(
+      fiscalYear,
+      currency,
+    )}`,
+  );
+}
+
+export async function getSavingsSupplierAttribution(
+  fiscalYear?: number,
+  currency?: string,
+): Promise<
+  import("@/types/savings").SavingsAttribution[]
+> {
+  return request<
+    import("@/types/savings").SavingsAttribution[]
+  >(
+    `/savings/supplier-attribution${savingsQuery(
+      fiscalYear,
+      currency,
+    )}`,
+  );
+}
+
+export async function getSavingsCategoryAttribution(
+  fiscalYear?: number,
+  currency?: string,
+): Promise<
+  import("@/types/savings").SavingsAttribution[]
+> {
+  return request<
+    import("@/types/savings").SavingsAttribution[]
+  >(
+    `/savings/category-attribution${savingsQuery(
+      fiscalYear,
+      currency,
+    )}`,
+  );
+}
+
+export async function getSavingsContextOptions(): Promise<
+  import("@/types/savings").SavingsContextOptions
+> {
+  return request<
+    import("@/types/savings").SavingsContextOptions
+  >(
+    "/savings/context-options",
+  );
+}
+
+export async function createSavingsInitiative(
+  input: {
+    title: string;
+    savingsType:
+      import("@/types/savings").SavingsType;
+    fiscalYear: number;
+    currency: string;
+    category?: string;
+    baselineValue: number;
+    negotiatedValue: number;
+    ownerUserId?: string;
+    rfqId?: string;
+    supplierId?: string;
+    purchaseOrderId?: string;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/savings").SavingsInitiative
+> {
+  return request<
+    import("@/types/savings").SavingsInitiative
+  >(
+    "/savings",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function submitSavingsInitiative(
+  initiativeId: string,
+): Promise<
+  import("@/types/savings").SavingsInitiative
+> {
+  return request<
+    import("@/types/savings").SavingsInitiative
+  >(
+    `/savings/${initiativeId}/submit`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function validateSavingsInitiative(
+  initiativeId: string,
+  note: string,
+): Promise<
+  import("@/types/savings").SavingsInitiative
+> {
+  return request<
+    import("@/types/savings").SavingsInitiative
+  >(
+    `/savings/${initiativeId}/validate`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function rejectSavingsInitiative(
+  initiativeId: string,
+  note: string,
+): Promise<
+  import("@/types/savings").SavingsInitiative
+> {
+  return request<
+    import("@/types/savings").SavingsInitiative
+  >(
+    `/savings/${initiativeId}/reject`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function closeSavingsInitiative(
+  initiativeId: string,
+): Promise<
+  import("@/types/savings").SavingsInitiative
+> {
+  return request<
+    import("@/types/savings").SavingsInitiative
+  >(
+    `/savings/${initiativeId}/close`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function addSavingsRealization(
+  initiativeId: string,
+  input: {
+    amount: number;
+    realizationDate: string;
+    purchaseOrderId?: string;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/savings").SavingsRealization
+> {
+  return request<
+    import("@/types/savings").SavingsRealization
+  >(
+    `/savings/${initiativeId}/realizations`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function discoverSavingsOpportunities(): Promise<
+  import("@/types/savings").SavingsDiscoveryResult
+> {
+  return request<
+    import("@/types/savings").SavingsDiscoveryResult
+  >(
+    "/savings/discover",
+    {
+      method: "POST",
+    },
+  );
+}
