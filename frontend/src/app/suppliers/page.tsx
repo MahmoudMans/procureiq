@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import {
   Building2,
   CircleAlert,
@@ -422,10 +424,19 @@ export default function SuppliersPage() {
                           <div>
 
                             <strong>
-                              {
-                                supplier
-                                  .legalName
-                              }
+                              <Link
+                            href={
+                              `/suppliers/${supplier.id}`
+                            }
+                            className={
+                              "supplier-360-link"
+                            }
+                          >
+                            {
+                              supplier
+                                .legalName
+                            }
+                          </Link>
                             </strong>
 
                             <span>

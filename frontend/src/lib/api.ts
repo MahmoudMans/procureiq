@@ -1038,3 +1038,13 @@ export async function downloadReportCsv(
 
   return response.blob();
 }
+
+export async function getSupplier360(
+  supplierId: string,
+): Promise<import("@/types/supplier-360").Supplier360> {
+  return request<
+    import("@/types/supplier-360").Supplier360
+  >(
+    `/suppliers/${supplierId}/360`,
+  );
+}

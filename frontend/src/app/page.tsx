@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -596,12 +598,12 @@ export default function DashboardPage() {
             </h2>
           </div>
 
-          <a
+          <Link
             className="text-button"
             href="/suppliers"
           >
             Open supplier portfolio
-          </a>
+          </Link>
 
         </div>
 

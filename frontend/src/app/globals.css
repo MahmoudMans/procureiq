@@ -7948,3 +7948,676 @@ a {
     text-align: left;
   }
 }
+
+/* ====================================================================== */
+/* STEP 13 — SUPPLIER 360                                                 */
+/* ====================================================================== */
+
+.supplier-360-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.supplier-360-link:hover {
+  color: var(--primary);
+}
+
+.supplier360-loading {
+  min-height: 320px;
+
+  display: grid;
+  place-items: center;
+
+  color: var(--text-tertiary);
+
+  font-size: 11px;
+}
+
+.supplier360-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 20px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      120deg,
+      white,
+      var(--surface-soft)
+    );
+}
+
+.supplier360-hero__identity {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  min-width: 0;
+}
+
+.supplier360-hero__icon {
+  width: 52px;
+  height: 52px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  background:
+    var(--primary-soft);
+
+  color:
+    var(--primary);
+}
+
+.supplier360-hero h1 {
+  margin:
+    4px 0 7px;
+
+  font-size: 27px;
+
+  letter-spacing:
+    -0.035em;
+}
+
+.supplier360-hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 7px;
+}
+
+.supplier360-hero__meta span {
+  padding:
+    4px 7px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 99px;
+
+  background: white;
+
+  color:
+    var(--text-secondary);
+
+  font-size: 8px;
+}
+
+.supplier360-hero__badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+
+  gap: 7px;
+}
+
+.supplier360-status,
+.supplier360-risk,
+.supplier360-rating {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 5px;
+
+  padding:
+    5px 8px;
+
+  border-radius: 99px;
+
+  font-size: 8.5px;
+  font-weight: 700;
+}
+
+.supplier360-status--active {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.supplier360-status--inactive,
+.supplier360-status--archived {
+  background: #f2f4f7;
+  color: #667085;
+}
+
+.supplier360-risk--low {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.supplier360-risk--medium {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.supplier360-risk--high,
+.supplier360-risk--critical {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.supplier360-rating {
+  background: #fff8e7;
+  color: #b54708;
+}
+
+.supplier360-kpi-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 14px;
+}
+
+.supplier360-kpi-value {
+  font-size: 21px;
+}
+
+.supplier360-primary-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.3fr)
+    minmax(320px, 0.7fr);
+
+  gap: 15px;
+}
+
+.supplier360-spend-list,
+.supplier360-category-list,
+.supplier360-award-list,
+.supplier360-po-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.supplier360-spend-row {
+  display: grid;
+
+  grid-template-columns:
+    85px
+    minmax(120px, 1fr)
+    100px;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+.supplier360-spend-row > div:first-child strong,
+.supplier360-category-heading strong {
+  display: block;
+
+  font-size: 9px;
+}
+
+.supplier360-spend-row > div:first-child span,
+.supplier360-category-heading span {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8px;
+}
+
+.supplier360-spend-row > strong {
+  font-size: 9.5px;
+
+  text-align: right;
+}
+
+.supplier360-spend-track,
+.supplier360-category-track {
+  height: 6px;
+
+  overflow: hidden;
+
+  border-radius: 99px;
+
+  background:
+    var(--surface-muted);
+}
+
+.supplier360-spend-track > div,
+.supplier360-category-track > div {
+  height: 100%;
+
+  border-radius: inherit;
+
+  background:
+    currentColor;
+
+  color:
+    var(--primary);
+}
+
+.supplier360-category-row {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+.supplier360-category-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+.supplier360-category-heading > div:last-child {
+  text-align: right;
+}
+
+.supplier360-performance-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 14px;
+}
+
+.supplier360-performance-card > div {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color: var(--primary);
+}
+
+.supplier360-performance-card > div span {
+  color: var(--text-secondary);
+
+  font-size: 8.5px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+.supplier360-performance-card > strong {
+  display: block;
+
+  margin-top: 12px;
+
+  font-size: 22px;
+
+  letter-spacing: -0.03em;
+}
+
+.supplier360-performance-card p {
+  margin:
+    5px 0 0;
+
+  color: var(--text-tertiary);
+
+  font-size: 9px;
+
+  line-height: 1.5;
+}
+
+.supplier360-date-value {
+  font-size: 16px !important;
+}
+
+.supplier360-table-link {
+  color: var(--primary);
+
+  font-weight: 700;
+}
+
+.supplier360-two-column {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 15px;
+}
+
+.supplier360-award-row {
+  display: grid;
+
+  grid-template-columns:
+    34px
+    minmax(0, 1fr)
+    auto
+    auto;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 10px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 8px;
+
+  background:
+    var(--surface-soft);
+}
+
+.supplier360-award-icon {
+  width: 32px;
+  height: 32px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 8px;
+
+  background: #ecfdf3;
+
+  color: #027a48;
+}
+
+.supplier360-award-row a {
+  display: block;
+
+  color: var(--primary);
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.supplier360-award-row span {
+  display: block;
+
+  margin-top: 2px;
+
+  color: var(--text-tertiary);
+
+  font-size: 8px;
+}
+
+.supplier360-award-row > strong {
+  font-size: 9.5px;
+}
+
+.supplier360-award-row small {
+  padding:
+    3px 6px;
+
+  border-radius: 99px;
+
+  font-size: 7.5px;
+  font-weight: 700;
+}
+
+.supplier360-override {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.supplier360-recommended {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.supplier360-po-row {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto
+    auto;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 10px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 8px;
+
+  background:
+    var(--surface-soft);
+
+  color: var(--text);
+}
+
+.supplier360-po-row > div strong {
+  display: block;
+
+  font-size: 9px;
+}
+
+.supplier360-po-row > div span {
+  display: block;
+
+  margin-top: 2px;
+
+  color: var(--text-tertiary);
+
+  font-size: 8px;
+}
+
+.supplier360-po-row > strong {
+  font-size: 9.5px;
+}
+
+.supplier360-empty {
+  min-height: 100px;
+
+  display: grid;
+  place-items: center;
+
+  color: var(--text-tertiary);
+
+  font-size: 9.5px;
+
+  text-align: center;
+}
+
+.supplier360-timeline {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.supplier360-event {
+  position: relative;
+
+  display: flex;
+
+  gap: 11px;
+
+  padding-bottom: 17px;
+}
+
+.supplier360-event:not(:last-child)::after {
+  content: "";
+
+  position: absolute;
+
+  left: 15px;
+  top: 32px;
+  bottom: 0;
+
+  width: 1px;
+
+  background: var(--border);
+}
+
+.supplier360-event__marker {
+  z-index: 1;
+
+  width: 31px;
+  height: 31px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background:
+    var(--primary-soft);
+
+  color: var(--primary);
+}
+
+.supplier360-event__content {
+  flex: 1;
+
+  display: flex;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  min-width: 0;
+
+  padding-top: 2px;
+}
+
+.supplier360-event__content strong {
+  display: block;
+
+  font-size: 9.5px;
+}
+
+.supplier360-event__content span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: var(--text-secondary);
+
+  font-size: 8.5px;
+}
+
+.supplier360-event__content > div:last-child {
+  flex-shrink: 0;
+
+  text-align: right;
+}
+
+.supplier360-event__content time {
+  display: block;
+
+  color: var(--text-tertiary);
+
+  font-size: 8px;
+}
+
+.supplier360-event__content a {
+  display: inline-block;
+
+  margin-top: 5px;
+
+  color: var(--primary);
+
+  font-size: 8px;
+  font-weight: 700;
+}
+
+@media (
+  max-width: 1100px
+) {
+  .supplier360-kpi-grid,
+  .supplier360-performance-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .supplier360-primary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (
+  max-width: 760px
+) {
+  .supplier360-hero {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .supplier360-hero__badges {
+    justify-content: flex-start;
+  }
+
+  .supplier360-kpi-grid,
+  .supplier360-performance-grid,
+  .supplier360-two-column {
+    grid-template-columns: 1fr;
+  }
+
+  .supplier360-spend-row {
+    grid-template-columns:
+      75px
+      minmax(100px, 1fr);
+  }
+
+  .supplier360-spend-row > strong {
+    grid-column: 2;
+
+    text-align: left;
+  }
+
+  .supplier360-award-row,
+  .supplier360-po-row {
+    grid-template-columns:
+      34px
+      minmax(0, 1fr);
+  }
+
+  .supplier360-award-row > strong,
+  .supplier360-award-row > small,
+  .supplier360-po-row > span,
+  .supplier360-po-row > strong {
+    grid-column: 2;
+  }
+
+  .supplier360-event__content {
+    flex-direction: column;
+  }
+
+  .supplier360-event__content > div:last-child {
+    text-align: left;
+  }
+}
