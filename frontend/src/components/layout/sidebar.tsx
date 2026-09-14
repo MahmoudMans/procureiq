@@ -33,6 +33,7 @@ import {
   UserCheck,
   Leaf,
   ScanSearch,
+  MessageSquareText,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -60,6 +61,11 @@ const coreNavigation = [
     label: "Supplier onboarding",
     icon: UserCheck,
   },  {
+    href: "/supplier-collaboration",
+    label: "Supplier collaboration",
+    icon: MessageSquareText,
+  },
+  {
     href: "/sustainability",
     label: "Sustainability",
     icon: Leaf,
@@ -351,6 +357,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/anomaly-control"
+          ||
+          item.href ===
+            "/supplier-collaboration"
 ) {
           return canViewAnalytics;
         }

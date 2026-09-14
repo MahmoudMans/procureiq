@@ -4921,3 +4921,255 @@ export async function updateAnomalyRule(
     },
   );
 }
+
+export async function getSupplierCollaborationDashboard(): Promise<
+  import("@/types/supplier-collaboration").SupplierCollaborationDashboard
+> {
+  return request<
+    import("@/types/supplier-collaboration").SupplierCollaborationDashboard
+  >(
+    "/supplier-collaboration",
+  );
+}
+
+export async function getSupplierCollaborationWorkspace(
+  workspaceId: string,
+): Promise<
+  import("@/types/supplier-collaboration").CollaborationWorkspaceDetail
+> {
+  return request<
+    import("@/types/supplier-collaboration").CollaborationWorkspaceDetail
+  >(
+    `/supplier-collaboration/workspaces/${workspaceId}`,
+  );
+}
+
+export async function getSupplierCollaborationContext(): Promise<
+  import("@/types/supplier-collaboration").CollaborationContext
+> {
+  return request<
+    import("@/types/supplier-collaboration").CollaborationContext
+  >(
+    "/supplier-collaboration/context-options",
+  );
+}
+
+export async function createSupplierCollaborationWorkspace(
+  input: {
+    supplierId: string;
+    workspaceType:
+      import("@/types/supplier-collaboration").CollaborationWorkspaceType;
+    priority:
+      import("@/types/supplier-collaboration").CollaborationPriority;
+    title: string;
+    purchaseOrderId?: string;
+    rfqId?: string;
+    externalReference?: string;
+    ownerUserId?: string;
+    supplierResponseSlaHours?: number;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/supplier-collaboration").CollaborationWorkspaceDetail
+> {
+  return request<
+    import("@/types/supplier-collaboration").CollaborationWorkspaceDetail
+  >(
+    "/supplier-collaboration/workspaces",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function addInternalCollaborationMessage(
+  workspaceId: string,
+  input: {
+    messageType:
+      import("@/types/supplier-collaboration").CollaborationMessageType;
+    body: string;
+    referenceText?: string;
+  },
+): Promise<
+  import("@/types/supplier-collaboration").CollaborationMessage
+> {
+  return request<
+    import("@/types/supplier-collaboration").CollaborationMessage
+  >(
+    `/supplier-collaboration/workspaces/${workspaceId}/messages/internal`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function sendSupplierCollaborationMessage(
+  workspaceId: string,
+  input: {
+    messageType:
+      import("@/types/supplier-collaboration").CollaborationMessageType;
+    body: string;
+    referenceText?: string;
+  },
+): Promise<
+  import("@/types/supplier-collaboration").CollaborationMessage
+> {
+  return request<
+    import("@/types/supplier-collaboration").CollaborationMessage
+  >(
+    `/supplier-collaboration/workspaces/${workspaceId}/messages/to-supplier`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function recordSupplierCollaborationResponse(
+  workspaceId: string,
+  input: {
+    messageType:
+      import("@/types/supplier-collaboration").CollaborationMessageType;
+    supplierContactName: string;
+    body: string;
+    referenceText?: string;
+  },
+): Promise<
+  import("@/types/supplier-collaboration").CollaborationMessage
+> {
+  return request<
+    import("@/types/supplier-collaboration").CollaborationMessage
+  >(
+    `/supplier-collaboration/workspaces/${workspaceId}/messages/from-supplier`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function createSupplierCollaborationAction(
+  workspaceId: string,
+  input: {
+    actionType:
+      import("@/types/supplier-collaboration").CollaborationActionType;
+    audience:
+      import("@/types/supplier-collaboration").CollaborationActionAudience;
+    title: string;
+    description?: string;
+    assigneeUserId?: string;
+    externalAssigneeLabel?: string;
+    dueAt: string;
+  },
+): Promise<
+  import("@/types/supplier-collaboration").CollaborationAction
+> {
+  return request<
+    import("@/types/supplier-collaboration").CollaborationAction
+  >(
+    `/supplier-collaboration/workspaces/${workspaceId}/actions`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startSupplierCollaborationAction(
+  actionId: string,
+): Promise<
+  import("@/types/supplier-collaboration").CollaborationAction
+> {
+  return request<
+    import("@/types/supplier-collaboration").CollaborationAction
+  >(
+    `/supplier-collaboration/actions/${actionId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function completeSupplierCollaborationAction(
+  actionId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-collaboration").CollaborationAction
+> {
+  return request<
+    import("@/types/supplier-collaboration").CollaborationAction
+  >(
+    `/supplier-collaboration/actions/${actionId}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function cancelSupplierCollaborationAction(
+  actionId: string,
+): Promise<
+  import("@/types/supplier-collaboration").CollaborationAction
+> {
+  return request<
+    import("@/types/supplier-collaboration").CollaborationAction
+  >(
+    `/supplier-collaboration/actions/${actionId}/cancel`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function resolveSupplierCollaborationWorkspace(
+  workspaceId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-collaboration").CollaborationWorkspaceDetail
+> {
+  return request<
+    import("@/types/supplier-collaboration").CollaborationWorkspaceDetail
+  >(
+    `/supplier-collaboration/workspaces/${workspaceId}/resolve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function closeSupplierCollaborationWorkspace(
+  workspaceId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-collaboration").CollaborationWorkspaceDetail
+> {
+  return request<
+    import("@/types/supplier-collaboration").CollaborationWorkspaceDetail
+  >(
+    `/supplier-collaboration/workspaces/${workspaceId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
