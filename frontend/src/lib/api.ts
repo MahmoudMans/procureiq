@@ -26,7 +26,6 @@ import type {
   Rfq,
   RfqCreateInput,
   RfqFilters,
-  RfqStatus,
   RfqSummary,
   RfqUpdateInput,
 } from "@/types/rfq";
@@ -520,6 +519,86 @@ export async function cancelRfq(
 ): Promise<Rfq> {
   return request<Rfq>(
     `/rfqs/${id}/cancel`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getRfqQuotations(
+  rfqId: string,
+): Promise<import("@/types/quotation").Quotation[]> {
+  return request<
+    import("@/types/quotation").Quotation[]
+  >(
+    `/rfqs/${rfqId}/quotations`,
+  );
+}
+
+export async function getQuotationComparison(
+  rfqId: string,
+): Promise<import("@/types/quotation").QuotationComparison> {
+  return request<
+    import("@/types/quotation").QuotationComparison
+  >(
+    `/rfqs/${rfqId}/quotation-comparison`,
+  );
+}
+
+export async function createQuotation(
+  rfqId: string,
+  input: import("@/types/quotation").QuotationCreateInput,
+): Promise<import("@/types/quotation").Quotation> {
+  return request<
+    import("@/types/quotation").Quotation
+  >(
+    `/rfqs/${rfqId}/quotations`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function updateQuotation(
+  quotationId: string,
+  input: import("@/types/quotation").QuotationUpdateInput,
+): Promise<import("@/types/quotation").Quotation> {
+  return request<
+    import("@/types/quotation").Quotation
+  >(
+    `/quotations/${quotationId}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function submitQuotation(
+  quotationId: string,
+): Promise<import("@/types/quotation").Quotation> {
+  return request<
+    import("@/types/quotation").Quotation
+  >(
+    `/quotations/${quotationId}/submit`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function withdrawQuotation(
+  quotationId: string,
+): Promise<import("@/types/quotation").Quotation> {
+  return request<
+    import("@/types/quotation").Quotation
+  >(
+    `/quotations/${quotationId}/withdraw`,
     {
       method: "POST",
     },

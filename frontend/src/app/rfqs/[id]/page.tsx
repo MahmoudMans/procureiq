@@ -27,6 +27,10 @@ import {
 } from "@/components/auth/auth-provider";
 
 import {
+  QuotationWorkspace,
+} from "@/components/quotations/quotation-workspace";
+
+import {
   RfqForm,
 } from "@/components/rfqs/rfq-form";
 
@@ -797,6 +801,10 @@ export default function RfqDetailPage() {
           </table>
         </div>
       </section>
+
+      <QuotationWorkspace
+        rfq={rfq}
+      />
 
       {rfq.status ===
         "DRAFT" ? (
