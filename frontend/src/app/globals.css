@@ -19333,3 +19333,779 @@ div > strong {
     width: 100%;
   }
 }
+
+/* ====================================================================== */
+/* STEP 32 — ESG, SUSTAINABILITY & RESPONSIBLE SOURCING                  */
+/* ====================================================================== */
+
+.sustainability-heading-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+}
+
+.sustainability-currency-control {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sustainability-currency-control span {
+  color: var(--text-tertiary);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.sustainability-currency-control select {
+  min-width: 100px;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8px;
+}
+
+.sustainability-kpi-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 14px;
+}
+
+.sustainability-money-kpi {
+  font-size: 18px;
+}
+
+.sustainability-exposure-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 9px;
+}
+
+.sustainability-exposure-grid article {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.sustainability-exposure-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.sustainability-exposure-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+}
+
+.sustainability-toolbar {
+  display: grid;
+  grid-template-columns:
+    minmax(220px, 1fr)
+    160px
+    180px;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.sustainability-toolbar input,
+.sustainability-toolbar select {
+  min-height: 36px;
+  padding: 0 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8px;
+}
+
+.sustainability-count {
+  color: var(--text-tertiary);
+  font-size: 8px;
+}
+
+.sustainability-rating,
+.sustainability-gate,
+.sustainability-assessment-status,
+.sustainability-declaration-status,
+.sustainability-action-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.sustainability-rating--leading {
+  background: #ecfdf3;
+  color: #05603a;
+}
+
+.sustainability-rating--good {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.sustainability-rating--moderate {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.sustainability-rating--high-risk {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.sustainability-rating--critical {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.sustainability-gate {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.sustainability-gate--pass {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.sustainability-overdue {
+  color: #b42318;
+  font-weight: 700;
+}
+
+.sustainability-category-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 9px;
+}
+
+.sustainability-category-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.sustainability-category-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 9px;
+}
+
+.sustainability-category-heading > div strong {
+  display: block;
+  font-size: 8px;
+}
+
+.sustainability-category-heading > div span {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 6.5px;
+}
+
+.sustainability-category-heading > strong {
+  font-size: 14px;
+}
+
+.sustainability-category-bar {
+  height: 6px;
+  margin-top: 8px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: white;
+}
+
+.sustainability-category-bar > div {
+  height: 100%;
+  border-radius: inherit;
+  background: currentColor;
+}
+
+.sustainability-category-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.sustainability-category-stats span {
+  padding: 4px 6px;
+  border-radius: 5px;
+  background: white;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+}
+
+.sustainability-model-note,
+.sustainability-gate-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px;
+  border: 1px solid #abefc6;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.sustainability-model-note strong {
+  display: block;
+  font-size: 8.5px;
+}
+
+.sustainability-model-note p {
+  margin: 3px 0 0;
+  font-size: 7.5px;
+  line-height: 1.5;
+}
+
+.sustainability-create-layout {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.2fr)
+    minmax(290px, 0.8fr);
+  gap: 15px;
+  align-items: start;
+}
+
+.sustainability-create-side {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.sustainability-form-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 13px;
+}
+
+.sustainability-form-wide {
+  grid-column: 1 / -1;
+}
+
+.sustainability-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.sustainability-score-preview {
+  padding: 18px;
+  text-align: center;
+}
+
+.sustainability-score-preview > strong {
+  display: block;
+  font-size: 36px;
+  letter-spacing: -0.05em;
+}
+
+.sustainability-score-preview > span {
+  display: inline-flex;
+  margin-top: 5px;
+  padding: 4px 8px;
+  border-radius: 99px;
+  background: #ecfdf3;
+  color: #027a48;
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.sustainability-score-preview p {
+  margin: 9px 0 0;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.sustainability-supplier-preview,
+.sustainability-context-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+}
+
+.sustainability-supplier-preview > div,
+.sustainability-context-grid > div {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.sustainability-supplier-preview span,
+.sustainability-context-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.sustainability-supplier-preview strong,
+.sustainability-context-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px;
+}
+
+.sustainability-supplier-preview small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 6.5px;
+}
+
+.sustainability-gate-note {
+  margin-top: 9px;
+  font-size: 7.5px;
+  line-height: 1.5;
+}
+
+.sustainability-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.sustainability-detail-heading h1 {
+  margin: 7px 0 6px;
+  font-size: 28px;
+  letter-spacing: -0.035em;
+}
+
+.sustainability-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+
+.sustainability-detail-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.sustainability-assessment-status--draft {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.sustainability-assessment-status--submitted {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.sustainability-assessment-status--approved {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.sustainability-assessment-status--rejected,
+.sustainability-assessment-status--expired {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.sustainability-eligibility {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px;
+  border: 1px solid #fecdca;
+  border-radius: 8px;
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.sustainability-eligibility--pass {
+  border-color: #abefc6;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.sustainability-eligibility strong {
+  display: block;
+  font-size: 8.5px;
+}
+
+.sustainability-eligibility p {
+  margin: 3px 0 0;
+  font-size: 7.5px;
+  line-height: 1.45;
+}
+
+.sustainability-score-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 10px;
+}
+
+.sustainability-score-grid article {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.sustainability-score-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.sustainability-score-grid strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 20px;
+}
+
+.sustainability-score-grid small {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-tertiary);
+  font-size: 6.5px;
+}
+
+.sustainability-overall-score {
+  border-color: #abefc6 !important;
+  background: #ecfdf3 !important;
+}
+
+.sustainability-detail-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.3fr)
+    minmax(280px, 0.7fr);
+  gap: 15px;
+}
+
+.sustainability-declaration-list,
+.sustainability-action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sustainability-declaration,
+.sustainability-action {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.sustainability-declaration--blocked,
+.sustainability-action--overdue {
+  border-left: 3px solid #d92d20;
+}
+
+.sustainability-declaration-heading,
+.sustainability-action-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 9px;
+}
+
+.sustainability-declaration-heading > div strong,
+.sustainability-action-heading > div strong {
+  display: block;
+  font-size: 8px;
+}
+
+.sustainability-declaration-heading > div span,
+.sustainability-action-heading > div small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 6.5px;
+}
+
+.sustainability-declaration-status--missing {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.sustainability-declaration-status--declared {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.sustainability-declaration-status--verified {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.sustainability-declaration-status--rejected,
+.sustainability-declaration-status--expired {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.sustainability-declaration-fields {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    160px;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.sustainability-declaration-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sustainability-declaration-fields label span {
+  color: var(--text-tertiary);
+  font-size: 6.5px;
+}
+
+.sustainability-declaration-fields input {
+  height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  font-size: 8px;
+}
+
+.sustainability-declaration-controls,
+.sustainability-action-controls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.sustainability-declaration-controls input,
+.sustainability-action-controls input {
+  flex: 1;
+  min-width: 180px;
+  height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  font-size: 8px;
+}
+
+.sustainability-declaration-controls button,
+.sustainability-action-controls button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  color: var(--primary);
+  font-size: 7.5px;
+  font-weight: 700;
+}
+
+.sustainability-danger-button {
+  color: #b42318 !important;
+}
+
+.sustainability-review-note {
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  background: white;
+  color: var(--text-secondary);
+  font-size: 7.5px;
+}
+
+.sustainability-notes,
+.sustainability-review-card {
+  margin-top: 9px;
+  padding: 9px;
+  border-radius: 7px;
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+  font-size: 7.5px;
+  line-height: 1.5;
+}
+
+.sustainability-review-card strong {
+  display: block;
+  font-size: 8px;
+}
+
+.sustainability-review-card p {
+  margin: 4px 0;
+}
+
+.sustainability-review-card span {
+  color: var(--text-tertiary);
+  font-size: 6.5px;
+}
+
+.sustainability-action-status--open {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.sustainability-action-status--in-progress {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.sustainability-action-status--completed {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.sustainability-action-status--cancelled {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.sustainability-action-heading > div:last-child {
+  text-align: right;
+}
+
+.sustainability-action-heading > div:last-child span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 6.5px;
+}
+
+.sustainability-action-heading > div:last-child strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 8px;
+}
+
+.sustainability-action > p {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font-size: 7.5px;
+  line-height: 1.45;
+}
+
+.sustainability-decision-block {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 10px;
+  padding: 9px;
+  border: 1px solid #fecdca;
+  border-radius: 7px;
+  background: #fef3f2;
+  color: #b42318;
+  font-size: 7.5px;
+}
+
+.sustainability-empty {
+  padding: 26px;
+  color: var(--text-tertiary);
+  font-size: 8.5px;
+  text-align: center;
+}
+
+@media (
+  max-width: 1120px
+) {
+  .sustainability-kpi-grid,
+  .sustainability-exposure-grid,
+  .sustainability-score-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .sustainability-create-layout,
+  .sustainability-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (
+  max-width: 900px
+) {
+  .sustainability-toolbar,
+  .sustainability-category-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (
+  max-width: 680px
+) {
+  .sustainability-heading-actions,
+  .sustainability-detail-heading,
+  .sustainability-detail-actions,
+  .sustainability-declaration-heading,
+  .sustainability-action-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .sustainability-kpi-grid,
+  .sustainability-exposure-grid,
+  .sustainability-score-grid,
+  .sustainability-form-grid,
+  .sustainability-supplier-preview,
+  .sustainability-context-grid,
+  .sustainability-declaration-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .sustainability-form-wide {
+    grid-column: auto;
+  }
+
+  .sustainability-declaration-controls,
+  .sustainability-action-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .sustainability-declaration-controls input,
+  .sustainability-action-controls input {
+    width: 100%;
+  }
+
+  .sustainability-action-heading > div:last-child {
+    text-align: left;
+  }
+}

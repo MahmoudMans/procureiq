@@ -4467,3 +4467,277 @@ export async function cancelSupplierOnboardingCase(
     },
   );
 }
+
+export async function getSustainabilityPortfolio(
+  currency = "EUR",
+): Promise<
+  import("@/types/sustainability").SustainabilityPortfolioItem[]
+> {
+  return request<
+    import("@/types/sustainability").SustainabilityPortfolioItem[]
+  >(
+    `/sustainability?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getSustainabilitySummary(
+  currency = "EUR",
+): Promise<
+  import("@/types/sustainability").SustainabilitySummary
+> {
+  return request<
+    import("@/types/sustainability").SustainabilitySummary
+  >(
+    `/sustainability/summary?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getSustainabilityCategories(
+  currency = "EUR",
+): Promise<
+  import("@/types/sustainability").SustainabilityCategoryExposure[]
+> {
+  return request<
+    import("@/types/sustainability").SustainabilityCategoryExposure[]
+  >(
+    `/sustainability/categories?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getSustainabilityAssessment(
+  assessmentId: string,
+): Promise<
+  import("@/types/sustainability").SustainabilityAssessment
+> {
+  return request<
+    import("@/types/sustainability").SustainabilityAssessment
+  >(
+    `/sustainability/assessments/${assessmentId}`,
+  );
+}
+
+export async function getSustainabilityContext(): Promise<
+  import("@/types/sustainability").SustainabilityContext
+> {
+  return request<
+    import("@/types/sustainability").SustainabilityContext
+  >(
+    "/sustainability/context-options",
+  );
+}
+
+export async function createSustainabilityAssessment(
+  input: {
+    supplierId: string;
+    environmentalScore: number;
+    socialScore: number;
+    governanceScore: number;
+    assessmentDate: string;
+    ownerUserId?: string;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/sustainability").SustainabilityAssessment
+> {
+  return request<
+    import("@/types/sustainability").SustainabilityAssessment
+  >(
+    "/sustainability/assessments",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function uploadSustainabilityDeclaration(
+  assessmentId: string,
+  declarationType:
+    import("@/types/sustainability").SustainabilityDeclarationType,
+  input: {
+    documentReference: string;
+    expiryDate?: string;
+  },
+): Promise<
+  import("@/types/sustainability").SustainabilityAssessment
+> {
+  return request<
+    import("@/types/sustainability").SustainabilityAssessment
+  >(
+    `/sustainability/assessments/${assessmentId}/declarations/${declarationType}`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function verifySustainabilityDeclaration(
+  declarationId: string,
+  note: string,
+): Promise<
+  import("@/types/sustainability").SustainabilityDeclaration
+> {
+  return request<
+    import("@/types/sustainability").SustainabilityDeclaration
+  >(
+    `/sustainability/declarations/${declarationId}/verify`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function rejectSustainabilityDeclaration(
+  declarationId: string,
+  note: string,
+): Promise<
+  import("@/types/sustainability").SustainabilityDeclaration
+> {
+  return request<
+    import("@/types/sustainability").SustainabilityDeclaration
+  >(
+    `/sustainability/declarations/${declarationId}/reject`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function submitSustainabilityAssessment(
+  assessmentId: string,
+): Promise<
+  import("@/types/sustainability").SustainabilityAssessment
+> {
+  return request<
+    import("@/types/sustainability").SustainabilityAssessment
+  >(
+    `/sustainability/assessments/${assessmentId}/submit`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function approveSustainabilityAssessment(
+  assessmentId: string,
+  note: string,
+): Promise<
+  import("@/types/sustainability").SustainabilityAssessment
+> {
+  return request<
+    import("@/types/sustainability").SustainabilityAssessment
+  >(
+    `/sustainability/assessments/${assessmentId}/approve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function rejectSustainabilityAssessment(
+  assessmentId: string,
+  note: string,
+): Promise<
+  import("@/types/sustainability").SustainabilityAssessment
+> {
+  return request<
+    import("@/types/sustainability").SustainabilityAssessment
+  >(
+    `/sustainability/assessments/${assessmentId}/reject`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function createSustainabilityAction(
+  assessmentId: string,
+  input: {
+    actionType:
+      import("@/types/sustainability").SustainabilityActionType;
+    title: string;
+    description?: string;
+    ownerUserId?: string;
+    dueDate: string;
+  },
+): Promise<
+  import("@/types/sustainability").SustainabilityAction
+> {
+  return request<
+    import("@/types/sustainability").SustainabilityAction
+  >(
+    `/sustainability/assessments/${assessmentId}/actions`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startSustainabilityAction(
+  actionId: string,
+): Promise<
+  import("@/types/sustainability").SustainabilityAction
+> {
+  return request<
+    import("@/types/sustainability").SustainabilityAction
+  >(
+    `/sustainability/actions/${actionId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function completeSustainabilityAction(
+  actionId: string,
+  note: string,
+): Promise<
+  import("@/types/sustainability").SustainabilityAction
+> {
+  return request<
+    import("@/types/sustainability").SustainabilityAction
+  >(
+    `/sustainability/actions/${actionId}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function cancelSustainabilityAction(
+  actionId: string,
+): Promise<
+  import("@/types/sustainability").SustainabilityAction
+> {
+  return request<
+    import("@/types/sustainability").SustainabilityAction
+  >(
+    `/sustainability/actions/${actionId}/cancel`,
+    {
+      method: "POST",
+    },
+  );
+}

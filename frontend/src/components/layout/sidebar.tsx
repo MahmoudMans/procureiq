@@ -31,6 +31,7 @@ import {
   Radar,
   Database,
   UserCheck,
+  Leaf,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -57,7 +58,12 @@ const coreNavigation = [
     href: "/supplier-onboarding",
     label: "Supplier onboarding",
     icon: UserCheck,
+  },  {
+    href: "/sustainability",
+    label: "Sustainability",
+    icon: Leaf,
   },
+
   {
     href: "/supplier-performance",
     label: "Supplier performance",
@@ -333,6 +339,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/supplier-onboarding"
+          ||
+          item.href ===
+            "/sustainability"
 ) {
           return canViewAnalytics;
         }
