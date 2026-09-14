@@ -32,6 +32,7 @@ import {
   Database,
   UserCheck,
   Leaf,
+  ScanSearch,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -164,6 +165,11 @@ const coreNavigation = [
     label: "Executive cockpit",
     icon: Radar,
   },  {
+    href: "/anomaly-control",
+    label: "Anomaly control",
+    icon: ScanSearch,
+  },
+  {
     href: "/data-quality",
     label: "Data quality",
     icon: Database,
@@ -342,6 +348,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/sustainability"
+          ||
+          item.href ===
+            "/anomaly-control"
 ) {
           return canViewAnalytics;
         }

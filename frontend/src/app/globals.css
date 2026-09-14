@@ -20109,3 +20109,764 @@ div > strong {
     text-align: left;
   }
 }
+
+/* ====================================================================== */
+/* STEP 33 — FRAUD, ANOMALY & CONTROL INTELLIGENCE                       */
+/* ====================================================================== */
+
+.anomaly-heading-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+}
+
+.anomaly-currency-control {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.anomaly-currency-control span {
+  color: var(--text-tertiary);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.anomaly-currency-control select {
+  min-width: 100px;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8px;
+}
+
+.anomaly-scan-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #b2ddff;
+  border-radius: 8px;
+  background: #eff8ff;
+  color: #175cd3;
+  font-size: 8px;
+}
+
+.anomaly-kpi-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 14px;
+}
+
+.anomaly-money-kpi {
+  font-size: 18px;
+}
+
+.anomaly-pattern-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      5,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+}
+
+.anomaly-pattern-grid article {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.anomaly-pattern-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 6.5px;
+}
+
+.anomaly-pattern-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 14px;
+}
+
+.anomaly-signal-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 9px;
+}
+
+.anomaly-signal-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.anomaly-signal-grid article > span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.anomaly-signal-grid article > strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 17px;
+}
+
+.anomaly-signal-grid article > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 7px;
+  margin-top: 7px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.anomaly-signal-grid article > div span {
+  color: var(--text-tertiary);
+  font-size: 6.5px;
+}
+
+.anomaly-signal-grid article > div strong {
+  font-size: 7.5px;
+}
+
+.anomaly-toolbar {
+  display: grid;
+  grid-template-columns:
+    minmax(220px, 1fr)
+    140px
+    130px
+    190px;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.anomaly-toolbar input,
+.anomaly-toolbar select {
+  min-height: 36px;
+  padding: 0 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8px;
+}
+
+.anomaly-count {
+  color: var(--text-tertiary);
+  font-size: 8px;
+}
+
+.anomaly-severity,
+.anomaly-status,
+.anomaly-investigation-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.anomaly-severity--critical {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.anomaly-severity--high {
+  background: #fff6ed;
+  color: #c4320a;
+}
+
+.anomaly-severity--medium {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.anomaly-severity--low {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.anomaly-status--open {
+  background: #fff6ed;
+  color: #c4320a;
+}
+
+.anomaly-status--under-investigation {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.anomaly-status--confirmed {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.anomaly-status--dismissed,
+.anomaly-status--resolved {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.anomaly-overdue {
+  color: #b42318;
+  font-weight: 700;
+}
+
+.anomaly-rule-form {
+  display: grid;
+  grid-template-columns:
+    minmax(220px, 1fr)
+    130px
+    110px
+    120px
+    120px
+    auto
+    auto;
+  align-items: end;
+  gap: 8px;
+}
+
+.anomaly-rule-wide {
+  min-width: 240px;
+}
+
+.anomaly-rule-enabled {
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+  font-size: 7px;
+}
+
+.anomaly-rule-description {
+  margin-top: 11px;
+  padding: 10px;
+  border: 1px solid #b2ddff;
+  border-radius: 7px;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.anomaly-rule-description strong {
+  display: block;
+  font-size: 8px;
+}
+
+.anomaly-rule-description p {
+  margin: 4px 0;
+  font-size: 7px;
+  line-height: 1.45;
+}
+
+.anomaly-rule-description span {
+  font-size: 6.5px;
+}
+
+.anomaly-rule-list {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 7px;
+  margin-top: 11px;
+}
+
+.anomaly-rule-list article {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto
+    75px
+    65px
+    65px;
+  align-items: center;
+  gap: 7px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.anomaly-rule-list article > div:first-child strong {
+  display: block;
+  font-size: 7px;
+}
+
+.anomaly-rule-list article > div span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 6.5px;
+}
+
+.anomaly-rule-list article > div:not(:first-child) strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 7px;
+}
+
+.anomaly-control-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px;
+  border: 1px solid #fedf89;
+  border-radius: 8px;
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.anomaly-control-note strong {
+  display: block;
+  font-size: 8.5px;
+}
+
+.anomaly-control-note p {
+  margin: 3px 0 0;
+  font-size: 7.5px;
+  line-height: 1.5;
+}
+
+.anomaly-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.anomaly-detail-heading h1 {
+  margin: 7px 0 6px;
+  font-size: 28px;
+  letter-spacing: -0.035em;
+}
+
+.anomaly-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+
+.anomaly-score-card {
+  min-width: 110px;
+  padding: 11px;
+  border: 1px solid #fedf89;
+  border-radius: 8px;
+  background: #fffaeb;
+  text-align: center;
+}
+
+.anomaly-score-card span {
+  display: block;
+  color: #b54708;
+  font-size: 7px;
+}
+
+.anomaly-score-card strong {
+  display: block;
+  margin-top: 3px;
+  color: #b54708;
+  font-size: 27px;
+}
+
+.anomaly-detail-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.25fr)
+    minmax(280px, 0.75fr);
+  gap: 15px;
+}
+
+.anomaly-evidence-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+}
+
+.anomaly-evidence-grid > div {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.anomaly-evidence-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.anomaly-evidence-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px;
+}
+
+.anomaly-details-text {
+  margin-top: 9px;
+  padding: 10px;
+  border-radius: 7px;
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.anomaly-not-proof {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 9px;
+  padding: 8px;
+  border: 1px solid #fedf89;
+  border-radius: 7px;
+  background: #fffaeb;
+  color: #b54708;
+  font-size: 7px;
+  line-height: 1.45;
+}
+
+.anomaly-disposition-card {
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.anomaly-disposition-card > span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.anomaly-disposition-card > strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.anomaly-disposition-card > small {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-tertiary);
+  font-size: 6.5px;
+}
+
+.anomaly-disposition-card > p {
+  margin: 5px 0 0;
+  color: var(--text-secondary);
+  font-size: 7.5px;
+  line-height: 1.45;
+}
+
+.anomaly-investigation-form {
+  display: grid;
+  grid-template-columns:
+    minmax(180px, 1fr)
+    150px
+    150px;
+  gap: 9px;
+}
+
+.anomaly-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.anomaly-investigation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.anomaly-investigation {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.anomaly-investigation--overdue {
+  border-left: 3px solid #d92d20;
+}
+
+.anomaly-investigation-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 9px;
+}
+
+.anomaly-investigation-heading > div:first-child > strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 8px;
+}
+
+.anomaly-investigation-heading > div:first-child > small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 6.5px;
+}
+
+.anomaly-investigation-heading > div:last-child {
+  text-align: right;
+}
+
+.anomaly-investigation-heading > div:last-child span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 6.5px;
+}
+
+.anomaly-investigation-heading > div:last-child strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 8px;
+}
+
+.anomaly-investigation-status--open {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.anomaly-investigation-status--in-progress {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.anomaly-investigation-status--closed {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.anomaly-investigation-status--cancelled {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.anomaly-conclusion {
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  background: white;
+  color: var(--text-secondary);
+  font-size: 7.5px;
+  line-height: 1.45;
+}
+
+.anomaly-evidence-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.anomaly-evidence-list > div {
+  padding: 7px;
+  border-radius: 6px;
+  background: white;
+}
+
+.anomaly-evidence-list span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.anomaly-evidence-list strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 7px;
+}
+
+.anomaly-evidence-list small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 6px;
+}
+
+.anomaly-investigation-controls {
+  display: grid;
+  grid-template-columns:
+    auto
+    180px
+    minmax(180px, 1fr)
+    auto;
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.anomaly-investigation-controls select,
+.anomaly-investigation-controls input,
+.anomaly-investigation-controls button {
+  min-height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  font-size: 7.5px;
+}
+
+.anomaly-investigation-controls button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.anomaly-disposition-controls {
+  display: grid;
+  grid-template-columns:
+    180px
+    minmax(0, 1fr);
+  gap: 7px;
+  margin-top: 9px;
+  padding-top: 9px;
+  border-top: 1px solid var(--border);
+}
+
+.anomaly-disposition-controls select,
+.anomaly-disposition-controls textarea {
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  font-size: 7.5px;
+}
+
+.anomaly-disposition-controls > div {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.anomaly-empty {
+  padding: 26px;
+  color: var(--text-tertiary);
+  font-size: 8.5px;
+  text-align: center;
+}
+
+@media (
+  max-width: 1180px
+) {
+  .anomaly-kpi-grid,
+  .anomaly-signal-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .anomaly-pattern-grid {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      );
+  }
+
+  .anomaly-rule-form {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      );
+  }
+
+  .anomaly-rule-wide {
+    min-width: 0;
+  }
+}
+
+@media (
+  max-width: 920px
+) {
+  .anomaly-detail-grid,
+  .anomaly-rule-list {
+    grid-template-columns: 1fr;
+  }
+
+  .anomaly-toolbar {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .anomaly-investigation-controls {
+    grid-template-columns:
+      1fr
+      1fr;
+  }
+}
+
+@media (
+  max-width: 680px
+) {
+  .anomaly-heading-actions,
+  .anomaly-detail-heading,
+  .anomaly-investigation-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .anomaly-kpi-grid,
+  .anomaly-signal-grid,
+  .anomaly-pattern-grid,
+  .anomaly-toolbar,
+  .anomaly-rule-form,
+  .anomaly-evidence-grid,
+  .anomaly-investigation-form,
+  .anomaly-investigation-controls,
+  .anomaly-disposition-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .anomaly-investigation-heading > div:last-child {
+    text-align: left;
+  }
+
+  .anomaly-disposition-controls > div {
+    grid-column: auto;
+    flex-direction: column;
+  }
+
+  .anomaly-rule-list article {
+    grid-template-columns: 1fr;
+  }
+}

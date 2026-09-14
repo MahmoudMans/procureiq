@@ -4741,3 +4741,183 @@ export async function cancelSustainabilityAction(
     },
   );
 }
+
+export async function getAnomalyControlDashboard(
+  currency = "EUR",
+): Promise<
+  import("@/types/anomaly-control").AnomalyControlDashboard
+> {
+  return request<
+    import("@/types/anomaly-control").AnomalyControlDashboard
+  >(
+    `/anomaly-control?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function runAnomalyControlScan(
+  currency = "EUR",
+): Promise<
+  import("@/types/anomaly-control").AnomalyScan
+> {
+  return request<
+    import("@/types/anomaly-control").AnomalyScan
+  >(
+    `/anomaly-control/scan?currency=${encodeURIComponent(currency)}`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getAnomalyControlFinding(
+  findingId: string,
+): Promise<
+  import("@/types/anomaly-control").AnomalyFindingDetail
+> {
+  return request<
+    import("@/types/anomaly-control").AnomalyFindingDetail
+  >(
+    `/anomaly-control/findings/${findingId}`,
+  );
+}
+
+export async function getAnomalyControlContext(): Promise<
+  import("@/types/anomaly-control").AnomalyContext
+> {
+  return request<
+    import("@/types/anomaly-control").AnomalyContext
+  >(
+    "/anomaly-control/context-options",
+  );
+}
+
+export async function createAnomalyInvestigation(
+  findingId: string,
+  input: {
+    ownerUserId?: string;
+    priority:
+      import("@/types/anomaly-control").InvestigationPriority;
+    dueDate: string;
+  },
+): Promise<
+  import("@/types/anomaly-control").Investigation
+> {
+  return request<
+    import("@/types/anomaly-control").Investigation
+  >(
+    `/anomaly-control/findings/${findingId}/investigations`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startAnomalyInvestigation(
+  investigationId: string,
+): Promise<
+  import("@/types/anomaly-control").Investigation
+> {
+  return request<
+    import("@/types/anomaly-control").Investigation
+  >(
+    `/anomaly-control/investigations/${investigationId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function addAnomalyInvestigationEvidence(
+  investigationId: string,
+  input: {
+    evidenceType:
+      import("@/types/anomaly-control").InvestigationEvidenceType;
+    referenceText: string;
+  },
+): Promise<
+  import("@/types/anomaly-control").InvestigationEvidence
+> {
+  return request<
+    import("@/types/anomaly-control").InvestigationEvidence
+  >(
+    `/anomaly-control/investigations/${investigationId}/evidence`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function closeAnomalyInvestigation(
+  investigationId: string,
+  input: {
+    disposition:
+      import("@/types/anomaly-control").InvestigationDisposition;
+    note: string;
+  },
+): Promise<
+  import("@/types/anomaly-control").Investigation
+> {
+  return request<
+    import("@/types/anomaly-control").Investigation
+  >(
+    `/anomaly-control/investigations/${investigationId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function cancelAnomalyInvestigation(
+  investigationId: string,
+  note: string,
+): Promise<
+  import("@/types/anomaly-control").Investigation
+> {
+  return request<
+    import("@/types/anomaly-control").Investigation
+  >(
+    `/anomaly-control/investigations/${investigationId}/cancel`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        disposition: "RESOLVED",
+        note,
+      }),
+    },
+  );
+}
+
+export async function updateAnomalyRule(
+  ruleId: number,
+  input: {
+    enabled: boolean;
+    defaultSeverity:
+      import("@/types/anomaly-control").AnomalySeverity;
+    scoreWeight: number;
+    thresholdValue: number;
+    lookbackDays: number;
+  },
+): Promise<
+  import("@/types/anomaly-control").AnomalyRule
+> {
+  return request<
+    import("@/types/anomaly-control").AnomalyRule
+  >(
+    `/anomaly-control/rules/${ruleId}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
