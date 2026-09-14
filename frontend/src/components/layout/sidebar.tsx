@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   LogOut,
   PackageCheck,
+  PackageOpen,
   Settings,
   ShoppingCart,
   Users,
@@ -43,6 +44,11 @@ const coreNavigation = [
     href: "/rfqs",
     label: "RFQs & sourcing",
     icon: FileText,
+  },
+  {
+    href: "/purchase-orders",
+    label: "Purchase orders",
+    icon: PackageOpen,
   },
   {
     href: "/approvals",
@@ -134,7 +140,9 @@ export function Sidebar() {
 
         if (
           item.href ===
-            "/rfqs"
+            "/rfqs" ||
+          item.href ===
+            "/purchase-orders"
         ) {
           return canViewSourcing;
         }

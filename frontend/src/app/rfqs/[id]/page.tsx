@@ -558,6 +558,26 @@ export default function RfqDetailPage() {
         </div>
       ) : null}
 
+      {rfq.status ===
+        "AWARDED" ? (
+        <div
+          className={
+            "rfq-purchase-order-entry"
+          }
+        >
+          <Link
+            href={
+              "/purchase-orders/new"
+            }
+            className={
+              "button button--primary"
+            }
+          >
+            Create purchase order
+          </Link>
+        </div>
+      ) : null}
+
       {error ? (
         <div
           className={

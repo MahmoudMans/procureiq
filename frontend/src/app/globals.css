@@ -5805,3 +5805,484 @@ a {
     width: 100%;
   }
 }
+
+/* ====================================================================== */
+/* STEP 8 — PURCHASE ORDERS                                               */
+/* ====================================================================== */
+
+.po-kpi-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 14px;
+}
+
+.po-value {
+  font-size: 21px;
+}
+
+.po-toolbar {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+.po-list-panel {
+  padding: 0;
+
+  overflow: hidden;
+}
+
+.po-table th:first-child,
+.po-table td:first-child {
+  padding-left: 18px;
+}
+
+.po-table th:last-child,
+.po-table td:last-child {
+  padding-right: 18px;
+}
+
+.po-table th {
+  padding-top: 12px;
+}
+
+.po-supplier-cell strong {
+  display: block;
+
+  color:
+    var(--text);
+
+  font-size: 10px;
+}
+
+.po-supplier-cell span {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8.5px;
+}
+
+.po-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 66px;
+
+  padding:
+    4px 8px;
+
+  border-radius: 99px;
+
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.po-status--draft {
+  background:
+    #f2f4f7;
+
+  color:
+    #475467;
+}
+
+.po-status--issued {
+  background:
+    #ecfdf3;
+
+  color:
+    #027a48;
+}
+
+.po-status--cancelled {
+  background:
+    #fef3f2;
+
+  color:
+    #b42318;
+}
+
+.po-empty-state {
+  min-height: 180px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  color:
+    var(--text-tertiary);
+
+  text-align: center;
+}
+
+.po-empty-state strong {
+  color:
+    var(--text);
+
+  font-size: 12px;
+}
+
+.po-empty-state span {
+  max-width: 400px;
+
+  font-size: 10px;
+
+  line-height: 1.5;
+}
+
+.po-award-preview {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 10px;
+
+  margin-top: 17px;
+}
+
+.po-award-preview > div {
+  padding: 12px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 8px;
+
+  background:
+    var(--surface-soft);
+}
+
+.po-award-preview span {
+  display: block;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8px;
+}
+
+.po-award-preview strong {
+  display: block;
+
+  margin-top: 4px;
+
+  font-size: 10px;
+}
+
+.po-form-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(
+      180px,
+      0.45fr
+    )
+    minmax(
+      0,
+      1.55fr
+    );
+
+  gap: 15px;
+}
+
+.po-form-wide {
+  grid-column:
+    1 / -1;
+}
+
+.po-form-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  margin-top: 18px;
+}
+
+.po-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 24px;
+}
+
+.po-detail-heading h1 {
+  margin:
+    7px 0 6px;
+
+  font-size: 29px;
+
+  letter-spacing:
+    -0.035em;
+}
+
+.po-detail-heading p {
+  max-width: 720px;
+
+  margin: 0;
+
+  color:
+    var(--text-secondary);
+
+  font-size: 12px;
+
+  line-height: 1.6;
+}
+
+.po-detail-actions {
+  display: flex;
+
+  gap: 9px;
+}
+
+.po-detail-summary-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 12px;
+}
+
+.po-total-highlight {
+  font-size: 15px;
+
+  letter-spacing:
+    -0.025em;
+}
+
+.po-commercial-summary {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+
+  gap: 8px;
+
+  margin-top: 18px;
+}
+
+.po-commercial-summary > div {
+  min-width: 125px;
+
+  padding: 10px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 8px;
+
+  background:
+    var(--surface-soft);
+}
+
+.po-commercial-summary span {
+  display: block;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8px;
+}
+
+.po-commercial-summary strong {
+  display: block;
+
+  margin-top: 4px;
+
+  font-size: 10px;
+}
+
+.po-commercial-summary__total {
+  border-color:
+    #bfdbfe !important;
+
+  background:
+    var(--primary-soft) !important;
+}
+
+.po-commercial-summary__total strong {
+  color:
+    var(--primary);
+
+  font-size: 13px;
+}
+
+.po-readonly-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 10px;
+}
+
+.po-readonly-grid > div {
+  padding: 13px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 8px;
+
+  background:
+    var(--surface-soft);
+}
+
+.po-readonly-grid span {
+  display: block;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8px;
+
+  text-transform:
+    uppercase;
+
+  letter-spacing:
+    0.06em;
+}
+
+.po-readonly-grid p {
+  margin:
+    5px 0 0;
+
+  color:
+    var(--text-secondary);
+
+  font-size: 10px;
+
+  line-height: 1.55;
+
+  white-space:
+    pre-wrap;
+}
+
+.rfq-purchase-order-entry {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (
+  max-width: 1100px
+) {
+  .po-kpi-grid,
+  .po-detail-summary-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
+  }
+
+  .po-award-preview {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
+  }
+
+  .po-commercial-summary {
+    flex-wrap: wrap;
+  }
+}
+
+@media (
+  max-width: 760px
+) {
+  .po-kpi-grid,
+  .po-detail-summary-grid,
+  .po-award-preview,
+  .po-form-grid,
+  .po-readonly-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .po-form-wide {
+    grid-column:
+      auto;
+  }
+
+  .po-toolbar {
+    align-items:
+      stretch;
+
+    flex-direction:
+      column;
+  }
+
+  .po-detail-heading {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+  }
+
+  .po-detail-actions {
+    width: 100%;
+
+    flex-direction:
+      column;
+  }
+
+  .po-detail-actions
+  .button {
+    width: 100%;
+  }
+
+  .po-commercial-summary {
+    flex-direction:
+      column;
+  }
+
+  .po-commercial-summary > div {
+    min-width: 0;
+  }
+}

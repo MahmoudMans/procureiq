@@ -662,3 +662,117 @@ export async function createAwardDecision(
     },
   );
 }
+
+export async function getPurchaseOrders(
+  query?: string,
+  status?: import("@/types/purchase-order").PurchaseOrderStatus,
+): Promise<import("@/types/purchase-order").PurchaseOrder[]> {
+  const params =
+    new URLSearchParams();
+
+  if (query?.trim()) {
+    params.set(
+      "query",
+      query.trim(),
+    );
+  }
+
+  if (status) {
+    params.set(
+      "status",
+      status,
+    );
+  }
+
+  const queryString =
+    params.toString();
+
+  return request<
+    import("@/types/purchase-order").PurchaseOrder[]
+  >(
+    `/purchase-orders${
+      queryString
+        ? `?${queryString}`
+        : ""
+    }`,
+  );
+}
+
+export async function getPurchaseOrderSummary(): Promise<
+  import("@/types/purchase-order").PurchaseOrderSummary
+> {
+  return request<
+    import("@/types/purchase-order").PurchaseOrderSummary
+  >(
+    "/purchase-orders/summary",
+  );
+}
+
+export async function getPurchaseOrder(
+  id: string,
+): Promise<import("@/types/purchase-order").PurchaseOrder> {
+  return request<
+    import("@/types/purchase-order").PurchaseOrder
+  >(
+    `/purchase-orders/${id}`,
+  );
+}
+
+export async function createPurchaseOrder(
+  input: import("@/types/purchase-order").PurchaseOrderCreateInput,
+): Promise<import("@/types/purchase-order").PurchaseOrder> {
+  return request<
+    import("@/types/purchase-order").PurchaseOrder
+  >(
+    "/purchase-orders",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function updatePurchaseOrder(
+  id: string,
+  input: import("@/types/purchase-order").PurchaseOrderUpdateInput,
+): Promise<import("@/types/purchase-order").PurchaseOrder> {
+  return request<
+    import("@/types/purchase-order").PurchaseOrder
+  >(
+    `/purchase-orders/${id}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function issuePurchaseOrder(
+  id: string,
+): Promise<import("@/types/purchase-order").PurchaseOrder> {
+  return request<
+    import("@/types/purchase-order").PurchaseOrder
+  >(
+    `/purchase-orders/${id}/issue`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function cancelPurchaseOrder(
+  id: string,
+): Promise<import("@/types/purchase-order").PurchaseOrder> {
+  return request<
+    import("@/types/purchase-order").PurchaseOrder
+  >(
+    `/purchase-orders/${id}/cancel`,
+    {
+      method: "POST",
+    },
+  );
+}
