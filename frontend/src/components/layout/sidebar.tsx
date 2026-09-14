@@ -128,7 +128,12 @@ const coreNavigation = [
     href: "/governance-reviews",
     label: "Executive reviews",
     icon: Landmark,
+  },  {
+    href: "/control-tower",
+    label: "Control tower",
+    icon: Activity,
   },
+
 
 
 
@@ -421,6 +426,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/governance-reviews"
+          ||
+          item.href ===
+            "/control-tower"
 ) {
           return canViewAnalytics;
         }

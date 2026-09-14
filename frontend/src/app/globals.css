@@ -26911,3 +26911,476 @@ div > strong {
     break-inside: avoid;
   }
 }
+
+/* ====================================================================== */
+/* STEP 42 — PROCUREMENT CONTROL TOWER                                   */
+/* ====================================================================== */
+
+.control-tower-heading-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+}
+
+.control-tower-currency {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.control-tower-currency span {
+  color: var(--text-tertiary);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.control-tower-currency select {
+  min-width: 100px;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8px;
+}
+
+.control-tower-run-banner {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid #b2ddff;
+  border-radius: 8px;
+  background: #eff8ff;
+  color: #175cd3;
+  font-size: 7.5px;
+}
+
+.control-tower-kpi-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 14px;
+}
+
+.control-tower-money-kpi {
+  font-size: 17px;
+}
+
+.control-tower-risk-text {
+  color: #b42318 !important;
+  font-weight: 700;
+}
+
+.control-tower-signal-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      6,
+      minmax(0, 1fr)
+    );
+  gap: 7px;
+}
+
+.control-tower-signal-grid article {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.control-tower-signal-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 6px;
+}
+
+.control-tower-signal-grid strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+}
+
+.control-tower-last-run {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid #abefc6;
+  border-radius: 7px;
+  background: #ecfdf3;
+  color: #027a48;
+  font-size: 6.5px;
+}
+
+.control-tower-toolbar {
+  display: grid;
+  grid-template-columns:
+    minmax(230px, 1fr)
+    205px
+    120px
+    145px
+    auto;
+  gap: 7px;
+  margin-bottom: 12px;
+}
+
+.control-tower-toolbar input,
+.control-tower-toolbar select {
+  min-height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 7.5px;
+}
+
+.control-tower-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+  font-size: 6.5px;
+}
+
+.control-tower-severity,
+.control-tower-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 6.5px;
+  font-weight: 700;
+}
+
+.control-tower-severity--low {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.control-tower-severity--medium {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.control-tower-severity--high {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.control-tower-severity--critical {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.control-tower-status--open {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.control-tower-status--acknowledged {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.control-tower-status--in-progress {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.control-tower-status--resolved {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.control-tower-status--dismissed {
+  background: #f2f4f7;
+  color: #667085;
+}
+
+.control-tower-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #fedf89;
+  border-radius: 8px;
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.control-tower-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.control-tower-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.control-tower-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.control-tower-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.control-tower-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.control-tower-sla-card {
+  min-width: 160px;
+  padding: 10px;
+  border: 1px solid #abefc6;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #027a48;
+  text-align: right;
+}
+
+.control-tower-sla-card--overdue {
+  border-color: #fecdca;
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.control-tower-sla-card span {
+  display: block;
+  font-size: 6px;
+}
+
+.control-tower-sla-card strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px;
+}
+
+.control-tower-sla-card small {
+  display: block;
+  margin-top: 2px;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.control-tower-detail-kpis {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+}
+
+.control-tower-detail-kpis article {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.control-tower-detail-kpis span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 6px;
+}
+
+.control-tower-detail-kpis strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px;
+}
+
+.control-tower-detail-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.3fr)
+    minmax(280px, 0.7fr);
+  gap: 15px;
+}
+
+.control-tower-details {
+  padding: 10px;
+  border-radius: 7px;
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+  font-size: 7.5px;
+  line-height: 1.55;
+}
+
+.control-tower-source-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.control-tower-source-grid > div {
+  padding: 7px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.control-tower-source-grid span,
+.control-tower-owner-card span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.control-tower-source-grid strong,
+.control-tower-owner-card strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 7px;
+}
+
+.control-tower-owner-card {
+  margin-bottom: 9px;
+  padding: 9px;
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.control-tower-history-note {
+  margin-bottom: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.control-tower-history-note strong {
+  display: block;
+  font-size: 7px;
+}
+
+.control-tower-history-note span {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+}
+
+.control-tower-workflow-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.control-tower-dismiss-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 36px;
+  padding: 0 11px;
+  border: 1px solid #fecdca;
+  border-radius: 7px;
+  background: white;
+  color: #b42318;
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.control-tower-terminal-state {
+  padding: 12px;
+  border-radius: 7px;
+  background: var(--surface-soft);
+  color: var(--text-tertiary);
+  font-size: 7px;
+  text-align: center;
+}
+
+@media (
+  max-width: 1150px
+) {
+  .control-tower-signal-grid {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      );
+  }
+
+  .control-tower-toolbar {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .control-tower-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (
+  max-width: 780px
+) {
+  .control-tower-kpi-grid,
+  .control-tower-detail-kpis {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .control-tower-signal-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+@media (
+  max-width: 640px
+) {
+  .control-tower-heading-actions,
+  .control-tower-detail-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .control-tower-kpi-grid,
+  .control-tower-signal-grid,
+  .control-tower-toolbar,
+  .control-tower-detail-kpis,
+  .control-tower-source-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .control-tower-sla-card {
+    width: 100%;
+    text-align: left;
+  }
+
+  .control-tower-workflow-actions {
+    flex-direction: column;
+  }
+}

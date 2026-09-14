@@ -6879,3 +6879,143 @@ export async function cancelGovernanceAction(
     },
   );
 }
+
+export async function getControlTowerDashboard(
+  currency = "EUR",
+): Promise<
+  import("@/types/control-tower").ControlTowerDashboard
+> {
+  return request<
+    import("@/types/control-tower").ControlTowerDashboard
+  >(
+    `/control-tower?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function scanControlTower(
+  currency = "EUR",
+): Promise<
+  import("@/types/control-tower").ControlTowerScan
+> {
+  return request<
+    import("@/types/control-tower").ControlTowerScan
+  >(
+    `/control-tower/scan?currency=${encodeURIComponent(currency)}`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getControlTowerContext(): Promise<
+  import("@/types/control-tower").ControlTowerContext
+> {
+  return request<
+    import("@/types/control-tower").ControlTowerContext
+  >(
+    "/control-tower/context-options",
+  );
+}
+
+export async function getControlTowerItem(
+  itemId: string,
+): Promise<
+  import("@/types/control-tower").ControlTowerItem
+> {
+  return request<
+    import("@/types/control-tower").ControlTowerItem
+  >(
+    `/control-tower/items/${itemId}`,
+  );
+}
+
+export async function assignControlTowerOwner(
+  itemId: string,
+  ownerUserId: string,
+): Promise<
+  import("@/types/control-tower").ControlTowerItem
+> {
+  return request<
+    import("@/types/control-tower").ControlTowerItem
+  >(
+    `/control-tower/items/${itemId}/owner`,
+    {
+      method: "PUT",
+      body: JSON.stringify({
+        ownerUserId,
+      }),
+    },
+  );
+}
+
+export async function acknowledgeControlTowerItem(
+  itemId: string,
+  note: string,
+): Promise<
+  import("@/types/control-tower").ControlTowerItem
+> {
+  return request<
+    import("@/types/control-tower").ControlTowerItem
+  >(
+    `/control-tower/items/${itemId}/acknowledge`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function startControlTowerItem(
+  itemId: string,
+): Promise<
+  import("@/types/control-tower").ControlTowerItem
+> {
+  return request<
+    import("@/types/control-tower").ControlTowerItem
+  >(
+    `/control-tower/items/${itemId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function resolveControlTowerItem(
+  itemId: string,
+  note: string,
+): Promise<
+  import("@/types/control-tower").ControlTowerItem
+> {
+  return request<
+    import("@/types/control-tower").ControlTowerItem
+  >(
+    `/control-tower/items/${itemId}/resolve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function dismissControlTowerItem(
+  itemId: string,
+  note: string,
+): Promise<
+  import("@/types/control-tower").ControlTowerItem
+> {
+  return request<
+    import("@/types/control-tower").ControlTowerItem
+  >(
+    `/control-tower/items/${itemId}/dismiss`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
