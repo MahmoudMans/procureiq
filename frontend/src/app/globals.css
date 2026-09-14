@@ -25420,3 +25420,765 @@ div > strong {
     width: 100%;
   }
 }
+
+/* ====================================================================== */
+/* STEP 40 — PROCUREMENT DECISION & BENEFITS GOVERNANCE                  */
+/* ====================================================================== */
+
+.benefit-currency {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.benefit-currency span {
+  color: var(--text-tertiary);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.benefit-currency select {
+  min-width: 100px;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8px;
+}
+
+.benefit-kpi-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 14px;
+}
+
+.benefit-money-kpi {
+  font-size: 17px;
+}
+
+.benefit-signal-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 9px;
+}
+
+.benefit-signal-grid article {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.benefit-signal-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 6.5px;
+}
+
+.benefit-signal-grid strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 9px;
+}
+
+.benefit-authorization-controls {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.benefit-approved-scenario-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+}
+
+.benefit-approved-scenario-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.benefit-approved-scenario-grid
+  article
+  > div:first-child
+  > span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 6px;
+}
+
+.benefit-approved-scenario-grid
+  article
+  > div:first-child
+  > strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8.5px;
+}
+
+.benefit-approved-scenario-grid
+  article
+  > div:first-child
+  > small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 6px;
+}
+
+.benefit-approved-scenario-metrics {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 5px;
+  margin: 8px 0;
+}
+
+.benefit-approved-scenario-metrics span {
+  padding: 6px;
+  border-radius: 5px;
+  background: white;
+  color: var(--text-tertiary);
+  font-size: 6px;
+}
+
+.benefit-approved-scenario-metrics strong {
+  color: var(--text-primary);
+}
+
+.benefit-status-filter {
+  min-height: 34px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 7.5px;
+}
+
+.benefit-portfolio-status,
+.benefit-item-status,
+.benefit-assumption-status,
+.benefit-leakage-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 6.5px;
+  font-weight: 700;
+}
+
+.benefit-portfolio-status--authorized,
+.benefit-item-status--planned,
+.benefit-assumption-status--active,
+.benefit-leakage-status--open {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.benefit-portfolio-status--in-execution,
+.benefit-item-status--in-progress,
+.benefit-item-status--validation-pending {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.benefit-portfolio-status--closed,
+.benefit-item-status--validated,
+.benefit-assumption-status--confirmed,
+.benefit-leakage-status--mitigated,
+.benefit-leakage-status--resolved {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.benefit-portfolio-status--archived,
+.benefit-item-status--cancelled {
+  background: #f2f4f7;
+  color: #667085;
+}
+
+.benefit-assumption-status--invalidated,
+.benefit-leakage-status--accepted {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.benefit-table-sub {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.benefit-risk-value {
+  color: #b42318 !important;
+  font-weight: 700;
+}
+
+.benefit-governance-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.benefit-governance-tags span {
+  padding: 3px 5px;
+  border-radius: 4px;
+  background: #f2f4f7;
+  color: #475467;
+  font-size: 5.8px;
+}
+
+.benefit-integrity-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #abefc6;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.benefit-integrity-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.benefit-integrity-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.benefit-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.benefit-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.benefit-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.benefit-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.benefit-detail-kpis {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      6,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+}
+
+.benefit-detail-kpis article {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.benefit-detail-kpis span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 6px;
+}
+
+.benefit-detail-kpis strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px;
+}
+
+.benefit-detail-kpis small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.5px;
+}
+
+.benefit-bridge {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+}
+
+.benefit-bridge article {
+  position: relative;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.benefit-bridge span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 6px;
+}
+
+.benefit-bridge strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+}
+
+.benefit-bridge div {
+  margin-top: 4px;
+  color: var(--text-secondary);
+  font-size: 6px;
+}
+
+.benefit-item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.benefit-item {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.benefit-item--risk {
+  border-left: 3px solid #d92d20;
+}
+
+.benefit-item-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 9px;
+}
+
+.benefit-item-heading
+  > div:first-child
+  > strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 8px;
+}
+
+.benefit-item-heading
+  > div:first-child
+  > small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 6px;
+}
+
+.benefit-item-heading
+  > div:last-child
+  > span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 6px;
+}
+
+.benefit-item-heading select {
+  min-height: 29px;
+  margin-top: 3px;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6.5px;
+}
+
+.benefit-item-values {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      6,
+      minmax(0, 1fr)
+    );
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.benefit-item-values > div {
+  padding: 6px;
+  border-radius: 5px;
+  background: white;
+}
+
+.benefit-item-values span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.5px;
+}
+
+.benefit-item-values strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 7px;
+}
+
+.benefit-forecast-controls,
+.benefit-validation-controls,
+.benefit-validation-panel {
+  display: grid;
+  grid-template-columns:
+    auto
+    minmax(120px, 0.5fr)
+    minmax(130px, 0.5fr)
+    auto;
+  gap: 6px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.benefit-forecast-controls input,
+.benefit-validation-controls input,
+.benefit-validation-panel input {
+  min-height: 30px;
+  padding: 0 7px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 7px;
+}
+
+.benefit-forecast-controls button,
+.benefit-validation-controls button,
+.benefit-validation-panel button,
+.benefit-assumption-controls button,
+.benefit-leakage-controls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 30px;
+  padding: 0 7px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  color: var(--primary);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.benefit-validation-panel {
+  grid-template-columns:
+    minmax(180px, 1fr)
+    120px
+    minmax(180px, 1fr)
+    auto;
+  padding: 8px;
+  border-radius: 6px;
+  background: #fffaeb;
+}
+
+.benefit-validation-panel
+  > div
+  span {
+  display: block;
+  color: #b54708;
+  font-size: 6px;
+}
+
+.benefit-validation-panel
+  > div
+  strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 8px;
+}
+
+.benefit-validation-panel
+  > div
+  p {
+  margin: 3px 0 0;
+  color: #7a2e0e;
+  font-size: 6px;
+}
+
+.benefit-validation-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  margin-top: 8px;
+  padding: 7px;
+  border-radius: 6px;
+  background: #ecfdf3;
+  color: #027a48;
+  font-size: 6.5px;
+}
+
+.benefit-cancel-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  min-height: 28px;
+  padding: 0 7px;
+  border: 1px solid #fecdca;
+  border-radius: 5px;
+  background: white;
+  color: #b42318;
+  font-size: 6.5px;
+}
+
+.benefit-detail-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 15px;
+}
+
+.benefit-assumption-list,
+.benefit-leakage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.benefit-assumption,
+.benefit-leakage {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.benefit-assumption--overdue,
+.benefit-leakage--overdue {
+  border-left: 3px solid #d92d20;
+}
+
+.benefit-assumption
+  > div:first-child
+  > strong,
+.benefit-leakage
+  > div:first-child
+  > strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 7.5px;
+}
+
+.benefit-assumption
+  > div:first-child
+  > small,
+.benefit-leakage
+  > div:first-child
+  > small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 6px;
+}
+
+.benefit-assumption > p,
+.benefit-leakage > p {
+  margin: 7px 0 0;
+  color: var(--text-secondary);
+  font-size: 6.8px;
+  line-height: 1.45;
+}
+
+.benefit-assumption-meta,
+.benefit-leakage-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.benefit-assumption-meta span,
+.benefit-leakage-meta span {
+  padding: 4px 6px;
+  border-radius: 5px;
+  background: white;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.benefit-resolution-note {
+  margin-top: 7px;
+  padding: 7px;
+  border-radius: 5px;
+  background: white;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+}
+
+.benefit-assumption-controls,
+.benefit-leakage-controls {
+  display: flex;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.benefit-assumption-controls input,
+.benefit-leakage-controls input,
+.benefit-leakage-controls select {
+  flex: 1;
+  min-height: 30px;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6.5px;
+}
+
+.benefit-danger-button {
+  color: #b42318 !important;
+}
+
+.benefit-form-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 10px;
+}
+
+.benefit-form-wide {
+  grid-column: 1 / -1;
+}
+
+.benefit-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.benefit-empty {
+  padding: 20px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  text-align: center;
+}
+
+@media (
+  max-width: 1150px
+) {
+  .benefit-kpi-grid,
+  .benefit-signal-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .benefit-detail-kpis {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      );
+  }
+
+  .benefit-item-values {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+@media (
+  max-width: 900px
+) {
+  .benefit-approved-scenario-grid,
+  .benefit-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .benefit-bridge {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .benefit-forecast-controls,
+  .benefit-validation-controls,
+  .benefit-validation-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (
+  max-width: 640px
+) {
+  .benefit-kpi-grid,
+  .benefit-signal-grid,
+  .benefit-authorization-controls,
+  .benefit-detail-kpis,
+  .benefit-bridge,
+  .benefit-item-values,
+  .benefit-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .benefit-form-wide {
+    grid-column: auto;
+  }
+
+  .benefit-detail-heading,
+  .benefit-item-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .benefit-assumption-controls,
+  .benefit-leakage-controls {
+    flex-direction: column;
+  }
+}

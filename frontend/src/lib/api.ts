@@ -6303,3 +6303,331 @@ export async function archivePortfolioOptimizationScenario(
     },
   );
 }
+
+export async function getBenefitsGovernanceDashboard(
+  currency = "EUR",
+): Promise<
+  import("@/types/benefits-governance").BenefitsGovernanceDashboard
+> {
+  return request<
+    import("@/types/benefits-governance").BenefitsGovernanceDashboard
+  >(
+    `/benefits-governance?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getBenefitsGovernanceContext(): Promise<
+  import("@/types/benefits-governance").BenefitsGovernanceContext
+> {
+  return request<
+    import("@/types/benefits-governance").BenefitsGovernanceContext
+  >(
+    "/benefits-governance/context-options",
+  );
+}
+
+export async function getExecutionPortfolio(
+  portfolioId: string,
+): Promise<
+  import("@/types/benefits-governance").ExecutionPortfolioDetail
+> {
+  return request<
+    import("@/types/benefits-governance").ExecutionPortfolioDetail
+  >(
+    `/benefits-governance/portfolios/${portfolioId}`,
+  );
+}
+
+export async function authorizeExecutionPortfolio(
+  scenarioId: string,
+  input: {
+    ownerUserId?: string;
+    notes?: string;
+  } = {},
+): Promise<
+  import("@/types/benefits-governance").ExecutionPortfolioDetail
+> {
+  return request<
+    import("@/types/benefits-governance").ExecutionPortfolioDetail
+  >(
+    `/benefits-governance/scenarios/${scenarioId}/authorize`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startExecutionPortfolio(
+  portfolioId: string,
+): Promise<
+  import("@/types/benefits-governance").ExecutionPortfolioSummary
+> {
+  return request<
+    import("@/types/benefits-governance").ExecutionPortfolioSummary
+  >(
+    `/benefits-governance/portfolios/${portfolioId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function closeExecutionPortfolio(
+  portfolioId: string,
+): Promise<
+  import("@/types/benefits-governance").ExecutionPortfolioSummary
+> {
+  return request<
+    import("@/types/benefits-governance").ExecutionPortfolioSummary
+  >(
+    `/benefits-governance/portfolios/${portfolioId}/close`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function archiveExecutionPortfolio(
+  portfolioId: string,
+): Promise<
+  import("@/types/benefits-governance").ExecutionPortfolioSummary
+> {
+  return request<
+    import("@/types/benefits-governance").ExecutionPortfolioSummary
+  >(
+    `/benefits-governance/portfolios/${portfolioId}/archive`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function updateBenefitOwner(
+  itemId: string,
+  ownerUserId: string,
+): Promise<
+  import("@/types/benefits-governance").BenefitItem
+> {
+  return request<
+    import("@/types/benefits-governance").BenefitItem
+  >(
+    `/benefits-governance/items/${itemId}/owner`,
+    {
+      method: "PUT",
+      body: JSON.stringify({
+        ownerUserId,
+      }),
+    },
+  );
+}
+
+export async function startBenefitItem(
+  itemId: string,
+): Promise<
+  import("@/types/benefits-governance").BenefitItem
+> {
+  return request<
+    import("@/types/benefits-governance").BenefitItem
+  >(
+    `/benefits-governance/items/${itemId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function updateBenefitForecast(
+  itemId: string,
+  input: {
+    forecastSavings: number;
+    expectedRealizationDate?: string;
+  },
+): Promise<
+  import("@/types/benefits-governance").BenefitItem
+> {
+  return request<
+    import("@/types/benefits-governance").BenefitItem
+  >(
+    `/benefits-governance/items/${itemId}/forecast`,
+    {
+      method: "PUT",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function requestBenefitValidation(
+  itemId: string,
+  input: {
+    proposedValidatedSavings: number;
+    note: string;
+  },
+): Promise<
+  import("@/types/benefits-governance").BenefitItem
+> {
+  return request<
+    import("@/types/benefits-governance").BenefitItem
+  >(
+    `/benefits-governance/items/${itemId}/validation-request`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function validateBenefitItem(
+  itemId: string,
+  input: {
+    validatedSavings: number;
+    note: string;
+  },
+): Promise<
+  import("@/types/benefits-governance").BenefitItem
+> {
+  return request<
+    import("@/types/benefits-governance").BenefitItem
+  >(
+    `/benefits-governance/items/${itemId}/validate`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function cancelBenefitItem(
+  itemId: string,
+): Promise<
+  import("@/types/benefits-governance").BenefitItem
+> {
+  return request<
+    import("@/types/benefits-governance").BenefitItem
+  >(
+    `/benefits-governance/items/${itemId}/cancel`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function createBenefitAssumption(
+  portfolioId: string,
+  input: {
+    assumptionType:
+      import("@/types/benefits-governance").BenefitAssumptionType;
+    description: string;
+    financialImpact: number;
+    ownerUserId?: string;
+    reviewDate?: string;
+  },
+): Promise<
+  import("@/types/benefits-governance").BenefitAssumption
+> {
+  return request<
+    import("@/types/benefits-governance").BenefitAssumption
+  >(
+    `/benefits-governance/portfolios/${portfolioId}/assumptions`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function confirmBenefitAssumption(
+  assumptionId: string,
+  note: string,
+): Promise<
+  import("@/types/benefits-governance").BenefitAssumption
+> {
+  return request<
+    import("@/types/benefits-governance").BenefitAssumption
+  >(
+    `/benefits-governance/assumptions/${assumptionId}/confirm`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function invalidateBenefitAssumption(
+  assumptionId: string,
+  note: string,
+): Promise<
+  import("@/types/benefits-governance").BenefitAssumption
+> {
+  return request<
+    import("@/types/benefits-governance").BenefitAssumption
+  >(
+    `/benefits-governance/assumptions/${assumptionId}/invalidate`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function createBenefitLeakage(
+  itemId: string,
+  input: {
+    leakageType:
+      import("@/types/benefits-governance").BenefitLeakageType;
+    amount: number;
+    description: string;
+    ownerUserId?: string;
+    dueDate?: string;
+  },
+): Promise<
+  import("@/types/benefits-governance").BenefitLeakage
+> {
+  return request<
+    import("@/types/benefits-governance").BenefitLeakage
+  >(
+    `/benefits-governance/items/${itemId}/leakage`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function resolveBenefitLeakage(
+  leakageId: string,
+  status:
+    import("@/types/benefits-governance").BenefitLeakageStatus,
+  note: string,
+): Promise<
+  import("@/types/benefits-governance").BenefitLeakage
+> {
+  return request<
+    import("@/types/benefits-governance").BenefitLeakage
+  >(
+    `/benefits-governance/leakage/${leakageId}/resolve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        status,
+        note,
+      }),
+    },
+  );
+}

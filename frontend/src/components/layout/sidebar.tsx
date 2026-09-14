@@ -119,7 +119,12 @@ const coreNavigation = [
     href: "/portfolio-optimization",
     label: "Portfolio optimization",
     icon: SlidersHorizontal,
+  },  {
+    href: "/benefits-governance",
+    label: "Benefits governance",
+    icon: BadgeDollarSign,
   },
+
 
 
 
@@ -404,6 +409,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/portfolio-optimization"
+          ||
+          item.href ===
+            "/benefits-governance"
 ) {
           return canViewAnalytics;
         }
