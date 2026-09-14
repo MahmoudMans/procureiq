@@ -1434,3 +1434,198 @@ export async function refreshSystemRiskExceptions(): Promise<
     },
   );
 }
+
+export async function getBudgetAllocations(
+  fiscalYear?: number,
+  currency?: string,
+): Promise<import("@/types/budget").BudgetAllocation[]> {
+  const params =
+    new URLSearchParams();
+
+  if (fiscalYear) {
+    params.set(
+      "fiscalYear",
+      String(
+        fiscalYear,
+      ),
+    );
+  }
+
+  if (currency) {
+    params.set(
+      "currency",
+      currency,
+    );
+  }
+
+  const query =
+    params.toString();
+
+  return request<
+    import("@/types/budget").BudgetAllocation[]
+  >(
+    `/budgets${
+      query
+        ? `?${query}`
+        : ""
+    }`,
+  );
+}
+
+export async function getBudgetUsage(
+  fiscalYear?: number,
+  currency?: string,
+): Promise<import("@/types/budget").BudgetUsage[]> {
+  const params =
+    new URLSearchParams();
+
+  if (fiscalYear) {
+    params.set(
+      "fiscalYear",
+      String(
+        fiscalYear,
+      ),
+    );
+  }
+
+  if (currency) {
+    params.set(
+      "currency",
+      currency,
+    );
+  }
+
+  const query =
+    params.toString();
+
+  return request<
+    import("@/types/budget").BudgetUsage[]
+  >(
+    `/budgets/usage${
+      query
+        ? `?${query}`
+        : ""
+    }`,
+  );
+}
+
+export async function getBudgetSummary(
+  fiscalYear?: number,
+  currency?: string,
+): Promise<import("@/types/budget").BudgetSummary> {
+  const params =
+    new URLSearchParams();
+
+  if (fiscalYear) {
+    params.set(
+      "fiscalYear",
+      String(
+        fiscalYear,
+      ),
+    );
+  }
+
+  if (currency) {
+    params.set(
+      "currency",
+      currency,
+    );
+  }
+
+  const query =
+    params.toString();
+
+  return request<
+    import("@/types/budget").BudgetSummary
+  >(
+    `/budgets/summary${
+      query
+        ? `?${query}`
+        : ""
+    }`,
+  );
+}
+
+export async function getBudgetAlerts(
+  fiscalYear?: number,
+  currency?: string,
+): Promise<import("@/types/budget").BudgetAlert[]> {
+  const params =
+    new URLSearchParams();
+
+  if (fiscalYear) {
+    params.set(
+      "fiscalYear",
+      String(
+        fiscalYear,
+      ),
+    );
+  }
+
+  if (currency) {
+    params.set(
+      "currency",
+      currency,
+    );
+  }
+
+  const query =
+    params.toString();
+
+  return request<
+    import("@/types/budget").BudgetAlert[]
+  >(
+    `/budgets/alerts${
+      query
+        ? `?${query}`
+        : ""
+    }`,
+  );
+}
+
+export async function getBudgetContextOptions(): Promise<
+  import("@/types/budget").BudgetContextOptions
+> {
+  return request<
+    import("@/types/budget").BudgetContextOptions
+  >(
+    "/budgets/context-options",
+  );
+}
+
+export async function checkPurchaseRequestBudget(
+  purchaseRequestId: string,
+): Promise<import("@/types/budget").PurchaseRequestBudgetCheck> {
+  return request<
+    import("@/types/budget").PurchaseRequestBudgetCheck
+  >(
+    `/budgets/check/purchase-requests/${purchaseRequestId}`,
+  );
+}
+
+export async function createBudgetAllocation(
+  input: import("@/types/budget").BudgetAllocationInput,
+): Promise<import("@/types/budget").BudgetAllocation> {
+  return request<
+    import("@/types/budget").BudgetAllocation
+  >(
+    "/budgets",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function archiveBudgetAllocation(
+  allocationId: string,
+): Promise<void> {
+  return request<void>(
+    `/budgets/${allocationId}/archive`,
+    {
+      method: "POST",
+    },
+  );
+}

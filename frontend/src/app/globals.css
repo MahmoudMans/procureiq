@@ -9562,3 +9562,391 @@ a {
     grid-column: 2;
   }
 }
+
+/* ====================================================================== */
+/* STEP 16 — PROCUREMENT PLANNING & BUDGET CONTROL                       */
+/* ====================================================================== */
+
+.budget-period-control {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: white;
+}
+
+.budget-period-control label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.budget-period-control label span {
+  color: var(--text-secondary);
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.budget-period-control select {
+  min-width: 130px;
+  height: 36px;
+  padding: 0 9px;
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  background: white;
+}
+
+.budget-kpi-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 14px;
+}
+
+.budget-money-kpi {
+  font-size: 19px;
+}
+
+.budget-alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.budget-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.budget-alert--warning {
+  border-left: 3px solid #f79009;
+}
+
+.budget-alert--exceeded {
+  border-left: 3px solid #d92d20;
+}
+
+.budget-alert strong {
+  display: block;
+  font-size: 9px;
+}
+
+.budget-alert span {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-tertiary);
+  font-size: 8px;
+}
+
+.budget-alert > div:last-child {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.budget-allocation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.budget-allocation-card {
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+
+.budget-allocation-card--warning {
+  border-left: 3px solid #f79009;
+}
+
+.budget-allocation-card--exceeded {
+  border-left: 3px solid #d92d20;
+}
+
+.budget-allocation-heading,
+.budget-progress-labels,
+.budget-allocation-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.budget-allocation-heading strong {
+  display: block;
+  font-size: 10px;
+}
+
+.budget-allocation-heading span {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-tertiary);
+  font-size: 8px;
+}
+
+.budget-progress-labels {
+  margin-top: 12px;
+  color: var(--text-secondary);
+  font-size: 8px;
+}
+
+.budget-progress-labels strong {
+  color: var(--text);
+  font-size: 8.5px;
+}
+
+.budget-progress-track {
+  height: 8px;
+  overflow: hidden;
+  margin-top: 7px;
+  border-radius: 99px;
+  background: var(--border);
+}
+
+.budget-progress-track > div {
+  height: 100%;
+  border-radius: inherit;
+  background: currentColor;
+  color: var(--primary);
+}
+
+.budget-allocation-card--warning
+.budget-progress-track > div {
+  color: #f79009;
+}
+
+.budget-allocation-card--exceeded
+.budget-progress-track > div {
+  color: #d92d20;
+}
+
+.budget-allocation-footer {
+  margin-top: 8px;
+  color: var(--text-tertiary);
+  font-size: 8px;
+}
+
+.budget-level {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 7.5px;
+  font-weight: 700;
+}
+
+.budget-level--healthy {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.budget-level--warning {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.budget-level--exceeded {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.budget-empty {
+  padding: 30px;
+  color: var(--text-tertiary);
+  font-size: 9.5px;
+  text-align: center;
+}
+
+.budget-check-controls {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.budget-check-result {
+  margin-top: 15px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+
+.budget-check-result--warning {
+  border-left: 3px solid #f79009;
+}
+
+.budget-check-result--exceeded {
+  border-left: 3px solid #d92d20;
+}
+
+.budget-check-result--healthy {
+  border-left: 3px solid #12b76a;
+}
+
+.budget-check-result__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.budget-check-result__header strong {
+  display: block;
+  font-size: 10px;
+}
+
+.budget-check-result__header span {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-tertiary);
+  font-size: 8px;
+}
+
+.budget-check-result > p {
+  margin: 10px 0 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.budget-check-metrics {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      5,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.budget-check-metrics > div {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+}
+
+.budget-check-metrics span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7.5px;
+}
+
+.budget-check-metrics strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 9px;
+}
+
+.budget-form-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 13px;
+}
+
+.budget-form-wide {
+  grid-column: 1 / -1;
+}
+
+.budget-hard-limit {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.budget-hard-limit input {
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+}
+
+.budget-hard-limit strong {
+  display: block;
+  font-size: 9px;
+}
+
+.budget-hard-limit span {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-tertiary);
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.budget-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+@media (
+  max-width: 1100px
+) {
+  .budget-kpi-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .budget-check-metrics {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+@media (
+  max-width: 760px
+) {
+  .budget-period-control,
+  .budget-alert,
+  .budget-allocation-heading,
+  .budget-progress-labels,
+  .budget-allocation-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .budget-alert >
+  div:last-child {
+    text-align: left;
+  }
+
+  .budget-kpi-grid,
+  .budget-check-metrics,
+  .budget-form-grid,
+  .budget-check-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .budget-form-wide {
+    grid-column: auto;
+  }
+}
