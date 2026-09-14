@@ -12522,3 +12522,584 @@ div > strong {
     width: 100%;
   }
 }
+
+/* ====================================================================== */
+/* STEP 21 — PROCUREMENT POLICY & COMPLIANCE CONTROLS                    */
+/* ====================================================================== */
+
+.compliance-heading-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.compliance-evaluation-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #b2ddff;
+  border-radius: 8px;
+  background: #eff8ff;
+  color: #175cd3;
+  font-size: 9px;
+}
+
+.compliance-kpi-grid,
+.compliance-detail-kpis {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 14px;
+}
+
+.compliance-policy-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+  gap: 10px;
+}
+
+.compliance-policy-card {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+
+.compliance-policy-card--inactive {
+  opacity: 0.65;
+}
+
+.compliance-policy-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.compliance-policy-heading > div > span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.compliance-policy-heading > div > strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 9.5px;
+}
+
+.compliance-policy-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.compliance-policy-status--active {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.compliance-policy-status--inactive {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.compliance-policy-card > p {
+  margin: 9px 0 0;
+  color: var(--text-secondary);
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.compliance-policy-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.compliance-policy-meta > span {
+  padding: 4px 6px;
+  border-radius: 5px;
+  background: white;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.compliance-policy-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  color: var(--text-tertiary);
+  font-size: 7.5px;
+}
+
+.compliance-inline-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  color: var(--primary);
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.compliance-inline-button:disabled {
+  opacity: 0.5;
+}
+
+.compliance-severity,
+.compliance-violation-status,
+.compliance-waiver-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.compliance-severity--low {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.compliance-severity--medium {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.compliance-severity--high {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.compliance-severity--critical {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.compliance-violation-status--open {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.compliance-violation-status--waiver-requested {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.compliance-violation-status--waived {
+  background: #f4f3ff;
+  color: #5925dc;
+}
+
+.compliance-violation-status--resolved {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.compliance-violation-status--dismissed {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.compliance-count {
+  color: var(--text-tertiary);
+  font-size: 8.5px;
+}
+
+.compliance-toolbar {
+  display: grid;
+  grid-template-columns:
+    minmax(220px, 1fr)
+    150px
+    180px;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.compliance-toolbar input,
+.compliance-toolbar select {
+  min-height: 36px;
+  padding: 0 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8.5px;
+}
+
+.compliance-empty {
+  padding: 26px;
+  color: var(--text-tertiary);
+  font-size: 9px;
+  text-align: center;
+}
+
+.compliance-empty--wide {
+  grid-column: 1 / -1;
+}
+
+.compliance-form-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 13px;
+}
+
+.compliance-form-wide {
+  grid-column: 1 / -1;
+}
+
+.compliance-waiver-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.compliance-waiver-option input {
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+}
+
+.compliance-waiver-option strong {
+  display: block;
+  font-size: 8.5px;
+}
+
+.compliance-waiver-option span {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-tertiary);
+  font-size: 7.5px;
+  line-height: 1.45;
+}
+
+.compliance-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.compliance-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.compliance-detail-heading h1 {
+  margin: 7px 0 6px;
+  font-size: 28px;
+  letter-spacing: -0.035em;
+}
+
+.compliance-detail-heading p {
+  max-width: 760px;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9.5px;
+  line-height: 1.5;
+}
+
+.compliance-detail-context {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+}
+
+.compliance-detail-context > div {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.compliance-detail-context span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.compliance-detail-context strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8.5px;
+}
+
+.compliance-waiver-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.compliance-waiver-card {
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.compliance-waiver-card--approved {
+  border-left: 3px solid #12b76a;
+}
+
+.compliance-waiver-card--rejected {
+  border-left: 3px solid #d92d20;
+}
+
+.compliance-waiver-card--submitted {
+  border-left: 3px solid #f79009;
+}
+
+.compliance-waiver-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.compliance-waiver-heading strong {
+  display: block;
+  font-size: 9px;
+}
+
+.compliance-waiver-heading div > span {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.compliance-waiver-card p {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.compliance-waiver-status--submitted {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.compliance-waiver-status--approved {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.compliance-waiver-status--rejected {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.compliance-waiver-status--cancelled {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.compliance-waiver-decision {
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  background: white;
+  color: var(--text-secondary);
+  font-size: 7.5px;
+}
+
+.compliance-waiver-decision-form {
+  margin-top: 13px;
+}
+
+.compliance-waiver-decision-form > div {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.compliance-evidence-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.compliance-evidence-list article {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.compliance-evidence-list article > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.compliance-evidence-list article > div span {
+  color: var(--primary);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.compliance-evidence-list article > div strong {
+  font-size: 7.5px;
+}
+
+.compliance-evidence-list p {
+  margin: 6px 0;
+  color: var(--text-secondary);
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.compliance-evidence-list small {
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.compliance-evidence-form {
+  display: grid;
+  grid-template-columns:
+    130px
+    minmax(180px, 1fr)
+    auto;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.compliance-evidence-form select,
+.compliance-evidence-form input {
+  min-height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  font-size: 8px;
+}
+
+.compliance-resolution-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 12px;
+  border: 1px solid #abefc6;
+  border-radius: 8px;
+  background: #ecfdf3;
+}
+
+.compliance-resolution-card span {
+  display: block;
+  color: #027a48;
+  font-size: 7.5px;
+  font-weight: 700;
+}
+
+.compliance-resolution-card strong {
+  display: block;
+  margin-top: 4px;
+  color: #05603a;
+  font-size: 8.5px;
+  line-height: 1.45;
+}
+
+.compliance-resolution-card small {
+  display: block;
+  margin-top: 4px;
+  color: #027a48;
+  font-size: 7px;
+}
+
+@media (
+  max-width: 1120px
+) {
+  .compliance-kpi-grid,
+  .compliance-detail-kpis {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .compliance-policy-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .compliance-detail-context {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+@media (
+  max-width: 760px
+) {
+  .compliance-heading-actions,
+  .compliance-detail-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .compliance-kpi-grid,
+  .compliance-detail-kpis,
+  .compliance-policy-grid,
+  .compliance-form-grid,
+  .compliance-detail-context,
+  .compliance-toolbar,
+  .compliance-evidence-form {
+    grid-template-columns: 1fr;
+  }
+
+  .compliance-form-wide {
+    grid-column: auto;
+  }
+
+  .compliance-policy-footer,
+  .compliance-waiver-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .compliance-waiver-decision-form > div {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

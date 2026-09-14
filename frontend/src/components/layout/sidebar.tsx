@@ -21,6 +21,7 @@ import {
   CalendarRange,
   BadgeDollarSign,
   PanelsTopLeft,
+  ShieldCheck,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -47,7 +48,12 @@ const coreNavigation = [
     href: "/supplier-performance",
     label: "Supplier performance",
     icon: ClipboardCheck,
+  },  {
+    href: "/compliance",
+    label: "Policy & compliance",
+    icon: ShieldCheck,
   },
+
   {
     href: "/contracts",
     label: "Contracts & compliance",
@@ -238,6 +244,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/supplier-performance"
+          ||
+          item.href ===
+            "/compliance"
 ) {
           return canViewAnalytics;
         }

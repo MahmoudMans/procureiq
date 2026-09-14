@@ -1,0 +1,8 @@
+package com.procureiq.compliance;
+
+public enum ProcurementPolicyType {
+    COMPETITIVE_SOURCING_THRESHOLD,
+    PURCHASE_ORDER_REQUIRED_THRESHOLD,
+    CONTRACT_REQUIRED_THRESHOLD,
+    HIGH_RISK_SUPPLIER_RESTRICTION
+}

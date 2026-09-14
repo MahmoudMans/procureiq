@@ -2382,3 +2382,227 @@ export async function cancelSupplierCorrectiveAction(
     },
   );
 }
+
+export async function getCompliancePolicies(): Promise<
+  import("@/types/policy-compliance").ProcurementPolicy[]
+> {
+  return request<
+    import("@/types/policy-compliance").ProcurementPolicy[]
+  >(
+    "/compliance/policies",
+  );
+}
+
+export async function createCompliancePolicy(
+  input: {
+    policyCode: string;
+    name: string;
+    description?: string;
+    policyType:
+      import("@/types/policy-compliance").ProcurementPolicyType;
+    severity:
+      import("@/types/policy-compliance").ProcurementPolicySeverity;
+    thresholdAmount?: number;
+    currency?: string;
+    requiresWaiver: boolean;
+    ownerUserId?: string;
+  },
+): Promise<
+  import("@/types/policy-compliance").ProcurementPolicy
+> {
+  return request<
+    import("@/types/policy-compliance").ProcurementPolicy
+  >(
+    "/compliance/policies",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function activateCompliancePolicy(
+  policyId: string,
+): Promise<
+  import("@/types/policy-compliance").ProcurementPolicy
+> {
+  return request<
+    import("@/types/policy-compliance").ProcurementPolicy
+  >(
+    `/compliance/policies/${policyId}/activate`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function deactivateCompliancePolicy(
+  policyId: string,
+): Promise<
+  import("@/types/policy-compliance").ProcurementPolicy
+> {
+  return request<
+    import("@/types/policy-compliance").ProcurementPolicy
+  >(
+    `/compliance/policies/${policyId}/deactivate`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function evaluateCompliancePolicies(): Promise<
+  import("@/types/policy-compliance").PolicyEvaluation
+> {
+  return request<
+    import("@/types/policy-compliance").PolicyEvaluation
+  >(
+    "/compliance/evaluate",
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getPolicyViolations(): Promise<
+  import("@/types/policy-compliance").PolicyViolation[]
+> {
+  return request<
+    import("@/types/policy-compliance").PolicyViolation[]
+  >(
+    "/compliance/violations",
+  );
+}
+
+export async function getPolicyViolation(
+  violationId: string,
+): Promise<
+  import("@/types/policy-compliance").PolicyViolationDetail
+> {
+  return request<
+    import("@/types/policy-compliance").PolicyViolationDetail
+  >(
+    `/compliance/violations/${violationId}`,
+  );
+}
+
+export async function requestPolicyWaiver(
+  violationId: string,
+  rationale: string,
+): Promise<
+  import("@/types/policy-compliance").PolicyWaiver
+> {
+  return request<
+    import("@/types/policy-compliance").PolicyWaiver
+  >(
+    `/compliance/violations/${violationId}/waivers`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        rationale,
+      }),
+    },
+  );
+}
+
+export async function approvePolicyWaiver(
+  waiverId: string,
+  note: string,
+): Promise<
+  import("@/types/policy-compliance").PolicyWaiver
+> {
+  return request<
+    import("@/types/policy-compliance").PolicyWaiver
+  >(
+    `/compliance/waivers/${waiverId}/approve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function rejectPolicyWaiver(
+  waiverId: string,
+  note: string,
+): Promise<
+  import("@/types/policy-compliance").PolicyWaiver
+> {
+  return request<
+    import("@/types/policy-compliance").PolicyWaiver
+  >(
+    `/compliance/waivers/${waiverId}/reject`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function addPolicyEvidence(
+  violationId: string,
+  input: {
+    evidenceType:
+      import("@/types/policy-compliance").PolicyEvidenceType;
+    content: string;
+  },
+): Promise<
+  import("@/types/policy-compliance").PolicyEvidence
+> {
+  return request<
+    import("@/types/policy-compliance").PolicyEvidence
+  >(
+    `/compliance/violations/${violationId}/evidence`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function resolvePolicyViolation(
+  violationId: string,
+  note: string,
+): Promise<
+  import("@/types/policy-compliance").PolicyViolation
+> {
+  return request<
+    import("@/types/policy-compliance").PolicyViolation
+  >(
+    `/compliance/violations/${violationId}/resolve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function getPolicyComplianceSummary(): Promise<
+  import("@/types/policy-compliance").PolicyComplianceSummary
+> {
+  return request<
+    import("@/types/policy-compliance").PolicyComplianceSummary
+  >(
+    "/compliance/summary",
+  );
+}
+
+export async function getPolicyComplianceContext(): Promise<
+  import("@/types/policy-compliance").PolicyComplianceContext
+> {
+  return request<
+    import("@/types/policy-compliance").PolicyComplianceContext
+  >(
+    "/compliance/context-options",
+  );
+}
