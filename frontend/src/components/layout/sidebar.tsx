@@ -18,6 +18,7 @@ import {
   FileCheck2,
   ShieldAlert,
   WalletCards,
+  CalendarRange,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -52,7 +53,12 @@ const coreNavigation = [
     href: "/budgets",
     label: "Budget control",
     icon: WalletCards,
+  },  {
+    href: "/planning",
+    label: "Procurement planning",
+    icon: CalendarRange,
   },
+
 
 
 
@@ -203,7 +209,10 @@ export function Sidebar() {
             "/risks" ||
           item.href ===
             "/budgets"
-        ) {
+          ||
+          item.href ===
+            "/planning"
+) {
           return canViewAnalytics;
         }
 

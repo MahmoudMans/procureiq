@@ -1629,3 +1629,255 @@ export async function archiveBudgetAllocation(
     },
   );
 }
+
+function planningQuery(
+  fiscalYear?: number,
+  currency?: string,
+): string {
+  const params =
+    new URLSearchParams();
+
+  if (fiscalYear) {
+    params.set(
+      "fiscalYear",
+      String(
+        fiscalYear,
+      ),
+    );
+  }
+
+  if (currency) {
+    params.set(
+      "currency",
+      currency,
+    );
+  }
+
+  const query =
+    params.toString();
+
+  return query
+    ? `?${query}`
+    : "";
+}
+
+export async function getProcurementPlans(
+  fiscalYear?: number,
+  currency?: string,
+): Promise<import("@/types/planning").ProcurementPlan[]> {
+  return request<
+    import("@/types/planning").ProcurementPlan[]
+  >(
+    `/planning/plans${planningQuery(
+      fiscalYear,
+      currency,
+    )}`,
+  );
+}
+
+export async function getProcurementPlan(
+  planId: string,
+): Promise<import("@/types/planning").ProcurementPlanDetail> {
+  return request<
+    import("@/types/planning").ProcurementPlanDetail
+  >(
+    `/planning/plans/${planId}`,
+  );
+}
+
+export async function createProcurementPlan(
+  input: {
+    name: string;
+    fiscalYear: number;
+    currency: string;
+    ownerUserId?: string;
+    notes?: string;
+  },
+): Promise<import("@/types/planning").ProcurementPlan> {
+  return request<
+    import("@/types/planning").ProcurementPlan
+  >(
+    "/planning/plans",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function activateProcurementPlan(
+  planId: string,
+): Promise<import("@/types/planning").ProcurementPlan> {
+  return request<
+    import("@/types/planning").ProcurementPlan
+  >(
+    `/planning/plans/${planId}/activate`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function closeProcurementPlan(
+  planId: string,
+): Promise<import("@/types/planning").ProcurementPlan> {
+  return request<
+    import("@/types/planning").ProcurementPlan
+  >(
+    `/planning/plans/${planId}/close`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function addProcurementPlanItem(
+  planId: string,
+  input: {
+    title: string;
+    description?: string;
+    departmentId: string;
+    category: string;
+    plannedValue: number;
+    targetSourcingDate: string;
+    priority:
+      import("@/types/planning").ProcurementPlanPriority;
+    notes?: string;
+  },
+): Promise<import("@/types/planning").ProcurementPlanItem> {
+  return request<
+    import("@/types/planning").ProcurementPlanItem
+  >(
+    `/planning/plans/${planId}/items`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function markPlanningItemReady(
+  itemId: string,
+): Promise<import("@/types/planning").ProcurementPlanItem> {
+  return request<
+    import("@/types/planning").ProcurementPlanItem
+  >(
+    `/planning/items/${itemId}/ready`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function linkPlanningItemRequest(
+  itemId: string,
+  purchaseRequestId: string,
+): Promise<import("@/types/planning").ProcurementPlanItem> {
+  return request<
+    import("@/types/planning").ProcurementPlanItem
+  >(
+    `/planning/items/${itemId}/link-request`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        purchaseRequestId,
+      }),
+    },
+  );
+}
+
+export async function completePlanningItem(
+  itemId: string,
+): Promise<import("@/types/planning").ProcurementPlanItem> {
+  return request<
+    import("@/types/planning").ProcurementPlanItem
+  >(
+    `/planning/items/${itemId}/complete`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function cancelPlanningItem(
+  itemId: string,
+): Promise<import("@/types/planning").ProcurementPlanItem> {
+  return request<
+    import("@/types/planning").ProcurementPlanItem
+  >(
+    `/planning/items/${itemId}/cancel`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getPlanningSummary(
+  fiscalYear?: number,
+  currency?: string,
+): Promise<import("@/types/planning").PlanningSummary> {
+  return request<
+    import("@/types/planning").PlanningSummary
+  >(
+    `/planning/summary${planningQuery(
+      fiscalYear,
+      currency,
+    )}`,
+  );
+}
+
+export async function getPlanningMonthlyForecast(
+  fiscalYear?: number,
+  currency?: string,
+): Promise<import("@/types/planning").PlanningMonthlyForecast[]> {
+  return request<
+    import("@/types/planning").PlanningMonthlyForecast[]
+  >(
+    `/planning/monthly-forecast${planningQuery(
+      fiscalYear,
+      currency,
+    )}`,
+  );
+}
+
+export async function getPlanningCategoryVariance(
+  fiscalYear?: number,
+  currency?: string,
+): Promise<import("@/types/planning").PlanningCategoryVariance[]> {
+  return request<
+    import("@/types/planning").PlanningCategoryVariance[]
+  >(
+    `/planning/category-variance${planningQuery(
+      fiscalYear,
+      currency,
+    )}`,
+  );
+}
+
+export async function getPlanningUpcomingDemand(
+  fiscalYear?: number,
+  currency?: string,
+): Promise<import("@/types/planning").PlanningUpcomingDemand[]> {
+  return request<
+    import("@/types/planning").PlanningUpcomingDemand[]
+  >(
+    `/planning/upcoming-demand${planningQuery(
+      fiscalYear,
+      currency,
+    )}`,
+  );
+}
+
+export async function getPlanningContextOptions(): Promise<
+  import("@/types/planning").PlanningContextOptions
+> {
+  return request<
+    import("@/types/planning").PlanningContextOptions
+  >(
+    "/planning/context-options",
+  );
+}

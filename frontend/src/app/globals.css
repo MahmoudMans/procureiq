@@ -9950,3 +9950,766 @@ a {
     grid-column: auto;
   }
 }
+
+/* ====================================================================== */
+/* STEP 17 — PROCUREMENT PLANNING & DEMAND FORECASTING                   */
+/* ====================================================================== */
+
+.planning-period-control {
+  display: flex;
+
+  gap: 10px;
+
+  padding: 12px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 9px;
+
+  background: white;
+}
+
+.planning-period-control label {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.planning-period-control span {
+  color:
+    var(--text-secondary);
+
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.planning-period-control select {
+  min-width: 130px;
+  height: 36px;
+
+  padding: 0 9px;
+
+  border:
+    1px solid
+    var(--border-strong);
+
+  border-radius: 7px;
+
+  background: white;
+}
+
+.planning-kpi-grid,
+.planning-detail-kpis {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 14px;
+}
+
+.planning-money-kpi {
+  font-size: 19px;
+}
+
+.planning-main-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.25fr)
+    minmax(340px, 0.75fr);
+
+  gap: 15px;
+}
+
+.planning-month-list,
+.planning-category-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.planning-month-row {
+  display: grid;
+
+  grid-template-columns:
+    75px
+    minmax(160px, 1fr)
+    105px;
+
+  align-items: center;
+
+  gap: 11px;
+}
+
+.planning-month-row >
+div:first-child strong {
+  display: block;
+
+  font-size: 9px;
+}
+
+.planning-month-row >
+div:first-child span {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8px;
+}
+
+.planning-bars {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.planning-bars > div {
+  display: grid;
+
+  grid-template-columns:
+    34px
+    1fr;
+
+  align-items: center;
+
+  gap: 5px;
+}
+
+.planning-bars span {
+  color:
+    var(--text-tertiary);
+
+  font-size: 7px;
+}
+
+.planning-bar-track {
+  height: 6px;
+
+  overflow: hidden;
+
+  border-radius: 99px;
+
+  background:
+    var(--surface-muted);
+}
+
+.planning-bar-track > div {
+  height: 100%;
+
+  border-radius: inherit;
+
+  background:
+    var(--primary);
+}
+
+.planning-bar-track--actual > div {
+  background:
+    #12b76a;
+}
+
+.planning-month-values {
+  text-align: right;
+}
+
+.planning-month-values strong {
+  display: block;
+
+  font-size: 9px;
+}
+
+.planning-month-values span {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    #027a48;
+
+  font-size: 8px;
+}
+
+.planning-category-row {
+  display: grid;
+
+  grid-template-columns:
+    minmax(120px, 1fr)
+    auto
+    auto
+    auto;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 9px 0;
+
+  border-bottom:
+    1px solid
+    var(--border);
+}
+
+.planning-category-row:last-child {
+  border-bottom: 0;
+}
+
+.planning-category-row >
+div:first-child strong {
+  display: block;
+
+  font-size: 9px;
+}
+
+.planning-category-row >
+div:first-child span,
+.planning-category-row >
+div:not(:first-child) span {
+  display: block;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 7.5px;
+}
+
+.planning-category-row >
+div:not(:first-child) strong {
+  display: block;
+
+  margin-top: 3px;
+
+  font-size: 8.5px;
+}
+
+.planning-variance-over {
+  color: #b42318;
+}
+
+.planning-variance-under {
+  color: #027a48;
+}
+
+.planning-priority,
+.planning-status {
+  display: inline-flex;
+
+  padding:
+    4px 7px;
+
+  border-radius: 99px;
+
+  font-size: 7.5px;
+  font-weight: 700;
+}
+
+.planning-priority--low {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.planning-priority--medium {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.planning-priority--high {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.planning-priority--critical {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.planning-status--draft,
+.planning-status--planned {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.planning-status--active,
+.planning-status--ready {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.planning-status--converted {
+  background: #fff8e7;
+  color: #b54708;
+}
+
+.planning-status--completed {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.planning-status--closed,
+.planning-status--cancelled,
+.planning-status--archived {
+  background: #f2f4f7;
+  color: #667085;
+}
+
+.planning-target-cell span {
+  display: block;
+}
+
+.planning-target-cell small {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8px;
+}
+
+.planning-plan-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 10px;
+}
+
+.planning-plan-card {
+  padding: 13px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 9px;
+
+  background:
+    var(--surface-soft);
+
+  color:
+    var(--text);
+}
+
+.planning-plan-card:hover {
+  border-color:
+    var(--border-strong);
+
+  background: white;
+}
+
+.planning-plan-card__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 10px;
+}
+
+.planning-plan-card__heading >
+div > span {
+  display: block;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8px;
+}
+
+.planning-plan-card__heading >
+div > strong {
+  display: block;
+
+  margin-top: 4px;
+
+  font-size: 10px;
+}
+
+.planning-plan-card__metrics {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      1fr
+    );
+
+  gap: 7px;
+
+  margin-top: 14px;
+}
+
+.planning-plan-card__metrics >
+div {
+  padding: 8px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 7px;
+
+  background: white;
+}
+
+.planning-plan-card__metrics span {
+  display: block;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 7px;
+}
+
+.planning-plan-card__metrics strong {
+  display: block;
+
+  margin-top: 3px;
+
+  font-size: 8.5px;
+}
+
+.planning-plan-card__footer {
+  display: flex;
+  justify-content: space-between;
+
+  gap: 8px;
+
+  margin-top: 10px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 7.5px;
+}
+
+.planning-empty {
+  padding: 28px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 9.5px;
+
+  text-align: center;
+}
+
+.planning-empty--wide {
+  grid-column:
+    1 / -1;
+}
+
+.planning-form-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 13px;
+}
+
+.planning-form-wide {
+  grid-column:
+    1 / -1;
+}
+
+.planning-form-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  margin-top: 18px;
+}
+
+.planning-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+.planning-detail-heading h1 {
+  margin:
+    7px 0 6px;
+
+  font-size: 28px;
+
+  letter-spacing:
+    -0.035em;
+}
+
+.planning-detail-heading p {
+  margin: 0;
+
+  color:
+    var(--text-secondary);
+
+  font-size: 11px;
+}
+
+.planning-detail-actions {
+  display: flex;
+
+  gap: 8px;
+}
+
+.planning-item-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.planning-item-card {
+  padding: 13px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 9px;
+
+  background:
+    var(--surface-soft);
+}
+
+.planning-item-card--overdue {
+  border-left:
+    3px solid #d92d20;
+}
+
+.planning-item-card__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+.planning-item-card__heading >
+div > strong {
+  display: block;
+
+  margin-top: 7px;
+
+  font-size: 10px;
+}
+
+.planning-item-card__heading >
+div > span {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8px;
+}
+
+.planning-item-card__heading >
+strong {
+  font-size: 10px;
+}
+
+.planning-item-tags {
+  display: flex;
+
+  gap: 5px;
+}
+
+.planning-item-metrics {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 8px;
+
+  margin-top: 13px;
+}
+
+.planning-item-metrics >
+div {
+  padding: 8px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 7px;
+
+  background: white;
+}
+
+.planning-item-metrics span {
+  display: block;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 7px;
+}
+
+.planning-item-metrics strong {
+  display: block;
+
+  margin-top: 3px;
+
+  font-size: 8.5px;
+}
+
+.planning-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+
+  gap: 7px;
+
+  margin-top: 12px;
+}
+
+.planning-item-actions select {
+  min-width: 220px;
+  height: 31px;
+
+  padding:
+    0 7px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 6px;
+
+  background: white;
+
+  font-size: 8px;
+}
+
+.planning-inline-action {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 4px;
+
+  min-height: 31px;
+
+  padding:
+    0 8px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 6px;
+
+  background: white;
+
+  color:
+    var(--primary);
+
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.planning-inline-action--danger {
+  color: #b42318;
+}
+
+@media (
+  max-width: 1150px
+) {
+  .planning-kpi-grid,
+  .planning-detail-kpis {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .planning-main-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .planning-plan-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+@media (
+  max-width: 760px
+) {
+  .planning-period-control,
+  .planning-detail-actions {
+    align-items: stretch;
+
+    flex-direction:
+      column;
+  }
+
+  .planning-kpi-grid,
+  .planning-detail-kpis,
+  .planning-plan-grid,
+  .planning-form-grid,
+  .planning-item-metrics {
+    grid-template-columns:
+      1fr;
+  }
+
+  .planning-form-wide {
+    grid-column: auto;
+  }
+
+  .planning-month-row,
+  .planning-category-row {
+    grid-template-columns:
+      1fr;
+  }
+
+  .planning-month-values {
+    text-align: left;
+  }
+
+  .planning-detail-heading {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .planning-item-card__heading {
+    flex-direction:
+      column;
+  }
+
+  .planning-plan-card__metrics {
+    grid-template-columns:
+      1fr;
+  }
+}
