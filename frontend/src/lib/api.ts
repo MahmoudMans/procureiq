@@ -4024,3 +4024,182 @@ export async function updateExecutiveWarningRule(
     },
   );
 }
+
+export async function getDataQualityDashboard(): Promise<
+  import("@/types/data-quality").DataQualityDashboard
+> {
+  return request<
+    import("@/types/data-quality").DataQualityDashboard
+  >(
+    "/data-quality",
+  );
+}
+
+export async function runDataQualityScan(): Promise<
+  import("@/types/data-quality").DataQualityScan
+> {
+  return request<
+    import("@/types/data-quality").DataQualityScan
+  >(
+    "/data-quality/scan",
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getDataQualityFinding(
+  findingId: string,
+): Promise<
+  import("@/types/data-quality").DataQualityFindingDetail
+> {
+  return request<
+    import("@/types/data-quality").DataQualityFindingDetail
+  >(
+    `/data-quality/findings/${findingId}`,
+  );
+}
+
+export async function resolveDataQualityFinding(
+  findingId: string,
+  note: string,
+): Promise<
+  import("@/types/data-quality").DataQualityFinding
+> {
+  return request<
+    import("@/types/data-quality").DataQualityFinding
+  >(
+    `/data-quality/findings/${findingId}/resolve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function dismissDataQualityFinding(
+  findingId: string,
+  note: string,
+): Promise<
+  import("@/types/data-quality").DataQualityFinding
+> {
+  return request<
+    import("@/types/data-quality").DataQualityFinding
+  >(
+    `/data-quality/findings/${findingId}/dismiss`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function createDataQualityRemediation(
+  findingId: string,
+  input: {
+    title: string;
+    ownerUserId?: string;
+    dueDate: string;
+  },
+): Promise<
+  import("@/types/data-quality").DataQualityRemediation
+> {
+  return request<
+    import("@/types/data-quality").DataQualityRemediation
+  >(
+    `/data-quality/findings/${findingId}/remediations`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startDataQualityRemediation(
+  taskId: string,
+): Promise<
+  import("@/types/data-quality").DataQualityRemediation
+> {
+  return request<
+    import("@/types/data-quality").DataQualityRemediation
+  >(
+    `/data-quality/remediations/${taskId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function completeDataQualityRemediation(
+  taskId: string,
+  note: string,
+): Promise<
+  import("@/types/data-quality").DataQualityRemediation
+> {
+  return request<
+    import("@/types/data-quality").DataQualityRemediation
+  >(
+    `/data-quality/remediations/${taskId}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function cancelDataQualityRemediation(
+  taskId: string,
+): Promise<
+  import("@/types/data-quality").DataQualityRemediation
+> {
+  return request<
+    import("@/types/data-quality").DataQualityRemediation
+  >(
+    `/data-quality/remediations/${taskId}/cancel`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function updateDataQualityRule(
+  ruleId: number,
+  input: {
+    enabled: boolean;
+    severity:
+      import("@/types/data-quality").DataQualitySeverity;
+    weight: number;
+  },
+): Promise<
+  import("@/types/data-quality").DataQualityRule
+> {
+  return request<
+    import("@/types/data-quality").DataQualityRule
+  >(
+    `/data-quality/rules/${ruleId}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getDataQualityContext(): Promise<
+  import("@/types/data-quality").DataQualityContext
+> {
+  return request<
+    import("@/types/data-quality").DataQualityContext
+  >(
+    "/data-quality/context-options",
+  );
+}

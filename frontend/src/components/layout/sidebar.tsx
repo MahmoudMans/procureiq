@@ -29,6 +29,7 @@ import {
   ReceiptText,
   Workflow,
   Radar,
+  Database,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -150,7 +151,12 @@ const coreNavigation = [
     href: "/executive-cockpit",
     label: "Executive cockpit",
     icon: Radar,
+  },  {
+    href: "/data-quality",
+    label: "Data quality",
+    icon: Database,
   },
+
   {
     href: "/process-mining",
     label: "Process mining",
@@ -315,6 +321,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/executive-cockpit"
+          ||
+          item.href ===
+            "/data-quality"
 ) {
           return canViewAnalytics;
         }
