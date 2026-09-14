@@ -835,3 +835,13 @@ export async function getSupplierDeliveryPerformance(
     `/suppliers/${supplierId}/delivery-performance`,
   );
 }
+
+export async function getProcurementAnalytics(): Promise<
+  import("@/types/analytics").ProcurementAnalytics
+> {
+  return request<
+    import("@/types/analytics").ProcurementAnalytics
+  >(
+    "/analytics/procurement",
+  );
+}

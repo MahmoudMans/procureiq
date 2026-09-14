@@ -6840,3 +6840,243 @@ a {
     min-width: 600px;
   }
 }
+
+/* ====================================================================== */
+/* STEP 10 — PROCUREMENT ANALYTICS                                        */
+/* ====================================================================== */
+
+.analytics-loading {
+  min-height: 320px;
+
+  display: grid;
+  place-items: center;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 11px;
+}
+
+.analytics-kpi-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 14px;
+}
+
+.analytics-kpi-value {
+  font-size: 22px;
+}
+
+.analytics-primary-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.45fr)
+    minmax(320px, 0.75fr);
+
+  gap: 15px;
+}
+
+.analytics-secondary-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 15px;
+}
+
+.analytics-empty {
+  min-height: 120px;
+
+  display: grid;
+  place-items: center;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 10px;
+
+  text-align: center;
+}
+
+.analytics-month-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 11px;
+}
+
+.analytics-month-row {
+  display: grid;
+
+  grid-template-columns:
+    90px
+    minmax(120px, 1fr)
+    105px;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+.analytics-month-label strong {
+  display: block;
+
+  font-size: 9.5px;
+}
+
+.analytics-month-label span {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8px;
+}
+
+.analytics-horizontal-bar {
+  height: 9px;
+
+  overflow: hidden;
+
+  border-radius: 99px;
+
+  background:
+    var(--surface-muted);
+}
+
+.analytics-horizontal-bar > div {
+  height: 100%;
+
+  border-radius: inherit;
+
+  background:
+    currentColor;
+
+  color:
+    var(--primary);
+}
+
+.analytics-month-value {
+  font-size: 9.5px;
+
+  text-align: right;
+}
+
+.analytics-breakdown-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.analytics-breakdown-row {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+.analytics-breakdown-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 15px;
+}
+
+.analytics-breakdown-heading > div:last-child {
+  text-align: right;
+}
+
+.analytics-breakdown-heading strong {
+  display: block;
+
+  font-size: 9.5px;
+}
+
+.analytics-breakdown-heading span {
+  display: block;
+
+  margin-top: 2px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8px;
+}
+
+.analytics-share-track {
+  height: 6px;
+
+  overflow: hidden;
+
+  border-radius: 99px;
+
+  background:
+    var(--surface-muted);
+}
+
+.analytics-share-track > div {
+  height: 100%;
+
+  border-radius: inherit;
+
+  background:
+    currentColor;
+
+  color:
+    var(--primary);
+}
+
+@media (
+  max-width: 1100px
+) {
+  .analytics-kpi-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .analytics-primary-grid {
+    grid-template-columns:
+      1fr;
+  }
+}
+
+@media (
+  max-width: 760px
+) {
+  .analytics-kpi-grid,
+  .analytics-secondary-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .analytics-month-row {
+    grid-template-columns:
+      80px
+      minmax(100px, 1fr);
+  }
+
+  .analytics-month-value {
+    grid-column:
+      2;
+
+    text-align: left;
+  }
+}

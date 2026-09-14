@@ -134,6 +134,15 @@ export function Sidebar() {
     user?.role ===
       "BUYER";
 
+  const canViewAnalytics =
+    user?.role === "ADMIN" ||
+    user?.role ===
+      "PROCUREMENT_MANAGER" ||
+    user?.role ===
+      "BUYER" ||
+    user?.role ===
+      "APPROVER";
+
   const navigation = [
     ...coreNavigation.filter(
       item => {
@@ -153,6 +162,13 @@ export function Sidebar() {
             "/deliveries"
         ) {
           return canViewSourcing;
+        }
+
+        if (
+          item.href ===
+            "/analytics"
+        ) {
+          return canViewAnalytics;
         }
 
         return true;
