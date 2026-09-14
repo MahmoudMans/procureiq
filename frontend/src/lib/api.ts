@@ -2883,3 +2883,168 @@ export async function getGuidedBuyingContext(): Promise<
     "/guided-buying/context-options",
   );
 }
+
+export async function getDemandConsolidationCandidates(): Promise<
+  import("@/types/demand-consolidation").DemandConsolidationCandidate[]
+> {
+  return request<
+    import("@/types/demand-consolidation").DemandConsolidationCandidate[]
+  >(
+    "/demand-consolidation/candidates",
+  );
+}
+
+export async function getDemandConsolidationBundles(): Promise<
+  import("@/types/demand-consolidation").DemandBundle[]
+> {
+  return request<
+    import("@/types/demand-consolidation").DemandBundle[]
+  >(
+    "/demand-consolidation/bundles",
+  );
+}
+
+export async function getDemandConsolidationBundle(
+  bundleId: string,
+): Promise<
+  import("@/types/demand-consolidation").DemandBundle
+> {
+  return request<
+    import("@/types/demand-consolidation").DemandBundle
+  >(
+    `/demand-consolidation/bundles/${bundleId}`,
+  );
+}
+
+export async function createDemandConsolidationBundle(
+  input: {
+    title: string;
+    category: string;
+    currency: string;
+    intakeIds: string[];
+    ownerUserId?: string;
+    targetSourcingDate: string;
+    rationale?: string;
+  },
+): Promise<
+  import("@/types/demand-consolidation").DemandBundle
+> {
+  return request<
+    import("@/types/demand-consolidation").DemandBundle
+  >(
+    "/demand-consolidation/bundles",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function submitDemandConsolidationBundle(
+  bundleId: string,
+): Promise<
+  import("@/types/demand-consolidation").DemandBundle
+> {
+  return request<
+    import("@/types/demand-consolidation").DemandBundle
+  >(
+    `/demand-consolidation/bundles/${bundleId}/submit`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function approveDemandConsolidationBundle(
+  bundleId: string,
+  note: string,
+): Promise<
+  import("@/types/demand-consolidation").DemandBundle
+> {
+  return request<
+    import("@/types/demand-consolidation").DemandBundle
+  >(
+    `/demand-consolidation/bundles/${bundleId}/approve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function cancelDemandConsolidationBundle(
+  bundleId: string,
+  note: string,
+): Promise<
+  import("@/types/demand-consolidation").DemandBundle
+> {
+  return request<
+    import("@/types/demand-consolidation").DemandBundle
+  >(
+    `/demand-consolidation/bundles/${bundleId}/cancel`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function linkDemandConsolidationRfq(
+  bundleId: string,
+  rfqId: string,
+): Promise<
+  import("@/types/demand-consolidation").DemandBundle
+> {
+  return request<
+    import("@/types/demand-consolidation").DemandBundle
+  >(
+    `/demand-consolidation/bundles/${bundleId}/link-rfq`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        rfqId,
+      }),
+    },
+  );
+}
+
+export async function closeDemandConsolidationBundle(
+  bundleId: string,
+): Promise<
+  import("@/types/demand-consolidation").DemandBundle
+> {
+  return request<
+    import("@/types/demand-consolidation").DemandBundle
+  >(
+    `/demand-consolidation/bundles/${bundleId}/close`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getDemandConsolidationSummary(): Promise<
+  import("@/types/demand-consolidation").DemandConsolidationSummary
+> {
+  return request<
+    import("@/types/demand-consolidation").DemandConsolidationSummary
+  >(
+    "/demand-consolidation/summary",
+  );
+}
+
+export async function getDemandConsolidationContext(): Promise<
+  import("@/types/demand-consolidation").DemandConsolidationContext
+> {
+  return request<
+    import("@/types/demand-consolidation").DemandConsolidationContext
+  >(
+    "/demand-consolidation/context-options",
+  );
+}

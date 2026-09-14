@@ -23,6 +23,7 @@ import {
   PanelsTopLeft,
   ShieldCheck,
   Route,
+  Layers3,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -57,7 +58,12 @@ const coreNavigation = [
     href: "/guided-buying",
     label: "Guided buying",
     icon: Route,
+  },  {
+    href: "/demand-consolidation",
+    label: "Demand consolidation",
+    icon: Layers3,
   },
+
 
 
   {
@@ -253,6 +259,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/compliance"
+          ||
+          item.href ===
+            "/demand-consolidation"
 ) {
           return canViewAnalytics;
         }
