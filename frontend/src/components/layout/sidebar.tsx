@@ -34,6 +34,7 @@ import {
   Leaf,
   ScanSearch,
   MessageSquareText,
+  KeyRound,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -64,7 +65,12 @@ const coreNavigation = [
     href: "/supplier-collaboration",
     label: "Supplier collaboration",
     icon: MessageSquareText,
+  },  {
+    href: "/supplier-portal-admin",
+    label: "Supplier portal access",
+    icon: KeyRound,
   },
+
   {
     href: "/sustainability",
     label: "Sustainability",
@@ -360,6 +366,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/supplier-collaboration"
+          ||
+          item.href ===
+            "/supplier-portal-admin"
 ) {
           return canViewAnalytics;
         }

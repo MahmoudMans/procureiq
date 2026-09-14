@@ -189,8 +189,8 @@ public class SecurityConfiguration {
                                                 "/actuator/health"
                                         )
                                         .permitAll()
-                                        .anyRequest()
-                                        .authenticated()
+                                        .requestMatchers("/api/v1/supplier-portal/**").permitAll()
+                    .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(
                         oauth2 ->

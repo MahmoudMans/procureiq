@@ -5173,3 +5173,370 @@ export async function closeSupplierCollaborationWorkspace(
     },
   );
 }
+
+const supplierPortalApiBaseUrl =
+  process.env.NEXT_PUBLIC_API_BASE_URL
+  ??
+  process.env.NEXT_PUBLIC_API_URL
+  ??
+  "http://localhost:8080/api/v1";
+
+async function supplierPortalRequest<T>(
+  path: string,
+  init: RequestInit = {},
+): Promise<T> {
+  const headers =
+    new Headers(
+      init.headers,
+    );
+
+  if (
+    !headers.has(
+      "Content-Type",
+    )
+    &&
+    init.body
+  ) {
+    headers.set(
+      "Content-Type",
+      "application/json",
+    );
+  }
+
+  const response =
+    await fetch(
+      `${supplierPortalApiBaseUrl}${path}`,
+      {
+        ...init,
+        headers,
+      },
+    );
+
+  if (!response.ok) {
+    const contentType =
+      response.headers.get(
+        "content-type",
+      )
+      ??
+      "";
+
+    let message =
+      `Supplier portal request failed (${response.status}).`;
+
+    if (
+      contentType.includes(
+        "application/json",
+      )
+    ) {
+      const payload =
+        await response
+          .json()
+          .catch(
+            () => null,
+          );
+
+      if (
+        payload
+        &&
+        typeof payload ===
+          "object"
+      ) {
+        const candidate =
+          (
+            payload as
+              Record<
+                string,
+                unknown
+              >
+          ).message
+          ??
+          (
+            payload as
+              Record<
+                string,
+                unknown
+              >
+          ).error;
+
+        if (
+          typeof candidate ===
+          "string"
+          &&
+          candidate.trim()
+        ) {
+          message =
+            candidate;
+        }
+      }
+    } else {
+      const text =
+        await response
+          .text()
+          .catch(
+            () => "",
+          );
+
+      if (text.trim()) {
+        message =
+          text.trim();
+      }
+    }
+
+    throw new Error(
+      message,
+    );
+  }
+
+  if (
+    response.status ===
+    204
+  ) {
+    return undefined as T;
+  }
+
+  return response.json() as
+    Promise<T>;
+}
+
+export async function getSupplierPortalAccounts(): Promise<
+  import("@/types/supplier-portal").SupplierPortalAccount[]
+> {
+  return request<
+    import("@/types/supplier-portal").SupplierPortalAccount[]
+  >(
+    "/supplier-portal-admin/accounts",
+  );
+}
+
+export async function inviteSupplierPortalAccount(
+  input: {
+    supplierId: string;
+    email: string;
+    displayName: string;
+  },
+): Promise<
+  import("@/types/supplier-portal").SupplierPortalInvitation
+> {
+  return request<
+    import("@/types/supplier-portal").SupplierPortalInvitation
+  >(
+    "/supplier-portal-admin/invitations",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function suspendSupplierPortalAccount(
+  accountId: string,
+): Promise<
+  import("@/types/supplier-portal").SupplierPortalAccount
+> {
+  return request<
+    import("@/types/supplier-portal").SupplierPortalAccount
+  >(
+    `/supplier-portal-admin/accounts/${accountId}/suspend`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function reinstateSupplierPortalAccount(
+  accountId: string,
+): Promise<
+  import("@/types/supplier-portal").SupplierPortalAccount
+> {
+  return request<
+    import("@/types/supplier-portal").SupplierPortalAccount
+  >(
+    `/supplier-portal-admin/accounts/${accountId}/reinstate`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function revokeSupplierPortalAccount(
+  accountId: string,
+): Promise<
+  import("@/types/supplier-portal").SupplierPortalAccount
+> {
+  return request<
+    import("@/types/supplier-portal").SupplierPortalAccount
+  >(
+    `/supplier-portal-admin/accounts/${accountId}/revoke`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function activateSupplierPortalAccount(
+  invitationToken: string,
+  password: string,
+): Promise<
+  import("@/types/supplier-portal").SupplierPortalProfile
+> {
+  return supplierPortalRequest<
+    import("@/types/supplier-portal").SupplierPortalProfile
+  >(
+    "/supplier-portal/activate",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        invitationToken,
+        password,
+      }),
+    },
+  );
+}
+
+export async function supplierPortalLogin(
+  email: string,
+  password: string,
+): Promise<
+  import("@/types/supplier-portal").SupplierPortalAuth
+> {
+  return supplierPortalRequest<
+    import("@/types/supplier-portal").SupplierPortalAuth
+  >(
+    "/supplier-portal/login",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    },
+  );
+}
+
+export async function supplierPortalLogout(
+  token: string,
+): Promise<void> {
+  return supplierPortalRequest<void>(
+    "/supplier-portal/logout",
+    {
+      method: "POST",
+      headers: {
+        Authorization:
+          `Bearer ${token}`,
+      },
+    },
+  );
+}
+
+export async function getSupplierPortalProfile(
+  token: string,
+): Promise<
+  import("@/types/supplier-portal").SupplierPortalProfile
+> {
+  return supplierPortalRequest<
+    import("@/types/supplier-portal").SupplierPortalProfile
+  >(
+    "/supplier-portal/me",
+    {
+      headers: {
+        Authorization:
+          `Bearer ${token}`,
+      },
+    },
+  );
+}
+
+export async function getSupplierPortalDashboard(
+  token: string,
+): Promise<
+  import("@/types/supplier-portal").SupplierPortalDashboard
+> {
+  return supplierPortalRequest<
+    import("@/types/supplier-portal").SupplierPortalDashboard
+  >(
+    "/supplier-portal/dashboard",
+    {
+      headers: {
+        Authorization:
+          `Bearer ${token}`,
+      },
+    },
+  );
+}
+
+export async function getSupplierPortalWorkspace(
+  token: string,
+  workspaceId: string,
+): Promise<
+  import("@/types/supplier-portal").SupplierPortalWorkspaceDetail
+> {
+  return supplierPortalRequest<
+    import("@/types/supplier-portal").SupplierPortalWorkspaceDetail
+  >(
+    `/supplier-portal/workspaces/${workspaceId}`,
+    {
+      headers: {
+        Authorization:
+          `Bearer ${token}`,
+      },
+    },
+  );
+}
+
+export async function sendSupplierPortalResponse(
+  token: string,
+  workspaceId: string,
+  input: {
+    messageType:
+      import("@/types/supplier-collaboration").CollaborationMessageType;
+    body: string;
+    referenceText?: string;
+  },
+): Promise<
+  import("@/types/supplier-portal").SupplierPortalWorkspaceDetail
+> {
+  return supplierPortalRequest<
+    import("@/types/supplier-portal").SupplierPortalWorkspaceDetail
+  >(
+    `/supplier-portal/workspaces/${workspaceId}/responses`,
+    {
+      method: "POST",
+      headers: {
+        Authorization:
+          `Bearer ${token}`,
+      },
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function completeSupplierPortalAction(
+  token: string,
+  actionId: string,
+  input: {
+    note: string;
+    referenceText?: string;
+  },
+): Promise<
+  import("@/types/supplier-portal").SupplierPortalWorkspaceDetail
+> {
+  return supplierPortalRequest<
+    import("@/types/supplier-portal").SupplierPortalWorkspaceDetail
+  >(
+    `/supplier-portal/actions/${actionId}/complete`,
+    {
+      method: "POST",
+      headers: {
+        Authorization:
+          `Bearer ${token}`,
+      },
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
