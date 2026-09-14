@@ -4203,3 +4203,267 @@ export async function getDataQualityContext(): Promise<
     "/data-quality/context-options",
   );
 }
+
+export async function getSupplierOnboardingCases(): Promise<
+  import("@/types/supplier-onboarding").SupplierOnboardingCase[]
+> {
+  return request<
+    import("@/types/supplier-onboarding").SupplierOnboardingCase[]
+  >(
+    "/supplier-onboarding",
+  );
+}
+
+export async function getSupplierOnboardingCase(
+  caseId: string,
+): Promise<
+  import("@/types/supplier-onboarding").SupplierOnboardingCase
+> {
+  return request<
+    import("@/types/supplier-onboarding").SupplierOnboardingCase
+  >(
+    `/supplier-onboarding/cases/${caseId}`,
+  );
+}
+
+export async function getSupplierOnboardingSummary(): Promise<
+  import("@/types/supplier-onboarding").SupplierOnboardingSummary
+> {
+  return request<
+    import("@/types/supplier-onboarding").SupplierOnboardingSummary
+  >(
+    "/supplier-onboarding/summary",
+  );
+}
+
+export async function getSupplierOnboardingContext(): Promise<
+  import("@/types/supplier-onboarding").SupplierOnboardingContext
+> {
+  return request<
+    import("@/types/supplier-onboarding").SupplierOnboardingContext
+  >(
+    "/supplier-onboarding/context-options",
+  );
+}
+
+export async function createSupplierOnboardingCase(
+  input: {
+    supplierId: string;
+    caseType:
+      import("@/types/supplier-onboarding").SupplierOnboardingCaseType;
+    riskTier:
+      import("@/types/supplier-onboarding").SupplierOnboardingRiskTier;
+    ownerUserId?: string;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/supplier-onboarding").SupplierOnboardingCase
+> {
+  return request<
+    import("@/types/supplier-onboarding").SupplierOnboardingCase
+  >(
+    "/supplier-onboarding/cases",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function answerSupplierQualificationQuestion(
+  caseId: string,
+  questionCode: string,
+  input: {
+    answerValue: string;
+    complianceStatus:
+      import("@/types/supplier-onboarding").QualificationComplianceStatus;
+  },
+): Promise<
+  import("@/types/supplier-onboarding").SupplierOnboardingCase
+> {
+  return request<
+    import("@/types/supplier-onboarding").SupplierOnboardingCase
+  >(
+    `/supplier-onboarding/cases/${caseId}/questions/${encodeURIComponent(questionCode)}`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function uploadSupplierOnboardingEvidence(
+  caseId: string,
+  evidenceType:
+    import("@/types/supplier-onboarding").OnboardingEvidenceType,
+  input: {
+    documentReference: string;
+    expiryDate?: string;
+  },
+): Promise<
+  import("@/types/supplier-onboarding").SupplierOnboardingCase
+> {
+  return request<
+    import("@/types/supplier-onboarding").SupplierOnboardingCase
+  >(
+    `/supplier-onboarding/cases/${caseId}/evidence/${evidenceType}`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function validateSupplierOnboardingEvidence(
+  evidenceId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-onboarding").OnboardingEvidence
+> {
+  return request<
+    import("@/types/supplier-onboarding").OnboardingEvidence
+  >(
+    `/supplier-onboarding/evidence/${evidenceId}/validate`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function rejectSupplierOnboardingEvidence(
+  evidenceId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-onboarding").OnboardingEvidence
+> {
+  return request<
+    import("@/types/supplier-onboarding").OnboardingEvidence
+  >(
+    `/supplier-onboarding/evidence/${evidenceId}/reject`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function submitSupplierOnboardingCase(
+  caseId: string,
+): Promise<
+  import("@/types/supplier-onboarding").SupplierOnboardingCase
+> {
+  return request<
+    import("@/types/supplier-onboarding").SupplierOnboardingCase
+  >(
+    `/supplier-onboarding/cases/${caseId}/submit`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function approveSupplierOnboarding(
+  approvalId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-onboarding").OnboardingApproval
+> {
+  return request<
+    import("@/types/supplier-onboarding").OnboardingApproval
+  >(
+    `/supplier-onboarding/approvals/${approvalId}/approve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function rejectSupplierOnboardingApproval(
+  approvalId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-onboarding").OnboardingApproval
+> {
+  return request<
+    import("@/types/supplier-onboarding").OnboardingApproval
+  >(
+    `/supplier-onboarding/approvals/${approvalId}/reject`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function finalizeSupplierOnboardingCase(
+  caseId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-onboarding").SupplierOnboardingCase
+> {
+  return request<
+    import("@/types/supplier-onboarding").SupplierOnboardingCase
+  >(
+    `/supplier-onboarding/cases/${caseId}/finalize`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function rejectSupplierOnboardingCase(
+  caseId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-onboarding").SupplierOnboardingCase
+> {
+  return request<
+    import("@/types/supplier-onboarding").SupplierOnboardingCase
+  >(
+    `/supplier-onboarding/cases/${caseId}/reject`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function cancelSupplierOnboardingCase(
+  caseId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-onboarding").SupplierOnboardingCase
+> {
+  return request<
+    import("@/types/supplier-onboarding").SupplierOnboardingCase
+  >(
+    `/supplier-onboarding/cases/${caseId}/cancel`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}

@@ -30,6 +30,7 @@ import {
   Workflow,
   Radar,
   Database,
+  UserCheck,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -53,6 +54,11 @@ const coreNavigation = [
     label: "Suppliers",
     icon: Building2,
   },  {
+    href: "/supplier-onboarding",
+    label: "Supplier onboarding",
+    icon: UserCheck,
+  },
+  {
     href: "/supplier-performance",
     label: "Supplier performance",
     icon: ClipboardCheck,
@@ -324,6 +330,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/data-quality"
+          ||
+          item.href ===
+            "/supplier-onboarding"
 ) {
           return canViewAnalytics;
         }
