@@ -27,6 +27,7 @@ import {
   Handshake,
   ScrollText,
   ReceiptText,
+  Workflow,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -144,7 +145,12 @@ const coreNavigation = [
     href: "/command-center",
     label: "Command center",
     icon: PanelsTopLeft,
+  },  {
+    href: "/process-mining",
+    label: "Process mining",
+    icon: Workflow,
   },
+
 {
     href: "/analytics",
     label: "Analytics",
@@ -297,6 +303,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/invoice-control"
+          ||
+          item.href ===
+            "/process-mining"
 ) {
           return canViewAnalytics;
         }

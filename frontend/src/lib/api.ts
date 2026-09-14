@@ -3913,3 +3913,46 @@ export async function getInvoiceContext(): Promise<
     "/invoices/context-options",
   );
 }
+
+export async function getProcessMiningDashboard(): Promise<
+  import("@/types/process-mining").ProcessMiningDashboard
+> {
+  return request<
+    import("@/types/process-mining").ProcessMiningDashboard
+  >(
+    "/process-mining",
+  );
+}
+
+export async function getProcessStageTargets(): Promise<
+  import("@/types/process-mining").ProcessStageTarget[]
+> {
+  return request<
+    import("@/types/process-mining").ProcessStageTarget[]
+  >(
+    "/process-mining/targets",
+  );
+}
+
+export async function upsertProcessStageTarget(
+  input: {
+    entityType:
+      import("@/types/process-mining").ProcessEntityType;
+    status: string;
+    targetHours: number;
+  },
+): Promise<
+  import("@/types/process-mining").ProcessStageTarget
+> {
+  return request<
+    import("@/types/process-mining").ProcessStageTarget
+  >(
+    "/process-mining/targets",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
