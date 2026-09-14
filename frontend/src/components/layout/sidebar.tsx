@@ -38,6 +38,7 @@ import {
   Files,
   Activity,
   SlidersHorizontal,
+  Landmark,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -123,7 +124,12 @@ const coreNavigation = [
     href: "/benefits-governance",
     label: "Benefits governance",
     icon: BadgeDollarSign,
+  },  {
+    href: "/governance-reviews",
+    label: "Executive reviews",
+    icon: Landmark,
   },
+
 
 
 
@@ -412,6 +418,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/benefits-governance"
+          ||
+          item.href ===
+            "/governance-reviews"
 ) {
           return canViewAnalytics;
         }

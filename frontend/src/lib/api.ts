@@ -6631,3 +6631,251 @@ export async function resolveBenefitLeakage(
     },
   );
 }
+
+export async function getGovernanceReviewDashboard(
+  currency = "EUR",
+): Promise<
+  import("@/types/governance-review").GovernanceReviewDashboard
+> {
+  return request<
+    import("@/types/governance-review").GovernanceReviewDashboard
+  >(
+    `/governance-reviews?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getGovernanceReviewContext(): Promise<
+  import("@/types/governance-review").GovernanceReviewContext
+> {
+  return request<
+    import("@/types/governance-review").GovernanceReviewContext
+  >(
+    "/governance-reviews/context-options",
+  );
+}
+
+export async function getGovernanceReview(
+  reviewId: string,
+): Promise<
+  import("@/types/governance-review").GovernanceReviewDetail
+> {
+  return request<
+    import("@/types/governance-review").GovernanceReviewDetail
+  >(
+    `/governance-reviews/${reviewId}`,
+  );
+}
+
+export async function createGovernanceReview(
+  input: {
+    title: string;
+    periodStart: string;
+    periodEnd: string;
+    currency: string;
+    ownerUserId?: string;
+    chairUserId?: string;
+    executiveSummary: string;
+  },
+): Promise<
+  import("@/types/governance-review").GovernanceReviewDetail
+> {
+  return request<
+    import("@/types/governance-review").GovernanceReviewDetail
+  >(
+    "/governance-reviews",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function freezeGovernanceReview(
+  reviewId: string,
+): Promise<
+  import("@/types/governance-review").GovernanceReviewDetail
+> {
+  return request<
+    import("@/types/governance-review").GovernanceReviewDetail
+  >(
+    `/governance-reviews/${reviewId}/freeze`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function openGovernanceReview(
+  reviewId: string,
+): Promise<
+  import("@/types/governance-review").GovernanceReviewSummary
+> {
+  return request<
+    import("@/types/governance-review").GovernanceReviewSummary
+  >(
+    `/governance-reviews/${reviewId}/open`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function closeGovernanceReview(
+  reviewId: string,
+): Promise<
+  import("@/types/governance-review").GovernanceReviewSummary
+> {
+  return request<
+    import("@/types/governance-review").GovernanceReviewSummary
+  >(
+    `/governance-reviews/${reviewId}/close`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function archiveGovernanceReview(
+  reviewId: string,
+): Promise<
+  import("@/types/governance-review").GovernanceReviewSummary
+> {
+  return request<
+    import("@/types/governance-review").GovernanceReviewSummary
+  >(
+    `/governance-reviews/${reviewId}/archive`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function createGovernanceDecision(
+  reviewId: string,
+  input: {
+    decisionType:
+      import("@/types/governance-review").GovernanceDecisionType;
+    title: string;
+    description: string;
+    decisionOwnerUserId?: string;
+    dueDate?: string;
+  },
+): Promise<
+  import("@/types/governance-review").GovernanceDecision
+> {
+  return request<
+    import("@/types/governance-review").GovernanceDecision
+  >(
+    `/governance-reviews/${reviewId}/decisions`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function resolveGovernanceDecision(
+  decisionId: string,
+  status:
+    import("@/types/governance-review").GovernanceDecisionStatus,
+  note: string,
+): Promise<
+  import("@/types/governance-review").GovernanceDecision
+> {
+  return request<
+    import("@/types/governance-review").GovernanceDecision
+  >(
+    `/governance-reviews/decisions/${decisionId}/resolve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        status,
+        note,
+      }),
+    },
+  );
+}
+
+export async function createGovernanceAction(
+  reviewId: string,
+  input: {
+    decisionId?: string;
+    title: string;
+    description?: string;
+    ownerUserId?: string;
+    priority:
+      import("@/types/governance-review").GovernanceActionPriority;
+    dueDate: string;
+  },
+): Promise<
+  import("@/types/governance-review").GovernanceAction
+> {
+  return request<
+    import("@/types/governance-review").GovernanceAction
+  >(
+    `/governance-reviews/${reviewId}/actions`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startGovernanceAction(
+  actionId: string,
+): Promise<
+  import("@/types/governance-review").GovernanceAction
+> {
+  return request<
+    import("@/types/governance-review").GovernanceAction
+  >(
+    `/governance-reviews/actions/${actionId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function completeGovernanceAction(
+  actionId: string,
+  note: string,
+): Promise<
+  import("@/types/governance-review").GovernanceAction
+> {
+  return request<
+    import("@/types/governance-review").GovernanceAction
+  >(
+    `/governance-reviews/actions/${actionId}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function cancelGovernanceAction(
+  actionId: string,
+  note: string,
+): Promise<
+  import("@/types/governance-review").GovernanceAction
+> {
+  return request<
+    import("@/types/governance-review").GovernanceAction
+  >(
+    `/governance-reviews/actions/${actionId}/cancel`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
