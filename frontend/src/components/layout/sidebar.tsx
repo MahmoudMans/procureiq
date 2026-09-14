@@ -2,6 +2,7 @@
 
 import {
   BarChart3,
+  Bell,
   Building2,
   ClipboardCheck,
   FileText,
@@ -65,6 +66,11 @@ const coreNavigation = [
     href: "/analytics",
     label: "Analytics",
     icon: BarChart3,
+  },
+  {
+    href: "/activity",
+    label: "Activity & alerts",
+    icon: Bell,
   },
 ];
 

@@ -845,3 +845,53 @@ export async function getProcurementAnalytics(): Promise<
     "/analytics/procurement",
   );
 }
+
+export async function getActivity(
+  limit = 100,
+): Promise<import("@/types/activity").ActivityEvent[]> {
+  return request<
+    import("@/types/activity").ActivityEvent[]
+  >(
+    `/activity?limit=${limit}`,
+  );
+}
+
+export async function getNotifications(
+  unreadOnly = false,
+): Promise<import("@/types/activity").ProcurementNotification[]> {
+  return request<
+    import("@/types/activity").ProcurementNotification[]
+  >(
+    `/notifications?unreadOnly=${unreadOnly}`,
+  );
+}
+
+export async function getUnreadNotificationCount(): Promise<
+  import("@/types/activity").UnreadNotificationCount
+> {
+  return request<
+    import("@/types/activity").UnreadNotificationCount
+  >(
+    "/notifications/unread-count",
+  );
+}
+
+export async function markNotificationRead(
+  notificationId: number,
+): Promise<void> {
+  return request<void>(
+    `/notifications/${notificationId}/read`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function markAllNotificationsRead(): Promise<void> {
+  return request<void>(
+    "/notifications/read-all",
+    {
+      method: "POST",
+    },
+  );
+}
