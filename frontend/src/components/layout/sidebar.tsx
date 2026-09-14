@@ -22,6 +22,7 @@ import {
   BadgeDollarSign,
   PanelsTopLeft,
   ShieldCheck,
+  Route,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -52,7 +53,12 @@ const coreNavigation = [
     href: "/compliance",
     label: "Policy & compliance",
     icon: ShieldCheck,
+  },  {
+    href: "/guided-buying",
+    label: "Guided buying",
+    icon: Route,
   },
+
 
   {
     href: "/contracts",

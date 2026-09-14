@@ -2606,3 +2606,280 @@ export async function getPolicyComplianceContext(): Promise<
     "/compliance/context-options",
   );
 }
+
+export async function getGuidedBuyingIntakes(): Promise<
+  import("@/types/guided-buying").GuidedBuyingIntake[]
+> {
+  return request<
+    import("@/types/guided-buying").GuidedBuyingIntake[]
+  >(
+    "/guided-buying/intakes",
+  );
+}
+
+export async function getGuidedBuyingIntake(
+  intakeId: string,
+): Promise<
+  import("@/types/guided-buying").GuidedBuyingIntake
+> {
+  return request<
+    import("@/types/guided-buying").GuidedBuyingIntake
+  >(
+    `/guided-buying/intakes/${intakeId}`,
+  );
+}
+
+export async function createGuidedBuyingIntake(
+  input: {
+    title: string;
+    description?: string;
+    departmentId: string;
+    category: string;
+    currency: string;
+    estimatedAmount: number;
+    supplierId?: string;
+    templateId?: string;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/guided-buying").GuidedBuyingIntake
+> {
+  return request<
+    import("@/types/guided-buying").GuidedBuyingIntake
+  >(
+    "/guided-buying/intakes",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function recommendGuidedBuying(
+  input: {
+    title: string;
+    description?: string;
+    departmentId: string;
+    category: string;
+    currency: string;
+    estimatedAmount: number;
+    supplierId?: string;
+    templateId?: string;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/guided-buying").GuidedBuyingRecommendation
+> {
+  return request<
+    import("@/types/guided-buying").GuidedBuyingRecommendation
+  >(
+    "/guided-buying/recommend",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function refreshGuidedBuyingRecommendation(
+  intakeId: string,
+): Promise<
+  import("@/types/guided-buying").GuidedBuyingIntake
+> {
+  return request<
+    import("@/types/guided-buying").GuidedBuyingIntake
+  >(
+    `/guided-buying/intakes/${intakeId}/refresh-guidance`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function markGuidedBuyingReady(
+  intakeId: string,
+): Promise<
+  import("@/types/guided-buying").GuidedBuyingIntake
+> {
+  return request<
+    import("@/types/guided-buying").GuidedBuyingIntake
+  >(
+    `/guided-buying/intakes/${intakeId}/ready`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function linkGuidedBuyingRequest(
+  intakeId: string,
+  purchaseRequestId: string,
+): Promise<
+  import("@/types/guided-buying").GuidedBuyingIntake
+> {
+  return request<
+    import("@/types/guided-buying").GuidedBuyingIntake
+  >(
+    `/guided-buying/intakes/${intakeId}/link-request`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        purchaseRequestId,
+      }),
+    },
+  );
+}
+
+export async function cancelGuidedBuyingIntake(
+  intakeId: string,
+): Promise<
+  import("@/types/guided-buying").GuidedBuyingIntake
+> {
+  return request<
+    import("@/types/guided-buying").GuidedBuyingIntake
+  >(
+    `/guided-buying/intakes/${intakeId}/cancel`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getGuidedBuyingTemplates(): Promise<
+  import("@/types/guided-buying").GuidedBuyingTemplate[]
+> {
+  return request<
+    import("@/types/guided-buying").GuidedBuyingTemplate[]
+  >(
+    "/guided-buying/templates",
+  );
+}
+
+export async function createGuidedBuyingTemplate(
+  input: {
+    name: string;
+    description?: string;
+    category: string;
+    defaultTitle?: string;
+    defaultCurrency: string;
+    defaultEstimatedAmount?: number;
+    defaultDepartmentId?: string;
+    ownerUserId?: string;
+  },
+): Promise<
+  import("@/types/guided-buying").GuidedBuyingTemplate
+> {
+  return request<
+    import("@/types/guided-buying").GuidedBuyingTemplate
+  >(
+    "/guided-buying/templates",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function activateGuidedBuyingTemplate(
+  templateId: string,
+): Promise<
+  import("@/types/guided-buying").GuidedBuyingTemplate
+> {
+  return request<
+    import("@/types/guided-buying").GuidedBuyingTemplate
+  >(
+    `/guided-buying/templates/${templateId}/activate`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function deactivateGuidedBuyingTemplate(
+  templateId: string,
+): Promise<
+  import("@/types/guided-buying").GuidedBuyingTemplate
+> {
+  return request<
+    import("@/types/guided-buying").GuidedBuyingTemplate
+  >(
+    `/guided-buying/templates/${templateId}/deactivate`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getPreferredSuppliers(): Promise<
+  import("@/types/guided-buying").PreferredSupplier[]
+> {
+  return request<
+    import("@/types/guided-buying").PreferredSupplier[]
+  >(
+    "/guided-buying/preferred-suppliers",
+  );
+}
+
+export async function createPreferredSupplier(
+  input: {
+    category: string;
+    supplierId: string;
+    preferenceRank: number;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/guided-buying").PreferredSupplier
+> {
+  return request<
+    import("@/types/guided-buying").PreferredSupplier
+  >(
+    "/guided-buying/preferred-suppliers",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function deactivatePreferredSupplier(
+  preferredSupplierId: string,
+): Promise<
+  import("@/types/guided-buying").PreferredSupplier
+> {
+  return request<
+    import("@/types/guided-buying").PreferredSupplier
+  >(
+    `/guided-buying/preferred-suppliers/${preferredSupplierId}/deactivate`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getGuidedBuyingSummary(): Promise<
+  import("@/types/guided-buying").GuidedBuyingSummary
+> {
+  return request<
+    import("@/types/guided-buying").GuidedBuyingSummary
+  >(
+    "/guided-buying/summary",
+  );
+}
+
+export async function getGuidedBuyingContext(): Promise<
+  import("@/types/guided-buying").GuidedBuyingContext
+> {
+  return request<
+    import("@/types/guided-buying").GuidedBuyingContext
+  >(
+    "/guided-buying/context-options",
+  );
+}
