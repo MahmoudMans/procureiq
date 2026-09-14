@@ -115,13 +115,34 @@ export function Sidebar() {
     user?.role ===
       "APPROVER";
 
+  const canViewSourcing =
+    user?.role === "ADMIN" ||
+    user?.role ===
+      "PROCUREMENT_MANAGER" ||
+    user?.role ===
+      "BUYER";
+
   const navigation = [
     ...coreNavigation.filter(
-      item =>
-        item.href !==
-          "/approvals" ||
-        canViewApprovals,
+      item => {
+        if (
+          item.href ===
+            "/approvals"
+        ) {
+          return canViewApprovals;
+        }
+
+        if (
+          item.href ===
+            "/rfqs"
+        ) {
+          return canViewSourcing;
+        }
+
+        return true;
+      },
     ),
+
     ...(canViewTeam
       ? [
           {
@@ -217,7 +238,6 @@ export function Sidebar() {
           "sidebar__footer"
         }
       >
-
         <button
           type="button"
           className={
@@ -268,7 +288,6 @@ export function Sidebar() {
 
           </div>
         ) : null}
-
       </div>
 
     </aside>

@@ -3693,3 +3693,676 @@ a {
       column;
   }
 }
+
+/* ====================================================================== */
+/* STEP 5 — RFQ + STRATEGIC SOURCING                                     */
+/* ====================================================================== */
+
+.rfq-kpi-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 14px;
+}
+
+.rfq-value {
+  font-size: 21px;
+}
+
+.rfq-toolbar {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+.rfq-list-panel {
+  padding: 0;
+
+  overflow: hidden;
+}
+
+.rfq-table th:first-child,
+.rfq-table td:first-child {
+  padding-left: 18px;
+}
+
+.rfq-table th:last-child,
+.rfq-table td:last-child {
+  padding-right: 18px;
+}
+
+.rfq-table th {
+  padding-top: 12px;
+}
+
+.rfq-source-cell strong {
+  display: block;
+
+  color:
+    var(--text);
+
+  font-size: 10px;
+}
+
+.rfq-source-cell span {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 9px;
+}
+
+.rfq-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 70px;
+
+  padding:
+    4px 8px;
+
+  border-radius: 99px;
+
+  font-size: 8px;
+  font-weight: 700;
+
+  letter-spacing: 0.02em;
+}
+
+.rfq-status--draft {
+  background:
+    #f2f4f7;
+
+  color:
+    #475467;
+}
+
+.rfq-status--published {
+  background:
+    #eff6ff;
+
+  color:
+    #2563eb;
+}
+
+.rfq-status--closed {
+  background:
+    #ecfdf3;
+
+  color:
+    #027a48;
+}
+
+.rfq-status--cancelled {
+  background:
+    #fef3f2;
+
+  color:
+    #b42318;
+}
+
+.rfq-form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 16px;
+}
+
+.rfq-form-section {
+  padding: 22px;
+}
+
+.rfq-form-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 15px;
+}
+
+.rfq-field-wide {
+  grid-column:
+    1 / -1;
+}
+
+.rfq-selected-count {
+  padding:
+    5px 9px;
+
+  border-radius: 99px;
+
+  background:
+    var(--primary-soft);
+
+  color:
+    var(--primary);
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.rfq-supplier-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 9px;
+}
+
+.rfq-supplier-option {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 12px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 9px;
+
+  background: white;
+
+  color:
+    var(--text-secondary);
+
+  text-align: left;
+
+  transition:
+    border-color 120ms ease,
+    background 120ms ease;
+}
+
+.rfq-supplier-option:hover {
+  border-color:
+    #bfdbfe;
+
+  background:
+    #fbfdff;
+}
+
+.rfq-supplier-option--selected {
+  border-color:
+    #93c5fd;
+
+  background:
+    #eff6ff;
+
+  color:
+    var(--primary);
+}
+
+.rfq-supplier-option__icon {
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 8px;
+
+  background:
+    var(--surface-muted);
+
+  color:
+    var(--text-secondary);
+}
+
+.rfq-supplier-option--selected
+.rfq-supplier-option__icon {
+  background:
+    #dbeafe;
+
+  color:
+    var(--primary);
+}
+
+.rfq-supplier-option__content {
+  flex: 1;
+
+  min-width: 0;
+}
+
+.rfq-supplier-option__content strong {
+  display: block;
+
+  overflow: hidden;
+
+  color:
+    var(--text);
+
+  font-size: 10px;
+
+  text-overflow:
+    ellipsis;
+
+  white-space: nowrap;
+}
+
+.rfq-supplier-option__content span {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8.5px;
+}
+
+.rfq-supplier-option__content small {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--text-secondary);
+
+  font-size: 8px;
+}
+
+.rfq-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+}
+
+.rfq-empty-state {
+  min-height: 160px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  color:
+    var(--text-tertiary);
+
+  text-align: center;
+}
+
+.rfq-empty-state strong {
+  color:
+    var(--text);
+
+  font-size: 12px;
+}
+
+.rfq-empty-state span {
+  max-width: 380px;
+
+  font-size: 10px;
+
+  line-height: 1.5;
+}
+
+.rfq-source-preview {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 10px;
+
+  margin-top: 17px;
+}
+
+.rfq-source-preview > div {
+  padding: 12px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 8px;
+
+  background:
+    var(--surface-soft);
+}
+
+.rfq-source-preview span {
+  display: block;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8px;
+}
+
+.rfq-source-preview strong {
+  display: block;
+
+  margin-top: 4px;
+
+  font-size: 10px;
+}
+
+.rfq-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 24px;
+}
+
+.rfq-detail-heading h1 {
+  margin:
+    7px 0 6px;
+
+  font-size: 29px;
+
+  letter-spacing:
+    -0.035em;
+}
+
+.rfq-detail-heading p {
+  max-width: 740px;
+
+  margin: 0;
+
+  color:
+    var(--text-secondary);
+
+  font-size: 12px;
+
+  line-height: 1.6;
+}
+
+.rfq-detail-actions {
+  display: flex;
+
+  gap: 9px;
+}
+
+.rfq-detail-summary-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 12px;
+}
+
+.rfq-approved-value {
+  font-size: 14px;
+
+  letter-spacing:
+    -0.02em;
+}
+
+.rfq-invitation-list {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 10px;
+}
+
+.rfq-invitation-card {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 13px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 9px;
+
+  background:
+    var(--surface-soft);
+}
+
+.rfq-invitation-card__icon {
+  width: 35px;
+  height: 35px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 8px;
+
+  background:
+    var(--primary-soft);
+
+  color:
+    var(--primary);
+}
+
+.rfq-invitation-card__content {
+  flex: 1;
+
+  min-width: 0;
+}
+
+.rfq-invitation-card__content strong {
+  display: block;
+
+  overflow: hidden;
+
+  font-size: 10px;
+
+  text-overflow:
+    ellipsis;
+
+  white-space:
+    nowrap;
+}
+
+.rfq-invitation-card__content span {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8.5px;
+}
+
+.rfq-invitation-card__content small {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--text-secondary);
+
+  font-size: 8px;
+}
+
+.rfq-invitation-status {
+  padding:
+    4px 7px;
+
+  border-radius: 99px;
+
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.rfq-invitation-status--invited {
+  background:
+    #eff6ff;
+
+  color:
+    #2563eb;
+}
+
+.rfq-invitation-status--responded {
+  background:
+    #ecfdf3;
+
+  color:
+    #027a48;
+}
+
+.rfq-invitation-status--declined {
+  background:
+    #fef3f2;
+
+  color:
+    #b42318;
+}
+
+@media (
+  max-width: 1100px
+) {
+  .rfq-kpi-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
+  }
+
+  .rfq-source-preview {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
+  }
+}
+
+@media (
+  max-width: 800px
+) {
+  .rfq-detail-heading {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+  }
+
+  .rfq-detail-summary-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .rfq-detail-actions {
+    width: 100%;
+
+    flex-direction:
+      column;
+  }
+
+  .rfq-detail-actions
+  .button {
+    width: 100%;
+  }
+
+  .rfq-supplier-grid,
+  .rfq-invitation-list {
+    grid-template-columns:
+      1fr;
+  }
+}
+
+@media (
+  max-width: 680px
+) {
+  .rfq-kpi-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .rfq-toolbar {
+    align-items:
+      stretch;
+
+    flex-direction:
+      column;
+  }
+
+  .rfq-form-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .rfq-field-wide {
+    grid-column:
+      auto;
+  }
+
+  .rfq-source-preview {
+    grid-template-columns:
+      1fr;
+  }
+
+  .rfq-form-footer {
+    align-items:
+      stretch;
+
+    flex-direction:
+      column;
+  }
+
+  .rfq-form-footer
+  .button {
+    width: 100%;
+  }
+}

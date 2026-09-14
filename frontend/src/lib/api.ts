@@ -23,6 +23,15 @@ import type {
 } from "@/types/purchase-request";
 
 import type {
+  Rfq,
+  RfqCreateInput,
+  RfqFilters,
+  RfqStatus,
+  RfqSummary,
+  RfqUpdateInput,
+} from "@/types/rfq";
+
+import type {
   CreateSupplierInput,
   Supplier,
   SupplierFilters,
@@ -102,7 +111,7 @@ async function request<T>(
         problem.title ??
         message;
     } catch {
-      // Preserve default HTTP status message.
+      // Keep default HTTP error message.
     }
 
     if (
@@ -401,6 +410,118 @@ export async function rejectTask(
       body: JSON.stringify({
         comment,
       }),
+    },
+  );
+}
+
+export async function getRfqs(
+  filters: RfqFilters = {},
+): Promise<Rfq[]> {
+  const params =
+    new URLSearchParams();
+
+  if (
+    filters.query?.trim()
+  ) {
+    params.set(
+      "query",
+      filters.query.trim(),
+    );
+  }
+
+  if (
+    filters.status
+  ) {
+    params.set(
+      "status",
+      filters.status,
+    );
+  }
+
+  const queryString =
+    params.toString();
+
+  return request<Rfq[]>(
+    `/rfqs${
+      queryString
+        ? `?${queryString}`
+        : ""
+    }`,
+  );
+}
+
+export async function getRfqSummary(): Promise<RfqSummary> {
+  return request<RfqSummary>(
+    "/rfqs/summary",
+  );
+}
+
+export async function getRfq(
+  id: string,
+): Promise<Rfq> {
+  return request<Rfq>(
+    `/rfqs/${id}`,
+  );
+}
+
+export async function createRfq(
+  input: RfqCreateInput,
+): Promise<Rfq> {
+  return request<Rfq>(
+    "/rfqs",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function updateRfq(
+  id: string,
+  input: RfqUpdateInput,
+): Promise<Rfq> {
+  return request<Rfq>(
+    `/rfqs/${id}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function publishRfq(
+  id: string,
+): Promise<Rfq> {
+  return request<Rfq>(
+    `/rfqs/${id}/publish`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function closeRfq(
+  id: string,
+): Promise<Rfq> {
+  return request<Rfq>(
+    `/rfqs/${id}/close`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function cancelRfq(
+  id: string,
+): Promise<Rfq> {
+  return request<Rfq>(
+    `/rfqs/${id}/cancel`,
+    {
+      method: "POST",
     },
   );
 }
