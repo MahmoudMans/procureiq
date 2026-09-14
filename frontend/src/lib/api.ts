@@ -1048,3 +1048,172 @@ export async function getSupplier360(
     `/suppliers/${supplierId}/360`,
   );
 }
+
+export async function getContracts(
+  query?: string,
+  status?: import("@/types/contract").ContractStatus,
+  supplierId?: string,
+): Promise<import("@/types/contract").SupplierContract[]> {
+  const params =
+    new URLSearchParams();
+
+  if (query?.trim()) {
+    params.set(
+      "query",
+      query.trim(),
+    );
+  }
+
+  if (status) {
+    params.set(
+      "status",
+      status,
+    );
+  }
+
+  if (supplierId) {
+    params.set(
+      "supplierId",
+      supplierId,
+    );
+  }
+
+  const queryString =
+    params.toString();
+
+  return request<
+    import("@/types/contract").SupplierContract[]
+  >(
+    `/contracts${
+      queryString
+        ? `?${queryString}`
+        : ""
+    }`,
+  );
+}
+
+export async function getContractSummary(): Promise<
+  import("@/types/contract").ContractSummary
+> {
+  return request<
+    import("@/types/contract").ContractSummary
+  >(
+    "/contracts/summary",
+  );
+}
+
+export async function getContractAlerts(): Promise<
+  import("@/types/contract").ContractAlert[]
+> {
+  return request<
+    import("@/types/contract").ContractAlert[]
+  >(
+    "/contracts/alerts",
+  );
+}
+
+export async function getContractSupplierOptions(): Promise<
+  import("@/types/contract").ContractSupplierOption[]
+> {
+  return request<
+    import("@/types/contract").ContractSupplierOption[]
+  >(
+    "/contracts/suppliers",
+  );
+}
+
+export async function getContract(
+  contractId: string,
+): Promise<import("@/types/contract").SupplierContract> {
+  return request<
+    import("@/types/contract").SupplierContract
+  >(
+    `/contracts/${contractId}`,
+  );
+}
+
+export async function createContract(
+  input: import("@/types/contract").ContractCreateInput,
+): Promise<import("@/types/contract").SupplierContract> {
+  return request<
+    import("@/types/contract").SupplierContract
+  >(
+    "/contracts",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function updateContract(
+  contractId: string,
+  input: import("@/types/contract").ContractUpdateInput,
+): Promise<import("@/types/contract").SupplierContract> {
+  return request<
+    import("@/types/contract").SupplierContract
+  >(
+    `/contracts/${contractId}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function activateContract(
+  contractId: string,
+): Promise<import("@/types/contract").SupplierContract> {
+  return request<
+    import("@/types/contract").SupplierContract
+  >(
+    `/contracts/${contractId}/activate`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function terminateContract(
+  contractId: string,
+): Promise<import("@/types/contract").SupplierContract> {
+  return request<
+    import("@/types/contract").SupplierContract
+  >(
+    `/contracts/${contractId}/terminate`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getSupplierCompliance(
+  supplierId: string,
+): Promise<import("@/types/contract").SupplierCompliance> {
+  return request<
+    import("@/types/contract").SupplierCompliance
+  >(
+    `/suppliers/${supplierId}/compliance`,
+  );
+}
+
+export async function createComplianceDocument(
+  supplierId: string,
+  input: import("@/types/contract").ComplianceDocumentInput,
+): Promise<import("@/types/contract").ComplianceDocument> {
+  return request<
+    import("@/types/contract").ComplianceDocument
+  >(
+    `/suppliers/${supplierId}/compliance-documents`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}

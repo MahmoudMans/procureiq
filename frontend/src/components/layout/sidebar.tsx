@@ -15,6 +15,7 @@ import {
   ShoppingCart,
   Truck,
   Users,
+  FileCheck2,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -37,7 +38,12 @@ const coreNavigation = [
     href: "/suppliers",
     label: "Suppliers",
     icon: Building2,
+  },  {
+    href: "/contracts",
+    label: "Contracts & compliance",
+    icon: FileCheck2,
   },
+
   {
     href: "/purchase-requests",
     label: "Purchase requests",
