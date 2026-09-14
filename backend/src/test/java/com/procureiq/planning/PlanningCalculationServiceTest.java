@@ -9,8 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PlanningCalculationServiceTest {
 
-    private PlanningCalculationService
-            service;
+    private PlanningCalculationService service;
 
     @BeforeEach
     void setUp() {
@@ -21,30 +20,18 @@ class PlanningCalculationServiceTest {
     @Test
     void shouldCalculatePlanVariance() {
         assertEquals(
-                new BigDecimal(
-                        "2500.00"
-                ),
+                new BigDecimal("2500.00"),
                 service.variance(
-                        new BigDecimal(
-                                "10000.00"
-                        ),
-                        new BigDecimal(
-                                "12500.00"
-                        )
+                        new BigDecimal("10000.00"),
+                        new BigDecimal("12500.00")
                 )
         );
 
         assertEquals(
-                new BigDecimal(
-                        "-2000.00"
-                ),
+                new BigDecimal("-2000.00"),
                 service.variance(
-                        new BigDecimal(
-                                "10000.00"
-                        ),
-                        new BigDecimal(
-                                "8000.00"
-                        )
+                        new BigDecimal("10000.00"),
+                        new BigDecimal("8000.00")
                 )
         );
     }
@@ -52,9 +39,7 @@ class PlanningCalculationServiceTest {
     @Test
     void shouldCalculateConversionRate() {
         assertEquals(
-                new BigDecimal(
-                        "75.00"
-                ),
+                new BigDecimal("75.00"),
                 service.conversionRate(
                         3,
                         4
@@ -62,9 +47,7 @@ class PlanningCalculationServiceTest {
         );
 
         assertEquals(
-                new BigDecimal(
-                        "0.00"
-                ),
+                new BigDecimal("0.00"),
                 service.conversionRate(
                         0,
                         0

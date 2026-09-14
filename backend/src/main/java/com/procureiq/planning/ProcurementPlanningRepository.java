@@ -297,13 +297,11 @@ public class ProcurementPlanningRepository {
                     ON app_user.id =
                        plan.owner_user_id
 
-                LEFT JOIN procurement_plan_items
-                    item
+                LEFT JOIN procurement_plan_items item
                     ON item.plan_id =
                        plan.id
 
-                LEFT JOIN purchase_requests
-                    request
+                LEFT JOIN purchase_requests request
                     ON request.id =
                        item.linked_purchase_request_id
 
@@ -397,13 +395,11 @@ public class ProcurementPlanningRepository {
                     ON app_user.id =
                        plan.owner_user_id
 
-                LEFT JOIN procurement_plan_items
-                    item
+                LEFT JOIN procurement_plan_items item
                     ON item.plan_id =
                        plan.id
 
-                LEFT JOIN purchase_requests
-                    request
+                LEFT JOIN purchase_requests request
                     ON request.id =
                        item.linked_purchase_request_id
 
@@ -513,8 +509,7 @@ public class ProcurementPlanningRepository {
                     ON plan.id =
                        item.plan_id
 
-                LEFT JOIN purchase_requests
-                    request
+                LEFT JOIN purchase_requests request
                     ON request.id =
                        item.linked_purchase_request_id
 
@@ -592,8 +587,7 @@ public class ProcurementPlanningRepository {
                     ON plan.id =
                        item.plan_id
 
-                LEFT JOIN purchase_requests
-                    request
+                LEFT JOIN purchase_requests request
                     ON request.id =
                        item.linked_purchase_request_id
 
@@ -927,8 +921,7 @@ public class ProcurementPlanningRepository {
                     ON department.id =
                        item.department_id
 
-                LEFT JOIN purchase_requests
-                    request
+                LEFT JOIN purchase_requests request
                     ON request.id =
                        item.linked_purchase_request_id
 
@@ -965,12 +958,11 @@ public class ProcurementPlanningRepository {
                 resultSet.getString(
                         "currency"
                 ),
-                ProcurementPlanStatus
-                        .valueOf(
-                                resultSet.getString(
-                                        "status"
-                                )
-                        ),
+                ProcurementPlanStatus.valueOf(
+                        resultSet.getString(
+                                "status"
+                        )
+                ),
                 resultSet.getObject(
                         "owner_user_id",
                         UUID.class
@@ -1054,18 +1046,16 @@ public class ProcurementPlanningRepository {
                         "target_sourcing_date",
                         LocalDate.class
                 ),
-                ProcurementPlanPriority
-                        .valueOf(
-                                resultSet.getString(
-                                        "priority"
-                                )
-                        ),
-                ProcurementPlanItemStatus
-                        .valueOf(
-                                resultSet.getString(
-                                        "status"
-                                )
-                        ),
+                ProcurementPlanPriority.valueOf(
+                        resultSet.getString(
+                                "priority"
+                        )
+                ),
+                ProcurementPlanItemStatus.valueOf(
+                        resultSet.getString(
+                                "status"
+                        )
+                ),
                 resultSet.getObject(
                         "linked_purchase_request_id",
                         UUID.class

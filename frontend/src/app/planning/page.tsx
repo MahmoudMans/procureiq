@@ -47,21 +47,19 @@ function money(
   value: number,
   currency: string,
 ): string {
-  return new Intl
-    .NumberFormat(
-      "en-US",
-      {
-        style: "currency",
-        currency,
-        notation:
-          Math.abs(value) >=
-          100000
-            ? "compact"
-            : "standard",
-        maximumFractionDigits: 1,
-      },
-    )
-    .format(value);
+  return new Intl.NumberFormat(
+    "en-US",
+    {
+      style: "currency",
+      currency,
+      notation:
+        Math.abs(value) >=
+        100000
+          ? "compact"
+          : "standard",
+      maximumFractionDigits: 1,
+    },
+  ).format(value);
 }
 
 function readable(
@@ -269,22 +267,10 @@ export default function PlanningPage() {
     );
 
   return (
-    <div
-      className={
-        "page-stack"
-      }
-    >
-      <section
-        className={
-          "page-heading"
-        }
-      >
+    <div className="page-stack">
+      <section className="page-heading">
         <div>
-          <span
-            className={
-              "eyebrow"
-            }
-          >
+          <span className="eyebrow">
             Strategic procurement
           </span>
 
@@ -304,9 +290,7 @@ export default function PlanningPage() {
         {canManage ? (
           <Link
             href="/planning/new"
-            className={
-              "button button--primary"
-            }
+            className="button button--primary"
           >
             <Plus size={16} />
             New plan
@@ -315,32 +299,20 @@ export default function PlanningPage() {
       </section>
 
       {error ? (
-        <div
-          className={
-            "error-banner"
-          }
-        >
-          <CircleAlert
-            size={18}
-          />
+        <div className="error-banner">
+          <CircleAlert size={18} />
           {error}
         </div>
       ) : null}
 
-      <section
-        className={
-          "planning-period-control"
-        }
-      >
+      <section className="planning-period-control">
         <label>
           <span>
             Fiscal year
           </span>
 
           <select
-            value={
-              fiscalYear
-            }
+            value={fiscalYear}
             onChange={
               event =>
                 setFiscalYear(
@@ -383,15 +355,12 @@ export default function PlanningPage() {
             <option value="EUR">
               EUR
             </option>
-
             <option value="USD">
               USD
             </option>
-
             <option value="GBP">
               GBP
             </option>
-
             <option value="TND">
               TND
             </option>
@@ -399,149 +368,71 @@ export default function PlanningPage() {
         </label>
       </section>
 
-      <section
-        className={
-          "planning-kpi-grid"
-        }
-      >
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <CalendarRange
-                size={20}
-              />
+      <section className="planning-kpi-grid">
+        <article className="kpi-card">
+          <div className="kpi-card__topline">
+            <div className="kpi-card__icon">
+              <CalendarRange size={20} />
             </div>
           </div>
 
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
+          <span className="kpi-card__label">
             Planned demand
           </span>
 
-          <strong
-            className={
-              "kpi-card__value planning-money-kpi"
-            }
-          >
+          <strong className="kpi-card__value planning-money-kpi">
             {summary
               ? money(
-                  summary
-                    .plannedDemand,
+                  summary.plannedDemand,
                   currency,
                 )
               : "—"}
           </strong>
 
           <p>
-            {
-              summary
-                ?.plannedInitiatives ??
-              0
-            }
+            {summary?.plannedInitiatives ?? 0}
             {" initiatives"}
           </p>
         </article>
 
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <TrendingUp
-                size={20}
-              />
+        <article className="kpi-card">
+          <div className="kpi-card__topline">
+            <div className="kpi-card__icon">
+              <TrendingUp size={20} />
             </div>
           </div>
 
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
+          <span className="kpi-card__label">
             Linked actual
           </span>
 
-          <strong
-            className={
-              "kpi-card__value planning-money-kpi"
-            }
-          >
+          <strong className="kpi-card__value planning-money-kpi">
             {summary
               ? money(
-                  summary
-                    .linkedActualDemand,
+                  summary.linkedActualDemand,
                   currency,
                 )
               : "—"}
           </strong>
 
           <p>
-            {
-              summary
-                ?.convertedInitiatives ??
-              0
-            }
+            {summary?.convertedInitiatives ?? 0}
             {" converted initiatives"}
           </p>
         </article>
 
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
+        <article className="kpi-card">
+          <div className="kpi-card__topline">
+            <div className="kpi-card__icon">
               <Target size={20} />
             </div>
           </div>
 
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
+          <span className="kpi-card__label">
             Conversion rate
           </span>
 
-          <strong
-            className={
-              "kpi-card__value"
-            }
-          >
+          <strong className="kpi-card__value">
             {summary
               ?.conversionRate
               .toFixed(1) ??
@@ -555,79 +446,33 @@ export default function PlanningPage() {
           </p>
         </article>
 
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <AlertTriangle
-                size={20}
-              />
+        <article className="kpi-card">
+          <div className="kpi-card__topline">
+            <div className="kpi-card__icon">
+              <AlertTriangle size={20} />
             </div>
           </div>
 
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
+          <span className="kpi-card__label">
             Planning exceptions
           </span>
 
-          <strong
-            className={
-              "kpi-card__value"
-            }
-          >
-            {
-              summary
-                ?.overdueInitiatives ??
-              0
-            }
+          <strong className="kpi-card__value">
+            {summary?.overdueInitiatives ?? 0}
           </strong>
 
           <p>
-            {
-              summary
-                ?.upcomingInitiatives ??
-              0
-            }
+            {summary?.upcomingInitiatives ?? 0}
             {" due within 60 days"}
           </p>
         </article>
       </section>
 
-      <section
-        className={
-          "planning-main-grid"
-        }
-      >
-        <section
-          className={
-            "panel"
-          }
-        >
-          <div
-            className={
-              "panel__header"
-            }
-          >
+      <section className="planning-main-grid">
+        <section className="panel">
+          <div className="panel__header">
             <div>
-              <span
-                className={
-                  "eyebrow"
-                }
-              >
+              <span className="eyebrow">
                 Demand forecast
               </span>
 
@@ -636,140 +481,88 @@ export default function PlanningPage() {
               </h2>
             </div>
 
-            <BarChart3
-              size={19}
-            />
+            <BarChart3 size={19} />
           </div>
 
-          {monthly.length ===
-          0 ? (
-            <div
-              className={
-                "planning-empty"
-              }
-            >
-              No demand forecast
-              exists for this period.
+          {monthly.length === 0 ? (
+            <div className="planning-empty">
+              No demand forecast exists
+              for this period.
             </div>
           ) : (
-            <div
-              className={
-                "planning-month-list"
-              }
-            >
+            <div className="planning-month-list">
               {monthly.map(
                 item => (
                   <article
-                    key={
-                      item.month
-                    }
-                    className={
-                      "planning-month-row"
-                    }
+                    key={item.month}
+                    className="planning-month-row"
                   >
                     <div>
                       <strong>
-                        {
-                          item.month
-                        }
+                        {item.month}
                       </strong>
 
                       <span>
-                        {
-                          item
-                            .initiativeCount
-                        }
+                        {item.initiativeCount}
                         {" initiatives"}
                       </span>
                     </div>
 
-                    <div
-                      className={
-                        "planning-bars"
-                      }
-                    >
+                    <div className="planning-bars">
                       <div>
-                        <span>
-                          Plan
-                        </span>
+                        <span>Plan</span>
 
-                        <div
-                          className={
-                            "planning-bar-track"
-                          }
-                        >
+                        <div className="planning-bar-track">
                           <div
                             style={{
                               width:
-                                `${
-                                  Math.max(
-                                    2,
-                                    (
-                                      item
-                                        .plannedValue /
-                                      maxMonthly
-                                    ) *
-                                      100,
-                                  )
-                                }%`,
+                                `${Math.max(
+                                  2,
+                                  (
+                                    item.plannedValue /
+                                    maxMonthly
+                                  ) *
+                                    100,
+                                )}%`,
                             }}
                           />
                         </div>
                       </div>
 
                       <div>
-                        <span>
-                          Actual
-                        </span>
+                        <span>Actual</span>
 
-                        <div
-                          className={
-                            "planning-bar-track planning-bar-track--actual"
-                          }
-                        >
+                        <div className="planning-bar-track planning-bar-track--actual">
                           <div
                             style={{
                               width:
-                                `${
-                                  Math.max(
-                                    0,
-                                    (
-                                      item
-                                        .linkedActualValue /
-                                      maxMonthly
-                                    ) *
-                                      100,
-                                  )
-                                }%`,
+                                `${Math.max(
+                                  0,
+                                  (
+                                    item.linkedActualValue /
+                                    maxMonthly
+                                  ) *
+                                    100,
+                                )}%`,
                             }}
                           />
                         </div>
                       </div>
                     </div>
 
-                    <div
-                      className={
-                        "planning-month-values"
-                      }
-                    >
+                    <div className="planning-month-values">
                       <strong>
-                        {
-                          money(
-                            item
-                              .plannedValue,
-                            currency,
-                          )
-                        }
+                        {money(
+                          item.plannedValue,
+                          currency,
+                        )}
                       </strong>
 
                       <span>
-                        {
-                          money(
-                            item
-                              .linkedActualValue,
-                            currency,
-                          )
-                        }
+                        {money(
+                          item.linkedActualValue,
+                          currency,
+                        )}
                       </span>
                     </div>
                   </article>
@@ -779,22 +572,10 @@ export default function PlanningPage() {
           )}
         </section>
 
-        <section
-          className={
-            "panel"
-          }
-        >
-          <div
-            className={
-              "panel__header"
-            }
-          >
+        <section className="panel">
+          <div className="panel__header">
             <div>
-              <span
-                className={
-                  "eyebrow"
-                }
-              >
+              <span className="eyebrow">
                 Category intelligence
               </span>
 
@@ -804,73 +585,48 @@ export default function PlanningPage() {
             </div>
           </div>
 
-          <div
-            className={
-              "planning-category-list"
-            }
-          >
+          <div className="planning-category-list">
             {categories.map(
               item => (
                 <article
-                  key={
-                    item.category
-                  }
-                  className={
-                    "planning-category-row"
-                  }
+                  key={item.category}
+                  className="planning-category-row"
                 >
                   <div>
                     <strong>
-                      {
-                        item.category
-                      }
+                      {item.category}
                     </strong>
 
                     <span>
-                      {
-                        item
-                          .initiativeCount
-                      }
+                      {item.initiativeCount}
                       {" initiatives"}
                     </span>
                   </div>
 
                   <div>
-                    <span>
-                      Plan
-                    </span>
+                    <span>Plan</span>
 
                     <strong>
-                      {
-                        money(
-                          item
-                            .plannedValue,
-                          currency,
-                        )
-                      }
+                      {money(
+                        item.plannedValue,
+                        currency,
+                      )}
                     </strong>
                   </div>
 
                   <div>
-                    <span>
-                      Actual
-                    </span>
+                    <span>Actual</span>
 
                     <strong>
-                      {
-                        money(
-                          item
-                            .linkedActualValue,
-                          currency,
-                        )
-                      }
+                      {money(
+                        item.linkedActualValue,
+                        currency,
+                      )}
                     </strong>
                   </div>
 
                   <div>
-                    <span>
-                      Variance
-                    </span>
+                    <span>Variance</span>
 
                     <strong
                       className={
@@ -880,50 +636,30 @@ export default function PlanningPage() {
                           : "planning-variance-under"
                       }
                     >
-                      {
-                        money(
-                          item
-                            .variance,
-                          currency,
-                        )
-                      }
+                      {money(
+                        item.variance,
+                        currency,
+                      )}
                     </strong>
                   </div>
                 </article>
               ),
             )}
 
-            {categories.length ===
-            0 ? (
-              <div
-                className={
-                  "planning-empty"
-                }
-              >
-                No category variance
-                is available yet.
+            {categories.length === 0 ? (
+              <div className="planning-empty">
+                No category variance is
+                available yet.
               </div>
             ) : null}
           </div>
         </section>
       </section>
 
-      <section
-        className={
-          "panel"
-        }
-      >
-        <div
-          className={
-            "panel__header"
-          }
-        >
+      <section className="panel">
+        <div className="panel__header">
           <div>
-            <span
-              className={
-                "eyebrow"
-              }
-            >
+            <span className="eyebrow">
               Demand pipeline
             </span>
 
@@ -935,16 +671,8 @@ export default function PlanningPage() {
           <Clock3 size={19} />
         </div>
 
-        <div
-          className={
-            "table-scroll"
-          }
-        >
-          <table
-            className={
-              "data-table"
-            }
-          >
+        <div className="table-scroll">
+          <table className="data-table">
             <thead>
               <tr>
                 <th>Initiative</th>
@@ -966,90 +694,59 @@ export default function PlanningPage() {
                 )
                 .map(
                   item => (
-                    <tr
-                      key={
-                        item.itemId
-                      }
-                    >
+                    <tr key={item.itemId}>
                       <td>
                         <strong>
-                          {
-                            item.title
-                          }
+                          {item.title}
                         </strong>
                       </td>
 
                       <td>
-                        {
-                          item.planNumber
-                        }
+                        {item.planNumber}
                       </td>
 
                       <td>
-                        {
-                          item
-                            .departmentName
-                        }
+                        {item.departmentName}
                       </td>
 
                       <td>
-                        {
-                          item.category
-                        }
+                        {item.category}
                       </td>
 
                       <td>
                         <span
                           className={
-                            `planning-priority planning-priority--${
-                              item.priority
-                                .toLowerCase()
-                            }`
+                            `planning-priority planning-priority--${item.priority.toLowerCase()}`
                           }
                         >
-                          {
-                            item.priority
-                          }
+                          {item.priority}
                         </span>
                       </td>
 
                       <td>
-                        {
-                          money(
-                            item
-                              .plannedValue,
-                            currency,
-                          )
-                        }
+                        {money(
+                          item.plannedValue,
+                          currency,
+                        )}
                       </td>
 
                       <td>
-                        <div
-                          className={
-                            "planning-target-cell"
-                          }
-                        >
+                        <div className="planning-target-cell">
                           <span>
-                            {
-                              new Date(
-                                `${item.targetSourcingDate}T00:00:00`,
-                              )
-                                .toLocaleDateString()
-                            }
+                            {new Date(
+                              `${item.targetSourcingDate}T00:00:00`,
+                            )
+                              .toLocaleDateString()}
                           </span>
 
-                          {item
-                            .daysUntilTarget <
+                          {item.daysUntilTarget <
                           0 ? (
                             <small>
                               Overdue
                             </small>
                           ) : (
                             <small>
-                              {
-                                item
-                                  .daysUntilTarget
-                              }
+                              {item.daysUntilTarget}
                               d
                             </small>
                           )}
@@ -1061,9 +758,7 @@ export default function PlanningPage() {
                           href={
                             `/planning/${item.planId}`
                           }
-                          className={
-                            "table-action"
-                          }
+                          className="table-action"
                         >
                           Open
                         </Link>
@@ -1072,17 +767,14 @@ export default function PlanningPage() {
                   ),
                 )}
 
-              {upcoming.length ===
-              0 ? (
+              {upcoming.length === 0 ? (
                 <tr>
                   <td
                     colSpan={8}
-                    className={
-                      "table-empty-state"
-                    }
+                    className="table-empty-state"
                   >
-                    No upcoming
-                    sourcing demand.
+                    No upcoming sourcing
+                    demand.
                   </td>
                 </tr>
               ) : null}
@@ -1091,22 +783,10 @@ export default function PlanningPage() {
         </div>
       </section>
 
-      <section
-        className={
-          "panel"
-        }
-      >
-        <div
-          className={
-            "panel__header"
-          }
-        >
+      <section className="panel">
+        <div className="panel__header">
           <div>
-            <span
-              className={
-                "eyebrow"
-              }
-            >
+            <span className="eyebrow">
               Annual plans
             </span>
 
@@ -1115,93 +795,61 @@ export default function PlanningPage() {
             </h2>
           </div>
 
-          <CalendarRange
-            size={19}
-          />
+          <CalendarRange size={19} />
         </div>
 
-        <div
-          className={
-            "planning-plan-grid"
-          }
-        >
+        <div className="planning-plan-grid">
           {plans.map(
             plan => (
               <Link
-                key={
-                  plan.id
-                }
+                key={plan.id}
                 href={
                   `/planning/${plan.id}`
                 }
-                className={
-                  "planning-plan-card"
-                }
+                className="planning-plan-card"
               >
-                <div
-                  className={
-                    "planning-plan-card__heading"
-                  }
-                >
+                <div className="planning-plan-card__heading">
                   <div>
                     <span>
-                      {
-                        plan
-                          .planNumber
-                      }
+                      {plan.planNumber}
                     </span>
 
                     <strong>
-                      {
-                        plan.name
-                      }
+                      {plan.name}
                     </strong>
                   </div>
 
                   <span
                     className={
-                      `planning-status planning-status--${
-                        plan.status
-                          .toLowerCase()
-                      }`
+                      `planning-status planning-status--${plan.status.toLowerCase()}`
                     }
                   >
-                    {
-                      readable(
-                        plan.status,
-                      )
-                    }
+                    {readable(
+                      plan.status,
+                    )}
                   </span>
                 </div>
 
-                <div
-                  className={
-                    "planning-plan-card__metrics"
-                  }
-                >
+                <div className="planning-plan-card__metrics">
                   <div>
                     <span>Planned</span>
+
                     <strong>
-                      {
-                        money(
-                          plan
-                            .plannedValue,
-                          plan.currency,
-                        )
-                      }
+                      {money(
+                        plan.plannedValue,
+                        plan.currency,
+                      )}
                     </strong>
                   </div>
 
                   <div>
                     <span>Actual</span>
+
                     <strong>
-                      {
-                        money(
-                          plan
-                            .linkedActualValue,
-                          plan.currency,
-                        )
-                      }
+                      {money(
+                        plan.linkedActualValue,
+                        plan.currency,
+                      )}
                     </strong>
                   </div>
 
@@ -1209,35 +857,22 @@ export default function PlanningPage() {
                     <span>
                       Conversion
                     </span>
+
                     <strong>
-                      {
-                        plan
-                          .conversionRate
-                          .toFixed(1)
-                      }
+                      {plan.conversionRate.toFixed(1)}
                       %
                     </strong>
                   </div>
                 </div>
 
-                <div
-                  className={
-                    "planning-plan-card__footer"
-                  }
-                >
+                <div className="planning-plan-card__footer">
                   <span>
-                    {
-                      plan.totalItems
-                    }
+                    {plan.totalItems}
                     {" initiatives"}
                   </span>
 
                   <span>
-                    Owner:
-                    {" "}
-                    {
-                      plan.ownerName
-                    }
+                    Owner: {plan.ownerName}
                   </span>
                 </div>
               </Link>
@@ -1246,11 +881,7 @@ export default function PlanningPage() {
 
           {!loading &&
           plans.length === 0 ? (
-            <div
-              className={
-                "planning-empty planning-empty--wide"
-              }
-            >
+            <div className="planning-empty planning-empty--wide">
               No procurement plans
               exist for this fiscal year.
             </div>

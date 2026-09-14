@@ -13,7 +13,6 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -22,14 +21,11 @@ import java.util.UUID;
 @Transactional
 public class ProcurementPlanningService {
 
-    private final ProcurementPlanningRepository
-            repository;
+    private final ProcurementPlanningRepository repository;
 
-    private final PlanningCalculationService
-            calculationService;
+    private final PlanningCalculationService calculationService;
 
-    private final AppUserRepository
-            appUserRepository;
+    private final AppUserRepository appUserRepository;
 
     public ProcurementPlanningService(
             ProcurementPlanningRepository repository,
@@ -55,8 +51,7 @@ public class ProcurementPlanningService {
         assertReadRole(
                 findCurrentUser(
                         currentUserId
-                )
-                        .getRole()
+                ).getRole()
         );
 
         PlanningContext context =
@@ -85,8 +80,7 @@ public class ProcurementPlanningService {
         assertReadRole(
                 findCurrentUser(
                         currentUserId
-                )
-                        .getRole()
+                ).getRole()
         );
 
         ProcurementPlanningRepository.PlanRow plan =
@@ -126,8 +120,7 @@ public class ProcurementPlanningService {
                         ? currentUserId
                         : requirePlanningOwner(
                                 input.ownerUserId()
-                        )
-                                .getId();
+                        ).getId();
 
         UUID id =
                 UUID.randomUUID();
@@ -290,8 +283,7 @@ public class ProcurementPlanningService {
         assertWriteRole(
                 findCurrentUser(
                         currentUserId
-                )
-                        .getRole()
+                ).getRole()
         );
 
         ProcurementPlanningRepository.ItemRow item =
@@ -328,8 +320,7 @@ public class ProcurementPlanningService {
         assertWriteRole(
                 findCurrentUser(
                         currentUserId
-                )
-                        .getRole()
+                ).getRole()
         );
 
         ProcurementPlanningRepository.ItemRow item =
@@ -411,8 +402,7 @@ public class ProcurementPlanningService {
         assertWriteRole(
                 findCurrentUser(
                         currentUserId
-                )
-                        .getRole()
+                ).getRole()
         );
 
         ProcurementPlanningRepository.ItemRow item =
@@ -448,8 +438,7 @@ public class ProcurementPlanningService {
         assertWriteRole(
                 findCurrentUser(
                         currentUserId
-                )
-                        .getRole()
+                ).getRole()
         );
 
         ProcurementPlanningRepository.ItemRow item =
@@ -608,8 +597,7 @@ public class ProcurementPlanningService {
         assertReadRole(
                 findCurrentUser(
                         currentUserId
-                )
-                        .getRole()
+                ).getRole()
         );
 
         PlanningContext context =
@@ -650,8 +638,7 @@ public class ProcurementPlanningService {
         assertReadRole(
                 findCurrentUser(
                         currentUserId
-                )
-                        .getRole()
+                ).getRole()
         );
 
         PlanningContext context =
@@ -697,8 +684,7 @@ public class ProcurementPlanningService {
         assertReadRole(
                 findCurrentUser(
                         currentUserId
-                )
-                        .getRole()
+                ).getRole()
         );
 
         PlanningContext context =
@@ -741,8 +727,7 @@ public class ProcurementPlanningService {
         assertReadRole(
                 findCurrentUser(
                         currentUserId
-                )
-                        .getRole()
+                ).getRole()
         );
 
         return new PlanningContextOptionsResponse(
@@ -904,8 +889,7 @@ public class ProcurementPlanningService {
                 "PLAN-%d-%05d",
                 Year.now(
                         ZoneOffset.UTC
-                )
-                        .getValue(),
+                ).getValue(),
                 sequence
         );
     }
@@ -918,8 +902,7 @@ public class ProcurementPlanningService {
                 requestedYear == null
                         ? Year.now(
                                 ZoneOffset.UTC
-                        )
-                                .getValue()
+                        ).getValue()
                         : requestedYear;
 
         String currency =
@@ -979,7 +962,9 @@ public class ProcurementPlanningService {
     ) {
         AppUserEntity user =
                 appUserRepository
-                        .findById(userId)
+                        .findById(
+                                userId
+                        )
                         .orElseThrow(
                                 () ->
                                         new ResourceNotFoundException(

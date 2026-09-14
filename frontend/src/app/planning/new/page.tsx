@@ -107,12 +107,11 @@ export default function NewPlanningPage() {
           );
 
           const owner =
-            response.users
-              .find(
-                user =>
-                  user.role !==
-                  "REQUESTER",
-              );
+            response.users.find(
+              user =>
+                user.role !==
+                "REQUESTER",
+            );
 
           if (owner) {
             setOwnerUserId(
@@ -186,35 +185,18 @@ export default function NewPlanningPage() {
   }
 
   return (
-    <div
-      className={
-        "page-stack"
-      }
-    >
+    <div className="page-stack">
       <Link
         href="/planning"
-        className={
-          "request-back-link"
-        }
+        className="request-back-link"
       >
-        <ArrowLeft
-          size={16}
-        />
-
+        <ArrowLeft size={16} />
         Procurement planning
       </Link>
 
-      <section
-        className={
-          "page-heading"
-        }
-      >
+      <section className="page-heading">
         <div>
-          <span
-            className={
-              "eyebrow"
-            }
-          >
+          <span className="eyebrow">
             Strategic planning
           </span>
 
@@ -233,37 +215,19 @@ export default function NewPlanningPage() {
       </section>
 
       {error ? (
-        <div
-          className={
-            "error-banner"
-          }
-        >
-          <CircleAlert
-            size={18}
-          />
+        <div className="error-banner">
+          <CircleAlert size={18} />
           {error}
         </div>
       ) : null}
 
       <form
-        className={
-          "panel"
-        }
-        onSubmit={
-          handleSubmit
-        }
+        className="panel"
+        onSubmit={handleSubmit}
       >
-        <div
-          className={
-            "panel__header"
-          }
-        >
+        <div className="panel__header">
           <div>
-            <span
-              className={
-                "eyebrow"
-              }
-            >
+            <span className="eyebrow">
               Plan setup
             </span>
 
@@ -272,21 +236,11 @@ export default function NewPlanningPage() {
             </h2>
           </div>
 
-          <CalendarRange
-            size={19}
-          />
+          <CalendarRange size={19} />
         </div>
 
-        <div
-          className={
-            "planning-form-grid"
-          }
-        >
-          <label
-            className={
-              "request-field planning-form-wide"
-            }
-          >
+        <div className="planning-form-grid">
+          <label className="request-field planning-form-wide">
             <span>
               Plan name
             </span>
@@ -304,11 +258,7 @@ export default function NewPlanningPage() {
             />
           </label>
 
-          <label
-            className={
-              "request-field"
-            }
-          >
+          <label className="request-field">
             <span>
               Fiscal year
             </span>
@@ -318,9 +268,7 @@ export default function NewPlanningPage() {
               type="number"
               min="2000"
               max="2200"
-              value={
-                fiscalYear
-              }
+              value={fiscalYear}
               onChange={
                 event =>
                   setFiscalYear(
@@ -332,11 +280,7 @@ export default function NewPlanningPage() {
             />
           </label>
 
-          <label
-            className={
-              "request-field"
-            }
-          >
+          <label className="request-field">
             <span>Currency</span>
 
             <input
@@ -353,19 +297,13 @@ export default function NewPlanningPage() {
             />
           </label>
 
-          <label
-            className={
-              "request-field planning-form-wide"
-            }
-          >
+          <label className="request-field planning-form-wide">
             <span>
               Plan owner
             </span>
 
             <select
-              value={
-                ownerUserId
-              }
+              value={ownerUserId}
               onChange={
                 event =>
                   setOwnerUserId(
@@ -383,31 +321,19 @@ export default function NewPlanningPage() {
                 .map(
                   user => (
                     <option
-                      key={
-                        user.id
-                      }
-                      value={
-                        user.id
-                      }
+                      key={user.id}
+                      value={user.id}
                     >
-                      {
-                        user.fullName
-                      }
+                      {user.fullName}
                       {" — "}
-                      {
-                        user.role
-                      }
+                      {user.role}
                     </option>
                   ),
                 )}
             </select>
           </label>
 
-          <label
-            className={
-              "request-field planning-form-wide"
-            }
-          >
+          <label className="request-field planning-form-wide">
             <span>Notes</span>
 
             <textarea
@@ -424,21 +350,13 @@ export default function NewPlanningPage() {
           </label>
         </div>
 
-        <div
-          className={
-            "planning-form-actions"
-          }
-        >
+        <div className="planning-form-actions">
           <button
             type="submit"
-            className={
-              "button button--primary"
-            }
+            className="button button--primary"
             disabled={saving}
           >
-            <CalendarRange
-              size={16}
-            />
+            <CalendarRange size={16} />
 
             {saving
               ? "Creating..."

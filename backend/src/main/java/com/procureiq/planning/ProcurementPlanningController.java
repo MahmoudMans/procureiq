@@ -24,8 +24,7 @@ import java.util.UUID;
 )
 public class ProcurementPlanningController {
 
-    private final ProcurementPlanningService
-            service;
+    private final ProcurementPlanningService service;
 
     public ProcurementPlanningController(
             ProcurementPlanningService service

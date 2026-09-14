@@ -51,16 +51,14 @@ function money(
   value: number,
   currency: string,
 ): string {
-  return new Intl
-    .NumberFormat(
-      "en-US",
-      {
-        style: "currency",
-        currency,
-        maximumFractionDigits: 0,
-      },
-    )
-    .format(value);
+  return new Intl.NumberFormat(
+    "en-US",
+    {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    },
+  ).format(value);
 }
 
 function fiscalDate(
@@ -194,7 +192,7 @@ export default function PlanDetailPage() {
     user?.role ===
       "BUYER";
 
-  async function load() {
+  async function reload() {
     const [
       detailResponse,
       contextResponse,
@@ -213,41 +211,6 @@ export default function PlanDetailPage() {
     setOptions(
       contextResponse,
     );
-
-    if (
-      !departmentId &&
-      contextResponse
-        .departments
-        .length > 0
-    ) {
-      setDepartmentId(
-        contextResponse
-          .departments[0]
-          .id,
-      );
-    }
-
-    if (
-      !category &&
-      contextResponse
-        .categories
-        .length > 0
-    ) {
-      setCategory(
-        contextResponse
-          .categories[0],
-      );
-    }
-
-    if (!targetDate) {
-      setTargetDate(
-        fiscalDate(
-          detailResponse
-            .plan
-            .fiscalYear,
-        ),
-      );
-    }
   }
 
   useEffect(() => {
@@ -382,7 +345,7 @@ export default function PlanDetailPage() {
       );
       setNotes("");
 
-      await load();
+      await reload();
     } catch (
       caughtError
     ) {
@@ -426,7 +389,7 @@ export default function PlanDetailPage() {
         );
       }
 
-      await load();
+      await reload();
     } catch (
       caughtError
     ) {
@@ -451,7 +414,7 @@ export default function PlanDetailPage() {
         itemId,
       );
 
-      await load();
+      await reload();
     } catch (
       caughtError
     ) {
@@ -489,7 +452,7 @@ export default function PlanDetailPage() {
         requestId,
       );
 
-      await load();
+      await reload();
     } catch (
       caughtError
     ) {
@@ -510,7 +473,7 @@ export default function PlanDetailPage() {
         itemId,
       );
 
-      await load();
+      await reload();
     } catch (
       caughtError
     ) {
@@ -531,7 +494,7 @@ export default function PlanDetailPage() {
         itemId,
       );
 
-      await load();
+      await reload();
     } catch (
       caughtError
     ) {
@@ -546,11 +509,7 @@ export default function PlanDetailPage() {
 
   if (loading) {
     return (
-      <div
-        className={
-          "request-detail-loading"
-        }
-      >
+      <div className="request-detail-loading">
         Loading procurement plan...
       </div>
     );
@@ -558,32 +517,18 @@ export default function PlanDetailPage() {
 
   if (!detail) {
     return (
-      <div
-        className={
-          "page-stack"
-        }
-      >
+      <div className="page-stack">
         <Link
           href="/planning"
-          className={
-            "request-back-link"
-          }
+          className="request-back-link"
         >
-          <ArrowLeft
-            size={16}
-          />
+          <ArrowLeft size={16} />
 
           Procurement planning
         </Link>
 
-        <div
-          className={
-            "error-banner"
-          }
-        >
-          <CircleAlert
-            size={18}
-          />
+        <div className="error-banner">
+          <CircleAlert size={18} />
           {error ??
             "Procurement plan not found."}
         </div>
@@ -597,52 +542,29 @@ export default function PlanDetailPage() {
   } = detail;
 
   return (
-    <div
-      className={
-        "page-stack"
-      }
-    >
+    <div className="page-stack">
       <Link
         href="/planning"
-        className={
-          "request-back-link"
-        }
+        className="request-back-link"
       >
-        <ArrowLeft
-          size={16}
-        />
+        <ArrowLeft size={16} />
 
         Procurement planning
       </Link>
 
-      <section
-        className={
-          "planning-detail-heading"
-        }
-      >
+      <section className="planning-detail-heading">
         <div>
-          <div
-            className={
-              "request-detail-heading__meta"
-            }
-          >
+          <div className="request-detail-heading__meta">
             <span>
-              {
-                plan.planNumber
-              }
+              {plan.planNumber}
             </span>
 
             <span
               className={
-                `planning-status planning-status--${
-                  plan.status
-                    .toLowerCase()
-                }`
+                `planning-status planning-status--${plan.status.toLowerCase()}`
               }
             >
-              {
-                plan.status
-              }
+              {plan.status}
             </span>
           </div>
 
@@ -651,33 +573,21 @@ export default function PlanDetailPage() {
           </h1>
 
           <p>
-            {
-              plan.fiscalYear
-            }
+            {plan.fiscalYear}
             {" · "}
-            {
-              plan.currency
-            }
+            {plan.currency}
             {" · Owner: "}
-            {
-              plan.ownerName
-            }
+            {plan.ownerName}
           </p>
         </div>
 
         {canManage ? (
-          <div
-            className={
-              "planning-detail-actions"
-            }
-          >
+          <div className="planning-detail-actions">
             {plan.status ===
             "DRAFT" ? (
               <button
                 type="button"
-                className={
-                  "button button--primary"
-                }
+                className="button button--primary"
                 disabled={
                   lifecycleRunning
                 }
@@ -688,9 +598,7 @@ export default function PlanDetailPage() {
                     )
                 }
               >
-                <CalendarCheck
-                  size={16}
-                />
+                <CalendarCheck size={16} />
                 Activate
               </button>
             ) : null}
@@ -703,9 +611,7 @@ export default function PlanDetailPage() {
             ) ? (
               <button
                 type="button"
-                className={
-                  "button button--secondary"
-                }
+                className="button button--secondary"
                 disabled={
                   lifecycleRunning
                 }
@@ -716,9 +622,7 @@ export default function PlanDetailPage() {
                     )
                 }
               >
-                <XCircle
-                  size={16}
-                />
+                <XCircle size={16} />
                 Close plan
               </button>
             ) : null}
@@ -727,31 +631,15 @@ export default function PlanDetailPage() {
       </section>
 
       {error ? (
-        <div
-          className={
-            "error-banner"
-          }
-        >
-          <CircleAlert
-            size={18}
-          />
+        <div className="error-banner">
+          <CircleAlert size={18} />
           {error}
         </div>
       ) : null}
 
-      <section
-        className={
-          "planning-detail-kpis"
-        }
-      >
-        <article
-          className={
-            "request-detail-summary-card"
-          }
-        >
-          <CalendarRange
-            size={18}
-          />
+      <section className="planning-detail-kpis">
+        <article className="request-detail-summary-card">
+          <CalendarRange size={18} />
 
           <div>
             <span>
@@ -759,28 +647,20 @@ export default function PlanDetailPage() {
             </span>
 
             <strong>
-              {
-                money(
-                  plan.plannedValue,
-                  plan.currency,
-                )
-              }
+              {money(
+                plan.plannedValue,
+                plan.currency,
+              )}
             </strong>
 
             <small>
-              {
-                plan.totalItems
-              }
+              {plan.totalItems}
               {" initiatives"}
             </small>
           </div>
         </article>
 
-        <article
-          className={
-            "request-detail-summary-card"
-          }
-        >
+        <article className="request-detail-summary-card">
           <Link2 size={18} />
 
           <div>
@@ -789,28 +669,20 @@ export default function PlanDetailPage() {
             </span>
 
             <strong>
-              {
-                money(
-                  plan.linkedActualValue,
-                  plan.currency,
-                )
-              }
+              {money(
+                plan.linkedActualValue,
+                plan.currency,
+              )}
             </strong>
 
             <small>
-              {
-                plan.convertedItems
-              }
+              {plan.convertedItems}
               {" linked"}
             </small>
           </div>
         </article>
 
-        <article
-          className={
-            "request-detail-summary-card"
-          }
-        >
+        <article className="request-detail-summary-card">
           <Target size={18} />
 
           <div>
@@ -819,30 +691,19 @@ export default function PlanDetailPage() {
             </span>
 
             <strong>
-              {
-                plan.conversionRate
-                  .toFixed(1)
-              }
+              {plan.conversionRate.toFixed(1)}
               %
             </strong>
 
             <small>
-              {
-                plan.completedItems
-              }
+              {plan.completedItems}
               {" completed"}
             </small>
           </div>
         </article>
 
-        <article
-          className={
-            "request-detail-summary-card"
-          }
-        >
-          <CalendarCheck
-            size={18}
-          />
+        <article className="request-detail-summary-card">
+          <CalendarCheck size={18} />
 
           <div>
             <span>
@@ -850,12 +711,10 @@ export default function PlanDetailPage() {
             </span>
 
             <strong>
-              {
-                money(
-                  plan.variance,
-                  plan.currency,
-                )
-              }
+              {money(
+                plan.variance,
+                plan.currency,
+              )}
             </strong>
 
             <small>
@@ -865,22 +724,10 @@ export default function PlanDetailPage() {
         </article>
       </section>
 
-      <section
-        className={
-          "panel"
-        }
-      >
-        <div
-          className={
-            "panel__header"
-          }
-        >
+      <section className="panel">
+        <div className="panel__header">
           <div>
-            <span
-              className={
-                "eyebrow"
-              }
-            >
+            <span className="eyebrow">
               Annual demand
             </span>
 
@@ -890,17 +737,11 @@ export default function PlanDetailPage() {
           </div>
         </div>
 
-        <div
-          className={
-            "planning-item-list"
-          }
-        >
+        <div className="planning-item-list">
           {items.map(
             item => (
               <article
-                key={
-                  item.id
-                }
+                key={item.id}
                 className={
                   `planning-item-card ${
                     item.overdue
@@ -909,86 +750,54 @@ export default function PlanDetailPage() {
                   }`
                 }
               >
-                <div
-                  className={
-                    "planning-item-card__heading"
-                  }
-                >
+                <div className="planning-item-card__heading">
                   <div>
-                    <div
-                      className={
-                        "planning-item-tags"
-                      }
-                    >
+                    <div className="planning-item-tags">
                       <span
                         className={
-                          `planning-priority planning-priority--${
-                            item.priority
-                              .toLowerCase()
-                          }`
+                          `planning-priority planning-priority--${item.priority.toLowerCase()}`
                         }
                       >
-                        {
-                          item.priority
-                        }
+                        {item.priority}
                       </span>
 
                       <span
                         className={
-                          `planning-status planning-status--${
-                            item.status
-                              .toLowerCase()
-                          }`
+                          `planning-status planning-status--${item.status.toLowerCase()}`
                         }
                       >
-                        {
-                          item.status
-                        }
+                        {item.status}
                       </span>
                     </div>
 
                     <strong>
-                      {
-                        item.title
-                      }
+                      {item.title}
                     </strong>
 
                     <span>
-                      {
-                        item.departmentName
-                      }
+                      {item.departmentName}
                       {" · "}
-                      {
-                        item.category
-                      }
+                      {item.category}
                     </span>
                   </div>
 
                   <strong>
-                    {
-                      money(
-                        item
-                          .plannedValue,
-                        plan.currency,
-                      )
-                    }
+                    {money(
+                      item.plannedValue,
+                      plan.currency,
+                    )}
                   </strong>
                 </div>
 
-                <div
-                  className={
-                    "planning-item-metrics"
-                  }
-                >
+                <div className="planning-item-metrics">
                   <div>
                     <span>Target</span>
+
                     <strong>
-                      {
-                        new Date(
-                          `${item.targetSourcingDate}T00:00:00`,
-                        )
-                          .toLocaleDateString()
-                      }
+                      {new Date(
+                        `${item.targetSourcingDate}T00:00:00`,
+                      )
+                        .toLocaleDateString()}
                     </strong>
                   </div>
 
@@ -996,12 +805,10 @@ export default function PlanDetailPage() {
                     <span>
                       Linked request
                     </span>
+
                     <strong>
-                      {
-                        item
-                          .linkedRequestNumber ??
-                        "Not linked"
-                      }
+                      {item.linkedRequestNumber ??
+                        "Not linked"}
                     </strong>
                   </div>
 
@@ -1009,13 +816,12 @@ export default function PlanDetailPage() {
                     <span>
                       Actual value
                     </span>
+
                     <strong>
-                      {item
-                        .linkedRequestValue !==
+                      {item.linkedRequestValue !==
                       null
                         ? money(
-                            item
-                              .linkedRequestValue,
+                            item.linkedRequestValue,
                             plan.currency,
                           )
                         : "—"}
@@ -1026,9 +832,9 @@ export default function PlanDetailPage() {
                     <span>
                       Variance
                     </span>
+
                     <strong>
-                      {item
-                        .linkedPurchaseRequestId
+                      {item.linkedPurchaseRequestId
                         ? money(
                             item.variance,
                             plan.currency,
@@ -1045,18 +851,12 @@ export default function PlanDetailPage() {
                   item.status ===
                   "READY"
                 ) ? (
-                  <div
-                    className={
-                      "planning-item-actions"
-                    }
-                  >
+                  <div className="planning-item-actions">
                     {item.status ===
                     "PLANNED" ? (
                       <button
                         type="button"
-                        className={
-                          "planning-inline-action"
-                        }
+                        className="planning-inline-action"
                         onClick={
                           () =>
                             void markReady(
@@ -1064,9 +864,7 @@ export default function PlanDetailPage() {
                             )
                         }
                       >
-                        <Check
-                          size={14}
-                        />
+                        <Check size={14} />
                         Mark ready
                       </button>
                     ) : null}
@@ -1083,12 +881,8 @@ export default function PlanDetailPage() {
                           setLinkSelections(
                             current => ({
                               ...current,
-                              [
-                                item.id
-                              ]:
-                                event
-                                  .target
-                                  .value,
+                              [item.id]:
+                                event.target.value,
                             }),
                           )
                       }
@@ -1110,21 +904,12 @@ export default function PlanDetailPage() {
                         .map(
                           request => (
                             <option
-                              key={
-                                request.id
-                              }
-                              value={
-                                request.id
-                              }
+                              key={request.id}
+                              value={request.id}
                             >
-                              {
-                                request
-                                  .requestNumber
-                              }
+                              {request.requestNumber}
                               {" — "}
-                              {
-                                request.title
-                              }
+                              {request.title}
                             </option>
                           ),
                         )}
@@ -1132,9 +917,7 @@ export default function PlanDetailPage() {
 
                     <button
                       type="button"
-                      className={
-                        "planning-inline-action"
-                      }
+                      className="planning-inline-action"
                       onClick={
                         () =>
                           void linkRequest(
@@ -1142,17 +925,13 @@ export default function PlanDetailPage() {
                           )
                       }
                     >
-                      <Link2
-                        size={14}
-                      />
+                      <Link2 size={14} />
                       Link request
                     </button>
 
                     <button
                       type="button"
-                      className={
-                        "planning-inline-action planning-inline-action--danger"
-                      }
+                      className="planning-inline-action planning-inline-action--danger"
                       onClick={
                         () =>
                           void cancel(
@@ -1160,9 +939,7 @@ export default function PlanDetailPage() {
                           )
                       }
                     >
-                      <XCircle
-                        size={14}
-                      />
+                      <XCircle size={14} />
                       Cancel
                     </button>
                   </div>
@@ -1171,16 +948,10 @@ export default function PlanDetailPage() {
                 {canManage &&
                 item.status ===
                   "CONVERTED" ? (
-                  <div
-                    className={
-                      "planning-item-actions"
-                    }
-                  >
+                  <div className="planning-item-actions">
                     <button
                       type="button"
-                      className={
-                        "planning-inline-action"
-                      }
+                      className="planning-inline-action"
                       onClick={
                         () =>
                           void complete(
@@ -1188,9 +959,7 @@ export default function PlanDetailPage() {
                           )
                       }
                     >
-                      <Check
-                        size={14}
-                      />
+                      <Check size={14} />
                       Complete initiative
                     </button>
                   </div>
@@ -1200,14 +969,10 @@ export default function PlanDetailPage() {
           )}
 
           {items.length === 0 ? (
-            <div
-              className={
-                "planning-empty"
-              }
-            >
-              No procurement
-              initiatives have been
-              added to this plan.
+            <div className="planning-empty">
+              No procurement initiatives
+              have been added to this
+              plan.
             </div>
           ) : null}
         </div>
@@ -1221,24 +986,12 @@ export default function PlanDetailPage() {
         "ACTIVE"
       ) ? (
         <form
-          className={
-            "panel"
-          }
-          onSubmit={
-            addItem
-          }
+          className="panel"
+          onSubmit={addItem}
         >
-          <div
-            className={
-              "panel__header"
-            }
-          >
+          <div className="panel__header">
             <div>
-              <span
-                className={
-                  "eyebrow"
-                }
-              >
+              <span className="eyebrow">
                 Demand intake
               </span>
 
@@ -1250,16 +1003,8 @@ export default function PlanDetailPage() {
             <Plus size={19} />
           </div>
 
-          <div
-            className={
-              "planning-form-grid"
-            }
-          >
-            <label
-              className={
-                "request-field planning-form-wide"
-              }
-            >
+          <div className="planning-form-grid">
+            <label className="request-field planning-form-wide">
               <span>Title</span>
 
               <input
@@ -1278,19 +1023,13 @@ export default function PlanDetailPage() {
               />
             </label>
 
-            <label
-              className={
-                "request-field planning-form-wide"
-              }
-            >
+            <label className="request-field planning-form-wide">
               <span>Description</span>
 
               <textarea
                 rows={4}
                 maxLength={2000}
-                value={
-                  description
-                }
+                value={description}
                 onChange={
                   event =>
                     setDescription(
@@ -1300,20 +1039,14 @@ export default function PlanDetailPage() {
               />
             </label>
 
-            <label
-              className={
-                "request-field"
-              }
-            >
+            <label className="request-field">
               <span>
                 Department
               </span>
 
               <select
                 required
-                value={
-                  departmentId
-                }
+                value={departmentId}
                 onChange={
                   event =>
                     setDepartmentId(
@@ -1326,34 +1059,22 @@ export default function PlanDetailPage() {
                   .map(
                     department => (
                       <option
-                        key={
-                          department.id
-                        }
-                        value={
-                          department.id
-                        }
+                        key={department.id}
+                        value={department.id}
                       >
-                        {
-                          department.name
-                        }
+                        {department.name}
                       </option>
                     ),
                   )}
               </select>
             </label>
 
-            <label
-              className={
-                "request-field"
-              }
-            >
+            <label className="request-field">
               <span>Category</span>
 
               <input
                 required
-                list={
-                  "planning-category-options"
-                }
+                list="planning-category-options"
                 maxLength={120}
                 value={category}
                 onChange={
@@ -1364,33 +1085,21 @@ export default function PlanDetailPage() {
                 }
               />
 
-              <datalist
-                id={
-                  "planning-category-options"
-                }
-              >
+              <datalist id="planning-category-options">
                 {options
                   ?.categories
                   .map(
                     option => (
                       <option
-                        key={
-                          option
-                        }
-                        value={
-                          option
-                        }
+                        key={option}
+                        value={option}
                       />
                     ),
                   )}
               </datalist>
             </label>
 
-            <label
-              className={
-                "request-field"
-              }
-            >
+            <label className="request-field">
               <span>
                 Planned value
               </span>
@@ -1400,9 +1109,7 @@ export default function PlanDetailPage() {
                 type="number"
                 min="0.01"
                 step="0.01"
-                value={
-                  plannedValue
-                }
+                value={plannedValue}
                 onChange={
                   event =>
                     setPlannedValue(
@@ -1414,11 +1121,7 @@ export default function PlanDetailPage() {
               />
             </label>
 
-            <label
-              className={
-                "request-field"
-              }
-            >
+            <label className="request-field">
               <span>
                 Target sourcing date
               </span>
@@ -1432,9 +1135,7 @@ export default function PlanDetailPage() {
                 max={
                   `${plan.fiscalYear}-12-31`
                 }
-                value={
-                  targetDate
-                }
+                value={targetDate}
                 onChange={
                   event =>
                     setTargetDate(
@@ -1444,11 +1145,7 @@ export default function PlanDetailPage() {
               />
             </label>
 
-            <label
-              className={
-                "request-field"
-              }
-            >
+            <label className="request-field">
               <span>Priority</span>
 
               <select
@@ -1456,8 +1153,7 @@ export default function PlanDetailPage() {
                 onChange={
                   event =>
                     setPriority(
-                      event.target
-                        .value as
+                      event.target.value as
                         ProcurementPlanPriority,
                     )
                 }
@@ -1482,11 +1178,7 @@ export default function PlanDetailPage() {
 
             <div />
 
-            <label
-              className={
-                "request-field planning-form-wide"
-              }
-            >
+            <label className="request-field planning-form-wide">
               <span>Notes</span>
 
               <textarea
@@ -1503,16 +1195,10 @@ export default function PlanDetailPage() {
             </label>
           </div>
 
-          <div
-            className={
-              "planning-form-actions"
-            }
-          >
+          <div className="planning-form-actions">
             <button
               type="submit"
-              className={
-                "button button--primary"
-              }
+              className="button button--primary"
               disabled={saving}
             >
               <Plus size={16} />
