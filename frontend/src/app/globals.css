@@ -5191,3 +5191,617 @@ a {
       2;
   }
 }
+
+/* ====================================================================== */
+/* STEP 7 — SUPPLIER EVALUATION + AWARD                                  */
+/* ====================================================================== */
+
+.rfq-status--awarded {
+  background:
+    #f4f3ff;
+
+  color:
+    #6941c6;
+}
+
+.rfq-evaluation-entry {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.evaluation-summary-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 14px;
+}
+
+.evaluation-kpi-name {
+  display: block;
+
+  margin-top: 6px;
+
+  font-size: 14px;
+
+  line-height: 1.25;
+}
+
+.evaluation-weight-total {
+  padding:
+    5px 9px;
+
+  border-radius: 99px;
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.evaluation-weight-total--valid {
+  background:
+    var(--success-soft);
+
+  color:
+    var(--success);
+}
+
+.evaluation-weight-total--invalid {
+  background:
+    var(--danger-soft);
+
+  color:
+    var(--danger);
+}
+
+.evaluation-weight-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      5,
+      minmax(0, 1fr)
+    );
+
+  gap: 12px;
+}
+
+.evaluation-quality-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 10px;
+}
+
+.evaluation-quality-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  padding: 14px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 9px;
+
+  background:
+    var(--surface-soft);
+}
+
+.evaluation-quality-card > div {
+  min-width: 0;
+}
+
+.evaluation-quality-card strong {
+  display: block;
+
+  overflow: hidden;
+
+  font-size: 10.5px;
+
+  text-overflow:
+    ellipsis;
+
+  white-space: nowrap;
+}
+
+.evaluation-quality-card span {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8.5px;
+}
+
+.evaluation-quality-card label {
+  flex-shrink: 0;
+}
+
+.evaluation-quality-card label span {
+  margin:
+    0 0 4px;
+
+  color:
+    var(--text-secondary);
+
+  font-size: 8px;
+}
+
+.evaluation-quality-card input {
+  width: 90px;
+  height: 36px;
+
+  padding:
+    0 9px;
+
+  border:
+    1px solid
+    var(--border-strong);
+
+  border-radius: 7px;
+}
+
+.evaluation-form-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  margin-top: 18px;
+}
+
+.evaluation-ranking-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.evaluation-ranking-card {
+  display: grid;
+
+  grid-template-columns:
+    42px
+    minmax(
+      180px,
+      1fr
+    )
+    repeat(
+      5,
+      minmax(
+        70px,
+        0.45fr
+      )
+    )
+    minmax(
+      100px,
+      0.55fr
+    );
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 13px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 9px;
+
+  background: white;
+}
+
+.evaluation-ranking-card--recommended {
+  border-color:
+    #86efac;
+
+  background:
+    linear-gradient(
+      90deg,
+      #f0fdf4,
+      white
+    );
+}
+
+.evaluation-rank {
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 9px;
+
+  background:
+    var(--surface-muted);
+
+  color:
+    var(--text-secondary);
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.evaluation-ranking-card--recommended
+.evaluation-rank {
+  background:
+    #dcfce7;
+
+  color:
+    #15803d;
+}
+
+.evaluation-supplier strong {
+  display: block;
+
+  font-size: 10px;
+}
+
+.evaluation-supplier span {
+  display: block;
+
+  margin-top: 2px;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 8.5px;
+}
+
+.evaluation-supplier small {
+  display: inline-block;
+
+  margin-top: 5px;
+
+  padding:
+    3px 6px;
+
+  border-radius: 99px;
+
+  background:
+    var(--success-soft);
+
+  color:
+    var(--success);
+
+  font-size: 7.5px;
+  font-weight: 700;
+}
+
+.evaluation-component span,
+.evaluation-total-score span {
+  display: block;
+
+  color:
+    var(--text-tertiary);
+
+  font-size: 7.5px;
+
+  text-transform:
+    uppercase;
+}
+
+.evaluation-component strong {
+  display: block;
+
+  margin-top: 3px;
+
+  font-size: 10px;
+}
+
+.evaluation-total-score {
+  padding: 8px;
+
+  border-radius: 7px;
+
+  background:
+    var(--primary-soft);
+
+  text-align: center;
+}
+
+.evaluation-total-score strong {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--primary);
+
+  font-size: 15px;
+}
+
+.award-form-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(
+      220px,
+      0.5fr
+    )
+    minmax(
+      0,
+      1.5fr
+    );
+
+  gap: 15px;
+}
+
+.award-rationale textarea {
+  min-height: 120px;
+}
+
+.award-override-warning,
+.evaluation-info-banner {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  margin-top: 15px;
+
+  padding: 11px 13px;
+
+  border-radius: 8px;
+
+  font-size: 10px;
+}
+
+.award-override-warning {
+  border:
+    1px solid #fedf89;
+
+  background:
+    #fffaeb;
+
+  color:
+    #b54708;
+}
+
+.evaluation-info-banner {
+  border:
+    1px solid #bfdbfe;
+
+  background:
+    #eff6ff;
+
+  color:
+    #1d4ed8;
+}
+
+.award-result {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 17px;
+
+  border-color:
+    #86efac;
+
+  background:
+    linear-gradient(
+      90deg,
+      #f0fdf4,
+      white
+    );
+}
+
+.award-result__icon {
+  width: 48px;
+  height: 48px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  background:
+    #dcfce7;
+
+  color:
+    #15803d;
+}
+
+.award-result__content {
+  flex: 1;
+}
+
+.award-result__content h2 {
+  margin:
+    5px 0 7px;
+
+  font-size: 19px;
+}
+
+.award-result__content p {
+  margin: 0;
+
+  color:
+    var(--text-secondary);
+
+  font-size: 10.5px;
+
+  line-height: 1.6;
+}
+
+.award-result__meta {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 12px;
+}
+
+.award-result__meta > span {
+  padding:
+    4px 7px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 99px;
+
+  background: white;
+
+  color:
+    var(--text-secondary);
+
+  font-size: 8px;
+}
+
+.award-result__meta
+.award-override-badge {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 4px;
+
+  border-color:
+    #fedf89;
+
+  background:
+    #fffaeb;
+
+  color:
+    #b54708;
+}
+
+.award-result__meta
+.award-recommended-badge {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 4px;
+
+  border-color:
+    #abefc6;
+
+  background:
+    #ecfdf3;
+
+  color:
+    #027a48;
+}
+
+@media (
+  max-width: 1200px
+) {
+  .evaluation-summary-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
+  }
+
+  .evaluation-weight-grid {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(
+          0,
+          1fr
+        )
+      );
+  }
+
+  .evaluation-ranking-card {
+    grid-template-columns:
+      42px
+      minmax(
+        170px,
+        1fr
+      )
+      repeat(
+        3,
+        70px
+      );
+
+    overflow-x:
+      auto;
+  }
+}
+
+@media (
+  max-width: 760px
+) {
+  .evaluation-summary-grid,
+  .evaluation-quality-grid,
+  .award-form-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .evaluation-weight-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
+  }
+
+  .evaluation-ranking-card {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .evaluation-supplier {
+    flex: 1;
+
+    min-width: 180px;
+  }
+
+  .evaluation-component {
+    min-width: 70px;
+  }
+
+  .evaluation-total-score {
+    min-width: 100px;
+  }
+}
+
+@media (
+  max-width: 520px
+) {
+  .evaluation-weight-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .evaluation-quality-card {
+    align-items:
+      stretch;
+
+    flex-direction:
+      column;
+  }
+
+  .evaluation-quality-card input {
+    width: 100%;
+  }
+}

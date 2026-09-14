@@ -532,6 +532,32 @@ export default function RfqDetailPage() {
         </div>
       </section>
 
+      {(
+        rfq.status ===
+          "PUBLISHED" ||
+        rfq.status ===
+          "CLOSED" ||
+        rfq.status ===
+          "AWARDED"
+      ) ? (
+        <div
+          className={
+            "rfq-evaluation-entry"
+          }
+        >
+          <Link
+            href={
+              `/rfqs/${rfq.id}/evaluate`
+            }
+            className={
+              "button button--secondary"
+            }
+          >
+            Evaluate suppliers
+          </Link>
+        </div>
+      ) : null}
+
       {error ? (
         <div
           className={

@@ -604,3 +604,61 @@ export async function withdrawQuotation(
     },
   );
 }
+
+export async function getRfqEvaluation(
+  rfqId: string,
+): Promise<import("@/types/evaluation").RfqEvaluation> {
+  return request<
+    import("@/types/evaluation").RfqEvaluation
+  >(
+    `/rfqs/${rfqId}/evaluation`,
+  );
+}
+
+export async function calculateRfqEvaluation(
+  rfqId: string,
+  input: import("@/types/evaluation").RfqEvaluationInput,
+): Promise<import("@/types/evaluation").RfqEvaluation> {
+  return request<
+    import("@/types/evaluation").RfqEvaluation
+  >(
+    `/rfqs/${rfqId}/evaluation`,
+    {
+      method: "PUT",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getAwardDecision(
+  rfqId: string,
+): Promise<
+  import("@/types/evaluation").AwardDecision | undefined
+> {
+  return request<
+    import("@/types/evaluation").AwardDecision | undefined
+  >(
+    `/rfqs/${rfqId}/award`,
+  );
+}
+
+export async function createAwardDecision(
+  rfqId: string,
+  selectedQuotationId: string,
+  rationale: string,
+): Promise<import("@/types/evaluation").AwardDecision> {
+  return request<
+    import("@/types/evaluation").AwardDecision
+  >(
+    `/rfqs/${rfqId}/award`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        selectedQuotationId,
+        rationale,
+      }),
+    },
+  );
+}

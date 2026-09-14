@@ -4,5 +4,6 @@ public enum RfqStatus {
     DRAFT,
     PUBLISHED,
     CLOSED,
+    AWARDED,
     CANCELLED
 }

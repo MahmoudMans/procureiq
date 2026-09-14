@@ -2,6 +2,7 @@ export type RfqStatus =
   | "DRAFT"
   | "PUBLISHED"
   | "CLOSED"
+  | "AWARDED"
   | "CANCELLED";
 
 export type RfqInvitationStatus =
