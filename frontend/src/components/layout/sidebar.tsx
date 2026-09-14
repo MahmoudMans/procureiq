@@ -52,6 +52,11 @@ const coreNavigation = [
     label: "Supplier performance",
     icon: ClipboardCheck,
   },  {
+    href: "/supplier-resilience",
+    label: "Supplier resilience",
+    icon: ShieldCheck,
+  },
+  {
     href: "/compliance",
     label: "Policy & compliance",
     icon: ShieldCheck,
@@ -271,6 +276,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/negotiations"
+          ||
+          item.href ===
+            "/supplier-resilience"
 ) {
           return canViewAnalytics;
         }

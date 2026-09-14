@@ -14849,3 +14849,584 @@ div > strong {
     flex-direction: column;
   }
 }
+
+/* ====================================================================== */
+/* STEP 25 — SUPPLIER DEPENDENCY, CAPACITY & RESILIENCE INTELLIGENCE     */
+/* ====================================================================== */
+
+.resilience-currency-control {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.resilience-currency-control span {
+  color: var(--text-tertiary);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.resilience-currency-control select {
+  min-width: 110px;
+  height: 36px;
+  padding: 0 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8.5px;
+}
+
+.resilience-kpi-grid,
+.resilience-detail-kpis {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 14px;
+}
+
+.resilience-money-kpi {
+  font-size: 18px;
+}
+
+.resilience-secondary-grid,
+.resilience-detail-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 15px;
+}
+
+.resilience-country-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.resilience-country-list article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.resilience-country-list strong {
+  display: block;
+  font-size: 8.5px;
+}
+
+.resilience-country-list span {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.resilience-country-list > article > div:last-child {
+  text-align: right;
+}
+
+.resilience-signal-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+}
+
+.resilience-signal-grid article {
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.resilience-signal-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.resilience-signal-grid strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 17px;
+}
+
+.resilience-toolbar {
+  display: grid;
+  grid-template-columns:
+    minmax(220px, 1fr)
+    170px
+    160px;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.resilience-toolbar input,
+.resilience-toolbar select {
+  min-height: 36px;
+  padding: 0 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8.5px;
+}
+
+.resilience-count {
+  color: var(--text-tertiary);
+  font-size: 8.5px;
+}
+
+.resilience-band,
+.resilience-capacity,
+.resilience-criticality,
+.resilience-action-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.resilience-band--resilient {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.resilience-band--watch {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.resilience-band--vulnerable {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.resilience-band--critical {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.resilience-capacity--unknown {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.resilience-capacity--adequate {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.resilience-capacity--constrained {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.resilience-capacity--at-risk {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.resilience-criticality--standard {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.resilience-criticality--critical {
+  background: #fff6ed;
+  color: #c4320a;
+}
+
+.resilience-criticality--strategic {
+  background: #f4f3ff;
+  color: #5925dc;
+}
+
+.resilience-dependency {
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.resilience-dependency--breach,
+.resilience-alternate-count--critical,
+.resilience-overdue {
+  color: #b42318;
+  font-weight: 700;
+}
+
+.resilience-empty {
+  padding: 26px;
+  color: var(--text-tertiary);
+  font-size: 9px;
+  text-align: center;
+}
+
+.resilience-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.resilience-detail-heading h1 {
+  margin: 7px 0 6px;
+  font-size: 28px;
+  letter-spacing: -0.035em;
+}
+
+.resilience-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+
+.resilience-alert-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px;
+  border: 1px solid #fecdca;
+  border-radius: 8px;
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.resilience-alert-banner strong {
+  display: block;
+  font-size: 8.5px;
+}
+
+.resilience-alert-banner span {
+  display: block;
+  margin-top: 3px;
+  font-size: 7.5px;
+  line-height: 1.5;
+}
+
+.resilience-exposure-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+}
+
+.resilience-exposure-grid > div {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.resilience-exposure-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.resilience-exposure-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+}
+
+.resilience-exposure-grid small {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.resilience-alternative-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.resilience-alternative-list article {
+  display: grid;
+  grid-template-columns:
+    minmax(130px, 1fr)
+    65px
+    55px
+    70px
+    auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.resilience-alternative-list article > div:first-child strong {
+  display: block;
+  font-size: 8.5px;
+}
+
+.resilience-alternative-list article > div:first-child span {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.resilience-alternative-list article > div:not(:first-child) span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 6.5px;
+}
+
+.resilience-alternative-list article > div:not(:first-child) strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 7.5px;
+}
+
+.resilience-form-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 13px;
+}
+
+.resilience-form-wide {
+  grid-column: 1 / -1;
+}
+
+.resilience-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.resilience-action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resilience-action-card {
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.resilience-action-card--overdue {
+  border-left: 3px solid #d92d20;
+}
+
+.resilience-action-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.resilience-action-heading > div:first-child > strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 9px;
+}
+
+.resilience-action-heading > div:first-child > small {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.resilience-action-heading > div:last-child {
+  text-align: right;
+}
+
+.resilience-action-heading > div:last-child span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.resilience-action-heading > div:last-child strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px;
+}
+
+.resilience-action-status--open {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.resilience-action-status--in-progress {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.resilience-action-status--completed {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.resilience-action-status--cancelled {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.resilience-action-card > p {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.resilience-action-meta {
+  margin-top: 7px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.resilience-completion-note {
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  background: white;
+  color: var(--text-secondary);
+  font-size: 7.5px;
+}
+
+.resilience-action-controls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.resilience-action-controls input {
+  flex: 1;
+  min-width: 160px;
+  height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  font-size: 8px;
+}
+
+.resilience-inline-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  color: var(--primary);
+  font-size: 7.5px;
+  font-weight: 700;
+}
+
+.resilience-inline-button:disabled {
+  opacity: 0.5;
+}
+
+.resilience-inline-button--danger {
+  color: #b42318;
+}
+
+@media (
+  max-width: 1120px
+) {
+  .resilience-kpi-grid,
+  .resilience-detail-kpis {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+@media (
+  max-width: 900px
+) {
+  .resilience-secondary-grid,
+  .resilience-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .resilience-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .resilience-alternative-list article {
+    grid-template-columns:
+      minmax(130px, 1fr)
+      repeat(
+        3,
+        auto
+      );
+  }
+
+  .resilience-alternative-list .table-action {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (
+  max-width: 680px
+) {
+  .resilience-kpi-grid,
+  .resilience-detail-kpis,
+  .resilience-signal-grid,
+  .resilience-exposure-grid,
+  .resilience-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .resilience-form-wide {
+    grid-column: auto;
+  }
+
+  .resilience-detail-heading,
+  .resilience-action-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .resilience-action-heading > div:last-child {
+    text-align: left;
+  }
+
+  .resilience-alternative-list article {
+    grid-template-columns: 1fr;
+  }
+
+  .resilience-action-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .resilience-action-controls input {
+    width: 100%;
+  }
+}

@@ -3231,3 +3231,184 @@ export async function getNegotiationContext(): Promise<
     "/negotiations/context-options",
   );
 }
+
+export async function getSupplierResilienceIntelligence(
+  currency = "EUR",
+): Promise<
+  import("@/types/supplier-resilience").SupplierResilienceIntelligence[]
+> {
+  return request<
+    import("@/types/supplier-resilience").SupplierResilienceIntelligence[]
+  >(
+    `/supplier-resilience?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getSupplierResilienceSummary(
+  currency = "EUR",
+): Promise<
+  import("@/types/supplier-resilience").SupplierResilienceSummary
+> {
+  return request<
+    import("@/types/supplier-resilience").SupplierResilienceSummary
+  >(
+    `/supplier-resilience/summary?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getSupplierCountryConcentrations(
+  currency = "EUR",
+): Promise<
+  import("@/types/supplier-resilience").SupplierCountryConcentration[]
+> {
+  return request<
+    import("@/types/supplier-resilience").SupplierCountryConcentration[]
+  >(
+    `/supplier-resilience/countries?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getSupplierResilienceDetail(
+  supplierId: string,
+  currency = "EUR",
+): Promise<
+  import("@/types/supplier-resilience").SupplierResilienceDetail
+> {
+  return request<
+    import("@/types/supplier-resilience").SupplierResilienceDetail
+  >(
+    `/supplier-resilience/suppliers/${supplierId}?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function upsertSupplierResilienceProfile(
+  supplierId: string,
+  currency: string,
+  input: {
+    criticality:
+      import("@/types/supplier-resilience").SupplierCriticality;
+    capacityStatus:
+      import("@/types/supplier-resilience").SupplierCapacityStatus;
+    dependencyTolerancePct: number;
+    minimumAlternates: number;
+    ownerUserId?: string;
+    businessImpact?: string;
+    capacityNotes?: string;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/supplier-resilience").SupplierResilienceDetail
+> {
+  return request<
+    import("@/types/supplier-resilience").SupplierResilienceDetail
+  >(
+    `/supplier-resilience/suppliers/${supplierId}/profile?currency=${encodeURIComponent(currency)}`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function deactivateSupplierResilienceProfile(
+  supplierId: string,
+  currency: string,
+): Promise<
+  import("@/types/supplier-resilience").SupplierResilienceDetail
+> {
+  return request<
+    import("@/types/supplier-resilience").SupplierResilienceDetail
+  >(
+    `/supplier-resilience/suppliers/${supplierId}/profile/deactivate?currency=${encodeURIComponent(currency)}`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function createSupplierResilienceAction(
+  supplierId: string,
+  input: {
+    actionType:
+      import("@/types/supplier-resilience").ResilienceActionType;
+    title: string;
+    description?: string;
+    ownerUserId?: string;
+    dueDate: string;
+  },
+): Promise<
+  import("@/types/supplier-resilience").ResilienceAction
+> {
+  return request<
+    import("@/types/supplier-resilience").ResilienceAction
+  >(
+    `/supplier-resilience/suppliers/${supplierId}/actions`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startSupplierResilienceAction(
+  actionId: string,
+): Promise<
+  import("@/types/supplier-resilience").ResilienceAction
+> {
+  return request<
+    import("@/types/supplier-resilience").ResilienceAction
+  >(
+    `/supplier-resilience/actions/${actionId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function completeSupplierResilienceAction(
+  actionId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-resilience").ResilienceAction
+> {
+  return request<
+    import("@/types/supplier-resilience").ResilienceAction
+  >(
+    `/supplier-resilience/actions/${actionId}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function cancelSupplierResilienceAction(
+  actionId: string,
+): Promise<
+  import("@/types/supplier-resilience").ResilienceAction
+> {
+  return request<
+    import("@/types/supplier-resilience").ResilienceAction
+  >(
+    `/supplier-resilience/actions/${actionId}/cancel`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getSupplierResilienceContext(): Promise<
+  import("@/types/supplier-resilience").SupplierResilienceContext
+> {
+  return request<
+    import("@/types/supplier-resilience").SupplierResilienceContext
+  >(
+    "/supplier-resilience/context-options",
+  );
+}
