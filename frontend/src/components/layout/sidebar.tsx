@@ -28,6 +28,7 @@ import {
   ScrollText,
   ReceiptText,
   Workflow,
+  Radar,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -146,6 +147,11 @@ const coreNavigation = [
     label: "Command center",
     icon: PanelsTopLeft,
   },  {
+    href: "/executive-cockpit",
+    label: "Executive cockpit",
+    icon: Radar,
+  },
+  {
     href: "/process-mining",
     label: "Process mining",
     icon: Workflow,
@@ -306,6 +312,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/process-mining"
+          ||
+          item.href ===
+            "/executive-cockpit"
 ) {
           return canViewAnalytics;
         }

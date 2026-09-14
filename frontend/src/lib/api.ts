@@ -3956,3 +3956,71 @@ export async function upsertProcessStageTarget(
     },
   );
 }
+
+export async function getExecutiveCockpit(
+  currency = "EUR",
+): Promise<
+  import("@/types/executive-cockpit").ExecutiveCockpit
+> {
+  return request<
+    import("@/types/executive-cockpit").ExecutiveCockpit
+  >(
+    `/executive-cockpit?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function acknowledgeExecutiveWarning(
+  warningKey: string,
+  currency: string,
+  note: string,
+): Promise<
+  import("@/types/executive-cockpit").ExecutiveWarning
+> {
+  return request<
+    import("@/types/executive-cockpit").ExecutiveWarning
+  >(
+    `/executive-cockpit/warnings/${encodeURIComponent(warningKey)}/acknowledge?currency=${encodeURIComponent(currency)}`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function unacknowledgeExecutiveWarning(
+  warningKey: string,
+): Promise<void> {
+  return request<void>(
+    `/executive-cockpit/warnings/${encodeURIComponent(warningKey)}/acknowledge`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+
+export async function updateExecutiveWarningRule(
+  ruleId: number,
+  input: {
+    enabled: boolean;
+    thresholdValue: number;
+    lookaheadDays: number;
+    defaultSeverity:
+      import("@/types/executive-cockpit").ExecutiveWarningSeverity;
+  },
+): Promise<
+  import("@/types/executive-cockpit").ExecutiveRule
+> {
+  return request<
+    import("@/types/executive-cockpit").ExecutiveRule
+  >(
+    `/executive-cockpit/rules/${ruleId}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
