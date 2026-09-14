@@ -16155,3 +16155,703 @@ div > strong {
     flex-direction: column;
   }
 }
+
+/* ====================================================================== */
+/* STEP 27 — PROCUREMENT INVOICE & THREE-WAY MATCH                       */
+/* ====================================================================== */
+
+.invoice-heading-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.invoice-currency-control {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.invoice-currency-control span {
+  color: var(--text-tertiary);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.invoice-currency-control select {
+  min-width: 100px;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8px;
+}
+
+.invoice-kpi-grid,
+.invoice-detail-kpis {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 14px;
+}
+
+.invoice-money-kpi {
+  font-size: 18px;
+}
+
+.invoice-signal-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 9px;
+}
+
+.invoice-signal-grid article {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.invoice-signal-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.invoice-signal-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 14px;
+}
+
+.invoice-toolbar {
+  display: grid;
+  grid-template-columns:
+    minmax(220px, 1fr)
+    180px
+    150px;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.invoice-toolbar input,
+.invoice-toolbar select {
+  min-height: 36px;
+  padding: 0 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8px;
+}
+
+.invoice-count {
+  color: var(--text-tertiary);
+  font-size: 8px;
+}
+
+.invoice-status,
+.invoice-match,
+.invoice-exception-severity {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.invoice-status--match-pending {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.invoice-status--matched {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.invoice-status--exception,
+.invoice-status--payment-hold {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.invoice-status--approved {
+  background: #f4f3ff;
+  color: #5925dc;
+}
+
+.invoice-status--ready-for-payment {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.invoice-status--paid {
+  background: #ecfdf3;
+  color: #05603a;
+}
+
+.invoice-status--cancelled {
+  background: #f2f4f7;
+  color: #667085;
+}
+
+.invoice-match--not-run {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.invoice-match--matched {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.invoice-match--exception {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.invoice-aging {
+  color: var(--text-tertiary);
+  font-size: 7.5px;
+}
+
+.invoice-aging--overdue {
+  color: #b42318;
+  font-weight: 700;
+}
+
+.invoice-empty {
+  padding: 26px;
+  color: var(--text-tertiary);
+  font-size: 8.5px;
+  text-align: center;
+}
+
+.invoice-create-layout {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.3fr)
+    minmax(290px, 0.7fr);
+  gap: 15px;
+  align-items: start;
+}
+
+.invoice-create-side {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.invoice-form-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 13px;
+}
+
+.invoice-form-wide {
+  grid-column: 1 / -1;
+}
+
+.invoice-line-section {
+  margin-top: 20px;
+}
+
+.invoice-line-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.invoice-line-editor article {
+  display: grid;
+  grid-template-columns:
+    28px
+    minmax(180px, 1fr)
+    85px
+    110px
+    120px
+    32px;
+  align-items: center;
+  gap: 7px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.invoice-line-number {
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: white;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.invoice-line-editor input {
+  height: 31px;
+  padding: 0 7px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  font-size: 8px;
+}
+
+.invoice-line-editor strong {
+  font-size: 8px;
+  text-align: right;
+}
+
+.invoice-line-editor article > button {
+  width: 31px;
+  height: 31px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+}
+
+.invoice-line-editor article > button:disabled {
+  opacity: 0.4;
+}
+
+.invoice-inline-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  color: var(--primary);
+  font-size: 7.5px;
+  font-weight: 700;
+}
+
+.invoice-inline-button:disabled {
+  opacity: 0.5;
+}
+
+.invoice-inline-button--danger {
+  color: #b42318;
+}
+
+.invoice-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.invoice-po-preview,
+.invoice-value-preview {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+}
+
+.invoice-po-preview > div,
+.invoice-value-preview > div {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.invoice-po-preview span,
+.invoice-value-preview span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.invoice-po-preview strong,
+.invoice-value-preview strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8.5px;
+}
+
+.invoice-po-preview small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.invoice-total-preview {
+  grid-column: 1 / -1;
+}
+
+.invoice-total-preview strong {
+  color: var(--primary);
+  font-size: 16px;
+}
+
+.invoice-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.invoice-detail-heading h1 {
+  margin: 7px 0 6px;
+  font-size: 28px;
+  letter-spacing: -0.035em;
+}
+
+.invoice-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+
+.invoice-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.invoice-hold-banner {
+  display: grid;
+  grid-template-columns:
+    auto
+    minmax(0, 1fr)
+    auto;
+  align-items: center;
+  gap: 10px;
+  padding: 11px;
+  border: 1px solid #fecdca;
+  border-radius: 8px;
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.invoice-hold-banner strong {
+  display: block;
+  font-size: 8.5px;
+}
+
+.invoice-hold-banner span {
+  display: block;
+  margin-top: 3px;
+  font-size: 7.5px;
+  line-height: 1.45;
+}
+
+.invoice-detail-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 15px;
+}
+
+.invoice-match-grid,
+.invoice-lifecycle-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+}
+
+.invoice-match-grid > div,
+.invoice-lifecycle-grid > div {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.invoice-match-grid span,
+.invoice-lifecycle-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.invoice-match-grid strong,
+.invoice-lifecycle-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8.5px;
+}
+
+.invoice-lifecycle-grid small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.invoice-notes {
+  margin-top: 9px;
+  padding: 9px;
+  border-radius: 7px;
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.invoice-exception-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.invoice-exception {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.invoice-exception--critical {
+  border-left: 3px solid #d92d20;
+}
+
+.invoice-exception--high {
+  border-left: 3px solid #f04438;
+}
+
+.invoice-exception--medium {
+  border-left: 3px solid #f79009;
+}
+
+.invoice-exception--low {
+  border-left: 3px solid #2e90fa;
+}
+
+.invoice-exception-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.invoice-exception-heading > div:first-child > strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 8.5px;
+}
+
+.invoice-exception-heading > div:first-child > small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.invoice-exception-heading > div:last-child {
+  text-align: right;
+}
+
+.invoice-exception-heading > div:last-child span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 7px;
+}
+
+.invoice-exception-heading > div:last-child strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+}
+
+.invoice-exception-severity--critical {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.invoice-exception-severity--high {
+  background: #fff6ed;
+  color: #c4320a;
+}
+
+.invoice-exception-severity--medium {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.invoice-exception-severity--low {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.invoice-exception p {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font-size: 7.5px;
+  line-height: 1.45;
+}
+
+.invoice-exception-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 7px;
+}
+
+.invoice-exception-values span {
+  padding: 4px 6px;
+  border-radius: 5px;
+  background: white;
+  color: var(--text-secondary);
+  font-size: 7px;
+}
+
+.invoice-resolution-note {
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  background: white;
+  color: var(--text-secondary);
+  font-size: 7.5px;
+}
+
+.invoice-inline-controls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.invoice-inline-controls input {
+  flex: 1;
+  min-width: 180px;
+  height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  font-size: 8px;
+}
+
+@media (
+  max-width: 1120px
+) {
+  .invoice-kpi-grid,
+  .invoice-detail-kpis,
+  .invoice-signal-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .invoice-create-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (
+  max-width: 920px
+) {
+  .invoice-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .invoice-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .invoice-line-editor article {
+    grid-template-columns:
+      28px
+      minmax(150px, 1fr)
+      80px
+      100px;
+  }
+
+  .invoice-line-editor article > strong {
+    grid-column: 2 / 4;
+    text-align: left;
+  }
+}
+
+@media (
+  max-width: 680px
+) {
+  .invoice-heading-actions,
+  .invoice-detail-heading,
+  .invoice-detail-actions,
+  .invoice-exception-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .invoice-kpi-grid,
+  .invoice-detail-kpis,
+  .invoice-signal-grid,
+  .invoice-form-grid,
+  .invoice-po-preview,
+  .invoice-value-preview,
+  .invoice-match-grid,
+  .invoice-lifecycle-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .invoice-form-wide,
+  .invoice-total-preview {
+    grid-column: auto;
+  }
+
+  .invoice-hold-banner {
+    grid-template-columns: 1fr;
+  }
+
+  .invoice-line-editor article {
+    grid-template-columns:
+      28px
+      minmax(0, 1fr);
+  }
+
+  .invoice-line-editor article > input,
+  .invoice-line-editor article > strong,
+  .invoice-line-editor article > button {
+    grid-column: 2;
+  }
+
+  .invoice-inline-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .invoice-inline-controls input {
+    width: 100%;
+  }
+
+  .invoice-exception-heading > div:last-child {
+    text-align: left;
+  }
+}

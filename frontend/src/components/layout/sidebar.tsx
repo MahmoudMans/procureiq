@@ -26,6 +26,7 @@ import {
   Layers3,
   Handshake,
   ScrollText,
+  ReceiptText,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -123,7 +124,12 @@ const coreNavigation = [
     href: "/purchase-orders",
     label: "Purchase orders",
     icon: PackageOpen,
+  },  {
+    href: "/invoice-control",
+    label: "Invoice control",
+    icon: ReceiptText,
   },
+
   {
     href: "/deliveries",
     label: "Deliveries",
@@ -288,6 +294,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/commercial-governance"
+          ||
+          item.href ===
+            "/invoice-control"
 ) {
           return canViewAnalytics;
         }

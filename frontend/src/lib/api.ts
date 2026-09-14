@@ -3683,3 +3683,233 @@ export async function getCommercialGovernanceContext(): Promise<
     "/commercial-governance/context-options",
   );
 }
+
+export async function getProcurementInvoices(
+  currency = "EUR",
+): Promise<
+  import("@/types/invoice-control").ProcurementInvoice[]
+> {
+  return request<
+    import("@/types/invoice-control").ProcurementInvoice[]
+  >(
+    `/invoices?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getProcurementInvoice(
+  invoiceId: string,
+): Promise<
+  import("@/types/invoice-control").ProcurementInvoice
+> {
+  return request<
+    import("@/types/invoice-control").ProcurementInvoice
+  >(
+    `/invoices/${invoiceId}`,
+  );
+}
+
+export async function createProcurementInvoice(
+  input: {
+    purchaseOrderId: string;
+    supplierInvoiceNumber: string;
+    invoiceDate: string;
+    dueDate: string;
+    currency: string;
+    taxAmount: number;
+    poVarianceTolerancePct: number;
+    notes?: string;
+    lines: Array<{
+      lineNumber: number;
+      description: string;
+      quantity: number;
+      unitPrice: number;
+    }>;
+  },
+): Promise<
+  import("@/types/invoice-control").ProcurementInvoice
+> {
+  return request<
+    import("@/types/invoice-control").ProcurementInvoice
+  >(
+    "/invoices",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function runInvoiceMatch(
+  invoiceId: string,
+): Promise<
+  import("@/types/invoice-control").InvoiceMatchResult
+> {
+  return request<
+    import("@/types/invoice-control").InvoiceMatchResult
+  >(
+    `/invoices/${invoiceId}/match`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function resolveInvoiceException(
+  exceptionId: string,
+  note: string,
+): Promise<
+  import("@/types/invoice-control").InvoiceMatchException
+> {
+  return request<
+    import("@/types/invoice-control").InvoiceMatchException
+  >(
+    `/invoices/exceptions/${exceptionId}/resolve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function dismissInvoiceException(
+  exceptionId: string,
+  note: string,
+): Promise<
+  import("@/types/invoice-control").InvoiceMatchException
+> {
+  return request<
+    import("@/types/invoice-control").InvoiceMatchException
+  >(
+    `/invoices/exceptions/${exceptionId}/dismiss`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function approveProcurementInvoice(
+  invoiceId: string,
+): Promise<
+  import("@/types/invoice-control").ProcurementInvoice
+> {
+  return request<
+    import("@/types/invoice-control").ProcurementInvoice
+  >(
+    `/invoices/${invoiceId}/approve`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function holdProcurementInvoice(
+  invoiceId: string,
+  note: string,
+): Promise<
+  import("@/types/invoice-control").ProcurementInvoice
+> {
+  return request<
+    import("@/types/invoice-control").ProcurementInvoice
+  >(
+    `/invoices/${invoiceId}/hold`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function releaseProcurementInvoiceHold(
+  invoiceId: string,
+): Promise<
+  import("@/types/invoice-control").ProcurementInvoice
+> {
+  return request<
+    import("@/types/invoice-control").ProcurementInvoice
+  >(
+    `/invoices/${invoiceId}/release-hold`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function markProcurementInvoiceReady(
+  invoiceId: string,
+): Promise<
+  import("@/types/invoice-control").ProcurementInvoice
+> {
+  return request<
+    import("@/types/invoice-control").ProcurementInvoice
+  >(
+    `/invoices/${invoiceId}/ready-for-payment`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function markProcurementInvoicePaid(
+  invoiceId: string,
+): Promise<
+  import("@/types/invoice-control").ProcurementInvoice
+> {
+  return request<
+    import("@/types/invoice-control").ProcurementInvoice
+  >(
+    `/invoices/${invoiceId}/paid`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function cancelProcurementInvoice(
+  invoiceId: string,
+  note: string,
+): Promise<
+  import("@/types/invoice-control").ProcurementInvoice
+> {
+  return request<
+    import("@/types/invoice-control").ProcurementInvoice
+  >(
+    `/invoices/${invoiceId}/cancel`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function getInvoiceSummary(
+  currency = "EUR",
+): Promise<
+  import("@/types/invoice-control").InvoiceSummary
+> {
+  return request<
+    import("@/types/invoice-control").InvoiceSummary
+  >(
+    `/invoices/summary?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getInvoiceContext(): Promise<
+  import("@/types/invoice-control").InvoiceContext
+> {
+  return request<
+    import("@/types/invoice-control").InvoiceContext
+  >(
+    "/invoices/context-options",
+  );
+}
