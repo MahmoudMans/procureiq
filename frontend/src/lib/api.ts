@@ -10,6 +10,13 @@ import type {
 } from "@/types/auth";
 
 import type {
+  PurchaseRequest,
+  PurchaseRequestFilters,
+  PurchaseRequestInput,
+  PurchaseRequestSummary,
+} from "@/types/purchase-request";
+
+import type {
   CreateSupplierInput,
   Supplier,
   SupplierFilters,
@@ -38,9 +45,10 @@ async function request<T>(
     ...fetchOptions
   } = options;
 
-  const headers = new Headers(
-    fetchOptions.headers,
-  );
+  const headers =
+    new Headers(
+      fetchOptions.headers,
+    );
 
   if (
     fetchOptions.body &&
@@ -53,7 +61,8 @@ async function request<T>(
   }
 
   if (authenticated) {
-    const token = getAccessToken();
+    const token =
+      getAccessToken();
 
     if (token) {
       headers.set(
@@ -63,13 +72,14 @@ async function request<T>(
     }
   }
 
-  const response = await fetch(
-    `${API_BASE_URL}${path}`,
-    {
-      ...fetchOptions,
-      headers,
-    },
-  );
+  const response =
+    await fetch(
+      `${API_BASE_URL}${path}`,
+      {
+        ...fetchOptions,
+        headers,
+      },
+    );
 
   if (!response.ok) {
     let message =
@@ -84,7 +94,7 @@ async function request<T>(
         problem.title ??
         message;
     } catch {
-      // Preserve the default HTTP status message.
+      // Keep default HTTP error message.
     }
 
     if (
@@ -93,7 +103,10 @@ async function request<T>(
     ) {
       clearAccessToken();
 
-      if (typeof window !== "undefined") {
+      if (
+        typeof window !==
+        "undefined"
+      ) {
         window.dispatchEvent(
           new Event(
             "procureiq:unauthorized",
@@ -199,7 +212,106 @@ export async function createSupplier(
     "/suppliers",
     {
       method: "POST",
-      body: JSON.stringify(input),
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getPurchaseRequests(
+  filters: PurchaseRequestFilters = {},
+): Promise<PurchaseRequest[]> {
+  const params =
+    new URLSearchParams();
+
+  if (filters.query?.trim()) {
+    params.set(
+      "query",
+      filters.query.trim(),
+    );
+  }
+
+  if (filters.status) {
+    params.set(
+      "status",
+      filters.status,
+    );
+  }
+
+  const queryString =
+    params.toString();
+
+  return request<PurchaseRequest[]>(
+    `/purchase-requests${
+      queryString
+        ? `?${queryString}`
+        : ""
+    }`,
+  );
+}
+
+export async function getPurchaseRequestSummary(): Promise<PurchaseRequestSummary> {
+  return request<PurchaseRequestSummary>(
+    "/purchase-requests/summary",
+  );
+}
+
+export async function getPurchaseRequest(
+  id: string,
+): Promise<PurchaseRequest> {
+  return request<PurchaseRequest>(
+    `/purchase-requests/${id}`,
+  );
+}
+
+export async function createPurchaseRequest(
+  input: PurchaseRequestInput,
+): Promise<PurchaseRequest> {
+  return request<PurchaseRequest>(
+    "/purchase-requests",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function updatePurchaseRequest(
+  id: string,
+  input: PurchaseRequestInput,
+): Promise<PurchaseRequest> {
+  return request<PurchaseRequest>(
+    `/purchase-requests/${id}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function submitPurchaseRequest(
+  id: string,
+): Promise<PurchaseRequest> {
+  return request<PurchaseRequest>(
+    `/purchase-requests/${id}/submit`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function cancelPurchaseRequest(
+  id: string,
+): Promise<PurchaseRequest> {
+  return request<PurchaseRequest>(
+    `/purchase-requests/${id}/cancel`,
+    {
+      method: "POST",
     },
   );
 }
