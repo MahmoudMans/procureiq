@@ -197,18 +197,26 @@ export default function SupplierPortalHomePage() {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={
-            () =>
-              void logout()
-          }
-        >
-          <LogOut
-            size={15}
-          />
-          Sign out
-        </button>
+        <div className="supplier-portal-header-actions">
+          <Link
+            href="/supplier-portal/documents"
+          >
+            Compliance documents
+          </Link>
+
+          <button
+            type="button"
+            onClick={
+              () =>
+                void logout()
+            }
+          >
+            <LogOut
+              size={15}
+            />
+            Sign out
+          </button>
+        </div>
       </header>
 
       <div className="supplier-portal-content">

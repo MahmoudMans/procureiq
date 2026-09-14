@@ -5540,3 +5540,245 @@ export async function completeSupplierPortalAction(
     },
   );
 }
+
+export async function getSupplierDocumentVaultDashboard(): Promise<
+  import("@/types/supplier-document-vault").SupplierDocumentVaultDashboard
+> {
+  return request<
+    import("@/types/supplier-document-vault").SupplierDocumentVaultDashboard
+  >(
+    "/supplier-document-vault",
+  );
+}
+
+export async function createSupplierDocumentRequirement(
+  input: {
+    requirementCode: string;
+    name: string;
+    description: string;
+    documentType:
+      import("@/types/supplier-document-vault").SupplierDocumentType;
+    categoryScope?: string;
+    mandatory: boolean;
+    expiryRequired: boolean;
+    renewalLeadDays: number;
+    onboardingRelevant: boolean;
+    sustainabilityRelevant: boolean;
+  },
+): Promise<
+  import("@/types/supplier-document-vault").SupplierDocumentRequirement
+> {
+  return request<
+    import("@/types/supplier-document-vault").SupplierDocumentRequirement
+  >(
+    "/supplier-document-vault/requirements",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function approveSupplierDocumentVersion(
+  versionId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-document-vault").SupplierDocumentVersion
+> {
+  return request<
+    import("@/types/supplier-document-vault").SupplierDocumentVersion
+  >(
+    `/supplier-document-vault/versions/${versionId}/approve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function rejectSupplierDocumentVersion(
+  versionId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-document-vault").SupplierDocumentVersion
+> {
+  return request<
+    import("@/types/supplier-document-vault").SupplierDocumentVersion
+  >(
+    `/supplier-document-vault/versions/${versionId}/reject`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function getSupplierDocumentContent(
+  versionId: string,
+): Promise<
+  import("@/types/supplier-document-vault").SupplierDocumentContent
+> {
+  return request<
+    import("@/types/supplier-document-vault").SupplierDocumentContent
+  >(
+    `/supplier-document-vault/versions/${versionId}/content`,
+  );
+}
+
+async function supplierPortalFormRequest<T>(
+  path: string,
+  token: string,
+  formData: FormData,
+): Promise<T> {
+  const response =
+    await fetch(
+      `${supplierPortalApiBaseUrl}${path}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+        },
+        body: formData,
+      },
+    );
+
+  if (!response.ok) {
+    const contentType =
+      response.headers.get(
+        "content-type",
+      )
+      ??
+      "";
+
+    let message =
+      `Supplier portal upload failed (${response.status}).`;
+
+    if (
+      contentType.includes(
+        "application/json",
+      )
+    ) {
+      const payload =
+        await response
+          .json()
+          .catch(
+            () => null,
+          );
+
+      if (
+        payload
+        &&
+        typeof payload ===
+          "object"
+      ) {
+        const candidate =
+          (
+            payload as
+              Record<
+                string,
+                unknown
+              >
+          ).message
+          ??
+          (
+            payload as
+              Record<
+                string,
+                unknown
+              >
+          ).error;
+
+        if (
+          typeof candidate ===
+          "string"
+          &&
+          candidate.trim()
+        ) {
+          message =
+            candidate;
+        }
+      }
+    }
+
+    throw new Error(
+      message,
+    );
+  }
+
+  return response.json() as
+    Promise<T>;
+}
+
+export async function getSupplierPortalDocumentDashboard(
+  token: string,
+): Promise<
+  import("@/types/supplier-document-vault").SupplierPortalDocumentDashboard
+> {
+  return supplierPortalRequest<
+    import("@/types/supplier-document-vault").SupplierPortalDocumentDashboard
+  >(
+    "/supplier-portal/documents",
+    {
+      headers: {
+        Authorization:
+          `Bearer ${token}`,
+      },
+    },
+  );
+}
+
+export async function uploadSupplierPortalDocument(
+  token: string,
+  requirementId: string,
+  file: File,
+  expiryDate?: string,
+): Promise<
+  import("@/types/supplier-document-vault").SupplierPortalDocumentDashboard
+> {
+  const formData =
+    new FormData();
+
+  formData.append(
+    "file",
+    file,
+  );
+
+  const query =
+    expiryDate
+      ? `?expiryDate=${encodeURIComponent(expiryDate)}`
+      : "";
+
+  return supplierPortalFormRequest<
+    import("@/types/supplier-document-vault").SupplierPortalDocumentDashboard
+  >(
+    `/supplier-portal/documents/requirements/${requirementId}/upload${query}`,
+    token,
+    formData,
+  );
+}
+
+export async function getSupplierPortalDocumentContent(
+  token: string,
+  versionId: string,
+): Promise<
+  import("@/types/supplier-document-vault").SupplierDocumentContent
+> {
+  return supplierPortalRequest<
+    import("@/types/supplier-document-vault").SupplierDocumentContent
+  >(
+    `/supplier-portal/documents/versions/${versionId}/content`,
+    {
+      headers: {
+        Authorization:
+          `Bearer ${token}`,
+      },
+    },
+  );
+}

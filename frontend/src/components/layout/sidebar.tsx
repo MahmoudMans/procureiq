@@ -35,6 +35,7 @@ import {
   ScanSearch,
   MessageSquareText,
   KeyRound,
+  Files,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -69,7 +70,12 @@ const coreNavigation = [
     href: "/supplier-portal-admin",
     label: "Supplier portal access",
     icon: KeyRound,
+  },  {
+    href: "/supplier-document-vault",
+    label: "Document vault",
+    icon: Files,
   },
+
 
   {
     href: "/sustainability",
@@ -369,6 +375,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/supplier-portal-admin"
+          ||
+          item.href ===
+            "/supplier-document-vault"
 ) {
           return canViewAnalytics;
         }
