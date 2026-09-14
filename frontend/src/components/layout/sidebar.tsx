@@ -37,6 +37,7 @@ import {
   KeyRound,
   Files,
   Activity,
+  SlidersHorizontal,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -114,7 +115,12 @@ const coreNavigation = [
     href: "/category-management",
     label: "Category management",
     icon: Layers3,
+  },  {
+    href: "/portfolio-optimization",
+    label: "Portfolio optimization",
+    icon: SlidersHorizontal,
   },
+
 
 
 
@@ -395,6 +401,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/category-management"
+          ||
+          item.href ===
+            "/portfolio-optimization"
 ) {
           return canViewAnalytics;
         }

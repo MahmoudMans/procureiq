@@ -6196,3 +6196,110 @@ export async function cancelCategoryMilestone(
     },
   );
 }
+
+export async function getPortfolioOptimizationDashboard(
+  currency = "EUR",
+): Promise<
+  import("@/types/portfolio-optimization").PortfolioOptimizationDashboard
+> {
+  return request<
+    import("@/types/portfolio-optimization").PortfolioOptimizationDashboard
+  >(
+    `/portfolio-optimization?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getPortfolioOptimizationContext(): Promise<
+  import("@/types/portfolio-optimization").PortfolioOptimizationContext
+> {
+  return request<
+    import("@/types/portfolio-optimization").PortfolioOptimizationContext
+  >(
+    "/portfolio-optimization/context-options",
+  );
+}
+
+export async function getPortfolioOptimizationScenario(
+  scenarioId: string,
+): Promise<
+  import("@/types/portfolio-optimization").PortfolioScenarioDetail
+> {
+  return request<
+    import("@/types/portfolio-optimization").PortfolioScenarioDetail
+  >(
+    `/portfolio-optimization/scenarios/${scenarioId}`,
+  );
+}
+
+export async function createPortfolioOptimizationScenario(
+  input: {
+    name: string;
+    currency: string;
+    ownerUserId?: string;
+    budgetLimit: number;
+    maxInitiatives: number;
+    maxAverageRiskScore: number;
+    minTotalTargetSavings: number;
+    allowCriticalPriority: boolean;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/portfolio-optimization").PortfolioScenarioDetail
+> {
+  return request<
+    import("@/types/portfolio-optimization").PortfolioScenarioDetail
+  >(
+    "/portfolio-optimization/scenarios",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function evaluatePortfolioOptimizationScenario(
+  scenarioId: string,
+): Promise<
+  import("@/types/portfolio-optimization").PortfolioOptimizationRun
+> {
+  return request<
+    import("@/types/portfolio-optimization").PortfolioOptimizationRun
+  >(
+    `/portfolio-optimization/scenarios/${scenarioId}/evaluate`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function approvePortfolioOptimizationScenario(
+  scenarioId: string,
+): Promise<
+  import("@/types/portfolio-optimization").PortfolioScenarioSummary
+> {
+  return request<
+    import("@/types/portfolio-optimization").PortfolioScenarioSummary
+  >(
+    `/portfolio-optimization/scenarios/${scenarioId}/approve`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function archivePortfolioOptimizationScenario(
+  scenarioId: string,
+): Promise<
+  import("@/types/portfolio-optimization").PortfolioScenarioSummary
+> {
+  return request<
+    import("@/types/portfolio-optimization").PortfolioScenarioSummary
+  >(
+    `/portfolio-optimization/scenarios/${scenarioId}/archive`,
+    {
+      method: "POST",
+    },
+  );
+}
