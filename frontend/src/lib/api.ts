@@ -2173,3 +2173,212 @@ export async function getProcurementCommandCenter(
     `/command-center?${params.toString()}`,
   );
 }
+
+export async function getSupplierPerformanceReviews(): Promise<
+  import("@/types/supplier-performance").SupplierPerformanceReview[]
+> {
+  return request<
+    import("@/types/supplier-performance").SupplierPerformanceReview[]
+  >(
+    "/supplier-performance/reviews",
+  );
+}
+
+export async function getSupplierPerformanceReview(
+  reviewId: string,
+): Promise<
+  import("@/types/supplier-performance").SupplierPerformanceReviewDetail
+> {
+  return request<
+    import("@/types/supplier-performance").SupplierPerformanceReviewDetail
+  >(
+    `/supplier-performance/reviews/${reviewId}`,
+  );
+}
+
+export async function getSupplierPerformanceSummary(): Promise<
+  import("@/types/supplier-performance").SupplierPerformanceSummary
+> {
+  return request<
+    import("@/types/supplier-performance").SupplierPerformanceSummary
+  >(
+    "/supplier-performance/summary",
+  );
+}
+
+export async function getSupplierPerformanceContext(): Promise<
+  import("@/types/supplier-performance").SupplierPerformanceContext
+> {
+  return request<
+    import("@/types/supplier-performance").SupplierPerformanceContext
+  >(
+    "/supplier-performance/context-options",
+  );
+}
+
+export async function getSupplierPerformanceHistory(
+  supplierId: string,
+): Promise<
+  import("@/types/supplier-performance").SupplierPerformanceTrend[]
+> {
+  return request<
+    import("@/types/supplier-performance").SupplierPerformanceTrend[]
+  >(
+    `/supplier-performance/suppliers/${supplierId}/history`,
+  );
+}
+
+export async function createSupplierPerformanceReview(
+  input: {
+    supplierId: string;
+    periodStart: string;
+    periodEnd: string;
+    qualityScore: number;
+    deliveryScore: number;
+    commercialScore: number;
+    serviceScore: number;
+    complianceScore: number;
+    ownerUserId?: string;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/supplier-performance").SupplierPerformanceReview
+> {
+  return request<
+    import("@/types/supplier-performance").SupplierPerformanceReview
+  >(
+    "/supplier-performance/reviews",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function submitSupplierPerformanceReview(
+  reviewId: string,
+): Promise<
+  import("@/types/supplier-performance").SupplierPerformanceReview
+> {
+  return request<
+    import("@/types/supplier-performance").SupplierPerformanceReview
+  >(
+    `/supplier-performance/reviews/${reviewId}/submit`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function approveSupplierPerformanceReview(
+  reviewId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-performance").SupplierPerformanceReview
+> {
+  return request<
+    import("@/types/supplier-performance").SupplierPerformanceReview
+  >(
+    `/supplier-performance/reviews/${reviewId}/approve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function rejectSupplierPerformanceReview(
+  reviewId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-performance").SupplierPerformanceReview
+> {
+  return request<
+    import("@/types/supplier-performance").SupplierPerformanceReview
+  >(
+    `/supplier-performance/reviews/${reviewId}/reject`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function createSupplierCorrectiveAction(
+  reviewId: string,
+  input: {
+    title: string;
+    description?: string;
+    ownerUserId?: string;
+    dueDate: string;
+  },
+): Promise<
+  import("@/types/supplier-performance").CorrectiveAction
+> {
+  return request<
+    import("@/types/supplier-performance").CorrectiveAction
+  >(
+    `/supplier-performance/reviews/${reviewId}/corrective-actions`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startSupplierCorrectiveAction(
+  actionId: string,
+): Promise<
+  import("@/types/supplier-performance").CorrectiveAction
+> {
+  return request<
+    import("@/types/supplier-performance").CorrectiveAction
+  >(
+    `/supplier-performance/corrective-actions/${actionId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function completeSupplierCorrectiveAction(
+  actionId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-performance").CorrectiveAction
+> {
+  return request<
+    import("@/types/supplier-performance").CorrectiveAction
+  >(
+    `/supplier-performance/corrective-actions/${actionId}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function cancelSupplierCorrectiveAction(
+  actionId: string,
+): Promise<
+  import("@/types/supplier-performance").CorrectiveAction
+> {
+  return request<
+    import("@/types/supplier-performance").CorrectiveAction
+  >(
+    `/supplier-performance/corrective-actions/${actionId}/cancel`,
+    {
+      method: "POST",
+    },
+  );
+}

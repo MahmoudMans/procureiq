@@ -44,6 +44,11 @@ const coreNavigation = [
     label: "Suppliers",
     icon: Building2,
   },  {
+    href: "/supplier-performance",
+    label: "Supplier performance",
+    icon: ClipboardCheck,
+  },
+  {
     href: "/contracts",
     label: "Contracts & compliance",
     icon: FileCheck2,
@@ -230,6 +235,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/command-center"
+          ||
+          item.href ===
+            "/supplier-performance"
 ) {
           return canViewAnalytics;
         }
