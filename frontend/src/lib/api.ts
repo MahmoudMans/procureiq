@@ -5782,3 +5782,185 @@ export async function getSupplierPortalDocumentContent(
     },
   );
 }
+
+export async function getSupplierRiskMonitoringDashboard(
+  currency = "EUR",
+): Promise<
+  import("@/types/supplier-risk-monitoring").SupplierRiskDashboard
+> {
+  return request<
+    import("@/types/supplier-risk-monitoring").SupplierRiskDashboard
+  >(
+    `/supplier-risk-monitoring?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function runSupplierRiskEvaluation(
+  currency = "EUR",
+): Promise<
+  import("@/types/supplier-risk-monitoring").SupplierRiskEvaluationRun
+> {
+  return request<
+    import("@/types/supplier-risk-monitoring").SupplierRiskEvaluationRun
+  >(
+    `/supplier-risk-monitoring/evaluate?currency=${encodeURIComponent(currency)}`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getSupplierRiskDetail(
+  supplierId: string,
+  currency = "EUR",
+): Promise<
+  import("@/types/supplier-risk-monitoring").SupplierRiskDetail
+> {
+  return request<
+    import("@/types/supplier-risk-monitoring").SupplierRiskDetail
+  >(
+    `/supplier-risk-monitoring/suppliers/${supplierId}?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function getSupplierRiskContext(): Promise<
+  import("@/types/supplier-risk-monitoring").SupplierRiskContext
+> {
+  return request<
+    import("@/types/supplier-risk-monitoring").SupplierRiskContext
+  >(
+    "/supplier-risk-monitoring/context-options",
+  );
+}
+
+export async function addSupplierToRiskWatchlist(
+  supplierId: string,
+  reason: string,
+): Promise<
+  import("@/types/supplier-risk-monitoring").SupplierRiskWatchlist
+> {
+  return request<
+    import("@/types/supplier-risk-monitoring").SupplierRiskWatchlist
+  >(
+    `/supplier-risk-monitoring/suppliers/${supplierId}/watchlist`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        reason,
+      }),
+    },
+  );
+}
+
+export async function releaseSupplierFromRiskWatchlist(
+  supplierId: string,
+  reason: string,
+): Promise<void> {
+  return request<void>(
+    `/supplier-risk-monitoring/suppliers/${supplierId}/watchlist/release`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        reason,
+      }),
+    },
+  );
+}
+
+export async function acknowledgeSupplierRiskAlert(
+  alertId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-risk-monitoring").SupplierRiskAlert
+> {
+  return request<
+    import("@/types/supplier-risk-monitoring").SupplierRiskAlert
+  >(
+    `/supplier-risk-monitoring/alerts/${alertId}/acknowledge`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function createSupplierRiskEscalation(
+  supplierId: string,
+  input: {
+    alertId?: string;
+    ownerUserId?: string;
+    priority:
+      import("@/types/supplier-risk-monitoring").SupplierRiskEscalationPriority;
+    dueDate: string;
+    rationale: string;
+  },
+): Promise<
+  import("@/types/supplier-risk-monitoring").SupplierRiskEscalation
+> {
+  return request<
+    import("@/types/supplier-risk-monitoring").SupplierRiskEscalation
+  >(
+    `/supplier-risk-monitoring/suppliers/${supplierId}/escalations`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startSupplierRiskEscalation(
+  caseId: string,
+): Promise<
+  import("@/types/supplier-risk-monitoring").SupplierRiskEscalation
+> {
+  return request<
+    import("@/types/supplier-risk-monitoring").SupplierRiskEscalation
+  >(
+    `/supplier-risk-monitoring/escalations/${caseId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function closeSupplierRiskEscalation(
+  caseId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-risk-monitoring").SupplierRiskEscalation
+> {
+  return request<
+    import("@/types/supplier-risk-monitoring").SupplierRiskEscalation
+  >(
+    `/supplier-risk-monitoring/escalations/${caseId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function cancelSupplierRiskEscalation(
+  caseId: string,
+  note: string,
+): Promise<
+  import("@/types/supplier-risk-monitoring").SupplierRiskEscalation
+> {
+  return request<
+    import("@/types/supplier-risk-monitoring").SupplierRiskEscalation
+  >(
+    `/supplier-risk-monitoring/escalations/${caseId}/cancel`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}

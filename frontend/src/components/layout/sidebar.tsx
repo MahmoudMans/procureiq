@@ -36,6 +36,7 @@ import {
   MessageSquareText,
   KeyRound,
   Files,
+  Activity,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -91,7 +92,12 @@ const coreNavigation = [
     href: "/supplier-resilience",
     label: "Supplier resilience",
     icon: ShieldCheck,
+  },  {
+    href: "/supplier-risk-monitoring",
+    label: "Continuous supplier risk",
+    icon: Activity,
   },
+
   {
     href: "/compliance",
     label: "Policy & compliance",
@@ -378,6 +384,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/supplier-document-vault"
+          ||
+          item.href ===
+            "/supplier-risk-monitoring"
 ) {
           return canViewAnalytics;
         }
