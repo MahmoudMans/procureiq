@@ -895,3 +895,146 @@ export async function markAllNotificationsRead(): Promise<void> {
     },
   );
 }
+
+export async function getExecutiveReport(
+  from?: string,
+  to?: string,
+): Promise<import("@/types/reporting").ExecutiveReport> {
+  const params =
+    new URLSearchParams();
+
+  if (from) {
+    params.set(
+      "from",
+      from,
+    );
+  }
+
+  if (to) {
+    params.set(
+      "to",
+      to,
+    );
+  }
+
+  const query =
+    params.toString();
+
+  return request<
+    import("@/types/reporting").ExecutiveReport
+  >(
+    `/reports/executive${
+      query
+        ? `?${query}`
+        : ""
+    }`,
+  );
+}
+
+export async function getReportSnapshots(): Promise<
+  import("@/types/reporting").ReportSnapshot[]
+> {
+  return request<
+    import("@/types/reporting").ReportSnapshot[]
+  >(
+    "/reports/snapshots",
+  );
+}
+
+export async function createReportSnapshot(
+  input: {
+    reportType:
+      import("@/types/reporting").ReportType;
+    periodStart?: string;
+    periodEnd?: string;
+    label: string;
+  },
+): Promise<import("@/types/reporting").ReportSnapshot> {
+  return request<
+    import("@/types/reporting").ReportSnapshot
+  >(
+    "/reports/snapshots",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function downloadReportCsv(
+  type:
+    import("@/types/reporting").ReportType,
+  from?: string,
+  to?: string,
+): Promise<Blob> {
+  const params =
+    new URLSearchParams();
+
+  params.set(
+    "type",
+    type,
+  );
+
+  if (from) {
+    params.set(
+      "from",
+      from,
+    );
+  }
+
+  if (to) {
+    params.set(
+      "to",
+      to,
+    );
+  }
+
+  const headers =
+    new Headers();
+
+  const token =
+    getAccessToken();
+
+  if (token) {
+    headers.set(
+      "Authorization",
+      `Bearer ${token}`,
+    );
+  }
+
+  const response =
+    await fetch(
+      `${API_BASE_URL}/reports/export?${params.toString()}`,
+      {
+        headers,
+      },
+    );
+
+  if (!response.ok) {
+    let message =
+      `Report export failed with status ${response.status}`;
+
+    try {
+      const problem =
+        (await response.json()) as {
+          detail?: string;
+          title?: string;
+        };
+
+      message =
+        problem.detail ??
+        problem.title ??
+        message;
+    } catch {
+      // Preserve default message.
+    }
+
+    throw new Error(
+      message,
+    );
+  }
+
+  return response.blob();
+}

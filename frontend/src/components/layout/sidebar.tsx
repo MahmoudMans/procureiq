@@ -5,6 +5,7 @@ import {
   Bell,
   Building2,
   ClipboardCheck,
+  FileSpreadsheet,
   FileText,
   LayoutDashboard,
   LogOut,
@@ -66,6 +67,11 @@ const coreNavigation = [
     href: "/analytics",
     label: "Analytics",
     icon: BarChart3,
+  },
+  {
+    href: "/reports",
+    label: "Reports",
+    icon: FileSpreadsheet,
   },
   {
     href: "/activity",
@@ -172,7 +178,9 @@ export function Sidebar() {
 
         if (
           item.href ===
-            "/analytics"
+            "/analytics" ||
+          item.href ===
+            "/reports"
         ) {
           return canViewAnalytics;
         }
