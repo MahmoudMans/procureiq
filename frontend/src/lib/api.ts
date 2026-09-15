@@ -9762,3 +9762,244 @@ export async function getCapitalAllocationSnapshot(
     `/capital-allocation/snapshots/${snapshotId}`,
   );
 }
+
+export async function getFundingExecutionDashboard(): Promise<
+  import("@/types/funding-execution").FundingExecutionDashboard
+> {
+  return request<
+    import("@/types/funding-execution").FundingExecutionDashboard
+  >(
+    "/funding-execution",
+  );
+}
+
+export async function createFundingCommitment(
+  allocationItemId: string,
+  input: {
+    fundingOwnerUserId: string;
+    committedCapitalAmount: number;
+    objective: string;
+  },
+): Promise<
+  import("@/types/funding-execution").FundingCommitmentDetail
+> {
+  return request<
+    import("@/types/funding-execution").FundingCommitmentDetail
+  >(
+    `/funding-execution/allocation-items/${allocationItemId}/commitments`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getFundingCommitment(
+  commitmentId: string,
+): Promise<
+  import("@/types/funding-execution").FundingCommitmentDetail
+> {
+  return request<
+    import("@/types/funding-execution").FundingCommitmentDetail
+  >(
+    `/funding-execution/commitments/${commitmentId}`,
+  );
+}
+
+export async function createFundingTranche(
+  commitmentId: string,
+  input: {
+    sequenceNo: number;
+    title: string;
+    plannedReleaseAmount: number;
+    targetDate: string;
+  },
+): Promise<
+  import("@/types/funding-execution").FundingCommitmentDetail
+> {
+  return request<
+    import("@/types/funding-execution").FundingCommitmentDetail
+  >(
+    `/funding-execution/commitments/${commitmentId}/tranches`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function createFundingGate(
+  trancheId: string,
+  input: {
+    title: string;
+    requirement: string;
+  },
+): Promise<
+  import("@/types/funding-execution").FundingCommitmentDetail
+> {
+  return request<
+    import("@/types/funding-execution").FundingCommitmentDetail
+  >(
+    `/funding-execution/tranches/${trancheId}/gates`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function decideFundingGate(
+  gateId: string,
+  input: {
+    decision:
+      import("@/types/funding-execution").FundingGateStatus;
+    evidenceNote: string;
+    decisionNote: string;
+  },
+): Promise<
+  import("@/types/funding-execution").FundingCommitmentDetail
+> {
+  return request<
+    import("@/types/funding-execution").FundingCommitmentDetail
+  >(
+    `/funding-execution/gates/${gateId}/decide`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function activateFundingCommitment(
+  commitmentId: string,
+  note: string,
+): Promise<
+  import("@/types/funding-execution").FundingCommitmentDetail
+> {
+  return request<
+    import("@/types/funding-execution").FundingCommitmentDetail
+  >(
+    `/funding-execution/commitments/${commitmentId}/activate`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function requestFundingAuthorization(
+  trancheId: string,
+  note: string,
+): Promise<
+  import("@/types/funding-execution").FundingCommitmentDetail
+> {
+  return request<
+    import("@/types/funding-execution").FundingCommitmentDetail
+  >(
+    `/funding-execution/tranches/${trancheId}/request-authorization`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function authorizeFundingTranche(
+  trancheId: string,
+  input: {
+    decision:
+      import("@/types/funding-execution").FundingAuthorizationDecision;
+    note: string;
+  },
+): Promise<
+  import("@/types/funding-execution").FundingCommitmentDetail
+> {
+  return request<
+    import("@/types/funding-execution").FundingCommitmentDetail
+  >(
+    `/funding-execution/tranches/${trancheId}/authorize`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function releaseFundingTranche(
+  trancheId: string,
+  note: string,
+): Promise<
+  import("@/types/funding-execution").FundingCommitmentDetail
+> {
+  return request<
+    import("@/types/funding-execution").FundingCommitmentDetail
+  >(
+    `/funding-execution/tranches/${trancheId}/release`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function closeFundingCommitment(
+  commitmentId: string,
+  note: string,
+): Promise<
+  import("@/types/funding-execution").FundingCommitmentDetail
+> {
+  return request<
+    import("@/types/funding-execution").FundingCommitmentDetail
+  >(
+    `/funding-execution/commitments/${commitmentId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureFundingSnapshot(
+  commitmentId: string,
+): Promise<
+  import("@/types/funding-execution").FundingSnapshotDetail
+> {
+  return request<
+    import("@/types/funding-execution").FundingSnapshotDetail
+  >(
+    `/funding-execution/commitments/${commitmentId}/snapshots`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getFundingSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/funding-execution").FundingSnapshotDetail
+> {
+  return request<
+    import("@/types/funding-execution").FundingSnapshotDetail
+  >(
+    `/funding-execution/snapshots/${snapshotId}`,
+  );
+}

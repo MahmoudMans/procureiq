@@ -32779,3 +32779,457 @@ div > strong {
     grid-column: auto;
   }
 }
+
+/* STEP 58 — STRATEGIC FUNDING EXECUTION & INVESTMENT COMMITMENT GOVERNANCE */
+
+.funding-score-grid,
+.funding-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.funding-value-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.funding-score-grid article,
+.funding-detail-grid article,
+.funding-value-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.funding-score-grid span,
+.funding-detail-grid span,
+.funding-value-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.funding-score-grid strong,
+.funding-detail-grid strong,
+.funding-value-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+}
+
+.funding-score-card {
+  border-color: #abefc6 !important;
+  background: #ecfdf3 !important;
+  color: #027a48;
+}
+
+.funding-status,
+.funding-tranche-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 5.8px;
+  font-weight: 700;
+}
+
+.funding-status--planned,
+.funding-tranche-status--planned {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.funding-status--active,
+.funding-tranche-status--ready-for-authorization {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.funding-tranche-status--authorized {
+  background: #f4f3ff;
+  color: #5925dc;
+}
+
+.funding-status--fully-released,
+.funding-tranche-status--released {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.funding-status--closed {
+  background: #f2f4f7;
+  color: #344054;
+}
+
+.funding-link-button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.funding-commitment-form,
+.funding-tranche-form,
+.funding-gate-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.funding-form-wide {
+  grid-column: 1 / -1;
+}
+
+.funding-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 11px;
+}
+
+.funding-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.funding-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.funding-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.funding-objective,
+.funding-governance-copy {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.funding-context-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.funding-context-grid > div {
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.funding-context-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.6px;
+}
+
+.funding-context-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 7px;
+}
+
+.funding-source-link {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.funding-tranche-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.funding-tranche-list > article {
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.funding-tranche-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.funding-tranche-heading strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 7.5px;
+}
+
+.funding-tranche-heading small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.7px;
+}
+
+.funding-tranche-signals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.funding-tranche-signals span {
+  padding: 6px;
+  border-radius: 5px;
+  background: white;
+  color: var(--text-tertiary);
+  font-size: 5.5px;
+}
+
+.funding-tranche-signals strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-primary);
+  font-size: 7px;
+}
+
+.funding-gate-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.funding-gate {
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+}
+
+.funding-gate strong {
+  font-size: 7px;
+}
+
+.funding-gate span {
+  margin-left: 6px;
+  color: var(--text-tertiary);
+  font-size: 5.7px;
+}
+
+.funding-gate p {
+  margin: 5px 0;
+  color: var(--text-secondary);
+  font-size: 6.2px;
+  line-height: 1.45;
+}
+
+.funding-gate small {
+  color: #027a48;
+  font-size: 5.7px;
+}
+
+.funding-gate-decision {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto auto;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.funding-gate-decision input,
+.funding-tranche-actions input {
+  min-height: 31px;
+  padding: 0 7px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6px;
+}
+
+.funding-gate-decision button,
+.funding-tranche-actions button,
+.funding-warning-button,
+.funding-danger-button {
+  min-height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.funding-warning-button {
+  border-color: #fedf89 !important;
+  color: #b54708 !important;
+}
+
+.funding-danger-button {
+  border-color: #fecdca !important;
+  color: #b42318 !important;
+}
+
+.funding-tranche-actions {
+  display: flex;
+  gap: 5px;
+  margin-top: 9px;
+}
+
+.funding-tranche-actions input {
+  flex: 1;
+}
+
+.funding-authorization-history {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 9px;
+}
+
+.funding-authorization-history > div {
+  padding: 7px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+}
+
+.funding-authorization-history strong {
+  display: block;
+  font-size: 6.5px;
+}
+
+.funding-authorization-history span {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.5px;
+}
+
+.funding-authorization-history p {
+  margin: 4px 0 0;
+  font-size: 6px;
+}
+
+.funding-release-record {
+  margin-top: 9px;
+  padding: 8px;
+  border: 1px solid #abefc6;
+  border-radius: 6px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.funding-release-record strong {
+  display: block;
+  font-size: 7px;
+}
+
+.funding-release-record p {
+  margin: 5px 0;
+  font-size: 6.2px;
+}
+
+.funding-release-record small {
+  font-size: 5.6px;
+}
+
+.funding-approval-note {
+  padding: 11px;
+  border: 1px solid #abefc6;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.funding-approval-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.funding-approval-note p {
+  margin: 5px 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.funding-approval-note small {
+  font-size: 5.8px;
+}
+
+.funding-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #abefc6;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.funding-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.funding-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.funding-empty {
+  padding: 18px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  text-align: center;
+}
+
+@media (max-width: 1150px) {
+  .funding-score-grid,
+  .funding-detail-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .funding-value-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .funding-gate-decision {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 750px) {
+  .funding-detail-heading,
+  .funding-tranche-heading,
+  .funding-tranche-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .funding-score-grid,
+  .funding-detail-grid,
+  .funding-value-grid,
+  .funding-commitment-form,
+  .funding-tranche-form,
+  .funding-gate-form,
+  .funding-context-grid,
+  .funding-tranche-signals,
+  .funding-gate-decision {
+    grid-template-columns: 1fr;
+  }
+
+  .funding-form-wide {
+    grid-column: auto;
+  }
+
+  .funding-tranche-actions input {
+    width: 100%;
+  }
+}
