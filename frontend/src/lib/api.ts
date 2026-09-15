@@ -7842,3 +7842,225 @@ export async function getCapacitySnapshot(
     `/capacity-planning/snapshots/${snapshotId}`,
   );
 }
+
+export async function getCapabilityPlanningDashboard(
+  currency = "EUR",
+  fiscalYear = new Date().getUTCFullYear(),
+): Promise<
+  import("@/types/capability-planning").CapabilityPlanningDashboard
+> {
+  return request<
+    import("@/types/capability-planning").CapabilityPlanningDashboard
+  >(
+    `/capability-planning?currency=${encodeURIComponent(currency)}&fiscalYear=${encodeURIComponent(String(fiscalYear))}`,
+  );
+}
+
+export async function createCapabilitySkill(
+  input: {
+    code: string;
+    name: string;
+    category: string;
+    description?: string;
+  },
+): Promise<
+  import("@/types/capability-planning").CapabilitySkill
+> {
+  return request<
+    import("@/types/capability-planning").CapabilitySkill
+  >(
+    "/capability-planning/skills",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function assessUserCapability(
+  userId: string,
+  skillId: string,
+  input: {
+    proficiencyLevel: number;
+    evidenceNote: string;
+  },
+): Promise<
+  import("@/types/capability-planning").UserCapability
+> {
+  return request<
+    import("@/types/capability-planning").UserCapability
+  >(
+    `/capability-planning/users/${userId}/skills/${skillId}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getCapabilityWorkItem(
+  currency: string,
+  fiscalYear: number,
+  sourceType:
+    import("@/types/capability-planning").CapabilitySourceType,
+  sourceEntityId: string,
+): Promise<
+  import("@/types/capability-planning").CapabilityWorkItem
+> {
+  return request<
+    import("@/types/capability-planning").CapabilityWorkItem
+  >(
+    `/capability-planning/work/${sourceType}/${sourceEntityId}?currency=${encodeURIComponent(currency)}&fiscalYear=${encodeURIComponent(String(fiscalYear))}`,
+  );
+}
+
+export async function createWorkCapabilityRequirement(
+  currency: string,
+  fiscalYear: number,
+  sourceType:
+    import("@/types/capability-planning").CapabilitySourceType,
+  sourceEntityId: string,
+  input: {
+    skillId: string;
+    requiredProficiency: number;
+    importanceWeightPct: number;
+  },
+): Promise<
+  import("@/types/capability-planning").CapabilityWorkItem
+> {
+  return request<
+    import("@/types/capability-planning").CapabilityWorkItem
+  >(
+    `/capability-planning/work/${sourceType}/${sourceEntityId}/requirements?currency=${encodeURIComponent(currency)}&fiscalYear=${encodeURIComponent(String(fiscalYear))}`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function deleteWorkCapabilityRequirement(
+  requirementId: string,
+): Promise<void> {
+  return request<void>(
+    `/capability-planning/requirements/${requirementId}`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+
+export async function createCapabilityDevelopmentAction(
+  fiscalYear: number,
+  input: {
+    userId: string;
+    skillId: string;
+    actionType:
+      import("@/types/capability-planning").CapabilityActionType;
+    title: string;
+    description?: string;
+    targetProficiency: number;
+    dueDate: string;
+  },
+): Promise<
+  import("@/types/capability-planning").CapabilityDevelopmentAction
+> {
+  return request<
+    import("@/types/capability-planning").CapabilityDevelopmentAction
+  >(
+    `/capability-planning/development-actions?fiscalYear=${encodeURIComponent(String(fiscalYear))}`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startCapabilityDevelopmentAction(
+  actionId: string,
+): Promise<
+  import("@/types/capability-planning").CapabilityDevelopmentAction
+> {
+  return request<
+    import("@/types/capability-planning").CapabilityDevelopmentAction
+  >(
+    `/capability-planning/development-actions/${actionId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function completeCapabilityDevelopmentAction(
+  actionId: string,
+  note: string,
+): Promise<
+  import("@/types/capability-planning").CapabilityDevelopmentAction
+> {
+  return request<
+    import("@/types/capability-planning").CapabilityDevelopmentAction
+  >(
+    `/capability-planning/development-actions/${actionId}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function cancelCapabilityDevelopmentAction(
+  actionId: string,
+  note: string,
+): Promise<
+  import("@/types/capability-planning").CapabilityDevelopmentAction
+> {
+  return request<
+    import("@/types/capability-planning").CapabilityDevelopmentAction
+  >(
+    `/capability-planning/development-actions/${actionId}/cancel`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureCapabilitySnapshot(
+  currency = "EUR",
+  fiscalYear = new Date().getUTCFullYear(),
+): Promise<
+  import("@/types/capability-planning").CapabilitySnapshotDetail
+> {
+  return request<
+    import("@/types/capability-planning").CapabilitySnapshotDetail
+  >(
+    `/capability-planning/snapshots?currency=${encodeURIComponent(currency)}&fiscalYear=${encodeURIComponent(String(fiscalYear))}`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getCapabilitySnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/capability-planning").CapabilitySnapshotDetail
+> {
+  return request<
+    import("@/types/capability-planning").CapabilitySnapshotDetail
+  >(
+    `/capability-planning/snapshots/${snapshotId}`,
+  );
+}

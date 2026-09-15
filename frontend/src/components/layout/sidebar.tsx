@@ -43,6 +43,7 @@ import {
   Wrench,
   Goal,
   UsersRound,
+  BrainCircuit,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -156,7 +157,12 @@ const coreNavigation = [
     href: "/capacity-planning",
     label: "Capacity planning",
     icon: UsersRound,
+  },  {
+    href: "/capability-planning",
+    label: "Capability planning",
+    icon: BrainCircuit,
   },
+
 
 
 
@@ -473,6 +479,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/capacity-planning"
+          ||
+          item.href ===
+            "/capability-planning"
 ) {
           return canViewAnalytics;
         }
