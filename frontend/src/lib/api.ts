@@ -8220,3 +8220,51 @@ export async function getSuccessionSnapshot(
     `/succession-planning/snapshots/${snapshotId}`,
   );
 }
+
+export async function getStrategyCockpitDashboard(
+  currency = "EUR",
+  fiscalYear = new Date().getUTCFullYear(),
+): Promise<
+  import("@/types/strategy-cockpit").StrategyCockpitDashboard
+> {
+  return request<
+    import("@/types/strategy-cockpit").StrategyCockpitDashboard
+  >(
+    `/strategy-cockpit?currency=${encodeURIComponent(currency)}&fiscalYear=${encodeURIComponent(String(fiscalYear))}`,
+  );
+}
+
+export async function captureStrategyCockpitSnapshot(
+  currency = "EUR",
+  fiscalYear = new Date().getUTCFullYear(),
+  boardCommentary?: string,
+): Promise<
+  import("@/types/strategy-cockpit").BoardSnapshotDetail
+> {
+  return request<
+    import("@/types/strategy-cockpit").BoardSnapshotDetail
+  >(
+    `/strategy-cockpit/snapshots?currency=${encodeURIComponent(currency)}&fiscalYear=${encodeURIComponent(String(fiscalYear))}`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        boardCommentary:
+          boardCommentary?.trim()
+          ||
+          null,
+      }),
+    },
+  );
+}
+
+export async function getStrategyCockpitSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/strategy-cockpit").BoardSnapshotDetail
+> {
+  return request<
+    import("@/types/strategy-cockpit").BoardSnapshotDetail
+  >(
+    `/strategy-cockpit/snapshots/${snapshotId}`,
+  );
+}

@@ -29964,3 +29964,351 @@ div > strong {
     width: 100%;
   }
 }
+
+/* STEP 50 — ENTERPRISE PROCUREMENT STRATEGY COCKPIT */
+
+.strategy-cockpit-heading-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.strategy-cockpit-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.strategy-cockpit-filter span {
+  color: var(--text-tertiary);
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.strategy-cockpit-filter select,
+.strategy-cockpit-filter input {
+  min-height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8px;
+}
+
+.strategy-cockpit-filter input {
+  width: 100px;
+}
+
+.strategy-board-hero {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 8px;
+}
+
+.strategy-board-hero > div {
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+
+.strategy-board-hero span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.strategy-board-hero strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+.strategy-board-hero small {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-secondary);
+  font-size: 6px;
+}
+
+.strategy-board-score {
+  border-color: #d9d6fe !important;
+  background: #f4f3ff !important;
+  color: #5925dc;
+}
+
+.strategy-board-movement {
+  border-color: #b2ddff !important;
+  background: #eff8ff !important;
+  color: #175cd3;
+}
+
+.strategy-board-exception {
+  border-color: #fecdca !important;
+  background: #fef3f2 !important;
+  color: #b42318;
+}
+
+.strategy-dimension-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.strategy-dimension-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+}
+
+.strategy-dimension-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.strategy-dimension-title span {
+  color: var(--text-secondary);
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.strategy-dimension-title small {
+  color: var(--text-tertiary);
+  font-size: 5.5px;
+}
+
+.strategy-dimension-grid article > strong {
+  display: block;
+  margin: 6px 0;
+  font-size: 16px;
+}
+
+.strategy-dimension-grid p {
+  margin: 7px 0 0;
+  color: var(--text-secondary);
+  font-size: 6px;
+  line-height: 1.45;
+}
+
+.strategy-dimension-delta {
+  margin-top: 5px;
+  color: var(--text-secondary);
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.strategy-health {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 5.5px;
+  font-weight: 700;
+}
+
+.strategy-health--excellent {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.strategy-health--strong {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.strategy-health--watch {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.strategy-health--critical {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.strategy-signal-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.strategy-signal-grid article {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.strategy-signal-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.strategy-signal-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px;
+}
+
+.strategy-risk-text {
+  color: #b42318 !important;
+  font-weight: 700;
+}
+
+.strategy-executive-summary p,
+.strategy-board-commentary p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 8px;
+  line-height: 1.6;
+}
+
+.strategy-exception-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.strategy-exception-list article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.strategy-exception-heading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.strategy-exception-heading strong {
+  font-size: 7.5px;
+}
+
+.strategy-exception-severity {
+  display: inline-flex;
+  padding: 3px 6px;
+  border-radius: 99px;
+  font-size: 5.5px;
+  font-weight: 700;
+}
+
+.strategy-exception-severity--critical {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.strategy-exception-severity--high {
+  background: #fff4ed;
+  color: #c4320a;
+}
+
+.strategy-exception-severity--medium {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.strategy-exception-severity--info {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.strategy-exception-list p {
+  margin: 7px 0;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+  line-height: 1.45;
+}
+
+.strategy-exception-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.strategy-cockpit-capture-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.strategy-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.strategy-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.strategy-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.strategy-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #d9d6fe;
+  border-radius: 8px;
+  background: #f4f3ff;
+  color: #5925dc;
+}
+
+.strategy-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.strategy-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.strategy-empty {
+  padding: 18px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  text-align: center;
+}
+
+@media (max-width: 1200px) {
+  .strategy-dimension-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .strategy-signal-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 750px) {
+  .strategy-cockpit-heading-actions,
+  .strategy-detail-heading,
+  .strategy-exception-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .strategy-board-hero,
+  .strategy-dimension-grid,
+  .strategy-signal-grid {
+    grid-template-columns: 1fr;
+  }
+}
