@@ -10645,3 +10645,252 @@ export async function getCapitalRecyclingSnapshot(
     `/capital-recycling/snapshots/${snapshotId}`,
   );
 }
+
+export async function getCapitalRedeploymentDashboard(): Promise<
+  import("@/types/capital-redeployment").CapitalRedeploymentDashboard
+> {
+  return request<
+    import("@/types/capital-redeployment").CapitalRedeploymentDashboard
+  >(
+    "/capital-redeployment",
+  );
+}
+
+export async function createCapitalRedeploymentCase(
+  proposalId: string,
+  input: {
+    redeploymentOwnerUserId: string;
+    redeploymentObjective: string;
+  },
+): Promise<
+  import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+> {
+  return request<
+    import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+  >(
+    `/capital-redeployment/proposals/${proposalId}/cases`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getCapitalRedeploymentCase(
+  caseId: string,
+): Promise<
+  import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+> {
+  return request<
+    import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+  >(
+    `/capital-redeployment/cases/${caseId}`,
+  );
+}
+
+export async function createCapitalRedeploymentGate(
+  caseId: string,
+  input: {
+    title: string;
+    requirement: string;
+  },
+): Promise<
+  import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+> {
+  return request<
+    import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+  >(
+    `/capital-redeployment/cases/${caseId}/gates`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function decideCapitalRedeploymentGate(
+  gateId: string,
+  input: {
+    decision:
+      import("@/types/capital-redeployment").CapitalRedeploymentGateStatus;
+    evidenceNote: string;
+    decisionNote: string;
+  },
+): Promise<
+  import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+> {
+  return request<
+    import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+  >(
+    `/capital-redeployment/gates/${gateId}/decide`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function submitCapitalRedeploymentForAuthorization(
+  caseId: string,
+): Promise<
+  import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+> {
+  return request<
+    import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+  >(
+    `/capital-redeployment/cases/${caseId}/ready-for-authorization`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function authorizeCapitalRedeployment(
+  caseId: string,
+  input: {
+    decision:
+      import("@/types/capital-redeployment").CapitalRedeploymentAuthorizationDecision;
+    authorizationNote: string;
+  },
+): Promise<
+  import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+> {
+  return request<
+    import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+  >(
+    `/capital-redeployment/cases/${caseId}/authorize`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function activateCapitalRedeployment(
+  caseId: string,
+): Promise<
+  import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+> {
+  return request<
+    import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+  >(
+    `/capital-redeployment/cases/${caseId}/activate`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function recordCapitalRedeploymentRelease(
+  caseId: string,
+  input: {
+    releasedOn: string;
+    releasedAmount: number;
+    evidenceNote: string;
+    referenceText: string;
+  },
+): Promise<
+  import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+> {
+  return request<
+    import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+  >(
+    `/capital-redeployment/cases/${caseId}/releases`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function submitCapitalRedeploymentForVerification(
+  caseId: string,
+): Promise<
+  import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+> {
+  return request<
+    import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+  >(
+    `/capital-redeployment/cases/${caseId}/ready-for-verification`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function verifyCapitalRedeployment(
+  caseId: string,
+  input: {
+    decision:
+      import("@/types/capital-redeployment").CapitalRedeploymentVerificationDecision;
+    verificationNote: string;
+  },
+): Promise<
+  import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+> {
+  return request<
+    import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+  >(
+    `/capital-redeployment/cases/${caseId}/verify`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function closeCapitalRedeploymentCase(
+  caseId: string,
+  note: string,
+): Promise<
+  import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+> {
+  return request<
+    import("@/types/capital-redeployment").CapitalRedeploymentCaseDetail
+  >(
+    `/capital-redeployment/cases/${caseId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureCapitalRedeploymentSnapshot(): Promise<
+  import("@/types/capital-redeployment").CapitalRedeploymentSnapshotDetail
+> {
+  return request<
+    import("@/types/capital-redeployment").CapitalRedeploymentSnapshotDetail
+  >(
+    "/capital-redeployment/snapshots",
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getCapitalRedeploymentSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/capital-redeployment").CapitalRedeploymentSnapshotDetail
+> {
+  return request<
+    import("@/types/capital-redeployment").CapitalRedeploymentSnapshotDetail
+  >(
+    `/capital-redeployment/snapshots/${snapshotId}`,
+  );
+}

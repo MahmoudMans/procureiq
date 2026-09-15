@@ -34578,3 +34578,329 @@ div > strong {
     grid-column: auto;
   }
 }
+
+/* STEP 63 — REINVESTMENT FUNDING AUTHORIZATION & CAPITAL REDEPLOYMENT EXECUTION */
+
+.redeployment-score-grid,
+.redeployment-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.redeployment-value-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.redeployment-score-grid article,
+.redeployment-detail-grid article,
+.redeployment-value-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.redeployment-score-grid span,
+.redeployment-detail-grid span,
+.redeployment-value-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.redeployment-score-grid strong,
+.redeployment-detail-grid strong,
+.redeployment-value-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+}
+
+.redeployment-score-card {
+  border-color: #abefc6 !important;
+  background: #ecfdf3 !important;
+  color: #027a48;
+}
+
+.redeployment-risk-text {
+  color: #b42318 !important;
+}
+
+.redeployment-status,
+.redeployment-health {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 5.8px;
+  font-weight: 700;
+}
+
+.redeployment-status--planned,
+.redeployment-health--not-started {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.redeployment-status--ready-for-authorization,
+.redeployment-status--authorized {
+  background: #f4f3ff;
+  color: #5925dc;
+}
+
+.redeployment-status--active,
+.redeployment-status--ready-for-verification,
+.redeployment-health--in-progress {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.redeployment-status--verified,
+.redeployment-health--complete {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.redeployment-health--variance {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.redeployment-status--remediation-required,
+.redeployment-health--remediation-required {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.redeployment-status--closed {
+  background: #f2f4f7;
+  color: #344054;
+}
+
+.redeployment-case-form,
+.redeployment-gate-form,
+.redeployment-release-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.redeployment-form-wide {
+  grid-column: 1 / -1;
+}
+
+.redeployment-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 11px;
+}
+
+.redeployment-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.redeployment-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.redeployment-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.redeployment-objective {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.redeployment-context-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.redeployment-context-grid > div {
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.redeployment-context-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.6px;
+}
+
+.redeployment-context-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 7px;
+}
+
+.redeployment-source-links {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.redeployment-gate-list,
+.redeployment-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.redeployment-gate-list article,
+.redeployment-history-list article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.redeployment-gate-list strong,
+.redeployment-history-list strong {
+  display: block;
+  font-size: 7.5px;
+}
+
+.redeployment-gate-list span,
+.redeployment-gate-list small,
+.redeployment-history-list span,
+.redeployment-history-list small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.redeployment-gate-list p,
+.redeployment-history-list p {
+  margin: 7px 0;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+  line-height: 1.5;
+}
+
+.redeployment-gate-decision {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto auto;
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.redeployment-gate-decision input {
+  min-height: 31px;
+  padding: 0 7px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6px;
+}
+
+.redeployment-gate-decision button,
+.redeployment-decision-actions button,
+.redeployment-danger-button,
+.redeployment-warning-button {
+  min-height: 31px;
+  padding: 0 9px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.redeployment-warning-button {
+  color: #b54708 !important;
+  border-color: #fedf89 !important;
+}
+
+.redeployment-danger-button {
+  color: #b42318 !important;
+  border-color: #fecdca !important;
+}
+
+.redeployment-decision-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.redeployment-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #b2ddff;
+  border-radius: 8px;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.redeployment-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.redeployment-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.redeployment-empty {
+  padding: 18px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  text-align: center;
+}
+
+@media (max-width: 1150px) {
+  .redeployment-score-grid,
+  .redeployment-detail-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .redeployment-value-grid,
+  .redeployment-context-grid,
+  .redeployment-gate-decision {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 750px) {
+  .redeployment-detail-heading,
+  .redeployment-source-links,
+  .redeployment-decision-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .redeployment-score-grid,
+  .redeployment-detail-grid,
+  .redeployment-value-grid,
+  .redeployment-case-form,
+  .redeployment-gate-form,
+  .redeployment-release-form,
+  .redeployment-context-grid,
+  .redeployment-gate-decision {
+    grid-template-columns: 1fr;
+  }
+
+  .redeployment-form-wide {
+    grid-column: auto;
+  }
+}

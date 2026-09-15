@@ -1,0 +1,39 @@
+package com.procureiq.capitalredeployment;
+
+import com.procureiq.capitalrecycling.CapitalRecyclingSourceStatus;
+import com.procureiq.strategicvalue.StrategicValueHealth;
+
+import java.math.BigDecimal;
+import java.util.UUID;
+
+public record CapitalRedeploymentCandidateResponse(
+        UUID recyclingSourceId,
+        String recyclingSourceNumber,
+        CapitalRecyclingSourceStatus recyclingSourceStatus,
+
+        UUID reinvestmentProposalId,
+
+        UUID sourceFundingCommitmentId,
+        String sourceFundingCommitmentNumber,
+
+        UUID sourceValueCaseId,
+        String sourceValueCaseNumber,
+
+        UUID targetValueCaseId,
+        String targetValueCaseNumber,
+        String targetInitiativeNumber,
+        String targetInitiativeTitle,
+
+        String currency,
+        int fiscalYear,
+
+        BigDecimal approvedRedeploymentAmount,
+        BigDecimal sourceRecyclableCapitalAmount,
+        BigDecimal currentSourceFundingRemainingAmount,
+
+        BigDecimal targetRoiPctSnapshot,
+        BigDecimal targetPersistencePctSnapshot,
+        BigDecimal targetNetValueSnapshot,
+        StrategicValueHealth targetValueHealthSnapshot
+) {
+}
