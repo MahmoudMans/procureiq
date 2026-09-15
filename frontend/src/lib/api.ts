@@ -9448,3 +9448,131 @@ export async function getOutcomePersistenceReview(
     `/outcome-persistence/reviews/${reviewId}`,
   );
 }
+
+export async function getStrategicValueDashboard(): Promise<
+  import("@/types/strategic-value").StrategicValueDashboard
+> {
+  return request<
+    import("@/types/strategic-value").StrategicValueDashboard
+  >(
+    "/strategic-value",
+  );
+}
+
+export async function createStrategicValueCase(
+  persistencePlanId: string,
+  input: {
+    valueOwnerUserId: string;
+    investmentCostAmount: number;
+    annualOperatingCostAmount: number;
+    annualizedValueAmount: number;
+    valueHorizonMonths: number;
+    targetRoiPct: number;
+    targetPaybackMonths: number;
+    valuationNote: string;
+  },
+): Promise<
+  import("@/types/strategic-value").StrategicValueCaseDetail
+> {
+  return request<
+    import("@/types/strategic-value").StrategicValueCaseDetail
+  >(
+    `/strategic-value/persistence-plans/${persistencePlanId}/cases`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getStrategicValueCase(
+  caseId: string,
+): Promise<
+  import("@/types/strategic-value").StrategicValueCaseDetail
+> {
+  return request<
+    import("@/types/strategic-value").StrategicValueCaseDetail
+  >(
+    `/strategic-value/cases/${caseId}`,
+  );
+}
+
+export async function submitStrategicValueForReview(
+  caseId: string,
+): Promise<
+  import("@/types/strategic-value").StrategicValueCaseDetail
+> {
+  return request<
+    import("@/types/strategic-value").StrategicValueCaseDetail
+  >(
+    `/strategic-value/cases/${caseId}/ready-for-review`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function verifyStrategicValueCase(
+  caseId: string,
+  note: string,
+): Promise<
+  import("@/types/strategic-value").StrategicValueCaseDetail
+> {
+  return request<
+    import("@/types/strategic-value").StrategicValueCaseDetail
+  >(
+    `/strategic-value/cases/${caseId}/verify`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function closeStrategicValueCase(
+  caseId: string,
+  note: string,
+): Promise<
+  import("@/types/strategic-value").StrategicValueCaseDetail
+> {
+  return request<
+    import("@/types/strategic-value").StrategicValueCaseDetail
+  >(
+    `/strategic-value/cases/${caseId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureStrategicValueReview(): Promise<
+  import("@/types/strategic-value").StrategicValueReviewDetail
+> {
+  return request<
+    import("@/types/strategic-value").StrategicValueReviewDetail
+  >(
+    "/strategic-value/reviews",
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getStrategicValueReview(
+  reviewId: string,
+): Promise<
+  import("@/types/strategic-value").StrategicValueReviewDetail
+> {
+  return request<
+    import("@/types/strategic-value").StrategicValueReviewDetail
+  >(
+    `/strategic-value/reviews/${reviewId}`,
+  );
+}

@@ -189,7 +189,12 @@ const coreNavigation = [
     href: "/outcome-persistence",
     label: "Outcome persistence",
     icon: Goal,
+  },  {
+    href: "/strategic-value",
+    label: "Strategic value",
+    icon: Goal,
   },
+
 
 
 
@@ -538,6 +543,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/outcome-persistence"
+          ||
+          item.href ===
+            "/strategic-value"
 ) {
           return canViewAnalytics;
         }

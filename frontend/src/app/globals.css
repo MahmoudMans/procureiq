@@ -32200,3 +32200,267 @@ div > strong {
     width: 100%;
   }
 }
+
+/* STEP 56 — STRATEGIC VALUE PORTFOLIO & LONG-TERM ROI GOVERNANCE */
+
+.value-score-grid,
+.value-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.value-signal-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.value-score-grid article,
+.value-detail-grid article,
+.value-signal-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.value-score-grid span,
+.value-detail-grid span,
+.value-signal-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.value-score-grid strong,
+.value-detail-grid strong,
+.value-signal-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+}
+
+.value-score-grid small,
+.value-detail-grid small {
+  display: block;
+  margin-top: 2px;
+  font-size: 5.8px;
+}
+
+.value-score-card {
+  border-color: #b2ddff !important;
+  background: #eff8ff !important;
+  color: #175cd3;
+}
+
+.value-risk-text {
+  color: #b42318 !important;
+  font-weight: 700;
+}
+
+.value-health {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 5.8px;
+  font-weight: 700;
+}
+
+.value-health--strong {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.value-health--healthy {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.value-health--watch {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.value-health--at-risk {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.value-health--unassessed {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.value-case-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.value-form-wide {
+  grid-column: 1 / -1;
+}
+
+.value-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 11px;
+}
+
+.value-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.value-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.value-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.value-bridge-grid,
+.value-financial-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.value-bridge-grid > div,
+.value-financial-grid > div {
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.value-bridge-grid span,
+.value-financial-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.7px;
+}
+
+.value-bridge-grid strong,
+.value-financial-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 7px;
+}
+
+.value-valuation-note {
+  margin-top: 10px;
+  padding: 9px;
+  border-left: 3px solid #1570ef;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.value-valuation-note strong {
+  display: block;
+  font-size: 7px;
+}
+
+.value-valuation-note p {
+  margin: 5px 0 0;
+  font-size: 6.5px;
+  line-height: 1.55;
+}
+
+.value-source-links {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.value-governance-copy {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.value-verification-note {
+  padding: 11px;
+  border: 1px solid #abefc6;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.value-verification-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.value-verification-note p {
+  margin: 5px 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.value-verification-note small {
+  font-size: 5.8px;
+}
+
+.value-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #b2ddff;
+  border-radius: 8px;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.value-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.value-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+@media (max-width: 1150px) {
+  .value-score-grid,
+  .value-detail-grid,
+  .value-signal-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .value-case-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 750px) {
+  .value-detail-heading,
+  .value-source-links {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .value-score-grid,
+  .value-detail-grid,
+  .value-signal-grid,
+  .value-case-form,
+  .value-bridge-grid,
+  .value-financial-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .value-form-wide {
+    grid-column: auto;
+  }
+}
