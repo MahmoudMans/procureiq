@@ -7597,3 +7597,94 @@ export async function getOkrSnapshot(
     `/strategic-okrs/snapshots/${snapshotId}`,
   );
 }
+
+export async function getStrategicAlignmentDashboard(
+  currency = "EUR",
+  fiscalYear = new Date().getUTCFullYear(),
+): Promise<
+  import("@/types/strategic-alignment").StrategicAlignmentDashboard
+> {
+  return request<
+    import("@/types/strategic-alignment").StrategicAlignmentDashboard
+  >(
+    `/strategic-alignment?currency=${encodeURIComponent(currency)}&fiscalYear=${encodeURIComponent(String(fiscalYear))}`,
+  );
+}
+
+export async function getObjectiveAlignment(
+  objectiveId: string,
+): Promise<
+  import("@/types/strategic-alignment").ObjectiveAlignmentDetail
+> {
+  return request<
+    import("@/types/strategic-alignment").ObjectiveAlignmentDetail
+  >(
+    `/strategic-alignment/objectives/${objectiveId}`,
+  );
+}
+
+export async function createStrategicAlignmentLink(
+  objectiveId: string,
+  input: {
+    sourceType:
+      import("@/types/strategic-alignment").AlignmentSourceType;
+    sourceEntityId: string;
+    alignmentRole:
+      import("@/types/strategic-alignment").AlignmentRole;
+    allocationPct: number;
+    rationale: string;
+  },
+): Promise<
+  import("@/types/strategic-alignment").AlignmentLink
+> {
+  return request<
+    import("@/types/strategic-alignment").AlignmentLink
+  >(
+    `/strategic-alignment/objectives/${objectiveId}/links`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function deleteStrategicAlignmentLink(
+  linkId: string,
+): Promise<void> {
+  return request<void>(
+    `/strategic-alignment/links/${linkId}`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+
+export async function captureStrategicAlignmentReview(
+  currency = "EUR",
+  fiscalYear = new Date().getUTCFullYear(),
+): Promise<
+  import("@/types/strategic-alignment").AlignmentReviewDetail
+> {
+  return request<
+    import("@/types/strategic-alignment").AlignmentReviewDetail
+  >(
+    `/strategic-alignment/reviews?currency=${encodeURIComponent(currency)}&fiscalYear=${encodeURIComponent(String(fiscalYear))}`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getStrategicAlignmentReview(
+  reviewId: string,
+): Promise<
+  import("@/types/strategic-alignment").AlignmentReviewDetail
+> {
+  return request<
+    import("@/types/strategic-alignment").AlignmentReviewDetail
+  >(
+    `/strategic-alignment/reviews/${reviewId}`,
+  );
+}

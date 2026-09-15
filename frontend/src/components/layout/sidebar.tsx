@@ -147,7 +147,12 @@ const coreNavigation = [
     href: "/strategic-objectives",
     label: "Strategic objectives",
     icon: Goal,
+  },  {
+    href: "/strategic-alignment",
+    label: "Strategic alignment",
+    icon: Goal,
   },
+
 
 
 
@@ -456,6 +461,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/strategic-objectives"
+          ||
+          item.href ===
+            "/strategic-alignment"
 ) {
           return canViewAnalytics;
         }
