@@ -11069,3 +11069,179 @@ export async function getReinvestmentPerformanceSnapshot(
     `/reinvestment-performance/snapshots/${snapshotId}`,
   );
 }
+
+export async function getReinvestmentPersistenceDashboard(): Promise<
+  import("@/types/reinvestment-persistence").ReinvestmentPersistenceDashboard
+> {
+  return request<
+    import("@/types/reinvestment-persistence").ReinvestmentPersistenceDashboard
+  >(
+    "/reinvestment-persistence",
+  );
+}
+
+export async function createReinvestmentPersistenceCase(
+  performanceCaseId: string,
+  input: {
+    persistenceOwnerUserId: string;
+    persistenceObservationWindowMonths: number;
+    minimumValuePersistencePct: number;
+    minimumEfficiencyRetentionPct: number;
+    persistenceObjective: string;
+  },
+): Promise<
+  import("@/types/reinvestment-persistence").ReinvestmentPersistenceCaseDetail
+> {
+  return request<
+    import("@/types/reinvestment-persistence").ReinvestmentPersistenceCaseDetail
+  >(
+    `/reinvestment-persistence/performance-cases/${performanceCaseId}/cases`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getReinvestmentPersistenceCase(
+  caseId: string,
+): Promise<
+  import("@/types/reinvestment-persistence").ReinvestmentPersistenceCaseDetail
+> {
+  return request<
+    import("@/types/reinvestment-persistence").ReinvestmentPersistenceCaseDetail
+  >(
+    `/reinvestment-persistence/cases/${caseId}`,
+  );
+}
+
+export async function recordReinvestmentPersistenceObservation(
+  caseId: string,
+  input: {
+    observedOn: string;
+    reportedCurrentAnnualizedValueAmount: number;
+    evidenceNote: string;
+  },
+): Promise<
+  import("@/types/reinvestment-persistence").ReinvestmentPersistenceCaseDetail
+> {
+  return request<
+    import("@/types/reinvestment-persistence").ReinvestmentPersistenceCaseDetail
+  >(
+    `/reinvestment-persistence/cases/${caseId}/observations`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function validateReinvestmentPersistenceObservation(
+  observationId: string,
+  input: {
+    decision:
+      import("@/types/reinvestment-persistence").ReinvestmentPersistenceValidationDecision;
+    validatedCurrentAnnualizedValueAmount?: number;
+    validationNote: string;
+  },
+): Promise<
+  import("@/types/reinvestment-persistence").ReinvestmentPersistenceCaseDetail
+> {
+  return request<
+    import("@/types/reinvestment-persistence").ReinvestmentPersistenceCaseDetail
+  >(
+    `/reinvestment-persistence/observations/${observationId}/validate`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function submitReinvestmentPersistenceForReview(
+  caseId: string,
+): Promise<
+  import("@/types/reinvestment-persistence").ReinvestmentPersistenceCaseDetail
+> {
+  return request<
+    import("@/types/reinvestment-persistence").ReinvestmentPersistenceCaseDetail
+  >(
+    `/reinvestment-persistence/cases/${caseId}/ready-for-review`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function reviewReinvestmentPersistenceCase(
+  caseId: string,
+  input: {
+    decision:
+      import("@/types/reinvestment-persistence").ReinvestmentPersistenceReviewDecision;
+    reviewNote: string;
+  },
+): Promise<
+  import("@/types/reinvestment-persistence").ReinvestmentPersistenceCaseDetail
+> {
+  return request<
+    import("@/types/reinvestment-persistence").ReinvestmentPersistenceCaseDetail
+  >(
+    `/reinvestment-persistence/cases/${caseId}/review`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function closeReinvestmentPersistenceCase(
+  caseId: string,
+  note: string,
+): Promise<
+  import("@/types/reinvestment-persistence").ReinvestmentPersistenceCaseDetail
+> {
+  return request<
+    import("@/types/reinvestment-persistence").ReinvestmentPersistenceCaseDetail
+  >(
+    `/reinvestment-persistence/cases/${caseId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureReinvestmentPersistenceSnapshot(): Promise<
+  import("@/types/reinvestment-persistence").ReinvestmentPersistenceSnapshotDetail
+> {
+  return request<
+    import("@/types/reinvestment-persistence").ReinvestmentPersistenceSnapshotDetail
+  >(
+    "/reinvestment-persistence/snapshots",
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getReinvestmentPersistenceSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/reinvestment-persistence").ReinvestmentPersistenceSnapshotDetail
+> {
+  return request<
+    import("@/types/reinvestment-persistence").ReinvestmentPersistenceSnapshotDetail
+  >(
+    `/reinvestment-persistence/snapshots/${snapshotId}`,
+  );
+}

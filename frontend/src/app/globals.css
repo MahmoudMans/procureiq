@@ -35209,3 +35209,304 @@ div > strong {
     grid-column: auto;
   }
 }
+
+/* STEP 65 — REINVESTMENT OUTCOME PERSISTENCE & CAPITAL RECYCLING EFFECTIVENESS */
+
+.rpersist-score-grid,
+.rpersist-detail-grid,
+.rpersist-value-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.rpersist-score-grid article,
+.rpersist-detail-grid article,
+.rpersist-value-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.rpersist-score-grid span,
+.rpersist-detail-grid span,
+.rpersist-value-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.rpersist-score-grid strong,
+.rpersist-detail-grid strong,
+.rpersist-value-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+}
+
+.rpersist-score-card {
+  border-color: #abefc6 !important;
+  background: #ecfdf3 !important;
+  color: #027a48;
+}
+
+.rpersist-risk-text {
+  color: #b42318 !important;
+}
+
+.rpersist-health {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 5.8px;
+  font-weight: 700;
+}
+
+.rpersist-health--unassessed {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.rpersist-health--compounding {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.rpersist-health--sustained {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.rpersist-health--watch {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.rpersist-health--decaying {
+  background: #fff6ed;
+  color: #c4320a;
+}
+
+.rpersist-health--regressed {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.rpersist-case-form,
+.rpersist-observation-form,
+.rpersist-review-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.rpersist-form-wide {
+  grid-column: 1 / -1;
+}
+
+.rpersist-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 11px;
+}
+
+.rpersist-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.rpersist-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.rpersist-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.rpersist-objective {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.rpersist-context-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.rpersist-context-grid > div {
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.rpersist-context-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.6px;
+}
+
+.rpersist-context-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 7px;
+}
+
+.rpersist-source-links {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.rpersist-observation-list,
+.rpersist-review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.rpersist-observation-list article,
+.rpersist-review-list article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.rpersist-observation-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.rpersist-observation-heading strong,
+.rpersist-review-list strong {
+  display: block;
+  font-size: 7.5px;
+}
+
+.rpersist-observation-heading span,
+.rpersist-observation-list small,
+.rpersist-review-list span,
+.rpersist-review-list small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.rpersist-observation-list p,
+.rpersist-review-list p {
+  margin: 7px 0;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+  line-height: 1.5;
+}
+
+.rpersist-validation-note {
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid #abefc6;
+  border-radius: 6px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.rpersist-validation-control {
+  display: grid;
+  grid-template-columns: 180px 1fr auto auto;
+  gap: 6px;
+  align-items: end;
+  margin-top: 9px;
+}
+
+.rpersist-validation-control button,
+.rpersist-danger-button {
+  min-height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.rpersist-danger-button {
+  color: #b42318 !important;
+  border-color: #fecdca !important;
+}
+
+.rpersist-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #b2ddff;
+  border-radius: 8px;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.rpersist-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.rpersist-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.rpersist-empty {
+  padding: 18px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  text-align: center;
+}
+
+@media (max-width: 1150px) {
+  .rpersist-score-grid,
+  .rpersist-detail-grid,
+  .rpersist-value-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .rpersist-validation-control {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 750px) {
+  .rpersist-detail-heading,
+  .rpersist-observation-heading,
+  .rpersist-source-links {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .rpersist-score-grid,
+  .rpersist-detail-grid,
+  .rpersist-value-grid,
+  .rpersist-case-form,
+  .rpersist-observation-form,
+  .rpersist-review-form,
+  .rpersist-context-grid,
+  .rpersist-validation-control {
+    grid-template-columns: 1fr;
+  }
+
+  .rpersist-form-wide {
+    grid-column: auto;
+  }
+}

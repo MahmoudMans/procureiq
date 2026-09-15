@@ -225,7 +225,12 @@ const coreNavigation = [
     href: "/reinvestment-performance",
     label: "Reinvestment performance",
     icon: Goal,
+  },  {
+    href: "/reinvestment-persistence",
+    label: "Reinvestment persistence",
+    icon: Goal,
   },
+
 
 
 
@@ -610,6 +615,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/reinvestment-performance"
+          ||
+          item.href ===
+            "/reinvestment-persistence"
 ) {
           return canViewAnalytics;
         }
