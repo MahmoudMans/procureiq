@@ -34904,3 +34904,308 @@ div > strong {
     grid-column: auto;
   }
 }
+
+/* STEP 64 — POST-REDEPLOYMENT VALUE REALIZATION & REINVESTMENT PERFORMANCE GOVERNANCE */
+
+.reinvestment-performance-score-grid,
+.reinvestment-performance-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.reinvestment-performance-value-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.reinvestment-performance-score-grid article,
+.reinvestment-performance-detail-grid article,
+.reinvestment-performance-value-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.reinvestment-performance-score-grid span,
+.reinvestment-performance-detail-grid span,
+.reinvestment-performance-value-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.reinvestment-performance-score-grid strong,
+.reinvestment-performance-detail-grid strong,
+.reinvestment-performance-value-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+}
+
+.reinvestment-performance-score-card {
+  border-color: #abefc6 !important;
+  background: #ecfdf3 !important;
+  color: #027a48;
+}
+
+.reinvestment-performance-risk-text {
+  color: #b42318 !important;
+}
+
+.reinvestment-performance-health {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 5.8px;
+  font-weight: 700;
+}
+
+.reinvestment-performance-health--unassessed {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.reinvestment-performance-health--outperforming {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.reinvestment-performance-health--on-track {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.reinvestment-performance-health--watch {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.reinvestment-performance-health--underperforming {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.reinvestment-performance-case-form,
+.reinvestment-performance-observation-form,
+.reinvestment-performance-review-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.reinvestment-performance-form-wide {
+  grid-column: 1 / -1;
+}
+
+.reinvestment-performance-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 11px;
+}
+
+.reinvestment-performance-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.reinvestment-performance-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.reinvestment-performance-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.reinvestment-performance-objective {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.reinvestment-performance-context-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.reinvestment-performance-context-grid > div {
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.reinvestment-performance-context-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.6px;
+}
+
+.reinvestment-performance-context-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 7px;
+}
+
+.reinvestment-performance-source-links {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.reinvestment-performance-observation-list,
+.reinvestment-performance-review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.reinvestment-performance-observation-list article,
+.reinvestment-performance-review-list article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.reinvestment-performance-observation-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.reinvestment-performance-observation-heading strong,
+.reinvestment-performance-review-list strong {
+  display: block;
+  font-size: 7.5px;
+}
+
+.reinvestment-performance-observation-heading span,
+.reinvestment-performance-observation-list small,
+.reinvestment-performance-review-list span,
+.reinvestment-performance-review-list small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.reinvestment-performance-observation-list p,
+.reinvestment-performance-review-list p {
+  margin: 7px 0;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+  line-height: 1.5;
+}
+
+.reinvestment-performance-validation-note {
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid #abefc6;
+  border-radius: 6px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.reinvestment-performance-validation-note strong {
+  font-size: 7px;
+}
+
+.reinvestment-performance-validation-control {
+  display: grid;
+  grid-template-columns: 180px 1fr auto auto;
+  gap: 6px;
+  align-items: end;
+  margin-top: 9px;
+}
+
+.reinvestment-performance-validation-control button,
+.reinvestment-performance-danger-button {
+  min-height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.reinvestment-performance-danger-button {
+  color: #b42318 !important;
+  border-color: #fecdca !important;
+}
+
+.reinvestment-performance-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #b2ddff;
+  border-radius: 8px;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.reinvestment-performance-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.reinvestment-performance-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.reinvestment-performance-empty {
+  padding: 18px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  text-align: center;
+}
+
+@media (max-width: 1150px) {
+  .reinvestment-performance-score-grid,
+  .reinvestment-performance-detail-grid,
+  .reinvestment-performance-value-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .reinvestment-performance-validation-control {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 750px) {
+  .reinvestment-performance-detail-heading,
+  .reinvestment-performance-observation-heading,
+  .reinvestment-performance-source-links {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .reinvestment-performance-score-grid,
+  .reinvestment-performance-detail-grid,
+  .reinvestment-performance-value-grid,
+  .reinvestment-performance-case-form,
+  .reinvestment-performance-observation-form,
+  .reinvestment-performance-review-form,
+  .reinvestment-performance-context-grid,
+  .reinvestment-performance-validation-control {
+    grid-template-columns: 1fr;
+  }
+
+  .reinvestment-performance-form-wide {
+    grid-column: auto;
+  }
+}
