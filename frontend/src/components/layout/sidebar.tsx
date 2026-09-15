@@ -201,7 +201,12 @@ const coreNavigation = [
     href: "/funding-execution",
     label: "Funding execution",
     icon: Goal,
+  },  {
+    href: "/investment-performance",
+    label: "Investment performance",
+    icon: Goal,
   },
+
 
 
 
@@ -562,6 +567,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/funding-execution"
+          ||
+          item.href ===
+            "/investment-performance"
 ) {
           return canViewAnalytics;
         }

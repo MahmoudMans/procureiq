@@ -10003,3 +10003,176 @@ export async function getFundingSnapshot(
     `/funding-execution/snapshots/${snapshotId}`,
   );
 }
+
+export async function getInvestmentPerformanceDashboard(): Promise<
+  import("@/types/investment-performance").InvestmentPerformanceDashboard
+> {
+  return request<
+    import("@/types/investment-performance").InvestmentPerformanceDashboard
+  >(
+    "/investment-performance",
+  );
+}
+
+export async function createInvestmentPerformanceCase(
+  fundingCommitmentId: string,
+  input: {
+    performanceOwnerUserId: string;
+    performanceObjective: string;
+  },
+): Promise<
+  import("@/types/investment-performance").InvestmentPerformanceCaseDetail
+> {
+  return request<
+    import("@/types/investment-performance").InvestmentPerformanceCaseDetail
+  >(
+    `/investment-performance/funding-commitments/${fundingCommitmentId}/cases`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getInvestmentPerformanceCase(
+  caseId: string,
+): Promise<
+  import("@/types/investment-performance").InvestmentPerformanceCaseDetail
+> {
+  return request<
+    import("@/types/investment-performance").InvestmentPerformanceCaseDetail
+  >(
+    `/investment-performance/cases/${caseId}`,
+  );
+}
+
+export async function recordInvestmentPerformanceObservation(
+  caseId: string,
+  input: {
+    observedOn: string;
+    reportedRealizedAnnualizedValueAmount: number;
+    evidenceNote: string;
+  },
+): Promise<
+  import("@/types/investment-performance").InvestmentPerformanceCaseDetail
+> {
+  return request<
+    import("@/types/investment-performance").InvestmentPerformanceCaseDetail
+  >(
+    `/investment-performance/cases/${caseId}/observations`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function validateInvestmentPerformanceObservation(
+  observationId: string,
+  input: {
+    decision:
+      import("@/types/investment-performance").InvestmentPerformanceValidationDecision;
+    validatedRealizedAnnualizedValueAmount?: number;
+    validationNote: string;
+  },
+): Promise<
+  import("@/types/investment-performance").InvestmentPerformanceCaseDetail
+> {
+  return request<
+    import("@/types/investment-performance").InvestmentPerformanceCaseDetail
+  >(
+    `/investment-performance/observations/${observationId}/validate`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function submitInvestmentPerformanceForReview(
+  caseId: string,
+): Promise<
+  import("@/types/investment-performance").InvestmentPerformanceCaseDetail
+> {
+  return request<
+    import("@/types/investment-performance").InvestmentPerformanceCaseDetail
+  >(
+    `/investment-performance/cases/${caseId}/ready-for-review`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function reviewInvestmentPerformanceCase(
+  caseId: string,
+  input: {
+    decision:
+      import("@/types/investment-performance").InvestmentPerformanceReviewDecision;
+    decisionNote: string;
+  },
+): Promise<
+  import("@/types/investment-performance").InvestmentPerformanceCaseDetail
+> {
+  return request<
+    import("@/types/investment-performance").InvestmentPerformanceCaseDetail
+  >(
+    `/investment-performance/cases/${caseId}/review`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function closeInvestmentPerformanceCase(
+  caseId: string,
+  note: string,
+): Promise<
+  import("@/types/investment-performance").InvestmentPerformanceCaseDetail
+> {
+  return request<
+    import("@/types/investment-performance").InvestmentPerformanceCaseDetail
+  >(
+    `/investment-performance/cases/${caseId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureInvestmentPerformanceSnapshot(): Promise<
+  import("@/types/investment-performance").InvestmentPerformanceSnapshotDetail
+> {
+  return request<
+    import("@/types/investment-performance").InvestmentPerformanceSnapshotDetail
+  >(
+    "/investment-performance/snapshots",
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getInvestmentPerformanceSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/investment-performance").InvestmentPerformanceSnapshotDetail
+> {
+  return request<
+    import("@/types/investment-performance").InvestmentPerformanceSnapshotDetail
+  >(
+    `/investment-performance/snapshots/${snapshotId}`,
+  );
+}

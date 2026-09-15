@@ -33233,3 +33233,310 @@ div > strong {
     width: 100%;
   }
 }
+
+/* STEP 59 — STRATEGIC INVESTMENT PERFORMANCE & CAPITAL EFFICIENCY GOVERNANCE */
+
+.investment-performance-score-grid,
+.investment-performance-detail-grid,
+.investment-performance-value-grid,
+.investment-performance-signal-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.investment-performance-score-grid article,
+.investment-performance-detail-grid article,
+.investment-performance-value-grid article,
+.investment-performance-signal-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.investment-performance-score-grid span,
+.investment-performance-detail-grid span,
+.investment-performance-value-grid span,
+.investment-performance-signal-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.investment-performance-score-grid strong,
+.investment-performance-detail-grid strong,
+.investment-performance-value-grid strong,
+.investment-performance-signal-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+}
+
+.investment-performance-score-card {
+  border-color: #b2ddff !important;
+  background: #eff8ff !important;
+  color: #175cd3;
+}
+
+.investment-performance-risk-text {
+  color: #b42318 !important;
+  font-weight: 700;
+}
+
+.investment-performance-health {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 5.8px;
+  font-weight: 700;
+}
+
+.investment-performance-health--unassessed {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.investment-performance-health--outperforming {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.investment-performance-health--on-track {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.investment-performance-health--watch {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.investment-performance-health--underperforming {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.investment-performance-case-form,
+.investment-performance-observation-form,
+.investment-performance-review-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.investment-performance-form-wide {
+  grid-column: 1 / -1;
+}
+
+.investment-performance-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 11px;
+}
+
+.investment-performance-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.investment-performance-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.investment-performance-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.investment-performance-objective {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.investment-performance-context-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.investment-performance-context-grid > div {
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.investment-performance-context-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.6px;
+}
+
+.investment-performance-context-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 7px;
+}
+
+.investment-performance-source-links {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.investment-performance-observation-list,
+.investment-performance-decision-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.investment-performance-observation-list article,
+.investment-performance-decision-list article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.investment-performance-observation-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.investment-performance-observation-heading strong,
+.investment-performance-decision-list strong {
+  display: block;
+  font-size: 7.5px;
+}
+
+.investment-performance-observation-heading span,
+.investment-performance-observation-list small,
+.investment-performance-decision-list span,
+.investment-performance-decision-list small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.investment-performance-observation-list p,
+.investment-performance-decision-list p {
+  margin: 7px 0;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+  line-height: 1.5;
+}
+
+.investment-performance-validation-note {
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid #abefc6;
+  border-radius: 6px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.investment-performance-validation-note strong {
+  font-size: 7px;
+}
+
+.investment-performance-validation-control {
+  display: grid;
+  grid-template-columns: 170px 1fr auto auto;
+  gap: 6px;
+  align-items: end;
+  margin-top: 9px;
+}
+
+.investment-performance-validation-control button,
+.investment-performance-danger-button {
+  min-height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.investment-performance-danger-button {
+  color: #b42318 !important;
+  border-color: #fecdca !important;
+}
+
+.investment-performance-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #b2ddff;
+  border-radius: 8px;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.investment-performance-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.investment-performance-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.investment-performance-empty {
+  padding: 18px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  text-align: center;
+}
+
+@media (max-width: 1150px) {
+  .investment-performance-score-grid,
+  .investment-performance-detail-grid,
+  .investment-performance-value-grid,
+  .investment-performance-signal-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .investment-performance-validation-control {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 750px) {
+  .investment-performance-detail-heading,
+  .investment-performance-observation-heading,
+  .investment-performance-source-links {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .investment-performance-score-grid,
+  .investment-performance-detail-grid,
+  .investment-performance-value-grid,
+  .investment-performance-signal-grid,
+  .investment-performance-case-form,
+  .investment-performance-observation-form,
+  .investment-performance-review-form,
+  .investment-performance-context-grid,
+  .investment-performance-validation-control {
+    grid-template-columns: 1fr;
+  }
+
+  .investment-performance-form-wide {
+    grid-column: auto;
+  }
+}
