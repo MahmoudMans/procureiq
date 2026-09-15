@@ -161,7 +161,12 @@ const coreNavigation = [
     href: "/capability-planning",
     label: "Capability planning",
     icon: BrainCircuit,
+  },  {
+    href: "/succession-planning",
+    label: "Succession planning",
+    icon: UsersRound,
   },
+
 
 
 
@@ -482,6 +487,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/capability-planning"
+          ||
+          item.href ===
+            "/succession-planning"
 ) {
           return canViewAnalytics;
         }

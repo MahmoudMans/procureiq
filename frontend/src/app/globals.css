@@ -29599,3 +29599,368 @@ div > strong {
     width: 100%;
   }
 }
+
+/* STEP 49 — PROCUREMENT SUCCESSION & WORKFORCE RESILIENCE */
+
+.succession-heading-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.succession-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.succession-filter span {
+  color: var(--text-tertiary);
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.succession-filter select,
+.succession-filter input {
+  min-height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8px;
+}
+
+.succession-filter input {
+  width: 100px;
+}
+
+.succession-score-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.succession-score-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.succession-score-grid span,
+.succession-signal-grid span,
+.succession-detail-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.succession-score-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+}
+
+.succession-score-grid small {
+  display: block;
+  margin-top: 2px;
+  font-size: 5.8px;
+}
+
+.succession-score-card {
+  border-color: #f9dbaf !important;
+  background: #fef6ee !important;
+  color: #b93815;
+}
+
+.succession-signal-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.succession-signal-grid article {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.succession-signal-grid strong,
+.succession-detail-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px;
+}
+
+.succession-risk-text {
+  color: #b42318 !important;
+  font-weight: 700;
+}
+
+.succession-criticality,
+.succession-health,
+.succession-candidate-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.succession-criticality--critical,
+.succession-health--critical {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.succession-criticality--high,
+.succession-health--watch {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.succession-health--resilient,
+.succession-candidate-status--ready {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.succession-health--stable,
+.succession-candidate-status--developing {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.succession-health--undefined,
+.succession-candidate-status--identified,
+.succession-candidate-status--declined {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.succession-policy-form,
+.succession-nomination-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.succession-policy-wide,
+.succession-nomination-wide {
+  grid-column: 1 / -1;
+}
+
+.succession-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.succession-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.succession-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.succession-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.succession-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.succession-detail-grid article {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.succession-candidate-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.succession-candidate-list > article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.succession-candidate-main {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.succession-candidate-main strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 8px;
+}
+
+.succession-candidate-main small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.succession-candidate-score {
+  text-align: right;
+}
+
+.succession-candidate-score span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.5px;
+}
+
+.succession-candidate-score strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+}
+
+.succession-candidate-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.succession-candidate-metrics span {
+  padding: 6px;
+  border-radius: 5px;
+  background: white;
+  color: var(--text-tertiary);
+  font-size: 5.5px;
+}
+
+.succession-candidate-metrics strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-primary);
+  font-size: 7px;
+}
+
+.succession-candidate-list p {
+  margin: 7px 0;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+  line-height: 1.45;
+}
+
+.succession-decision-control {
+  display: flex;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.succession-decision-control input {
+  flex: 1;
+  min-height: 31px;
+  padding: 0 7px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6.5px;
+}
+
+.succession-decision-control button,
+.succession-danger-button {
+  min-height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.succession-danger-button {
+  color: #b42318;
+  border-color: #fecdca;
+}
+
+.succession-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #f9dbaf;
+  border-radius: 8px;
+  background: #fef6ee;
+  color: #b93815;
+}
+
+.succession-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.succession-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.succession-empty {
+  padding: 18px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  text-align: center;
+}
+
+@media (max-width: 1100px) {
+  .succession-score-grid,
+  .succession-detail-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .succession-signal-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 750px) {
+  .succession-heading-actions,
+  .succession-detail-heading,
+  .succession-decision-control {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .succession-score-grid,
+  .succession-signal-grid,
+  .succession-detail-grid,
+  .succession-policy-form,
+  .succession-nomination-form,
+  .succession-candidate-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .succession-policy-wide,
+  .succession-nomination-wide {
+    grid-column: auto;
+  }
+
+  .succession-decision-control input {
+    width: 100%;
+  }
+}

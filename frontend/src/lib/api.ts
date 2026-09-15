@@ -8064,3 +8064,159 @@ export async function getCapabilitySnapshot(
     `/capability-planning/snapshots/${snapshotId}`,
   );
 }
+
+export async function getSuccessionPlanningDashboard(
+  currency = "EUR",
+  fiscalYear = new Date().getUTCFullYear(),
+): Promise<
+  import("@/types/succession-planning").SuccessionPlanningDashboard
+> {
+  return request<
+    import("@/types/succession-planning").SuccessionPlanningDashboard
+  >(
+    `/succession-planning?currency=${encodeURIComponent(currency)}&fiscalYear=${encodeURIComponent(String(fiscalYear))}`,
+  );
+}
+
+export async function createCriticalCapabilityPolicy(
+  currency: string,
+  fiscalYear: number,
+  input: {
+    skillId: string;
+    criticality:
+      import("@/types/succession-planning").SuccessionCriticality;
+    requiredProficiency: number;
+    targetReadyPeople: number;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/succession-planning").SuccessionPolicyDetail
+> {
+  return request<
+    import("@/types/succession-planning").SuccessionPolicyDetail
+  >(
+    `/succession-planning/policies?currency=${encodeURIComponent(currency)}&fiscalYear=${encodeURIComponent(String(fiscalYear))}`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getSuccessionPolicy(
+  policyId: string,
+): Promise<
+  import("@/types/succession-planning").SuccessionPolicyDetail
+> {
+  return request<
+    import("@/types/succession-planning").SuccessionPolicyDetail
+  >(
+    `/succession-planning/policies/${policyId}`,
+  );
+}
+
+export async function nominateSuccessionCandidate(
+  policyId: string,
+  input: {
+    userId: string;
+    rationale: string;
+    targetDate?: string;
+  },
+): Promise<
+  import("@/types/succession-planning").SuccessionCandidate
+> {
+  return request<
+    import("@/types/succession-planning").SuccessionCandidate
+  >(
+    `/succession-planning/policies/${policyId}/candidates`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startSuccessionCandidateDevelopment(
+  candidateId: string,
+): Promise<
+  import("@/types/succession-planning").SuccessionCandidate
+> {
+  return request<
+    import("@/types/succession-planning").SuccessionCandidate
+  >(
+    `/succession-planning/candidates/${candidateId}/develop`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function markSuccessionCandidateReady(
+  candidateId: string,
+  note: string,
+): Promise<
+  import("@/types/succession-planning").SuccessionCandidate
+> {
+  return request<
+    import("@/types/succession-planning").SuccessionCandidate
+  >(
+    `/succession-planning/candidates/${candidateId}/ready`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function declineSuccessionCandidate(
+  candidateId: string,
+  note: string,
+): Promise<
+  import("@/types/succession-planning").SuccessionCandidate
+> {
+  return request<
+    import("@/types/succession-planning").SuccessionCandidate
+  >(
+    `/succession-planning/candidates/${candidateId}/decline`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureSuccessionSnapshot(
+  currency = "EUR",
+  fiscalYear = new Date().getUTCFullYear(),
+): Promise<
+  import("@/types/succession-planning").SuccessionSnapshotDetail
+> {
+  return request<
+    import("@/types/succession-planning").SuccessionSnapshotDetail
+  >(
+    `/succession-planning/snapshots?currency=${encodeURIComponent(currency)}&fiscalYear=${encodeURIComponent(String(fiscalYear))}`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getSuccessionSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/succession-planning").SuccessionSnapshotDetail
+> {
+  return request<
+    import("@/types/succession-planning").SuccessionSnapshotDetail
+  >(
+    `/succession-planning/snapshots/${snapshotId}`,
+  );
+}
