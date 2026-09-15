@@ -33896,3 +33896,346 @@ div > strong {
     grid-column: auto;
   }
 }
+
+/* STEP 61 — APPROVED INTERVENTION EXECUTION & CAPITAL REALLOCATION TRACKING */
+
+.execution-score-grid,
+.execution-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.execution-value-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.execution-score-grid article,
+.execution-detail-grid article,
+.execution-value-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.execution-score-grid span,
+.execution-detail-grid span,
+.execution-value-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.execution-score-grid strong,
+.execution-detail-grid strong,
+.execution-value-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+}
+
+.execution-score-card {
+  border-color: #abefc6 !important;
+  background: #ecfdf3 !important;
+  color: #027a48;
+}
+
+.execution-risk-text {
+  color: #b42318 !important;
+  font-weight: 700;
+}
+
+.execution-health,
+.execution-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 5.8px;
+  font-weight: 700;
+}
+
+.execution-health--not-started,
+.execution-status--planned {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.execution-health--in-progress,
+.execution-status--active,
+.execution-status--ready-for-verification {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.execution-health--complete,
+.execution-status--verified {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.execution-health--variance {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.execution-health--remediation-required,
+.execution-status--remediation-required {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.execution-status--closed {
+  background: #f2f4f7;
+  color: #344054;
+}
+
+.execution-case-form,
+.execution-evidence-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.execution-form-wide {
+  grid-column: 1 / -1;
+}
+
+.execution-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 11px;
+}
+
+.execution-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.execution-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.execution-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.execution-objective,
+.execution-governance-copy {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.execution-context-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.execution-context-grid > div {
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.execution-context-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.6px;
+}
+
+.execution-context-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 7px;
+}
+
+.execution-target-note {
+  margin-top: 10px;
+  padding: 9px;
+  border: 1px solid #b2ddff;
+  border-radius: 6px;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.execution-target-note strong {
+  display: block;
+  font-size: 7px;
+}
+
+.execution-target-note p {
+  margin: 4px 0 0;
+  font-size: 6.5px;
+}
+
+.execution-source-links {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.execution-ack-record {
+  padding: 11px;
+  border: 1px solid #abefc6;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.execution-ack-record strong {
+  display: block;
+  font-size: 8px;
+}
+
+.execution-ack-record p {
+  margin: 5px 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.execution-ack-record small {
+  font-size: 5.8px;
+}
+
+.execution-evidence-list,
+.execution-verification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.execution-evidence-list article,
+.execution-verification-list article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.execution-evidence-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.execution-evidence-heading strong,
+.execution-verification-list strong {
+  display: block;
+  font-size: 7.5px;
+}
+
+.execution-evidence-heading span,
+.execution-evidence-heading small,
+.execution-verification-list span,
+.execution-verification-list small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.execution-evidence-list p,
+.execution-verification-list p {
+  margin: 7px 0;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+  line-height: 1.5;
+}
+
+.execution-decision-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.execution-decision-actions button,
+.execution-danger-button {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.execution-danger-button {
+  color: #b42318 !important;
+  border-color: #fecdca !important;
+}
+
+.execution-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #b2ddff;
+  border-radius: 8px;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.execution-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.execution-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.execution-empty {
+  padding: 18px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  text-align: center;
+}
+
+@media (max-width: 1150px) {
+  .execution-score-grid,
+  .execution-detail-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .execution-value-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 750px) {
+  .execution-detail-heading,
+  .execution-evidence-heading,
+  .execution-source-links,
+  .execution-decision-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .execution-score-grid,
+  .execution-detail-grid,
+  .execution-value-grid,
+  .execution-case-form,
+  .execution-evidence-form,
+  .execution-context-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .execution-form-wide {
+    grid-column: auto;
+  }
+}

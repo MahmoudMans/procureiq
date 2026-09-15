@@ -10327,3 +10327,187 @@ export async function getInvestmentInterventionSnapshot(
     `/investment-interventions/snapshots/${snapshotId}`,
   );
 }
+
+export async function getInterventionExecutionDashboard(): Promise<
+  import("@/types/intervention-execution").InterventionExecutionDashboard
+> {
+  return request<
+    import("@/types/intervention-execution").InterventionExecutionDashboard
+  >(
+    "/intervention-execution",
+  );
+}
+
+export async function createInterventionExecutionCase(
+  interventionCaseId: string,
+  input: {
+    executionOwnerUserId: string;
+    executionObjective: string;
+  },
+): Promise<
+  import("@/types/intervention-execution").InterventionExecutionCaseDetail
+> {
+  return request<
+    import("@/types/intervention-execution").InterventionExecutionCaseDetail
+  >(
+    `/intervention-execution/interventions/${interventionCaseId}/cases`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getInterventionExecutionCase(
+  executionCaseId: string,
+): Promise<
+  import("@/types/intervention-execution").InterventionExecutionCaseDetail
+> {
+  return request<
+    import("@/types/intervention-execution").InterventionExecutionCaseDetail
+  >(
+    `/intervention-execution/cases/${executionCaseId}`,
+  );
+}
+
+export async function acknowledgeInterventionExecution(
+  executionCaseId: string,
+  acknowledgementNote: string,
+): Promise<
+  import("@/types/intervention-execution").InterventionExecutionCaseDetail
+> {
+  return request<
+    import("@/types/intervention-execution").InterventionExecutionCaseDetail
+  >(
+    `/intervention-execution/cases/${executionCaseId}/acknowledge`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        acknowledgementNote,
+      }),
+    },
+  );
+}
+
+export async function startInterventionExecution(
+  executionCaseId: string,
+): Promise<
+  import("@/types/intervention-execution").InterventionExecutionCaseDetail
+> {
+  return request<
+    import("@/types/intervention-execution").InterventionExecutionCaseDetail
+  >(
+    `/intervention-execution/cases/${executionCaseId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function recordInterventionExecutionEvidence(
+  executionCaseId: string,
+  input: {
+    implementedOn: string;
+    implementedCapitalAmount: number;
+    evidenceNote: string;
+    referenceText: string;
+  },
+): Promise<
+  import("@/types/intervention-execution").InterventionExecutionCaseDetail
+> {
+  return request<
+    import("@/types/intervention-execution").InterventionExecutionCaseDetail
+  >(
+    `/intervention-execution/cases/${executionCaseId}/evidence`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function submitInterventionExecutionForVerification(
+  executionCaseId: string,
+): Promise<
+  import("@/types/intervention-execution").InterventionExecutionCaseDetail
+> {
+  return request<
+    import("@/types/intervention-execution").InterventionExecutionCaseDetail
+  >(
+    `/intervention-execution/cases/${executionCaseId}/ready-for-verification`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function verifyInterventionExecution(
+  executionCaseId: string,
+  input: {
+    decision:
+      import("@/types/intervention-execution").InterventionExecutionVerificationDecision;
+    verificationNote: string;
+  },
+): Promise<
+  import("@/types/intervention-execution").InterventionExecutionCaseDetail
+> {
+  return request<
+    import("@/types/intervention-execution").InterventionExecutionCaseDetail
+  >(
+    `/intervention-execution/cases/${executionCaseId}/verify`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function closeInterventionExecutionCase(
+  executionCaseId: string,
+  note: string,
+): Promise<
+  import("@/types/intervention-execution").InterventionExecutionCaseDetail
+> {
+  return request<
+    import("@/types/intervention-execution").InterventionExecutionCaseDetail
+  >(
+    `/intervention-execution/cases/${executionCaseId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureInterventionExecutionSnapshot(): Promise<
+  import("@/types/intervention-execution").InterventionExecutionSnapshotDetail
+> {
+  return request<
+    import("@/types/intervention-execution").InterventionExecutionSnapshotDetail
+  >(
+    "/intervention-execution/snapshots",
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getInterventionExecutionSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/intervention-execution").InterventionExecutionSnapshotDetail
+> {
+  return request<
+    import("@/types/intervention-execution").InterventionExecutionSnapshotDetail
+  >(
+    `/intervention-execution/snapshots/${snapshotId}`,
+  );
+}
