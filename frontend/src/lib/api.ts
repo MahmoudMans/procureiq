@@ -8938,3 +8938,260 @@ export async function getStrategyExecutionReview(
     `/strategy-execution/reviews/${reviewId}`,
   );
 }
+
+export async function getStrategyRecoveryDashboard(): Promise<
+  import("@/types/strategy-recovery").StrategyRecoveryDashboard
+> {
+  return request<
+    import("@/types/strategy-recovery").StrategyRecoveryDashboard
+  >(
+    "/strategy-recovery",
+  );
+}
+
+export async function openStrategyRecoveryCase(
+  commitmentId: string,
+  input: {
+    recoveryOwnerUserId: string;
+    targetRecoveryDate: string;
+    recoveryObjective: string;
+  },
+): Promise<
+  import("@/types/strategy-recovery").RecoveryCaseDetail
+> {
+  return request<
+    import("@/types/strategy-recovery").RecoveryCaseDetail
+  >(
+    `/strategy-recovery/commitments/${commitmentId}/cases`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getStrategyRecoveryCase(
+  caseId: string,
+): Promise<
+  import("@/types/strategy-recovery").RecoveryCaseDetail
+> {
+  return request<
+    import("@/types/strategy-recovery").RecoveryCaseDetail
+  >(
+    `/strategy-recovery/cases/${caseId}`,
+  );
+}
+
+export async function startStrategyRecoveryCase(
+  caseId: string,
+): Promise<
+  import("@/types/strategy-recovery").RecoveryCaseDetail
+> {
+  return request<
+    import("@/types/strategy-recovery").RecoveryCaseDetail
+  >(
+    `/strategy-recovery/cases/${caseId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function createStrategyRecoveryAction(
+  caseId: string,
+  input: {
+    title: string;
+    description?: string;
+    ownerUserId: string;
+    dueDate: string;
+  },
+): Promise<
+  import("@/types/strategy-recovery").RecoveryCaseDetail
+> {
+  return request<
+    import("@/types/strategy-recovery").RecoveryCaseDetail
+  >(
+    `/strategy-recovery/cases/${caseId}/actions`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startStrategyRecoveryAction(
+  actionId: string,
+): Promise<
+  import("@/types/strategy-recovery").RecoveryCaseDetail
+> {
+  return request<
+    import("@/types/strategy-recovery").RecoveryCaseDetail
+  >(
+    `/strategy-recovery/actions/${actionId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function completeStrategyRecoveryAction(
+  actionId: string,
+  note: string,
+): Promise<
+  import("@/types/strategy-recovery").RecoveryCaseDetail
+> {
+  return request<
+    import("@/types/strategy-recovery").RecoveryCaseDetail
+  >(
+    `/strategy-recovery/actions/${actionId}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function cancelStrategyRecoveryAction(
+  actionId: string,
+  note: string,
+): Promise<
+  import("@/types/strategy-recovery").RecoveryCaseDetail
+> {
+  return request<
+    import("@/types/strategy-recovery").RecoveryCaseDetail
+  >(
+    `/strategy-recovery/actions/${actionId}/cancel`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureStrategyRecoveryCheckpoint(
+  caseId: string,
+  checkpointNote: string,
+): Promise<
+  import("@/types/strategy-recovery").RecoveryCaseDetail
+> {
+  return request<
+    import("@/types/strategy-recovery").RecoveryCaseDetail
+  >(
+    `/strategy-recovery/cases/${caseId}/checkpoints`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        checkpointNote,
+      }),
+    },
+  );
+}
+
+export async function escalateStrategyRecoveryCase(
+  caseId: string,
+  input: {
+    escalationLevel:
+      import("@/types/strategy-recovery").RecoveryEscalationLevel;
+    reason: string;
+  },
+): Promise<
+  import("@/types/strategy-recovery").RecoveryCaseDetail
+> {
+  return request<
+    import("@/types/strategy-recovery").RecoveryCaseDetail
+  >(
+    `/strategy-recovery/cases/${caseId}/escalations`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function markStrategyRecoveryReady(
+  caseId: string,
+): Promise<
+  import("@/types/strategy-recovery").RecoveryCaseDetail
+> {
+  return request<
+    import("@/types/strategy-recovery").RecoveryCaseDetail
+  >(
+    `/strategy-recovery/cases/${caseId}/ready-for-verification`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function verifyStrategyRecoveryCase(
+  caseId: string,
+  note: string,
+): Promise<
+  import("@/types/strategy-recovery").RecoveryCaseDetail
+> {
+  return request<
+    import("@/types/strategy-recovery").RecoveryCaseDetail
+  >(
+    `/strategy-recovery/cases/${caseId}/verify`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function closeStrategyRecoveryCase(
+  caseId: string,
+  note: string,
+): Promise<
+  import("@/types/strategy-recovery").RecoveryCaseDetail
+> {
+  return request<
+    import("@/types/strategy-recovery").RecoveryCaseDetail
+  >(
+    `/strategy-recovery/cases/${caseId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureStrategyRecoveryReview(): Promise<
+  import("@/types/strategy-recovery").RecoveryReviewDetail
+> {
+  return request<
+    import("@/types/strategy-recovery").RecoveryReviewDetail
+  >(
+    "/strategy-recovery/reviews",
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getStrategyRecoveryReview(
+  reviewId: string,
+): Promise<
+  import("@/types/strategy-recovery").RecoveryReviewDetail
+> {
+  return request<
+    import("@/types/strategy-recovery").RecoveryReviewDetail
+  >(
+    `/strategy-recovery/reviews/${reviewId}`,
+  );
+}

@@ -181,7 +181,12 @@ const coreNavigation = [
     href: "/strategy-execution",
     label: "Strategy execution",
     icon: Goal,
+  },  {
+    href: "/strategy-recovery",
+    label: "Execution recovery",
+    icon: Goal,
   },
+
 
 
 
@@ -522,6 +527,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/strategy-execution"
+          ||
+          item.href ===
+            "/strategy-recovery"
 ) {
           return canViewAnalytics;
         }
