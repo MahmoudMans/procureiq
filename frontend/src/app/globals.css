@@ -32464,3 +32464,318 @@ div > strong {
     grid-column: auto;
   }
 }
+
+/* STEP 57 — STRATEGIC CAPITAL ALLOCATION & INVESTMENT PRIORITIZATION */
+
+.allocation-score-grid,
+.allocation-detail-grid,
+.allocation-signal-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.allocation-score-grid article,
+.allocation-detail-grid article,
+.allocation-signal-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.allocation-score-grid span,
+.allocation-detail-grid span,
+.allocation-signal-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.allocation-score-grid strong,
+.allocation-detail-grid strong,
+.allocation-signal-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+}
+
+.allocation-budget-card {
+  border-color: #b2ddff !important;
+  background: #eff8ff !important;
+  color: #175cd3;
+}
+
+.allocation-risk-text {
+  color: #b42318 !important;
+  font-weight: 700;
+}
+
+.allocation-status,
+.allocation-decision {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 5.8px;
+  font-weight: 700;
+}
+
+.allocation-status--draft,
+.allocation-decision--pending {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.allocation-status--in-review {
+  background: #f4f3ff;
+  color: #5925dc;
+}
+
+.allocation-status--approved,
+.allocation-decision--fund {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.allocation-status--closed {
+  background: #f2f4f7;
+  color: #344054;
+}
+
+.allocation-decision--defer {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.allocation-decision--reject {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.allocation-link-button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.allocation-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.allocation-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.allocation-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.allocation-objective p,
+.allocation-governance-copy {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.allocation-cycle-signals {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.allocation-cycle-signals > div {
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.allocation-cycle-signals span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.6px;
+}
+
+.allocation-cycle-signals strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 7px;
+}
+
+.allocation-cycle-form,
+.allocation-add-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.allocation-form-wide {
+  grid-column: 1 / -1;
+}
+
+.allocation-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 11px;
+}
+
+.allocation-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #fecdca;
+  border-radius: 5px;
+  background: #fff;
+  color: #b42318;
+  cursor: pointer;
+}
+
+.allocation-decision-note {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-tertiary);
+  font-size: 5.4px;
+  line-height: 1.35;
+}
+
+.allocation-decision-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.allocation-decision-list article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.allocation-decision-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.allocation-decision-heading strong {
+  display: block;
+  font-size: 7.5px;
+}
+
+.allocation-decision-heading span {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.allocation-decision-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.allocation-decision-actions button,
+.allocation-danger-button {
+  min-height: 31px;
+  padding: 0 9px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.allocation-danger-button {
+  border-color: #fecdca !important;
+  color: #b42318 !important;
+}
+
+.allocation-approval-note {
+  padding: 11px;
+  border: 1px solid #abefc6;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.allocation-approval-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.allocation-approval-note p {
+  margin: 5px 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.allocation-approval-note small {
+  font-size: 5.8px;
+}
+
+.allocation-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #b2ddff;
+  border-radius: 8px;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.allocation-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.allocation-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+@media (max-width: 1150px) {
+  .allocation-score-grid,
+  .allocation-detail-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .allocation-cycle-form,
+  .allocation-add-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 750px) {
+  .allocation-detail-heading,
+  .allocation-decision-heading,
+  .allocation-decision-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .allocation-score-grid,
+  .allocation-detail-grid,
+  .allocation-cycle-signals,
+  .allocation-cycle-form,
+  .allocation-add-form {
+    grid-template-columns: 1fr;
+  }
+
+  .allocation-form-wide {
+    grid-column: auto;
+  }
+}

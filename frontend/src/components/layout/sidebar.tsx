@@ -193,7 +193,12 @@ const coreNavigation = [
     href: "/strategic-value",
     label: "Strategic value",
     icon: Goal,
+  },  {
+    href: "/capital-allocation",
+    label: "Capital allocation",
+    icon: Goal,
   },
+
 
 
 
@@ -546,6 +551,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/strategic-value"
+          ||
+          item.href ===
+            "/capital-allocation"
 ) {
           return canViewAnalytics;
         }

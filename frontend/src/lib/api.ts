@@ -9576,3 +9576,189 @@ export async function getStrategicValueReview(
     `/strategic-value/reviews/${reviewId}`,
   );
 }
+
+export async function getCapitalAllocationDashboard(): Promise<
+  import("@/types/capital-allocation").CapitalAllocationDashboard
+> {
+  return request<
+    import("@/types/capital-allocation").CapitalAllocationDashboard
+  >(
+    "/capital-allocation",
+  );
+}
+
+export async function createCapitalAllocationCycle(
+  input: {
+    title: string;
+    currency: string;
+    fiscalYear: number;
+    budgetAmount: number;
+    objective: string;
+  },
+): Promise<
+  import("@/types/capital-allocation").CapitalAllocationCycleDetail
+> {
+  return request<
+    import("@/types/capital-allocation").CapitalAllocationCycleDetail
+  >(
+    "/capital-allocation/cycles",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getCapitalAllocationCycle(
+  cycleId: string,
+): Promise<
+  import("@/types/capital-allocation").CapitalAllocationCycleDetail
+> {
+  return request<
+    import("@/types/capital-allocation").CapitalAllocationCycleDetail
+  >(
+    `/capital-allocation/cycles/${cycleId}`,
+  );
+}
+
+export async function addCapitalAllocationItem(
+  cycleId: string,
+  input: {
+    valueCaseId: string;
+    requestedCapitalAmount: number;
+  },
+): Promise<
+  import("@/types/capital-allocation").CapitalAllocationCycleDetail
+> {
+  return request<
+    import("@/types/capital-allocation").CapitalAllocationCycleDetail
+  >(
+    `/capital-allocation/cycles/${cycleId}/items`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function removeCapitalAllocationItem(
+  itemId: string,
+): Promise<
+  import("@/types/capital-allocation").CapitalAllocationCycleDetail
+> {
+  return request<
+    import("@/types/capital-allocation").CapitalAllocationCycleDetail
+  >(
+    `/capital-allocation/items/${itemId}`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+
+export async function submitCapitalAllocationCycle(
+  cycleId: string,
+): Promise<
+  import("@/types/capital-allocation").CapitalAllocationCycleDetail
+> {
+  return request<
+    import("@/types/capital-allocation").CapitalAllocationCycleDetail
+  >(
+    `/capital-allocation/cycles/${cycleId}/submit`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function decideCapitalAllocationItem(
+  itemId: string,
+  input: {
+    decision:
+      import("@/types/capital-allocation").CapitalAllocationDecision;
+    decisionNote: string;
+  },
+): Promise<
+  import("@/types/capital-allocation").CapitalAllocationCycleDetail
+> {
+  return request<
+    import("@/types/capital-allocation").CapitalAllocationCycleDetail
+  >(
+    `/capital-allocation/items/${itemId}/decision`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function approveCapitalAllocationCycle(
+  cycleId: string,
+  note: string,
+): Promise<
+  import("@/types/capital-allocation").CapitalAllocationCycleDetail
+> {
+  return request<
+    import("@/types/capital-allocation").CapitalAllocationCycleDetail
+  >(
+    `/capital-allocation/cycles/${cycleId}/approve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function closeCapitalAllocationCycle(
+  cycleId: string,
+  note: string,
+): Promise<
+  import("@/types/capital-allocation").CapitalAllocationCycleDetail
+> {
+  return request<
+    import("@/types/capital-allocation").CapitalAllocationCycleDetail
+  >(
+    `/capital-allocation/cycles/${cycleId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureCapitalAllocationSnapshot(
+  cycleId: string,
+): Promise<
+  import("@/types/capital-allocation").CapitalAllocationSnapshotDetail
+> {
+  return request<
+    import("@/types/capital-allocation").CapitalAllocationSnapshotDetail
+  >(
+    `/capital-allocation/cycles/${cycleId}/snapshots`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getCapitalAllocationSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/capital-allocation").CapitalAllocationSnapshotDetail
+> {
+  return request<
+    import("@/types/capital-allocation").CapitalAllocationSnapshotDetail
+  >(
+    `/capital-allocation/snapshots/${snapshotId}`,
+  );
+}
