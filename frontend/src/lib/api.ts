@@ -10176,3 +10176,154 @@ export async function getInvestmentPerformanceSnapshot(
     `/investment-performance/snapshots/${snapshotId}`,
   );
 }
+
+export async function getInvestmentInterventionDashboard(): Promise<
+  import("@/types/investment-intervention").InvestmentInterventionDashboard
+> {
+  return request<
+    import("@/types/investment-intervention").InvestmentInterventionDashboard
+  >(
+    "/investment-interventions",
+  );
+}
+
+export async function createInvestmentInterventionCase(
+  performanceCaseId: string,
+  input: {
+    interventionOwnerUserId: string;
+    interventionRationale: string;
+  },
+): Promise<
+  import("@/types/investment-intervention").InvestmentInterventionCaseDetail
+> {
+  return request<
+    import("@/types/investment-intervention").InvestmentInterventionCaseDetail
+  >(
+    `/investment-interventions/performance-cases/${performanceCaseId}/cases`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getInvestmentInterventionCase(
+  caseId: string,
+): Promise<
+  import("@/types/investment-intervention").InvestmentInterventionCaseDetail
+> {
+  return request<
+    import("@/types/investment-intervention").InvestmentInterventionCaseDetail
+  >(
+    `/investment-interventions/cases/${caseId}`,
+  );
+}
+
+export async function proposeInvestmentInterventionAction(
+  caseId: string,
+  input: {
+    actionType:
+      import("@/types/investment-intervention").InvestmentInterventionAction;
+    affectedCapitalAmount: number;
+    targetValueCaseId?: string;
+    proposalRationale: string;
+  },
+): Promise<
+  import("@/types/investment-intervention").InvestmentInterventionCaseDetail
+> {
+  return request<
+    import("@/types/investment-intervention").InvestmentInterventionCaseDetail
+  >(
+    `/investment-interventions/cases/${caseId}/proposals`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function submitInvestmentInterventionForReview(
+  caseId: string,
+): Promise<
+  import("@/types/investment-intervention").InvestmentInterventionCaseDetail
+> {
+  return request<
+    import("@/types/investment-intervention").InvestmentInterventionCaseDetail
+  >(
+    `/investment-interventions/cases/${caseId}/submit`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function decideInvestmentIntervention(
+  caseId: string,
+  input: {
+    decision:
+      import("@/types/investment-intervention").InvestmentInterventionDecision;
+    decisionNote: string;
+  },
+): Promise<
+  import("@/types/investment-intervention").InvestmentInterventionCaseDetail
+> {
+  return request<
+    import("@/types/investment-intervention").InvestmentInterventionCaseDetail
+  >(
+    `/investment-interventions/cases/${caseId}/decide`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function closeInvestmentInterventionCase(
+  caseId: string,
+  note: string,
+): Promise<
+  import("@/types/investment-intervention").InvestmentInterventionCaseDetail
+> {
+  return request<
+    import("@/types/investment-intervention").InvestmentInterventionCaseDetail
+  >(
+    `/investment-interventions/cases/${caseId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureInvestmentInterventionSnapshot(): Promise<
+  import("@/types/investment-intervention").InvestmentInterventionSnapshotDetail
+> {
+  return request<
+    import("@/types/investment-intervention").InvestmentInterventionSnapshotDetail
+  >(
+    "/investment-interventions/snapshots",
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getInvestmentInterventionSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/investment-intervention").InvestmentInterventionSnapshotDetail
+> {
+  return request<
+    import("@/types/investment-intervention").InvestmentInterventionSnapshotDetail
+  >(
+    `/investment-interventions/snapshots/${snapshotId}`,
+  );
+}

@@ -33540,3 +33540,359 @@ div > strong {
     grid-column: auto;
   }
 }
+
+/* STEP 60 — STRATEGIC INVESTMENT INTERVENTION & CAPITAL REALLOCATION GOVERNANCE */
+
+.intervention-score-grid,
+.intervention-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.intervention-value-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.intervention-score-grid article,
+.intervention-detail-grid article,
+.intervention-value-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.intervention-score-grid span,
+.intervention-detail-grid span,
+.intervention-value-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.intervention-score-grid strong,
+.intervention-detail-grid strong,
+.intervention-value-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+}
+
+.intervention-score-card {
+  border-color: #fedf89 !important;
+  background: #fffaeb !important;
+  color: #b54708;
+}
+
+.intervention-risk-text {
+  color: #b42318 !important;
+  font-weight: 700;
+}
+
+.intervention-action,
+.intervention-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 5.8px;
+  font-weight: 700;
+}
+
+.intervention-action--continue {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.intervention-action--hold-future-releases {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.intervention-action--reduce-unreleased {
+  background: #fff6ed;
+  color: #c4320a;
+}
+
+.intervention-action--reallocate-unreleased {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.intervention-status--open {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.intervention-status--in-review {
+  background: #f4f3ff;
+  color: #5925dc;
+}
+
+.intervention-status--approved {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.intervention-status--closed {
+  background: #f2f4f7;
+  color: #344054;
+}
+
+.intervention-case-form,
+.intervention-proposal-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.intervention-form-wide {
+  grid-column: 1 / -1;
+}
+
+.intervention-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 11px;
+}
+
+.intervention-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.intervention-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.intervention-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.intervention-rationale {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.intervention-comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.intervention-comparison-grid > div {
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.intervention-comparison-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.6px;
+}
+
+.intervention-comparison-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 7px;
+}
+
+.intervention-recommendation {
+  padding: 11px;
+  border: 1px solid #fedf89;
+  border-radius: 8px;
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.intervention-recommendation strong {
+  display: block;
+  font-size: 8px;
+}
+
+.intervention-recommendation p {
+  margin: 5px 0;
+  font-size: 7px;
+}
+
+.intervention-recommendation small {
+  font-size: 5.8px;
+}
+
+.intervention-source-links {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.intervention-decision-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.intervention-decision-actions button,
+.intervention-danger-button {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.intervention-danger-button {
+  color: #b42318 !important;
+  border-color: #fecdca !important;
+}
+
+.intervention-proposal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.intervention-proposal-list article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.intervention-proposal-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.intervention-proposal-heading strong {
+  display: block;
+  font-size: 7.5px;
+}
+
+.intervention-proposal-heading span,
+.intervention-proposal-list small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.intervention-proposal-list p {
+  margin: 7px 0;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+  line-height: 1.5;
+}
+
+.intervention-decision-record {
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid #d6bbfb;
+  border-radius: 6px;
+  background: #f4f3ff;
+  color: #5925dc;
+}
+
+.intervention-decision-record strong {
+  font-size: 7px;
+}
+
+.intervention-approved-record {
+  padding: 11px;
+  border: 1px solid #abefc6;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.intervention-approved-record strong {
+  display: block;
+  font-size: 8px;
+}
+
+.intervention-approved-record p {
+  margin: 5px 0;
+  font-size: 7px;
+}
+
+.intervention-approved-record small {
+  font-size: 5.8px;
+}
+
+.intervention-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #b2ddff;
+  border-radius: 8px;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.intervention-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.intervention-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.intervention-empty {
+  padding: 18px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  text-align: center;
+}
+
+@media (max-width: 1150px) {
+  .intervention-score-grid,
+  .intervention-detail-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .intervention-value-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 750px) {
+  .intervention-detail-heading,
+  .intervention-proposal-heading,
+  .intervention-source-links,
+  .intervention-decision-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .intervention-score-grid,
+  .intervention-detail-grid,
+  .intervention-value-grid,
+  .intervention-case-form,
+  .intervention-proposal-form,
+  .intervention-comparison-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .intervention-form-wide {
+    grid-column: auto;
+  }
+}
