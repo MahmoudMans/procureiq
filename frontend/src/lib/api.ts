@@ -11245,3 +11245,140 @@ export async function getReinvestmentPersistenceSnapshot(
     `/reinvestment-persistence/snapshots/${snapshotId}`,
   );
 }
+
+export async function getCapitalFlywheelDashboard(): Promise<
+  import("@/types/capital-flywheel").CapitalFlywheelDashboard
+> {
+  return request<
+    import("@/types/capital-flywheel").CapitalFlywheelDashboard
+  >(
+    "/capital-flywheel",
+  );
+}
+
+export async function createCapitalFlywheelLineage(
+  persistenceCaseId: string,
+  input: {
+    lineageOwnerUserId: string;
+    maximumCycleCount: number;
+    minimumMarginalValueMultiple: number;
+    minimumCycleEfficiencyRetentionPct: number;
+    diminishingReturnTolerancePct: number;
+    lineageObjective: string;
+  },
+): Promise<
+  import("@/types/capital-flywheel").CapitalFlywheelLineageDetail
+> {
+  return request<
+    import("@/types/capital-flywheel").CapitalFlywheelLineageDetail
+  >(
+    `/capital-flywheel/persistence-cases/${persistenceCaseId}/lineages`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getCapitalFlywheelLineage(
+  lineageId: string,
+): Promise<
+  import("@/types/capital-flywheel").CapitalFlywheelLineageDetail
+> {
+  return request<
+    import("@/types/capital-flywheel").CapitalFlywheelLineageDetail
+  >(
+    `/capital-flywheel/lineages/${lineageId}`,
+  );
+}
+
+export async function appendCapitalFlywheelCycle(
+  lineageId: string,
+  input: {
+    persistenceCaseId: string;
+    relationshipRationale: string;
+  },
+): Promise<
+  import("@/types/capital-flywheel").CapitalFlywheelLineageDetail
+> {
+  return request<
+    import("@/types/capital-flywheel").CapitalFlywheelLineageDetail
+  >(
+    `/capital-flywheel/lineages/${lineageId}/cycles`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function reviewCapitalFlywheelLineage(
+  lineageId: string,
+  input: {
+    decision:
+      import("@/types/capital-flywheel").CapitalFlywheelReviewDecision;
+    decisionNote: string;
+  },
+): Promise<
+  import("@/types/capital-flywheel").CapitalFlywheelLineageDetail
+> {
+  return request<
+    import("@/types/capital-flywheel").CapitalFlywheelLineageDetail
+  >(
+    `/capital-flywheel/lineages/${lineageId}/review`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function closeCapitalFlywheelLineage(
+  lineageId: string,
+  note: string,
+): Promise<
+  import("@/types/capital-flywheel").CapitalFlywheelLineageDetail
+> {
+  return request<
+    import("@/types/capital-flywheel").CapitalFlywheelLineageDetail
+  >(
+    `/capital-flywheel/lineages/${lineageId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureCapitalFlywheelSnapshot(): Promise<
+  import("@/types/capital-flywheel").CapitalFlywheelSnapshotDetail
+> {
+  return request<
+    import("@/types/capital-flywheel").CapitalFlywheelSnapshotDetail
+  >(
+    "/capital-flywheel/snapshots",
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getCapitalFlywheelSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/capital-flywheel").CapitalFlywheelSnapshotDetail
+> {
+  return request<
+    import("@/types/capital-flywheel").CapitalFlywheelSnapshotDetail
+  >(
+    `/capital-flywheel/snapshots/${snapshotId}`,
+  );
+}

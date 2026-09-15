@@ -35510,3 +35510,306 @@ div > strong {
     grid-column: auto;
   }
 }
+
+/* STEP 66 — ENTERPRISE CAPITAL RECYCLING FLYWHEEL & MULTI-CYCLE VALUE COMPOUNDING */
+
+.flywheel-score-grid,
+.flywheel-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.flywheel-value-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.flywheel-score-grid article,
+.flywheel-detail-grid article,
+.flywheel-value-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.flywheel-score-grid span,
+.flywheel-detail-grid span,
+.flywheel-value-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.flywheel-score-grid strong,
+.flywheel-detail-grid strong,
+.flywheel-value-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+}
+
+.flywheel-score-card {
+  border-color: #abefc6 !important;
+  background: #ecfdf3 !important;
+  color: #027a48;
+}
+
+.flywheel-risk-text {
+  color: #b42318 !important;
+}
+
+.flywheel-health {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 5.8px;
+  font-weight: 700;
+}
+
+.flywheel-health--single-cycle {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.flywheel-health--compounding {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.flywheel-health--healthy {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.flywheel-health--diminishing {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.flywheel-health--exhausted {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.flywheel-lineage-form,
+.flywheel-cycle-form,
+.flywheel-review-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.flywheel-form-wide {
+  grid-column: 1 / -1;
+}
+
+.flywheel-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 11px;
+}
+
+.flywheel-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.flywheel-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.flywheel-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.flywheel-objective {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.flywheel-context-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.flywheel-context-grid > div {
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.flywheel-context-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.6px;
+}
+
+.flywheel-context-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 7px;
+}
+
+.flywheel-review-callout {
+  padding: 10px;
+  border: 1px solid #b2ddff;
+  border-radius: 7px;
+  background: #eff8ff;
+  color: #175cd3;
+  margin-bottom: 10px;
+}
+
+.flywheel-review-callout span {
+  display: block;
+  font-size: 5.8px;
+}
+
+.flywheel-review-callout strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+}
+
+.flywheel-review-callout p {
+  margin: 4px 0 0;
+  font-size: 6.5px;
+}
+
+.flywheel-review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.flywheel-review-list article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.flywheel-review-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.flywheel-review-heading strong {
+  display: block;
+  font-size: 7.5px;
+}
+
+.flywheel-review-heading span,
+.flywheel-review-list small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.flywheel-review-list p {
+  margin: 7px 0;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+  line-height: 1.5;
+}
+
+.flywheel-review-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.flywheel-review-metrics span {
+  padding: 6px;
+  border-radius: 5px;
+  background: white;
+  color: var(--text-tertiary);
+  font-size: 5.5px;
+}
+
+.flywheel-review-metrics strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-primary);
+  font-size: 6.7px;
+}
+
+.flywheel-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #b2ddff;
+  border-radius: 8px;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.flywheel-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.flywheel-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.flywheel-empty {
+  padding: 18px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  text-align: center;
+}
+
+@media (max-width: 1150px) {
+  .flywheel-score-grid,
+  .flywheel-detail-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .flywheel-value-grid,
+  .flywheel-context-grid,
+  .flywheel-review-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 750px) {
+  .flywheel-detail-heading,
+  .flywheel-review-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .flywheel-score-grid,
+  .flywheel-detail-grid,
+  .flywheel-value-grid,
+  .flywheel-lineage-form,
+  .flywheel-cycle-form,
+  .flywheel-review-form,
+  .flywheel-context-grid,
+  .flywheel-review-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .flywheel-form-wide {
+    grid-column: auto;
+  }
+}

@@ -229,7 +229,12 @@ const coreNavigation = [
     href: "/reinvestment-persistence",
     label: "Reinvestment persistence",
     icon: Goal,
+  },  {
+    href: "/capital-flywheel",
+    label: "Capital flywheel",
+    icon: Goal,
   },
+
 
 
 
@@ -618,6 +623,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/reinvestment-persistence"
+          ||
+          item.href ===
+            "/capital-flywheel"
 ) {
           return canViewAnalytics;
         }
