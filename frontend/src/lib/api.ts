@@ -9195,3 +9195,256 @@ export async function getStrategyRecoveryReview(
     `/strategy-recovery/reviews/${reviewId}`,
   );
 }
+
+export async function getOutcomePersistenceDashboard(): Promise<
+  import("@/types/outcome-persistence").OutcomePersistenceDashboard
+> {
+  return request<
+    import("@/types/outcome-persistence").OutcomePersistenceDashboard
+  >(
+    "/outcome-persistence",
+  );
+}
+
+export async function createOutcomePersistencePlan(
+  commitmentId: string,
+  input: {
+    persistenceOwnerUserId: string;
+    observationStartDate: string;
+    observationEndDate: string;
+    minimumPersistencePct: number;
+    persistenceObjective: string;
+  },
+): Promise<
+  import("@/types/outcome-persistence").PersistencePlanDetail
+> {
+  return request<
+    import("@/types/outcome-persistence").PersistencePlanDetail
+  >(
+    `/outcome-persistence/commitments/${commitmentId}/plans`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getOutcomePersistencePlan(
+  planId: string,
+): Promise<
+  import("@/types/outcome-persistence").PersistencePlanDetail
+> {
+  return request<
+    import("@/types/outcome-persistence").PersistencePlanDetail
+  >(
+    `/outcome-persistence/plans/${planId}`,
+  );
+}
+
+export async function recordOutcomePersistenceObservation(
+  planId: string,
+  input: {
+    observedOn: string;
+    reportedContributionPoints: number;
+    evidenceNote: string;
+  },
+): Promise<
+  import("@/types/outcome-persistence").PersistencePlanDetail
+> {
+  return request<
+    import("@/types/outcome-persistence").PersistencePlanDetail
+  >(
+    `/outcome-persistence/plans/${planId}/observations`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function validateOutcomePersistenceObservation(
+  observationId: string,
+  input: {
+    decision:
+      import("@/types/outcome-persistence").PersistenceValidationDecision;
+    validatedContributionPoints?: number;
+    validationNote: string;
+  },
+): Promise<
+  import("@/types/outcome-persistence").PersistencePlanDetail
+> {
+  return request<
+    import("@/types/outcome-persistence").PersistencePlanDetail
+  >(
+    `/outcome-persistence/observations/${observationId}/validate`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function createOutcomePersistenceControl(
+  planId: string,
+  input: {
+    title: string;
+    description?: string;
+    ownerUserId: string;
+    dueDate: string;
+  },
+): Promise<
+  import("@/types/outcome-persistence").PersistencePlanDetail
+> {
+  return request<
+    import("@/types/outcome-persistence").PersistencePlanDetail
+  >(
+    `/outcome-persistence/plans/${planId}/controls`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startOutcomePersistenceControl(
+  controlId: string,
+): Promise<
+  import("@/types/outcome-persistence").PersistencePlanDetail
+> {
+  return request<
+    import("@/types/outcome-persistence").PersistencePlanDetail
+  >(
+    `/outcome-persistence/controls/${controlId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function completeOutcomePersistenceControl(
+  controlId: string,
+  note: string,
+): Promise<
+  import("@/types/outcome-persistence").PersistencePlanDetail
+> {
+  return request<
+    import("@/types/outcome-persistence").PersistencePlanDetail
+  >(
+    `/outcome-persistence/controls/${controlId}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function cancelOutcomePersistenceControl(
+  controlId: string,
+  note: string,
+): Promise<
+  import("@/types/outcome-persistence").PersistencePlanDetail
+> {
+  return request<
+    import("@/types/outcome-persistence").PersistencePlanDetail
+  >(
+    `/outcome-persistence/controls/${controlId}/cancel`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function submitOutcomePersistenceForReview(
+  planId: string,
+): Promise<
+  import("@/types/outcome-persistence").PersistencePlanDetail
+> {
+  return request<
+    import("@/types/outcome-persistence").PersistencePlanDetail
+  >(
+    `/outcome-persistence/plans/${planId}/ready-for-review`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function verifyOutcomePersistence(
+  planId: string,
+  input: {
+    decision:
+      import("@/types/outcome-persistence").PersistenceVerificationDecision;
+    verificationNote: string;
+  },
+): Promise<
+  import("@/types/outcome-persistence").PersistencePlanDetail
+> {
+  return request<
+    import("@/types/outcome-persistence").PersistencePlanDetail
+  >(
+    `/outcome-persistence/plans/${planId}/verify`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function closeOutcomePersistencePlan(
+  planId: string,
+  note: string,
+): Promise<
+  import("@/types/outcome-persistence").PersistencePlanDetail
+> {
+  return request<
+    import("@/types/outcome-persistence").PersistencePlanDetail
+  >(
+    `/outcome-persistence/plans/${planId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureOutcomePersistenceReview(): Promise<
+  import("@/types/outcome-persistence").PersistenceReviewDetail
+> {
+  return request<
+    import("@/types/outcome-persistence").PersistenceReviewDetail
+  >(
+    "/outcome-persistence/reviews",
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getOutcomePersistenceReview(
+  reviewId: string,
+): Promise<
+  import("@/types/outcome-persistence").PersistenceReviewDetail
+> {
+  return request<
+    import("@/types/outcome-persistence").PersistenceReviewDetail
+  >(
+    `/outcome-persistence/reviews/${reviewId}`,
+  );
+}

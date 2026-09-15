@@ -31804,3 +31804,399 @@ div > strong {
     width: 100%;
   }
 }
+
+/* STEP 55 — STRATEGIC OUTCOME SUSTAINABILITY & BENEFITS PERSISTENCE */
+
+.persistence-score-grid,
+.persistence-comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.persistence-value-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.persistence-score-grid article,
+.persistence-comparison-grid article,
+.persistence-value-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.persistence-score-grid span,
+.persistence-comparison-grid span,
+.persistence-value-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.persistence-score-grid strong,
+.persistence-comparison-grid strong,
+.persistence-value-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+}
+
+.persistence-score-grid small,
+.persistence-comparison-grid small {
+  display: block;
+  margin-top: 2px;
+  font-size: 5.8px;
+}
+
+.persistence-score-card {
+  border-color: #abefc6 !important;
+  background: #ecfdf3 !important;
+  color: #027a48;
+}
+
+.persistence-risk-text {
+  color: #b42318 !important;
+  font-weight: 700;
+}
+
+.persistence-status,
+.persistence-health,
+.persistence-control-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 5.8px;
+  font-weight: 700;
+}
+
+.persistence-status--active,
+.persistence-control-status--in-progress {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.persistence-status--ready-for-review {
+  background: #f4f3ff;
+  color: #5925dc;
+}
+
+.persistence-status--in-remediation {
+  background: #fff4ed;
+  color: #c4320a;
+}
+
+.persistence-status--sustained,
+.persistence-health--sustained,
+.persistence-control-status--completed {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.persistence-status--closed,
+.persistence-health--unassessed,
+.persistence-control-status--planned,
+.persistence-control-status--cancelled {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.persistence-health--watch {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.persistence-health--decaying {
+  background: #fff4ed;
+  color: #c4320a;
+}
+
+.persistence-health--regressed {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.persistence-plan-form,
+.persistence-observation-form,
+.persistence-control-form,
+.persistence-verification-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.persistence-form-wide {
+  grid-column: 1 / -1;
+}
+
+.persistence-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 11px;
+}
+
+.persistence-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.persistence-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.persistence-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.persistence-objective p,
+.persistence-review-copy {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.persistence-context-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.persistence-context-grid > div {
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.persistence-context-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.6px;
+}
+
+.persistence-context-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 7px;
+}
+
+.persistence-source-link {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.persistence-observation-list,
+.persistence-control-list,
+.persistence-verification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.persistence-observation-list article,
+.persistence-control,
+.persistence-verification-list article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.persistence-observation-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.persistence-observation-heading strong,
+.persistence-control strong,
+.persistence-verification-list strong {
+  display: block;
+  font-size: 7.5px;
+}
+
+.persistence-observation-heading span,
+.persistence-observation-list small,
+.persistence-control small,
+.persistence-verification-list span,
+.persistence-verification-list small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.persistence-observation-list p,
+.persistence-control p,
+.persistence-verification-list p {
+  margin: 7px 0;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+  line-height: 1.5;
+}
+
+.persistence-validation-note {
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid #abefc6;
+  border-radius: 6px;
+  background: #ecfdf3;
+}
+
+.persistence-validation-control {
+  display: grid;
+  grid-template-columns: 130px 1fr auto auto;
+  gap: 6px;
+  align-items: end;
+  margin-top: 9px;
+}
+
+.persistence-validation-control button,
+.persistence-control-actions button,
+.persistence-danger-button {
+  min-height: 31px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.persistence-danger-button {
+  color: #b42318 !important;
+  border-color: #fecdca !important;
+}
+
+.persistence-control--overdue {
+  border-left: 3px solid #d92d20;
+}
+
+.persistence-control-evidence {
+  margin-top: 7px;
+  padding: 7px;
+  border: 1px solid #abefc6;
+  border-radius: 5px;
+  background: #ecfdf3;
+  color: #027a48;
+  font-size: 6px;
+}
+
+.persistence-control-actions {
+  display: flex;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.persistence-control-actions input {
+  flex: 1;
+  min-height: 31px;
+  padding: 0 7px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6px;
+}
+
+.persistence-closure-note {
+  padding: 11px;
+  border: 1px solid #abefc6;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.persistence-closure-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.persistence-closure-note p {
+  margin: 5px 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.persistence-closure-note small {
+  font-size: 5.8px;
+}
+
+.persistence-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #abefc6;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.persistence-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.persistence-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.persistence-empty {
+  padding: 18px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  text-align: center;
+}
+
+@media (max-width: 1150px) {
+  .persistence-score-grid,
+  .persistence-comparison-grid,
+  .persistence-value-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .persistence-validation-control {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 750px) {
+  .persistence-detail-heading,
+  .persistence-observation-heading,
+  .persistence-control-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .persistence-score-grid,
+  .persistence-comparison-grid,
+  .persistence-value-grid,
+  .persistence-plan-form,
+  .persistence-observation-form,
+  .persistence-control-form,
+  .persistence-verification-form,
+  .persistence-context-grid,
+  .persistence-validation-control {
+    grid-template-columns: 1fr;
+  }
+
+  .persistence-form-wide {
+    grid-column: auto;
+  }
+
+  .persistence-control-actions input {
+    width: 100%;
+  }
+}
