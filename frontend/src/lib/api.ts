@@ -8416,3 +8416,345 @@ export async function getStrategyScenarioEvaluation(
     `/strategy-scenarios/evaluations/${evaluationId}`,
   );
 }
+
+export async function getStrategyRoadmapDashboard(): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapDashboard
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapDashboard
+  >(
+    "/strategy-roadmaps",
+  );
+}
+
+export async function createStrategyRoadmap(
+  input: {
+    approvedScenarioId: string;
+    title: string;
+    objective: string;
+    startDate: string;
+    targetEndDate: string;
+  },
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapDetail
+  >(
+    "/strategy-roadmaps",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getStrategyRoadmap(
+  roadmapId: string,
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapDetail
+  >(
+    `/strategy-roadmaps/${roadmapId}`,
+  );
+}
+
+export async function activateStrategyRoadmap(
+  roadmapId: string,
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapDetail
+  >(
+    `/strategy-roadmaps/${roadmapId}/activate`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function holdStrategyRoadmap(
+  roadmapId: string,
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapDetail
+  >(
+    `/strategy-roadmaps/${roadmapId}/hold`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function completeStrategyRoadmap(
+  roadmapId: string,
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapDetail
+  >(
+    `/strategy-roadmaps/${roadmapId}/complete`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function archiveStrategyRoadmap(
+  roadmapId: string,
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapDetail
+  >(
+    `/strategy-roadmaps/${roadmapId}/archive`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function createRoadmapInitiative(
+  roadmapId: string,
+  input: {
+    title: string;
+    description?: string;
+    dimensionKey:
+      import("@/types/strategy-cockpit").BoardDimensionKey;
+    priority:
+      import("@/types/strategy-roadmap").RoadmapPriority;
+    ownerUserId: string;
+    plannedStartDate: string;
+    plannedEndDate: string;
+    plannedContributionPoints: number;
+  },
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapDetail
+  >(
+    `/strategy-roadmaps/${roadmapId}/initiatives`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function startRoadmapInitiative(
+  initiativeId: string,
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapDetail
+  >(
+    `/strategy-roadmaps/initiatives/${initiativeId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function completeRoadmapInitiative(
+  initiativeId: string,
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapDetail
+  >(
+    `/strategy-roadmaps/initiatives/${initiativeId}/complete`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function cancelRoadmapInitiative(
+  initiativeId: string,
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapDetail
+  >(
+    `/strategy-roadmaps/initiatives/${initiativeId}/cancel`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function createRoadmapDependency(
+  roadmapId: string,
+  input: {
+    predecessorInitiativeId: string;
+    successorInitiativeId: string;
+    dependencyType:
+      import("@/types/strategy-roadmap").RoadmapDependencyType;
+    rationale?: string;
+  },
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapDetail
+  >(
+    `/strategy-roadmaps/${roadmapId}/dependencies`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function deleteRoadmapDependency(
+  dependencyId: string,
+): Promise<void> {
+  return request<void>(
+    `/strategy-roadmaps/dependencies/${dependencyId}`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+
+export async function createRoadmapMilestone(
+  initiativeId: string,
+  input: {
+    title: string;
+    description?: string;
+    dueDate: string;
+  },
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapDetail
+  >(
+    `/strategy-roadmaps/initiatives/${initiativeId}/milestones`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function completeRoadmapMilestone(
+  milestoneId: string,
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapDetail
+  >(
+    `/strategy-roadmaps/milestones/${milestoneId}/complete`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function cancelRoadmapMilestone(
+  milestoneId: string,
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapDetail
+  >(
+    `/strategy-roadmaps/milestones/${milestoneId}/cancel`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function createRoadmapGate(
+  initiativeId: string,
+  input: {
+    gateName: string;
+    dueDate: string;
+  },
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapDetail
+  >(
+    `/strategy-roadmaps/initiatives/${initiativeId}/gates`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function decideRoadmapGate(
+  gateId: string,
+  decision:
+    | "APPROVED"
+    | "REJECTED"
+    | "WAIVED",
+  note: string,
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapDetail
+  >(
+    `/strategy-roadmaps/gates/${gateId}/decide?decision=${encodeURIComponent(decision)}`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureStrategyRoadmapSnapshot(
+  roadmapId: string,
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapSnapshotDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapSnapshotDetail
+  >(
+    `/strategy-roadmaps/${roadmapId}/snapshots`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getStrategyRoadmapSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/strategy-roadmap").StrategyRoadmapSnapshotDetail
+> {
+  return request<
+    import("@/types/strategy-roadmap").StrategyRoadmapSnapshotDetail
+  >(
+    `/strategy-roadmaps/snapshots/${snapshotId}`,
+  );
+}
