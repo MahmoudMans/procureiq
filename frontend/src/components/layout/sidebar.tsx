@@ -177,7 +177,12 @@ const coreNavigation = [
     href: "/strategy-roadmaps",
     label: "Strategy roadmaps",
     icon: Goal,
+  },  {
+    href: "/strategy-execution",
+    label: "Strategy execution",
+    icon: Goal,
   },
+
 
 
 
@@ -514,6 +519,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/strategy-roadmaps"
+          ||
+          item.href ===
+            "/strategy-execution"
 ) {
           return canViewAnalytics;
         }

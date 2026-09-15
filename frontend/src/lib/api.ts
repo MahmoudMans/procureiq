@@ -8758,3 +8758,183 @@ export async function getStrategyRoadmapSnapshot(
     `/strategy-roadmaps/snapshots/${snapshotId}`,
   );
 }
+
+export async function getStrategyExecutionDashboard(): Promise<
+  import("@/types/strategy-execution").StrategyExecutionDashboard
+> {
+  return request<
+    import("@/types/strategy-execution").StrategyExecutionDashboard
+  >(
+    "/strategy-execution",
+  );
+}
+
+export async function importStrategyExecutionRoadmap(
+  roadmapId: string,
+): Promise<
+  import("@/types/strategy-execution").StrategyExecutionDashboard
+> {
+  return request<
+    import("@/types/strategy-execution").StrategyExecutionDashboard
+  >(
+    `/strategy-execution/import?roadmapId=${encodeURIComponent(roadmapId)}`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getStrategyExecutionCommitment(
+  commitmentId: string,
+): Promise<
+  import("@/types/strategy-execution").ExecutionCommitmentDetail
+> {
+  return request<
+    import("@/types/strategy-execution").ExecutionCommitmentDetail
+  >(
+    `/strategy-execution/commitments/${commitmentId}`,
+  );
+}
+
+export async function startStrategyExecutionCommitment(
+  commitmentId: string,
+): Promise<
+  import("@/types/strategy-execution").ExecutionCommitmentDetail
+> {
+  return request<
+    import("@/types/strategy-execution").ExecutionCommitmentDetail
+  >(
+    `/strategy-execution/commitments/${commitmentId}/start`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function recordStrategyExecutionProgress(
+  commitmentId: string,
+  input: {
+    progressPct: number;
+    forecastEndDate: string;
+    blockerCount: number;
+    blockerSummary?: string;
+    updateNote: string;
+  },
+): Promise<
+  import("@/types/strategy-execution").ExecutionCommitmentDetail
+> {
+  return request<
+    import("@/types/strategy-execution").ExecutionCommitmentDetail
+  >(
+    `/strategy-execution/commitments/${commitmentId}/progress`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function completeStrategyExecutionCommitment(
+  commitmentId: string,
+): Promise<
+  import("@/types/strategy-execution").ExecutionCommitmentDetail
+> {
+  return request<
+    import("@/types/strategy-execution").ExecutionCommitmentDetail
+  >(
+    `/strategy-execution/commitments/${commitmentId}/complete`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function cancelStrategyExecutionCommitment(
+  commitmentId: string,
+): Promise<
+  import("@/types/strategy-execution").ExecutionCommitmentDetail
+> {
+  return request<
+    import("@/types/strategy-execution").ExecutionCommitmentDetail
+  >(
+    `/strategy-execution/commitments/${commitmentId}/cancel`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function reportStrategyExecutionOutcome(
+  commitmentId: string,
+  input: {
+    reportedContributionPoints: number;
+    evidenceNote: string;
+  },
+): Promise<
+  import("@/types/strategy-execution").ExecutionCommitmentDetail
+> {
+  return request<
+    import("@/types/strategy-execution").ExecutionCommitmentDetail
+  >(
+    `/strategy-execution/commitments/${commitmentId}/outcomes`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function validateStrategyExecutionOutcome(
+  outcomeId: string,
+  input: {
+    decision:
+      import("@/types/strategy-execution").ExecutionValidationDecision;
+    validatedContributionPoints?: number;
+    validationNote: string;
+  },
+): Promise<
+  import("@/types/strategy-execution").ExecutionCommitmentDetail
+> {
+  return request<
+    import("@/types/strategy-execution").ExecutionCommitmentDetail
+  >(
+    `/strategy-execution/outcomes/${outcomeId}/validate`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function captureStrategyExecutionReview(
+  roadmapId: string,
+): Promise<
+  import("@/types/strategy-execution").ExecutionReviewDetail
+> {
+  return request<
+    import("@/types/strategy-execution").ExecutionReviewDetail
+  >(
+    `/strategy-execution/reviews?roadmapId=${encodeURIComponent(roadmapId)}`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getStrategyExecutionReview(
+  reviewId: string,
+): Promise<
+  import("@/types/strategy-execution").ExecutionReviewDetail
+> {
+  return request<
+    import("@/types/strategy-execution").ExecutionReviewDetail
+  >(
+    `/strategy-execution/reviews/${reviewId}`,
+  );
+}
