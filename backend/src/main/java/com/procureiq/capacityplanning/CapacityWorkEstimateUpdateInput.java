@@ -1,0 +1,14 @@
+package com.procureiq.capacityplanning;
+
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
+
+import java.math.BigDecimal;
+
+public record CapacityWorkEstimateUpdateInput(
+
+        @NotNull
+        @DecimalMin("0.01")
+        BigDecimal estimatedEffortHours
+) {
+}

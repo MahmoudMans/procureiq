@@ -28913,3 +28913,335 @@ div > strong {
     grid-column: auto;
   }
 }
+
+/* STEP 47 — PROCUREMENT STRATEGIC CAPACITY PLANNING */
+
+.capacity-heading-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.capacity-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.capacity-filter span {
+  color: var(--text-tertiary);
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.capacity-filter select,
+.capacity-filter input {
+  min-height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8px;
+}
+
+.capacity-filter input {
+  width: 100px;
+}
+
+.capacity-score-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.capacity-score-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.capacity-score-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.capacity-score-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+}
+
+.capacity-score-grid small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-secondary);
+  font-size: 5.8px;
+}
+
+.capacity-score-card {
+  border-color: #b2ddff !important;
+  background: #eff8ff !important;
+  color: #175cd3;
+}
+
+.capacity-signal-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.capacity-signal-grid article {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.capacity-signal-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.capacity-signal-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px;
+}
+
+.capacity-risk-text {
+  color: #b42318 !important;
+  font-weight: 700;
+}
+
+.capacity-health,
+.capacity-work-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.capacity-health--healthy,
+.capacity-work-status--full {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.capacity-health--tight,
+.capacity-work-status--partial {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.capacity-health--overloaded,
+.capacity-health--critical,
+.capacity-work-status--unassigned,
+.capacity-work-status--unestimated {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.capacity-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.capacity-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.capacity-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.capacity-rebalance-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.capacity-rebalance-list article {
+  padding: 9px;
+  border: 1px solid #b2ddff;
+  border-radius: 7px;
+  background: #eff8ff;
+}
+
+.capacity-rebalance-list strong {
+  display: block;
+  color: #175cd3;
+  font-size: 7.5px;
+}
+
+.capacity-rebalance-list span {
+  display: block;
+  margin-top: 3px;
+  font-size: 6.5px;
+  font-weight: 700;
+}
+
+.capacity-rebalance-list p {
+  margin: 6px 0 0;
+  color: var(--text-secondary);
+  font-size: 6.2px;
+  line-height: 1.45;
+}
+
+.capacity-detail-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.capacity-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.capacity-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.capacity-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.capacity-detail-grid article {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.capacity-detail-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.capacity-detail-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px;
+}
+
+.capacity-assignment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.capacity-assignment-list article {
+  display: grid;
+  grid-template-columns: 1fr 120px auto;
+  align-items: center;
+  gap: 8px;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.capacity-assignment-list strong {
+  display: block;
+  font-size: 7px;
+}
+
+.capacity-assignment-list span {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.capacity-danger-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 30px;
+  padding: 0 8px;
+  border: 1px solid #fecdca;
+  border-radius: 5px;
+  background: white;
+  color: #b42318;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.capacity-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #b2ddff;
+  border-radius: 8px;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.capacity-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.capacity-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.capacity-empty {
+  padding: 18px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  text-align: center;
+}
+
+@media (max-width: 1100px) {
+  .capacity-score-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .capacity-signal-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .capacity-detail-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 750px) {
+  .capacity-heading-actions,
+  .capacity-detail-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .capacity-score-grid,
+  .capacity-signal-grid,
+  .capacity-detail-grid,
+  .capacity-form-grid,
+  .capacity-rebalance-list {
+    grid-template-columns: 1fr;
+  }
+
+  .capacity-assignment-list article {
+    grid-template-columns: 1fr;
+  }
+}

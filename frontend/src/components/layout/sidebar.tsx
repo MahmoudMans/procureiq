@@ -42,6 +42,7 @@ import {
   GaugeCircle,
   Wrench,
   Goal,
+  UsersRound,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -151,7 +152,12 @@ const coreNavigation = [
     href: "/strategic-alignment",
     label: "Strategic alignment",
     icon: Goal,
+  },  {
+    href: "/capacity-planning",
+    label: "Capacity planning",
+    icon: UsersRound,
   },
+
 
 
 
@@ -464,6 +470,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/strategic-alignment"
+          ||
+          item.href ===
+            "/capacity-planning"
 ) {
           return canViewAnalytics;
         }

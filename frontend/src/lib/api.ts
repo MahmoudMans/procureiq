@@ -7688,3 +7688,157 @@ export async function getStrategicAlignmentReview(
     `/strategic-alignment/reviews/${reviewId}`,
   );
 }
+
+export async function getCapacityPlanningDashboard(
+  currency = "EUR",
+  fiscalYear = new Date().getUTCFullYear(),
+): Promise<
+  import("@/types/capacity-planning").CapacityPlanningDashboard
+> {
+  return request<
+    import("@/types/capacity-planning").CapacityPlanningDashboard
+  >(
+    `/capacity-planning?currency=${encodeURIComponent(currency)}&fiscalYear=${encodeURIComponent(String(fiscalYear))}`,
+  );
+}
+
+export async function saveCapacityProfile(
+  userId: string,
+  fiscalYear: number,
+  input: {
+    annualCapacityHours: number;
+    reservedOperationalPct: number;
+    notes?: string;
+  },
+): Promise<
+  import("@/types/capacity-planning").CapacityProfile
+> {
+  return request<
+    import("@/types/capacity-planning").CapacityProfile
+  >(
+    `/capacity-planning/profiles/${userId}?fiscalYear=${encodeURIComponent(String(fiscalYear))}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function createCapacityWorkEstimate(
+  input: {
+    currency: string;
+    fiscalYear: number;
+    sourceType:
+      import("@/types/capacity-planning").CapacitySourceType;
+    sourceEntityId: string;
+    estimatedEffortHours: number;
+  },
+): Promise<
+  import("@/types/capacity-planning").CapacityWorkItem
+> {
+  return request<
+    import("@/types/capacity-planning").CapacityWorkItem
+  >(
+    "/capacity-planning/work-estimates",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getCapacityWorkEstimate(
+  estimateId: string,
+): Promise<
+  import("@/types/capacity-planning").CapacityWorkItem
+> {
+  return request<
+    import("@/types/capacity-planning").CapacityWorkItem
+  >(
+    `/capacity-planning/work-estimates/${estimateId}`,
+  );
+}
+
+export async function updateCapacityWorkEstimate(
+  estimateId: string,
+  estimatedEffortHours: number,
+): Promise<
+  import("@/types/capacity-planning").CapacityWorkItem
+> {
+  return request<
+    import("@/types/capacity-planning").CapacityWorkItem
+  >(
+    `/capacity-planning/work-estimates/${estimateId}`,
+    {
+      method: "PUT",
+      body: JSON.stringify({
+        estimatedEffortHours,
+      }),
+    },
+  );
+}
+
+export async function createCapacityAssignment(
+  estimateId: string,
+  input: {
+    userId: string;
+    allocationPct: number;
+  },
+): Promise<
+  import("@/types/capacity-planning").CapacityAssignment
+> {
+  return request<
+    import("@/types/capacity-planning").CapacityAssignment
+  >(
+    `/capacity-planning/work-estimates/${estimateId}/assignments`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function deleteCapacityAssignment(
+  assignmentId: string,
+): Promise<void> {
+  return request<void>(
+    `/capacity-planning/assignments/${assignmentId}`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+
+export async function captureCapacitySnapshot(
+  currency = "EUR",
+  fiscalYear = new Date().getUTCFullYear(),
+): Promise<
+  import("@/types/capacity-planning").CapacitySnapshotDetail
+> {
+  return request<
+    import("@/types/capacity-planning").CapacitySnapshotDetail
+  >(
+    `/capacity-planning/snapshots?currency=${encodeURIComponent(currency)}&fiscalYear=${encodeURIComponent(String(fiscalYear))}`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getCapacitySnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/capacity-planning").CapacitySnapshotDetail
+> {
+  return request<
+    import("@/types/capacity-planning").CapacitySnapshotDetail
+  >(
+    `/capacity-planning/snapshots/${snapshotId}`,
+  );
+}
