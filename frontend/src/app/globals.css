@@ -30312,3 +30312,343 @@ div > strong {
     grid-template-columns: 1fr;
   }
 }
+
+/* STEP 51 — PROCUREMENT STRATEGY WHAT-IF SCENARIOS */
+
+.scenario-heading-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.scenario-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.scenario-filter span {
+  color: var(--text-tertiary);
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.scenario-filter select,
+.scenario-filter input {
+  min-height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  font-size: 8px;
+}
+
+.scenario-filter input {
+  width: 100px;
+}
+
+.scenario-baseline-hero,
+.scenario-comparison-hero {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.scenario-comparison-hero {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.scenario-baseline-hero article,
+.scenario-comparison-hero article {
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.scenario-baseline-hero article:first-child,
+.scenario-comparison-hero article:first-child {
+  border-color: #d9d6fe;
+  background: #f4f3ff;
+  color: #5925dc;
+}
+
+.scenario-baseline-hero span,
+.scenario-comparison-hero span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.scenario-baseline-hero strong,
+.scenario-comparison-hero strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+}
+
+.scenario-baseline-hero small,
+.scenario-comparison-hero small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-secondary);
+  font-size: 5.8px;
+}
+
+.scenario-live-dimensions {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.scenario-live-dimensions article {
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+}
+
+.scenario-live-dimensions span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.scenario-live-dimensions strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+}
+
+.scenario-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.scenario-status--draft {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.scenario-status--evaluated {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.scenario-status--approved {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.scenario-status--archived {
+  background: #f2f4f7;
+  color: #344054;
+}
+
+.scenario-positive {
+  color: #027a48 !important;
+  font-weight: 700;
+}
+
+.scenario-negative {
+  color: #b42318 !important;
+  font-weight: 700;
+}
+
+.scenario-detail-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.scenario-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.scenario-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.scenario-description p,
+.scenario-evaluation-summary,
+.scenario-evaluation-copy {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 7px;
+  line-height: 1.6;
+}
+
+.scenario-create-form,
+.scenario-assumption-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.scenario-create-wide,
+.scenario-assumption-wide {
+  grid-column: 1 / -1;
+}
+
+.scenario-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.scenario-assumption-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.scenario-assumption-list article {
+  position: relative;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.scenario-assumption-list article > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.scenario-assumption-list strong {
+  font-size: 7.5px;
+}
+
+.scenario-assumption-list article > div:first-child span {
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.scenario-assumption-list p {
+  margin: 7px 0;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+  line-height: 1.45;
+}
+
+.scenario-assumption-list small {
+  color: var(--text-tertiary);
+  font-size: 5.5px;
+}
+
+.scenario-danger-button,
+.scenario-archive-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 31px;
+  padding: 0 8px;
+  border: 1px solid #fecdca;
+  border-radius: 5px;
+  background: white;
+  color: #b42318;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.scenario-assumption-list .scenario-danger-button {
+  margin-top: 7px;
+}
+
+.scenario-decision-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.scenario-governance-note {
+  padding: 11px;
+  border: 1px solid #abefc6;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.scenario-governance-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.scenario-governance-note p {
+  margin: 5px 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.scenario-governance-note small {
+  font-size: 5.8px;
+}
+
+.scenario-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #d9d6fe;
+  border-radius: 8px;
+  background: #f4f3ff;
+  color: #5925dc;
+}
+
+.scenario-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.scenario-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.scenario-empty {
+  padding: 18px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  text-align: center;
+}
+
+@media (max-width: 1100px) {
+  .scenario-baseline-hero,
+  .scenario-comparison-hero,
+  .scenario-live-dimensions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 750px) {
+  .scenario-heading-actions,
+  .scenario-detail-heading,
+  .scenario-decision-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .scenario-baseline-hero,
+  .scenario-comparison-hero,
+  .scenario-live-dimensions,
+  .scenario-create-form,
+  .scenario-assumption-form {
+    grid-template-columns: 1fr;
+  }
+
+  .scenario-create-wide,
+  .scenario-assumption-wide {
+    grid-column: auto;
+  }
+}

@@ -169,7 +169,12 @@ const coreNavigation = [
     href: "/strategy-cockpit",
     label: "Strategy cockpit",
     icon: Goal,
+  },  {
+    href: "/strategy-scenarios",
+    label: "Strategy scenarios",
+    icon: Goal,
   },
+
 
 
 
@@ -498,6 +503,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/strategy-cockpit"
+          ||
+          item.href ===
+            "/strategy-scenarios"
 ) {
           return canViewAnalytics;
         }

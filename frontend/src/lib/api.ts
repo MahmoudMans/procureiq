@@ -8268,3 +8268,151 @@ export async function getStrategyCockpitSnapshot(
     `/strategy-cockpit/snapshots/${snapshotId}`,
   );
 }
+
+export async function getStrategyScenarioDashboard(
+  currency = "EUR",
+  fiscalYear = new Date().getUTCFullYear(),
+): Promise<
+  import("@/types/strategy-scenario").StrategyScenarioDashboard
+> {
+  return request<
+    import("@/types/strategy-scenario").StrategyScenarioDashboard
+  >(
+    `/strategy-scenarios?currency=${encodeURIComponent(currency)}&fiscalYear=${encodeURIComponent(String(fiscalYear))}`,
+  );
+}
+
+export async function createStrategyScenario(
+  input: {
+    name: string;
+    description?: string;
+    currency: string;
+    fiscalYear: number;
+  },
+): Promise<
+  import("@/types/strategy-scenario").StrategyScenarioDetail
+> {
+  return request<
+    import("@/types/strategy-scenario").StrategyScenarioDetail
+  >(
+    "/strategy-scenarios",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getStrategyScenario(
+  scenarioId: string,
+): Promise<
+  import("@/types/strategy-scenario").StrategyScenarioDetail
+> {
+  return request<
+    import("@/types/strategy-scenario").StrategyScenarioDetail
+  >(
+    `/strategy-scenarios/${scenarioId}`,
+  );
+}
+
+export async function upsertStrategyScenarioAssumption(
+  scenarioId: string,
+  input: {
+    dimensionKey:
+      import("@/types/strategy-cockpit").BoardDimensionKey;
+    adjustmentPoints: number;
+    rationale: string;
+  },
+): Promise<
+  import("@/types/strategy-scenario").StrategyScenarioDetail
+> {
+  return request<
+    import("@/types/strategy-scenario").StrategyScenarioDetail
+  >(
+    `/strategy-scenarios/${scenarioId}/assumptions`,
+    {
+      method: "PUT",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function deleteStrategyScenarioAssumption(
+  assumptionId: string,
+): Promise<void> {
+  return request<void>(
+    `/strategy-scenarios/assumptions/${assumptionId}`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+
+export async function evaluateStrategyScenario(
+  scenarioId: string,
+): Promise<
+  import("@/types/strategy-scenario").StrategyScenarioEvaluationDetail
+> {
+  return request<
+    import("@/types/strategy-scenario").StrategyScenarioEvaluationDetail
+  >(
+    `/strategy-scenarios/${scenarioId}/evaluate`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function approveStrategyScenario(
+  scenarioId: string,
+  note: string,
+): Promise<
+  import("@/types/strategy-scenario").StrategyScenarioDetail
+> {
+  return request<
+    import("@/types/strategy-scenario").StrategyScenarioDetail
+  >(
+    `/strategy-scenarios/${scenarioId}/approve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function archiveStrategyScenario(
+  scenarioId: string,
+  note: string,
+): Promise<
+  import("@/types/strategy-scenario").StrategyScenarioDetail
+> {
+  return request<
+    import("@/types/strategy-scenario").StrategyScenarioDetail
+  >(
+    `/strategy-scenarios/${scenarioId}/archive`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function getStrategyScenarioEvaluation(
+  evaluationId: string,
+): Promise<
+  import("@/types/strategy-scenario").StrategyScenarioEvaluationDetail
+> {
+  return request<
+    import("@/types/strategy-scenario").StrategyScenarioEvaluationDetail
+  >(
+    `/strategy-scenarios/evaluations/${evaluationId}`,
+  );
+}
