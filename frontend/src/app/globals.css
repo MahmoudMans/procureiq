@@ -34239,3 +34239,342 @@ div > strong {
     grid-column: auto;
   }
 }
+
+/* STEP 62 — STRATEGIC CAPITAL RECYCLING & REINVESTMENT GOVERNANCE */
+
+.recycling-score-grid,
+.recycling-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.recycling-value-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.recycling-score-grid article,
+.recycling-detail-grid article,
+.recycling-value-grid article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.recycling-score-grid span,
+.recycling-detail-grid span,
+.recycling-value-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.recycling-score-grid strong,
+.recycling-detail-grid strong,
+.recycling-value-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+}
+
+.recycling-score-card {
+  border-color: #abefc6 !important;
+  background: #ecfdf3 !important;
+  color: #027a48;
+}
+
+.recycling-status {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 5.8px;
+  font-weight: 700;
+}
+
+.recycling-status--open {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.recycling-status--fully-allocated {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.recycling-status--closed {
+  background: #f2f4f7;
+  color: #344054;
+}
+
+.recycling-source-form,
+.recycling-proposal-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.recycling-form-wide {
+  grid-column: 1 / -1;
+}
+
+.recycling-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 11px;
+}
+
+.recycling-detail-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.recycling-detail-heading h1 {
+  margin: 7px 0 5px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.recycling-detail-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.recycling-objective {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.recycling-context-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.recycling-context-grid > div {
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.recycling-context-grid span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 5.6px;
+}
+
+.recycling-context-grid strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 7px;
+}
+
+.recycling-target-note {
+  margin-top: 10px;
+  padding: 9px;
+  border: 1px solid #d6bbfb;
+  border-radius: 6px;
+  background: #f4f3ff;
+  color: #5925dc;
+}
+
+.recycling-target-note strong {
+  display: block;
+  font-size: 7px;
+}
+
+.recycling-target-note p {
+  margin: 4px 0 0;
+  font-size: 6.5px;
+}
+
+.recycling-source-links {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.recycling-proposal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recycling-proposal-list article {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-soft);
+}
+
+.recycling-proposal-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.recycling-proposal-heading strong {
+  display: block;
+  font-size: 7.5px;
+}
+
+.recycling-proposal-heading span,
+.recycling-proposal-list small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 5.8px;
+}
+
+.recycling-proposal-list p {
+  margin: 7px 0;
+  color: var(--text-secondary);
+  font-size: 6.5px;
+  line-height: 1.5;
+}
+
+.recycling-target-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.recycling-target-metrics span {
+  padding: 6px;
+  border-radius: 5px;
+  background: white;
+  color: var(--text-tertiary);
+  font-size: 5.5px;
+}
+
+.recycling-target-metrics strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-primary);
+  font-size: 6.7px;
+}
+
+.recycling-decision-control {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.recycling-decision-control input {
+  min-height: 31px;
+  padding: 0 7px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6px;
+}
+
+.recycling-decision-control button,
+.recycling-danger-button {
+  min-height: 31px;
+  padding: 0 9px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.recycling-danger-button {
+  color: #b42318 !important;
+  border-color: #fecdca !important;
+}
+
+.recycling-decision-record {
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid #abefc6;
+  border-radius: 6px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.recycling-decision-record strong {
+  display: block;
+  font-size: 7px;
+}
+
+.recycling-decision-record p {
+  margin: 5px 0;
+  font-size: 6.2px;
+}
+
+.recycling-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #abefc6;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.recycling-method-note strong {
+  display: block;
+  font-size: 8px;
+}
+
+.recycling-method-note p {
+  margin: 3px 0 0;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.recycling-empty {
+  padding: 18px;
+  color: var(--text-tertiary);
+  font-size: 7px;
+  text-align: center;
+}
+
+@media (max-width: 1150px) {
+  .recycling-score-grid,
+  .recycling-detail-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .recycling-context-grid,
+  .recycling-target-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 750px) {
+  .recycling-detail-heading,
+  .recycling-proposal-heading,
+  .recycling-source-links {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .recycling-score-grid,
+  .recycling-detail-grid,
+  .recycling-value-grid,
+  .recycling-source-form,
+  .recycling-proposal-form,
+  .recycling-context-grid,
+  .recycling-target-metrics,
+  .recycling-decision-control {
+    grid-template-columns: 1fr;
+  }
+
+  .recycling-form-wide {
+    grid-column: auto;
+  }
+}

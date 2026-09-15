@@ -213,7 +213,12 @@ const coreNavigation = [
     href: "/intervention-execution",
     label: "Intervention execution",
     icon: Goal,
+  },  {
+    href: "/capital-recycling",
+    label: "Capital recycling",
+    icon: Goal,
   },
+
 
 
 
@@ -586,6 +591,9 @@ export function Sidebar() {
           ||
           item.href ===
             "/intervention-execution"
+          ||
+          item.href ===
+            "/capital-recycling"
 ) {
           return canViewAnalytics;
         }

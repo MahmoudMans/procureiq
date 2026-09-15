@@ -10511,3 +10511,137 @@ export async function getInterventionExecutionSnapshot(
     `/intervention-execution/snapshots/${snapshotId}`,
   );
 }
+
+export async function getCapitalRecyclingDashboard(): Promise<
+  import("@/types/capital-recycling").CapitalRecyclingDashboard
+> {
+  return request<
+    import("@/types/capital-recycling").CapitalRecyclingDashboard
+  >(
+    "/capital-recycling",
+  );
+}
+
+export async function createCapitalRecyclingSource(
+  executionCaseId: string,
+  input: {
+    sourceOwnerUserId: string;
+    recyclingObjective: string;
+  },
+): Promise<
+  import("@/types/capital-recycling").CapitalRecyclingSourceDetail
+> {
+  return request<
+    import("@/types/capital-recycling").CapitalRecyclingSourceDetail
+  >(
+    `/capital-recycling/executions/${executionCaseId}/sources`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getCapitalRecyclingSource(
+  sourceId: string,
+): Promise<
+  import("@/types/capital-recycling").CapitalRecyclingSourceDetail
+> {
+  return request<
+    import("@/types/capital-recycling").CapitalRecyclingSourceDetail
+  >(
+    `/capital-recycling/sources/${sourceId}`,
+  );
+}
+
+export async function createCapitalReinvestmentProposal(
+  sourceId: string,
+  input: {
+    targetValueCaseId: string;
+    requestedReinvestmentAmount: number;
+    proposalRationale: string;
+  },
+): Promise<
+  import("@/types/capital-recycling").CapitalRecyclingSourceDetail
+> {
+  return request<
+    import("@/types/capital-recycling").CapitalRecyclingSourceDetail
+  >(
+    `/capital-recycling/sources/${sourceId}/proposals`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function decideCapitalReinvestmentProposal(
+  proposalId: string,
+  input: {
+    decision:
+      import("@/types/capital-recycling").CapitalReinvestmentDecision;
+    decisionNote: string;
+  },
+): Promise<
+  import("@/types/capital-recycling").CapitalRecyclingSourceDetail
+> {
+  return request<
+    import("@/types/capital-recycling").CapitalRecyclingSourceDetail
+  >(
+    `/capital-recycling/proposals/${proposalId}/decide`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function closeCapitalRecyclingSource(
+  sourceId: string,
+  note: string,
+): Promise<
+  import("@/types/capital-recycling").CapitalRecyclingSourceDetail
+> {
+  return request<
+    import("@/types/capital-recycling").CapitalRecyclingSourceDetail
+  >(
+    `/capital-recycling/sources/${sourceId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureCapitalRecyclingSnapshot(): Promise<
+  import("@/types/capital-recycling").CapitalRecyclingSnapshotDetail
+> {
+  return request<
+    import("@/types/capital-recycling").CapitalRecyclingSnapshotDetail
+  >(
+    "/capital-recycling/snapshots",
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getCapitalRecyclingSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/capital-recycling").CapitalRecyclingSnapshotDetail
+> {
+  return request<
+    import("@/types/capital-recycling").CapitalRecyclingSnapshotDetail
+  >(
+    `/capital-recycling/snapshots/${snapshotId}`,
+  );
+}
