@@ -1,4 +1,13 @@
 import type {
+  FlywheelResidualContinuationCaseDetail,
+  FlywheelResidualContinuationCaseInput,
+  FlywheelResidualContinuationDashboard,
+  FlywheelResidualContinuationItemInput,
+  FlywheelResidualContinuationNoteInput,
+  FlywheelResidualContinuationSnapshotDetail,
+} from "@/types/flywheel-remediation-continuation";
+
+import type {
   FlywheelRemediationOutcomeCaseDetail,
   FlywheelRemediationOutcomeCaseInput,
   FlywheelRemediationOutcomeDashboard,
@@ -12551,5 +12560,92 @@ export function captureFlywheelRemediationOutcomeSnapshot(id: string) {
 export function getFlywheelRemediationOutcomeSnapshot(id: string) {
   return request<FlywheelRemediationOutcomeSnapshotDetail>(
     `/api/v1/flywheel-remediation-outcomes/snapshots/${id}`,
+  );
+}
+
+export function getFlywheelResidualContinuationDashboard() {
+  return request<FlywheelResidualContinuationDashboard>(
+    "/api/v1/flywheel-remediation-continuations/dashboard",
+  );
+}
+
+export function createFlywheelResidualContinuationCase(
+  input: FlywheelResidualContinuationCaseInput,
+) {
+  return request<FlywheelResidualContinuationCaseDetail>(
+    "/api/v1/flywheel-remediation-continuations/cases",
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function getFlywheelResidualContinuationCase(id: string) {
+  return request<FlywheelResidualContinuationCaseDetail>(
+    `/api/v1/flywheel-remediation-continuations/cases/${id}`,
+  );
+}
+
+export function addFlywheelResidualContinuationItem(
+  id: string,
+  input: FlywheelResidualContinuationItemInput,
+) {
+  return request<FlywheelResidualContinuationCaseDetail>(
+    `/api/v1/flywheel-remediation-continuations/cases/${id}/items`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function submitFlywheelResidualContinuationCase(id: string) {
+  return request<FlywheelResidualContinuationCaseDetail>(
+    `/api/v1/flywheel-remediation-continuations/cases/${id}/submit`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export function approveFlywheelResidualContinuationCase(
+  id: string,
+  input: FlywheelResidualContinuationNoteInput,
+) {
+  return request<FlywheelResidualContinuationCaseDetail>(
+    `/api/v1/flywheel-remediation-continuations/cases/${id}/approve`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function closeFlywheelResidualContinuationCase(
+  id: string,
+  input: FlywheelResidualContinuationNoteInput,
+) {
+  return request<FlywheelResidualContinuationCaseDetail>(
+    `/api/v1/flywheel-remediation-continuations/cases/${id}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function captureFlywheelResidualContinuationSnapshot(id: string) {
+  return request<FlywheelResidualContinuationSnapshotDetail>(
+    `/api/v1/flywheel-remediation-continuations/cases/${id}/snapshots`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export function getFlywheelResidualContinuationSnapshot(id: string) {
+  return request<FlywheelResidualContinuationSnapshotDetail>(
+    `/api/v1/flywheel-remediation-continuations/snapshots/${id}`,
   );
 }

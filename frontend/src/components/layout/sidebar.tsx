@@ -268,6 +268,11 @@ const coreNavigation = [
     label: "Remediation outcomes",
     icon: Goal,
   },
+{
+    href: "/flywheel-remediation-continuations",
+    label: "Residual continuations",
+    icon: Goal,
+  },
 
 
 
