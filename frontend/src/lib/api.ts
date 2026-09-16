@@ -1,3 +1,12 @@
+import {
+  decodeEvidenceDashboard,
+  decodeEvidenceDetail,
+  decodeEvidenceSnapshot,
+  type EvidenceObservationInput,
+  type EvidencePlanInput,
+  type EvidenceTransitionInput,
+} from "@/types/rollover-evidence";
+
 import type {
   FlywheelContinuationRolloverCaseDetail,
   FlywheelContinuationRolloverCaseInput,
@@ -12841,3 +12850,70 @@ export function getFlywheelContinuationRolloverSnapshot(id: string) {
     `/api/v1/flywheel-continuation-rollovers/snapshots/${id}`,
   );
 }
+
+// Step 91: exact-decimal, runtime-validated rollover evidence API.
+const rolloverEvidenceBase = "/api/v1/flywheel-rollover-outcomes";
+
+export const rolloverEvidenceApi = {
+  dashboard: () =>
+    request<unknown>(
+      `${rolloverEvidenceBase}/dashboard`,
+    ).then(decodeEvidenceDashboard),
+
+  detail: (id: string) =>
+    request<unknown>(
+      `${rolloverEvidenceBase}/cycles/${encodeURIComponent(id)}`,
+    ).then(decodeEvidenceDetail),
+
+  snapshot: (id: string) =>
+    request<unknown>(
+      `${rolloverEvidenceBase}/snapshots/${encodeURIComponent(id)}`,
+    ).then(decodeEvidenceSnapshot),
+
+  open: (input: {
+    rolloverCaseId?: string;
+    parentCycleId?: string;
+  }) =>
+    request<unknown>(
+      `${rolloverEvidenceBase}/cycles`,
+      {
+        method: "POST",
+        body: JSON.stringify(input),
+      },
+    ).then(decodeEvidenceDetail),
+
+  plan: (id: string, input: EvidencePlanInput) =>
+    request<unknown>(
+      `${rolloverEvidenceBase}/cycles/${encodeURIComponent(id)}/plans`,
+      {
+        method: "POST",
+        body: JSON.stringify(input),
+      },
+    ).then(decodeEvidenceDetail),
+
+  observe: (id: string, input: EvidenceObservationInput) =>
+    request<unknown>(
+      `${rolloverEvidenceBase}/cycles/${encodeURIComponent(id)}/observations`,
+      {
+        method: "POST",
+        body: JSON.stringify(input),
+      },
+    ).then(decodeEvidenceDetail),
+
+  transition: (id: string, input: EvidenceTransitionInput) =>
+    request<unknown>(
+      `${rolloverEvidenceBase}/cycles/${encodeURIComponent(id)}/transition`,
+      {
+        method: "POST",
+        body: JSON.stringify(input),
+      },
+    ).then(decodeEvidenceDetail),
+
+  capture: (id: string) =>
+    request<unknown>(
+      `${rolloverEvidenceBase}/cycles/${encodeURIComponent(id)}/snapshots`,
+      {
+        method: "POST",
+      },
+    ).then(decodeEvidenceSnapshot),
+};
