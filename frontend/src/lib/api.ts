@@ -11554,3 +11554,150 @@ export async function getFlywheelStrategySnapshot(
     `/flywheel-strategy/snapshots/${snapshotId}`,
   );
 }
+
+export async function getFlywheelAllocationDashboard(): Promise<
+  import("@/types/flywheel-allocation").FlywheelAllocationDashboard
+> {
+  return request<
+    import("@/types/flywheel-allocation").FlywheelAllocationDashboard
+  >(
+    "/flywheel-allocation",
+  );
+}
+
+export async function createFlywheelAllocationMandate(
+  input: {
+    strategyPortfolioId: string;
+    title: string;
+    mandateOwnerUserId: string;
+    mandateRationale: string;
+  },
+): Promise<
+  import("@/types/flywheel-allocation").FlywheelAllocationMandateDetail
+> {
+  return request<
+    import("@/types/flywheel-allocation").FlywheelAllocationMandateDetail
+  >(
+    "/flywheel-allocation/mandates",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getFlywheelAllocationMandate(
+  mandateId: string,
+): Promise<
+  import("@/types/flywheel-allocation").FlywheelAllocationMandateDetail
+> {
+  return request<
+    import("@/types/flywheel-allocation").FlywheelAllocationMandateDetail
+  >(
+    `/flywheel-allocation/mandates/${mandateId}`,
+  );
+}
+
+export async function addFlywheelAllocationItem(
+  mandateId: string,
+  input: {
+    strategyItemId: string;
+    requestedAllocationAmount: number;
+  },
+): Promise<
+  import("@/types/flywheel-allocation").FlywheelAllocationMandateDetail
+> {
+  return request<
+    import("@/types/flywheel-allocation").FlywheelAllocationMandateDetail
+  >(
+    `/flywheel-allocation/mandates/${mandateId}/items`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function submitFlywheelAllocationForReview(
+  mandateId: string,
+): Promise<
+  import("@/types/flywheel-allocation").FlywheelAllocationMandateDetail
+> {
+  return request<
+    import("@/types/flywheel-allocation").FlywheelAllocationMandateDetail
+  >(
+    `/flywheel-allocation/mandates/${mandateId}/ready-for-review`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function authorizeFlywheelAllocationMandate(
+  mandateId: string,
+  note: string,
+): Promise<
+  import("@/types/flywheel-allocation").FlywheelAllocationMandateDetail
+> {
+  return request<
+    import("@/types/flywheel-allocation").FlywheelAllocationMandateDetail
+  >(
+    `/flywheel-allocation/mandates/${mandateId}/authorize`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function closeFlywheelAllocationMandate(
+  mandateId: string,
+  note: string,
+): Promise<
+  import("@/types/flywheel-allocation").FlywheelAllocationMandateDetail
+> {
+  return request<
+    import("@/types/flywheel-allocation").FlywheelAllocationMandateDetail
+  >(
+    `/flywheel-allocation/mandates/${mandateId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureFlywheelAllocationSnapshot(
+  mandateId: string,
+): Promise<
+  import("@/types/flywheel-allocation").FlywheelAllocationSnapshotDetail
+> {
+  return request<
+    import("@/types/flywheel-allocation").FlywheelAllocationSnapshotDetail
+  >(
+    `/flywheel-allocation/mandates/${mandateId}/snapshots`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getFlywheelAllocationSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/flywheel-allocation").FlywheelAllocationSnapshotDetail
+> {
+  return request<
+    import("@/types/flywheel-allocation").FlywheelAllocationSnapshotDetail
+  >(
+    `/flywheel-allocation/snapshots/${snapshotId}`,
+  );
+}
