@@ -301,7 +301,7 @@ public class SupplierDocumentRepository {
     ) {
         jdbcTemplate.update(
                 """
-                INSERT INTO supplier_compliance_documents (
+                INSERT INTO supplier_document_vault_documents (
                     id,
                     supplier_id,
                     requirement_id,
@@ -334,7 +334,7 @@ public class SupplierDocumentRepository {
                     id,
                     supplier_id,
                     requirement_id
-                FROM supplier_compliance_documents
+                FROM supplier_document_vault_documents
                 WHERE supplier_id = ?
                 AND requirement_id = ?
                 """,
@@ -447,7 +447,7 @@ public class SupplierDocumentRepository {
 
         jdbcTemplate.update(
                 """
-                UPDATE supplier_compliance_documents
+                UPDATE supplier_document_vault_documents
                 SET
                     updated_at =
                         CURRENT_TIMESTAMP,
@@ -784,7 +784,7 @@ public class SupplierDocumentRepository {
                     )
                 )
 
-                LEFT JOIN supplier_compliance_documents
+                LEFT JOIN supplier_document_vault_documents
                     document
                     ON document.supplier_id =
                        supplier.id
@@ -853,7 +853,7 @@ public class SupplierDocumentRepository {
                 FROM supplier_compliance_document_versions
                     version
 
-                JOIN supplier_compliance_documents
+                JOIN supplier_document_vault_documents
                     document
                     ON document.id =
                        version.document_id

@@ -452,7 +452,7 @@ public class ControlTowerRepository {
                         )
                     )
 
-                LEFT JOIN supplier_compliance_documents
+                LEFT JOIN supplier_document_vault_documents
                     document
                     ON document.supplier_id =
                        supplier.id
