@@ -1314,6 +1314,11 @@ public class FlywheelVarianceExecutionService {
                         finalized,
                         FlywheelVarianceExecutionCaseResponse::currency,
                         FlywheelVarianceExecutionCaseResponse::openExposureAmount
+                ),
+                CurrencyTotals.sum(
+                        finalized,
+                        FlywheelVarianceExecutionCaseResponse::currency,
+                        entry -> entry.exposure().financialResidualAmount()
                 )
         );
     }

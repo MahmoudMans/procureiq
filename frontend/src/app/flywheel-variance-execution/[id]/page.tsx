@@ -676,13 +676,12 @@ export default function FlywheelVarianceExecutionCasePage() {
 
         <article>
           <span>
-            Open exposure
+            Financial residual
           </span>
 
           <strong>
             {money(
-              executionCase
-                .openExposureAmount,
+              executionCase.exposure.financialResidualAmount,
               executionCase.currency,
             )}
           </strong>
@@ -690,7 +689,7 @@ export default function FlywheelVarianceExecutionCasePage() {
 
         <article>
           <span>
-            Completion
+            Treatment completion
           </span>
 
           <strong>
@@ -1078,7 +1077,7 @@ export default function FlywheelVarianceExecutionCasePage() {
                 <th>Decision</th>
                 <th>Variance</th>
                 <th>Executed</th>
-                <th>Open</th>
+                <th>Financial residual</th>
                 <th>Outcome</th>
                 <th>Reference</th>
                 <th>Date</th>
@@ -1135,8 +1134,7 @@ export default function FlywheelVarianceExecutionCasePage() {
 
                     <td>
                       {money(
-                        item
-                          .openExposureAmount,
+                        item.financialResidualAmount,
                         executionCase.currency,
                       )}
                     </td>
@@ -1369,8 +1367,8 @@ export default function FlywheelVarianceExecutionCasePage() {
                 <th>Recovered</th>
                 <th>Written off</th>
                 <th>Investigation</th>
-                <th>Open</th>
-                <th>Completion</th>
+                <th>Financial residual</th>
+                <th>Treatment completion</th>
                 <th />
               </tr>
             </thead>
@@ -1426,8 +1424,7 @@ export default function FlywheelVarianceExecutionCasePage() {
 
                     <td>
                       {money(
-                        snapshotItem
-                          .openExposureAmount,
+                        snapshotItem.exposure.financialResidualAmount,
                         snapshotItem
                           .currency,
                       )}
@@ -1458,6 +1455,22 @@ export default function FlywheelVarianceExecutionCasePage() {
             </tbody>
           </table>
         </div>
+      </section>
+
+      <section className="panel">
+        <h2>Financial residual and evidence coverage</h2>
+        <p>
+          Financial residual equals approved variance minus recorded recoveries
+          and recorded write-offs. Completing an investigation does not reduce
+          that residual. Treatment completion measures workflow progress, not
+          cash recovered or accounting entries posted by ProcureIQ.
+        </p>
+
+          <p>
+            Variance without recorded evidence: {money(
+              executionCase.exposure.unrecordedVarianceAmount, executionCase.currency,
+            )}. Evidence coverage: {executionCase.exposure.evidenceCoveragePct.toFixed(2)}%.
+          </p>
       </section>
     </div>
   );

@@ -72,4 +72,11 @@ public record FlywheelVarianceExecutionCaseResponse(
 
         long version
 ) {
+
+    @com.fasterxml.jackson.annotation.JsonProperty("exposure")
+    public FlywheelVarianceExecutionExposureMetrics exposure() {
+        return FlywheelVarianceExecutionExposureMetrics.calculate(
+                sourceVarianceAmount, capturedVarianceAmount, executedFinancialAmount
+        );
+    }
 }

@@ -383,12 +383,12 @@ export default function FlywheelVarianceExecutionPage() {
 
         <article>
           <span>
-            Open exposure
+            Verified-case financial residual
           </span>
 
           <strong>
             {(summary
-              ?.openExposureByCurrency
+              ?.financialResidualByCurrency
               ??
               []
             ).length === 0
@@ -396,7 +396,7 @@ export default function FlywheelVarianceExecutionPage() {
               : null}
 
             {(summary
-              ?.openExposureByCurrency
+              ?.financialResidualByCurrency
               ??
               []
             ).map(
@@ -742,8 +742,8 @@ export default function FlywheelVarianceExecutionPage() {
                 <th>Recovered</th>
                 <th>Written off</th>
                 <th>Investigation complete</th>
-                <th>Open</th>
-                <th>Completion</th>
+                <th>Financial residual</th>
+                <th>Treatment completion</th>
                 <th />
               </tr>
             </thead>
@@ -821,8 +821,7 @@ export default function FlywheelVarianceExecutionPage() {
 
                       <td>
                         {money(
-                          executionCase
-                            .openExposureAmount,
+                          executionCase.exposure.financialResidualAmount,
                           executionCase
                             .currency,
                         )}
@@ -895,6 +894,19 @@ export default function FlywheelVarianceExecutionPage() {
             accounting write-off.
           </p>
         </div>
+      </section>
+
+      <section className="panel">
+        <h2>Financial residual and evidence coverage</h2>
+        <p>
+          Financial residual equals approved variance minus recorded recoveries
+          and recorded write-offs. Completing an investigation does not reduce
+          that residual. Treatment completion measures workflow progress, not
+          cash recovered or accounting entries posted by ProcureIQ.
+        </p>
+
+          <p>Dashboard residual totals include VERIFIED and CLOSED cases only.
+          The table below the totals includes individual cases in all states.</p>
       </section>
     </div>
   );

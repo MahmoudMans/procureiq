@@ -39,4 +39,11 @@ public record FlywheelVarianceExecutionItemResponse(
         String addedByName,
         Instant addedAt
 ) {
+
+    @com.fasterxml.jackson.annotation.JsonProperty("financialResidualAmount")
+    public BigDecimal financialResidualAmount() {
+        return FlywheelVarianceExecutionExposureMetrics.calculate(
+                sourceVarianceAmount, sourceVarianceAmount, executedAmount
+        ).financialResidualAmount();
+    }
 }

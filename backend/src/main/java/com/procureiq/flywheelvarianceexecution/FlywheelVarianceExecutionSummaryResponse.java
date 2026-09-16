@@ -16,6 +16,7 @@ public record FlywheelVarianceExecutionSummaryResponse(
         List<CurrencyTotal> recoveredByCurrency,
         List<CurrencyTotal> writtenOffByCurrency,
         List<CurrencyTotal> completedInvestigationByCurrency,
-        List<CurrencyTotal> openExposureByCurrency
+        List<CurrencyTotal> openExposureByCurrency,
+        List<CurrencyTotal> financialResidualByCurrency
 ) {
 }

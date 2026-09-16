@@ -271,13 +271,12 @@ export default function FlywheelVarianceExecutionSnapshotPage() {
 
         <article>
           <span>
-            Open exposure
+            Financial residual
           </span>
 
           <strong>
             {money(
-              snapshot
-                .openExposureAmount,
+              snapshot.exposure.financialResidualAmount,
               snapshot.currency,
             )}
           </strong>
@@ -285,7 +284,7 @@ export default function FlywheelVarianceExecutionSnapshotPage() {
 
         <article>
           <span>
-            Completion
+            Treatment completion
           </span>
 
           <strong>
@@ -410,6 +409,25 @@ export default function FlywheelVarianceExecutionSnapshotPage() {
             </tbody>
           </table>
         </div>
+      </section>
+
+      <section className="panel">
+        <h2>Financial residual and evidence coverage</h2>
+        <p>
+          Financial residual equals approved variance minus recorded recoveries
+          and recorded write-offs. Completing an investigation does not reduce
+          that residual. Treatment completion measures workflow progress, not
+          cash recovered or accounting entries posted by ProcureIQ.
+        </p>
+
+          <p>
+            Variance without recorded evidence: {money(
+              snapshot.exposure.unrecordedVarianceAmount, snapshot.currency,
+            )}. Evidence coverage: {snapshot.exposure.evidenceCoveragePct.toFixed(2)}%.
+          </p>
+
+          <p>These additional metrics use only the captured amounts in this snapshot.
+          Its stored evidence and original treatment metrics are unchanged.</p>
       </section>
     </div>
   );

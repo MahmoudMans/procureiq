@@ -78,6 +78,7 @@ export interface FlywheelVarianceExecutionCandidate {
 }
 
 export interface FlywheelVarianceExecutionItem {
+  financialResidualAmount: number;
   id: string;
   executionCaseId: string;
 
@@ -111,6 +112,7 @@ export interface FlywheelVarianceExecutionItem {
 }
 
 export interface FlywheelVarianceExecutionCase {
+  exposure: FlywheelVarianceExecutionExposureMetrics;
   id: string;
   executionNumber: string;
 
@@ -180,6 +182,7 @@ export interface FlywheelVarianceExecutionCase {
 }
 
 export interface FlywheelVarianceExecutionSnapshotSummary {
+  exposure: FlywheelVarianceExecutionExposureMetrics;
   id: string;
   snapshotNumber: string;
 
@@ -217,6 +220,7 @@ export interface FlywheelVarianceExecutionSnapshotSummary {
 }
 
 export interface FlywheelVarianceExecutionSnapshotItem {
+  financialResidualAmount: number;
   varianceItemId: string;
 
   flywheelLineageId: string;
@@ -266,6 +270,7 @@ export interface FlywheelVarianceExecutionCaseDetail {
 }
 
 export interface FlywheelVarianceExecutionSummary {
+  financialResidualByCurrency: { currency: string; amount: number }[];
   eligiblePlanCount: number;
 
   caseCount: number;
@@ -310,4 +315,10 @@ export interface FlywheelVarianceExecutionDashboard {
 
   snapshots:
     FlywheelVarianceExecutionSnapshotSummary[];
+}
+
+export interface FlywheelVarianceExecutionExposureMetrics {
+  financialResidualAmount: number;
+  unrecordedVarianceAmount: number;
+  evidenceCoveragePct: number;
 }

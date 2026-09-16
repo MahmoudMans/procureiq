@@ -40,4 +40,11 @@ public record FlywheelVarianceExecutionSnapshotSummaryResponse(
         String capturedByName,
         Instant capturedAt
 ) {
+
+    @com.fasterxml.jackson.annotation.JsonProperty("exposure")
+    public FlywheelVarianceExecutionExposureMetrics exposure() {
+        return FlywheelVarianceExecutionExposureMetrics.calculate(
+                sourceVarianceAmount, capturedVarianceAmount, executedFinancialAmount
+        );
+    }
 }
