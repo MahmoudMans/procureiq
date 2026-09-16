@@ -245,6 +245,10 @@ const coreNavigation = [
     href: "/flywheel-release",
     label: "Capital release",
     icon: Goal,
+  },{
+    href: "/flywheel-settlement",
+    label: "Settlement evidence",
+    icon: Goal,
   },
 
 

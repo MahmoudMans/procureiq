@@ -11902,3 +11902,153 @@ export async function cancelFlywheelReleaseBatch(
     },
   );
 }
+
+export async function getFlywheelSettlementDashboard(): Promise<
+  import("@/types/flywheel-settlement").FlywheelSettlementDashboard
+> {
+  return request<
+    import("@/types/flywheel-settlement").FlywheelSettlementDashboard
+  >(
+    "/flywheel-settlement",
+  );
+}
+
+export async function createFlywheelSettlementCase(
+  input: {
+    releaseBatchId: string;
+    title: string;
+    reconciliationOwnerUserId: string;
+    reconciliationRationale: string;
+  },
+): Promise<
+  import("@/types/flywheel-settlement").FlywheelSettlementCaseDetail
+> {
+  return request<
+    import("@/types/flywheel-settlement").FlywheelSettlementCaseDetail
+  >(
+    "/flywheel-settlement/cases",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getFlywheelSettlementCase(
+  caseId: string,
+): Promise<
+  import("@/types/flywheel-settlement").FlywheelSettlementCaseDetail
+> {
+  return request<
+    import("@/types/flywheel-settlement").FlywheelSettlementCaseDetail
+  >(
+    `/flywheel-settlement/cases/${encodeURIComponent(caseId)}`,
+  );
+}
+
+export async function addFlywheelSettlementItem(
+  caseId: string,
+  input: {
+    releaseItemId: string;
+    settledAmount: number;
+    evidenceReference: string | null;
+    evidenceDate: string;
+    evidenceNote: string;
+  },
+): Promise<
+  import("@/types/flywheel-settlement").FlywheelSettlementCaseDetail
+> {
+  return request<
+    import("@/types/flywheel-settlement").FlywheelSettlementCaseDetail
+  >(
+    `/flywheel-settlement/cases/${encodeURIComponent(caseId)}/items`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function submitFlywheelSettlementForReview(
+  caseId: string,
+): Promise<
+  import("@/types/flywheel-settlement").FlywheelSettlementCaseDetail
+> {
+  return request<
+    import("@/types/flywheel-settlement").FlywheelSettlementCaseDetail
+  >(
+    `/flywheel-settlement/cases/${encodeURIComponent(caseId)}/ready-for-review`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function reconcileFlywheelSettlementCase(
+  caseId: string,
+  note: string,
+): Promise<
+  import("@/types/flywheel-settlement").FlywheelSettlementCaseDetail
+> {
+  return request<
+    import("@/types/flywheel-settlement").FlywheelSettlementCaseDetail
+  >(
+    `/flywheel-settlement/cases/${encodeURIComponent(caseId)}/reconcile`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function closeFlywheelSettlementCase(
+  caseId: string,
+  note: string,
+): Promise<
+  import("@/types/flywheel-settlement").FlywheelSettlementCaseDetail
+> {
+  return request<
+    import("@/types/flywheel-settlement").FlywheelSettlementCaseDetail
+  >(
+    `/flywheel-settlement/cases/${encodeURIComponent(caseId)}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureFlywheelSettlementSnapshot(
+  caseId: string,
+): Promise<
+  import("@/types/flywheel-settlement").FlywheelSettlementSnapshotDetail
+> {
+  return request<
+    import("@/types/flywheel-settlement").FlywheelSettlementSnapshotDetail
+  >(
+    `/flywheel-settlement/cases/${encodeURIComponent(caseId)}/snapshots`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getFlywheelSettlementSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/flywheel-settlement").FlywheelSettlementSnapshotDetail
+> {
+  return request<
+    import("@/types/flywheel-settlement").FlywheelSettlementSnapshotDetail
+  >(
+    `/flywheel-settlement/snapshots/${encodeURIComponent(snapshotId)}`,
+  );
+}
