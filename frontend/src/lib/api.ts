@@ -12202,3 +12202,155 @@ export async function getFlywheelVarianceSnapshot(
     `/flywheel-variance/snapshots/${encodeURIComponent(snapshotId)}`,
   );
 }
+
+export async function getFlywheelVarianceExecutionDashboard(): Promise<
+  import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionDashboard
+> {
+  return request<
+    import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionDashboard
+  >(
+    "/flywheel-variance-execution",
+  );
+}
+
+export async function createFlywheelVarianceExecutionCase(
+  input: {
+    variancePlanId: string;
+    title: string;
+    executionOwnerUserId: string;
+    executionObjective: string;
+  },
+): Promise<
+  import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionCaseDetail
+> {
+  return request<
+    import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionCaseDetail
+  >(
+    "/flywheel-variance-execution/cases",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getFlywheelVarianceExecutionCase(
+  caseId: string,
+): Promise<
+  import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionCaseDetail
+> {
+  return request<
+    import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionCaseDetail
+  >(
+    `/flywheel-variance-execution/cases/${encodeURIComponent(caseId)}`,
+  );
+}
+
+export async function addFlywheelVarianceExecutionItem(
+  caseId: string,
+  input: {
+    varianceItemId: string;
+    executedAmount: number;
+    outcome:
+      import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionOutcome;
+    evidenceReference: string | null;
+    evidenceDate: string;
+    evidenceNote: string;
+  },
+): Promise<
+  import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionCaseDetail
+> {
+  return request<
+    import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionCaseDetail
+  >(
+    `/flywheel-variance-execution/cases/${encodeURIComponent(caseId)}/items`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function submitFlywheelVarianceExecutionForReview(
+  caseId: string,
+): Promise<
+  import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionCaseDetail
+> {
+  return request<
+    import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionCaseDetail
+  >(
+    `/flywheel-variance-execution/cases/${encodeURIComponent(caseId)}/ready-for-review`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function verifyFlywheelVarianceExecutionCase(
+  caseId: string,
+  note: string,
+): Promise<
+  import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionCaseDetail
+> {
+  return request<
+    import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionCaseDetail
+  >(
+    `/flywheel-variance-execution/cases/${encodeURIComponent(caseId)}/verify`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function closeFlywheelVarianceExecutionCase(
+  caseId: string,
+  note: string,
+): Promise<
+  import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionCaseDetail
+> {
+  return request<
+    import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionCaseDetail
+  >(
+    `/flywheel-variance-execution/cases/${encodeURIComponent(caseId)}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureFlywheelVarianceExecutionSnapshot(
+  caseId: string,
+): Promise<
+  import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionSnapshotDetail
+> {
+  return request<
+    import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionSnapshotDetail
+  >(
+    `/flywheel-variance-execution/cases/${encodeURIComponent(caseId)}/snapshots`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getFlywheelVarianceExecutionSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionSnapshotDetail
+> {
+  return request<
+    import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionSnapshotDetail
+  >(
+    `/flywheel-variance-execution/snapshots/${encodeURIComponent(snapshotId)}`,
+  );
+}

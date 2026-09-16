@@ -253,6 +253,10 @@ const coreNavigation = [
     href: "/flywheel-variance",
     label: "Variance resolution",
     icon: Goal,
+  },{
+    href: "/flywheel-variance-execution",
+    label: "Treatment execution",
+    icon: Goal,
   },
 
 
