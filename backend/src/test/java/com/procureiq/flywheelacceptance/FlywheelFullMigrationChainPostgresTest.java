@@ -114,7 +114,7 @@ class FlywheelFullMigrationChainPostgresTest {
     }
 
     @Test
-    void fullMigrationChainReachesV80AndHardensContinuationOutcomeRuntime()
+    void fullMigrationChainReachesV81AndCreatesResidualCycleRollover()
             throws Exception {
         Flyway flyway =
                 flyway();
@@ -133,7 +133,7 @@ class FlywheelFullMigrationChainPostgresTest {
         );
 
         assertEquals(
-                "80",
+                "81",
                 flyway
                         .info()
                         .current()
@@ -237,6 +237,22 @@ class FlywheelFullMigrationChainPostgresTest {
                 "procurement_remediation_continuation_outcome_snapshot_items"
         );
 
+        assertTable(
+                "procurement_remediation_continuation_rollover_cases"
+        );
+
+        assertTable(
+                "procurement_remediation_continuation_rollover_items"
+        );
+
+        assertTable(
+                "procurement_remediation_continuation_rollover_snapshots"
+        );
+
+        assertTable(
+                "procurement_remediation_continuation_rollover_snapshot_items"
+        );
+
         assertNoTable(
                 "supplier_compliance_documents_v13_legacy"
         );
@@ -271,7 +287,7 @@ class FlywheelFullMigrationChainPostgresTest {
     }
 
     @Test
-    void currentV80DatabaseHasNoPendingMigration()
+    void currentV81DatabaseHasNoPendingMigration()
             throws Exception {
         Flyway flyway =
                 flyway();
@@ -296,7 +312,7 @@ class FlywheelFullMigrationChainPostgresTest {
         );
 
         assertEquals(
-                "80",
+                "81",
                 flyway
                         .info()
                         .current()

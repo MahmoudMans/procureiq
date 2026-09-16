@@ -278,6 +278,11 @@ const coreNavigation = [
     label: "Continuation outcomes",
     icon: Goal,
   },
+{
+    href: "/flywheel-continuation-rollovers",
+    label: "Residual cycle rollovers",
+    icon: Goal,
+  },
 
 
 

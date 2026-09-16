@@ -1,4 +1,13 @@
 import type {
+  FlywheelContinuationRolloverCaseDetail,
+  FlywheelContinuationRolloverCaseInput,
+  FlywheelContinuationRolloverDashboard,
+  FlywheelContinuationRolloverItemInput,
+  FlywheelContinuationRolloverNoteInput,
+  FlywheelContinuationRolloverSnapshotDetail,
+} from "@/types/flywheel-continuation-rollover";
+
+import type {
   FlywheelContinuationOutcomeCaseDetail,
   FlywheelContinuationOutcomeCaseInput,
   FlywheelContinuationOutcomeDashboard,
@@ -12743,5 +12752,92 @@ export function captureFlywheelContinuationOutcomeSnapshot(id: string) {
 export function getFlywheelContinuationOutcomeSnapshot(id: string) {
   return request<FlywheelContinuationOutcomeSnapshotDetail>(
     `/api/v1/flywheel-continuation-outcomes/snapshots/${id}`,
+  );
+}
+
+export function getFlywheelContinuationRolloverDashboard() {
+  return request<FlywheelContinuationRolloverDashboard>(
+    "/api/v1/flywheel-continuation-rollovers/dashboard",
+  );
+}
+
+export function createFlywheelContinuationRolloverCase(
+  input: FlywheelContinuationRolloverCaseInput,
+) {
+  return request<FlywheelContinuationRolloverCaseDetail>(
+    "/api/v1/flywheel-continuation-rollovers/cases",
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function getFlywheelContinuationRolloverCase(id: string) {
+  return request<FlywheelContinuationRolloverCaseDetail>(
+    `/api/v1/flywheel-continuation-rollovers/cases/${id}`,
+  );
+}
+
+export function addFlywheelContinuationRolloverItem(
+  id: string,
+  input: FlywheelContinuationRolloverItemInput,
+) {
+  return request<FlywheelContinuationRolloverCaseDetail>(
+    `/api/v1/flywheel-continuation-rollovers/cases/${id}/items`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function submitFlywheelContinuationRolloverCase(id: string) {
+  return request<FlywheelContinuationRolloverCaseDetail>(
+    `/api/v1/flywheel-continuation-rollovers/cases/${id}/submit`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export function approveFlywheelContinuationRolloverCase(
+  id: string,
+  input: FlywheelContinuationRolloverNoteInput,
+) {
+  return request<FlywheelContinuationRolloverCaseDetail>(
+    `/api/v1/flywheel-continuation-rollovers/cases/${id}/approve`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function closeFlywheelContinuationRolloverCase(
+  id: string,
+  input: FlywheelContinuationRolloverNoteInput,
+) {
+  return request<FlywheelContinuationRolloverCaseDetail>(
+    `/api/v1/flywheel-continuation-rollovers/cases/${id}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function captureFlywheelContinuationRolloverSnapshot(id: string) {
+  return request<FlywheelContinuationRolloverSnapshotDetail>(
+    `/api/v1/flywheel-continuation-rollovers/cases/${id}/snapshots`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export function getFlywheelContinuationRolloverSnapshot(id: string) {
+  return request<FlywheelContinuationRolloverSnapshotDetail>(
+    `/api/v1/flywheel-continuation-rollovers/snapshots/${id}`,
   );
 }
