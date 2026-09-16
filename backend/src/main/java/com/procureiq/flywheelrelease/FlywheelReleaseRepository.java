@@ -90,7 +90,7 @@ public class FlywheelReleaseRepository {
                         FROM procurement_flywheel_release_batches
 
                         WHERE allocation_mandate_id = ?
-                        AND status <> 'CLOSED'
+                        AND status NOT IN ('CLOSED', 'CANCELLED')
                         """,
                         Long.class,
                         mandateId
@@ -541,7 +541,7 @@ public class FlywheelReleaseRepository {
                     released_count,
                     cancelled_count,
                     captured_by_user_id,
-                    captured_at
+                    captured_at, sealed
                 )
                 VALUES (
                     ?,
@@ -564,7 +564,7 @@ public class FlywheelReleaseRepository {
                     ?,
                     ?,
                     ?,
-                    CURRENT_TIMESTAMP
+                    CURRENT_TIMESTAMP, FALSE
                 )
                 """,
                 snapshotId,
@@ -784,6 +784,132 @@ public class FlywheelReleaseRepository {
                                         "cancellation_note"
                                 )
                         ),
+                snapshotId
+        );
+    }
+
+    public void lockMandate(UUID mandateId) {
+        assertWriteTransaction();
+
+        List<UUID> ids = jdbcTemplate.query(
+                "SELECT id FROM procurement_flywheel_allocation_mandates WHERE id = ? FOR UPDATE",
+                (rs, rowNumber) -> rs.getObject("id", UUID.class),
+                mandateId
+        );
+
+        if (ids.isEmpty()) {
+            throw new com.procureiq.common.exception.ResourceNotFoundException(
+                    "Allocation mandate not found: " + mandateId
+            );
+        }
+    }
+
+    public void lockBatch(UUID batchId) {
+        assertWriteTransaction();
+
+        List<UUID> ids = jdbcTemplate.query(
+                "SELECT id FROM procurement_flywheel_release_batches WHERE id = ? FOR UPDATE",
+                (rs, rowNumber) -> rs.getObject("id", UUID.class),
+                batchId
+        );
+
+        if (ids.isEmpty()) {
+            throw new com.procureiq.common.exception.ResourceNotFoundException(
+                    "Release batch not found: " + batchId
+            );
+        }
+    }
+
+    private void assertWriteTransaction() {
+        if (
+                !org.springframework.transaction.support.TransactionSynchronizationManager
+                        .isActualTransactionActive()
+                || org.springframework.transaction.support.TransactionSynchronizationManager
+                        .isCurrentTransactionReadOnly()
+        ) {
+            throw new IllegalStateException(
+                    "Release locking requires an active writable transaction."
+            );
+        }
+
+        try {
+            java.sql.Connection connection =
+                    org.springframework.jdbc.datasource.DataSourceUtils.getConnection(
+                            java.util.Objects.requireNonNull(
+                                    jdbcTemplate.getDataSource()
+                            )
+                    );
+
+            if (
+                    connection.getTransactionIsolation()
+                            != java.sql.Connection.TRANSACTION_READ_COMMITTED
+            ) {
+                throw new IllegalStateException(
+                        "Release mutations require READ_COMMITTED isolation."
+                );
+            }
+        } catch (SQLException exception) {
+            throw new IllegalStateException(
+                    "Cannot verify release transaction isolation.",
+                    exception
+            );
+        }
+    }
+
+    public int cancelPendingItems(
+            UUID batchId,
+            String note,
+            UUID userId
+    ) {
+        return jdbcTemplate.update(
+                """
+                UPDATE procurement_flywheel_release_items
+                SET status = 'CANCELLED',
+                    cancellation_note = ?,
+                    cancelled_by_user_id = ?,
+                    cancelled_at = CURRENT_TIMESTAMP
+                WHERE release_batch_id = ?
+                  AND status = 'PENDING'
+                """,
+                note,
+                userId,
+                batchId
+        );
+    }
+
+    public int cancelBatch(
+            UUID batchId,
+            String note,
+            UUID userId
+    ) {
+        return jdbcTemplate.update(
+                """
+                UPDATE procurement_flywheel_release_batches
+                SET status = 'CANCELLED',
+                    close_note = ?,
+                    closed_by_user_id = ?,
+                    closed_at = CURRENT_TIMESTAMP,
+                    updated_at = CURRENT_TIMESTAMP,
+                    version = version + 1
+                WHERE id = ?
+                  AND status IN ('DRAFT', 'IN_EXECUTION')
+                  AND NOT EXISTS (
+                      SELECT 1
+                      FROM procurement_flywheel_release_items
+                      WHERE release_batch_id = ?
+                        AND status <> 'CANCELLED'
+                  )
+                """,
+                note,
+                userId,
+                batchId,
+                batchId
+        );
+    }
+
+    public int sealSnapshot(UUID snapshotId) {
+        return jdbcTemplate.update(
+                "UPDATE procurement_flywheel_release_snapshots SET sealed = TRUE WHERE id = ? AND sealed = FALSE",
                 snapshotId
         );
     }

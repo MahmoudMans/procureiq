@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@Transactional
+@Transactional(isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
 public class FlywheelReleaseService {
 
     private final FlywheelReleaseRepository repository;
@@ -105,6 +105,8 @@ public class FlywheelReleaseService {
                         currentUserId
                 ).getRole()
         );
+
+        repository.lockMandate(input.allocationMandateId());
 
         FlywheelAllocationMandateDetailResponse allocationDetail =
                 requireAuthorizedMandate(
@@ -262,7 +264,7 @@ public class FlywheelReleaseService {
         );
 
         FlywheelReleaseRepository.BatchRow batch =
-                requireBatch(
+                requireLockedBatch(
                         batchId
                 );
 
@@ -320,9 +322,7 @@ public class FlywheelReleaseService {
         }
 
         BigDecimal planned =
-                mathService.money(
-                        input.plannedReleaseAmount()
-                );
+                FlywheelReleaseIntegrity.positiveMoney(input.plannedReleaseAmount());
 
         if (
                 planned.compareTo(
@@ -426,7 +426,7 @@ public class FlywheelReleaseService {
         );
 
         FlywheelReleaseRepository.BatchRow batch =
-                requireBatch(
+                requireLockedBatch(
                         batchId
                 );
 
@@ -541,15 +541,30 @@ public class FlywheelReleaseService {
                 ).getRole()
         );
 
-        FlywheelReleaseRepository.ItemRow item =
-                requireItem(
-                        itemId
-                );
+        FlywheelReleaseRepository.ItemRow observed = requireItem(itemId);
+        FlywheelReleaseRepository.BatchRow batch = requireLockedBatch(observed.releaseBatchId());
+        FlywheelReleaseRepository.ItemRow item = requireItem(itemId);
+        input = new FlywheelReleaseExecutionInput(
+                FlywheelReleaseIntegrity.text(
+                        input.executionReference(),
+                        300,
+                        "Execution reference"
+                ),
+                FlywheelReleaseIntegrity.text(
+                        input.executionNote(),
+                        5000,
+                        "Execution note"
+                )
+        );
 
-        FlywheelReleaseRepository.BatchRow batch =
-                requireBatch(
-                        item.releaseBatchId()
-                );
+        if (
+                item.status() == FlywheelReleaseItemStatus.RELEASED
+                && input.executionReference().equals(item.executionReference())
+                && input.executionNote().equals(item.executionNote())
+        ) {
+            return batch(currentUserId, batch.id());
+        }
+
 
         if (
                 batch.status()
@@ -569,11 +584,7 @@ public class FlywheelReleaseService {
             );
         }
 
-        validateSingleItemAuthority(
-                currentUserId,
-                batch,
-                item
-        );
+        validateMandateAuthority(currentUserId, batch, List.of(item));
 
         BigDecimal previouslyReleasedForItem =
                 mathService.money(
@@ -657,15 +668,11 @@ public class FlywheelReleaseService {
                 ).getRole()
         );
 
-        FlywheelReleaseRepository.ItemRow item =
-                requireItem(
-                        itemId
-                );
+        input = new FlywheelReleaseNoteInput(FlywheelReleaseIntegrity.text(input.note(), 5000, "Cancellation note"));
 
-        FlywheelReleaseRepository.BatchRow batch =
-                requireBatch(
-                        item.releaseBatchId()
-                );
+        FlywheelReleaseRepository.ItemRow observed = requireItem(itemId);
+        FlywheelReleaseRepository.BatchRow batch = requireLockedBatch(observed.releaseBatchId());
+        FlywheelReleaseRepository.ItemRow item = requireItem(itemId);
 
         if (
                 batch.status()
@@ -715,8 +722,10 @@ public class FlywheelReleaseService {
                 ).getRole()
         );
 
+        input = new FlywheelReleaseNoteInput(FlywheelReleaseIntegrity.text(input.note(), 5000, "Execution note"));
+
         FlywheelReleaseRepository.BatchRow batch =
-                requireBatch(
+                requireLockedBatch(
                         batchId
                 );
 
@@ -760,11 +769,15 @@ public class FlywheelReleaseService {
             );
         }
 
-        validateMandateAuthority(
-                currentUserId,
-                batch,
-                items
-        );
+        if (
+                repository.cumulativeReleasedForMandate(
+                        batch.allocationMandateId()
+                ).compareTo(batch.mandateAuthorizedAmount()) > 0
+        ) {
+            throw new IllegalArgumentException(
+                    "Recorded releases exceed captured mandate authority."
+            );
+        }
 
         int updated =
                 repository.markExecuted(
@@ -801,8 +814,10 @@ public class FlywheelReleaseService {
                 ).getRole()
         );
 
+        input = new FlywheelReleaseNoteInput(FlywheelReleaseIntegrity.text(input.note(), 5000, "Closure note"));
+
         FlywheelReleaseRepository.BatchRow batch =
-                requireBatch(
+                requireLockedBatch(
                         batchId
                 );
 
@@ -903,29 +918,22 @@ public class FlywheelReleaseService {
             UUID currentUserId,
             UUID batchId
     ) {
-        FlywheelReleaseRepository.BatchRow batch =
-                requireBatch(
-                        batchId
-                );
+        FlywheelReleaseRepository.BatchRow current =
+                requireLockedBatch(batchId);
+
+        List<FlywheelReleaseRepository.ItemRow> rows =
+                repository.items(batchId);
+
+        BigDecimal cumulative = mathService.money(
+                repository.cumulativeReleasedForMandate(
+                        current.allocationMandateId()
+                )
+        );
 
         FlywheelReleaseBatchResponse response =
-                batchResponse(
-                        batch
-                );
+                batchResponseFromItems(current, rows, cumulative);
 
-        List<FlywheelReleaseItemResponse> items =
-                repository
-                        .items(
-                                batchId
-                        )
-                        .stream()
-                        .map(
-                                this::itemResponse
-                        )
-                        .toList();
-
-        UUID snapshotId =
-                UUID.randomUUID();
+        UUID snapshotId = UUID.randomUUID();
 
         repository.createSnapshot(
                 snapshotId,
@@ -934,20 +942,20 @@ public class FlywheelReleaseService {
                 currentUserId
         );
 
-        for (
-                FlywheelReleaseItemResponse item
-                : items
-        ) {
+        for (FlywheelReleaseRepository.ItemRow row : rows) {
             repository.createSnapshotItem(
                     snapshotId,
-                    item
+                    itemResponse(row)
             );
         }
 
-        return snapshot(
-                currentUserId,
-                snapshotId
-        );
+        if (repository.sealSnapshot(snapshotId) != 1) {
+            throw new IllegalStateException(
+                    "Release snapshot could not be sealed."
+            );
+        }
+
+        return snapshot(currentUserId, snapshotId);
     }
 
     private List<FlywheelReleaseMandateAuthorityResponse> eligibleMandates(
@@ -1300,22 +1308,26 @@ public class FlywheelReleaseService {
         }
     }
 
+
     private FlywheelReleaseBatchResponse batchResponse(
             FlywheelReleaseRepository.BatchRow row
     ) {
-        List<FlywheelReleaseRepository.ItemRow> items =
-                repository.items(
-                        row.id()
-                );
-
-        BigDecimal cumulativeReleased =
+        return batchResponseFromItems(
+                row,
+                repository.items(row.id()),
                 mathService.money(
-                        repository
-                                .cumulativeReleasedForMandate(
-                                        row.allocationMandateId()
-                                )
-                );
+                        repository.cumulativeReleasedForMandate(
+                                row.allocationMandateId()
+                        )
+                )
+        );
+    }
 
+    private FlywheelReleaseBatchResponse batchResponseFromItems(
+            FlywheelReleaseRepository.BatchRow row,
+            List<FlywheelReleaseRepository.ItemRow> items,
+            BigDecimal cumulativeReleased
+    ) {
         FlywheelReleaseMetricResult metric =
                 mathService.calculate(
                         row.mandateAuthorizedAmount(),
@@ -1463,49 +1475,19 @@ public class FlywheelReleaseService {
             int eligibleMandateCount,
             List<FlywheelReleaseBatchResponse> batches
     ) {
-        BigDecimal cumulativeReleased =
-                batches.stream()
-                        .map(
-                                FlywheelReleaseBatchResponse::
-                                        batchReleasedAmount
-                        )
-                        .map(
-                                mathService::money
-                        )
-                        .reduce(
-                                BigDecimal.ZERO,
-                                BigDecimal::add
-                        )
-                        .setScale(
-                                2
-                        );
-
         return new FlywheelReleaseSummaryResponse(
                 eligibleMandateCount,
-
                 batches.size(),
-
-                countBatchStatus(
+                countBatchStatus(batches, FlywheelReleaseBatchStatus.DRAFT),
+                countBatchStatus(batches, FlywheelReleaseBatchStatus.IN_EXECUTION),
+                countBatchStatus(batches, FlywheelReleaseBatchStatus.EXECUTED),
+                countBatchStatus(batches, FlywheelReleaseBatchStatus.CLOSED),
+                countBatchStatus(batches, FlywheelReleaseBatchStatus.CANCELLED),
+                com.procureiq.common.money.CurrencyTotals.sum(
                         batches,
-                        FlywheelReleaseBatchStatus.DRAFT
-                ),
-
-                countBatchStatus(
-                        batches,
-                        FlywheelReleaseBatchStatus.IN_EXECUTION
-                ),
-
-                countBatchStatus(
-                        batches,
-                        FlywheelReleaseBatchStatus.EXECUTED
-                ),
-
-                countBatchStatus(
-                        batches,
-                        FlywheelReleaseBatchStatus.CLOSED
-                ),
-
-                cumulativeReleased
+                        FlywheelReleaseBatchResponse::currency,
+                        FlywheelReleaseBatchResponse::batchReleasedAmount
+                )
         );
     }
 
@@ -1614,6 +1596,65 @@ public class FlywheelReleaseService {
                 row.executionNote(),
                 row.cancellationNote()
         );
+    }
+
+    private FlywheelReleaseRepository.BatchRow requireLockedBatch(UUID batchId) {
+        FlywheelReleaseRepository.BatchRow observed = requireBatch(batchId);
+
+        repository.lockMandate(observed.allocationMandateId());
+        repository.lockBatch(batchId);
+
+        FlywheelReleaseRepository.BatchRow current = requireBatch(batchId);
+
+        if (
+                !current.allocationMandateId()
+                        .equals(observed.allocationMandateId())
+        ) {
+            throw new IllegalStateException(
+                    "Release batch parent changed while locking."
+            );
+        }
+
+        return current;
+    }
+
+    public FlywheelReleaseBatchDetailResponse cancelBatch(
+            UUID currentUserId,
+            UUID batchId,
+            FlywheelReleaseNoteInput input
+    ) {
+        assertExecuteRole(findCurrentUser(currentUserId).getRole());
+
+        String note = FlywheelReleaseIntegrity.text(
+                input.note(),
+                5000,
+                "Batch cancellation note"
+        );
+
+        FlywheelReleaseRepository.BatchRow current =
+                requireLockedBatch(batchId);
+
+        List<FlywheelReleaseRepository.ItemRow> items =
+                repository.items(batchId);
+
+        FlywheelReleaseIntegrity.assertCancellable(
+                current.status(),
+                items.stream()
+                        .map(FlywheelReleaseRepository.ItemRow::status)
+                        .toList()
+        );
+
+        repository.cancelPendingItems(batchId, note, currentUserId);
+
+        if (repository.cancelBatch(batchId, note, currentUserId) != 1) {
+            throw new IllegalArgumentException(
+                    "Release batch could not be cancelled."
+            );
+        }
+
+        captureSnapshotInternal(currentUserId, batchId);
+
+        return batch(currentUserId, batchId);
     }
 
     private FlywheelReleaseRepository.BatchRow requireBatch(

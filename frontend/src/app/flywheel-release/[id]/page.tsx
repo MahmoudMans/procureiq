@@ -16,6 +16,7 @@ import {
 import {
   addFlywheelReleaseItem,
   cancelFlywheelReleaseItem,
+  cancelFlywheelReleaseBatch,
   captureFlywheelReleaseSnapshot,
   closeFlywheelReleaseBatch,
   executeFlywheelReleaseItem,
@@ -469,6 +470,34 @@ export default function FlywheelReleaseBatchPage() {
           Error
           ? caughtError.message
           : "Unable to finalize release batch.",
+      );
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  async function cancelBatch() {
+    if (!closeNote.trim() || running) {
+      return;
+    }
+
+    try {
+      setRunning(true);
+      setError(null);
+
+      setDetail(
+        await cancelFlywheelReleaseBatch(
+          params.id,
+          closeNote.trim(),
+        ),
+      );
+
+      setCloseNote("");
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Unable to cancel release batch.",
       );
     } finally {
       setRunning(false);
@@ -1480,6 +1509,54 @@ export default function FlywheelReleaseBatchPage() {
           </table>
         </div>
       </section>
+
+      {canExecute
+        && (batch.status === "DRAFT" || batch.status === "IN_EXECUTION")
+        && batch.releasedCount === 0 ? (
+        <section className="panel">
+          <div className="panel__header">
+            <h2>Cancel this batch without recording a release</h2>
+          </div>
+
+          <p>
+            This cancels any pending items and keeps the history.
+            A batch containing a recorded release cannot be cancelled.
+          </p>
+
+          <label className="request-field">
+            <span>Batch cancellation rationale</span>
+
+            <textarea
+              rows={3}
+              maxLength={5000}
+              value={closeNote}
+              onChange={event => setCloseNote(event.target.value)}
+            />
+          </label>
+
+          <div className="fwstrategy-form-actions">
+            <button
+              type="button"
+              className="button"
+              disabled={running || !closeNote.trim()}
+              onClick={() => void cancelBatch()}
+            >
+              Cancel batch
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      {batch.status === "CANCELLED" ? (
+        <section className="panel">
+          <h2>Batch cancelled</h2>
+          <p>{batch.closeNote}</p>
+          <p>
+            No release was recorded by this batch.
+            Its evidence remains available.
+          </p>
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -363,12 +363,12 @@ export default function FlywheelAllocationPage() {
           </span>
 
           <strong>
-            {money(
-              summary
-                ?.authorizedAllocationAmount
-              ??
-              0,
-            )}
+            {(summary?.authorizedAllocationByCurrency ?? []).length === 0 ? "No recorded amounts" :
+              (summary?.authorizedAllocationByCurrency ?? []).map(total => (
+                <span key={total.currency} style={{ display: "block" }}>
+                  {money(total.amount, total.currency)}
+                </span>
+              ))}
           </strong>
         </article>
       </section>

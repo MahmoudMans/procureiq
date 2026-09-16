@@ -56,9 +56,7 @@ public class FlywheelReleaseMathService {
                         .subtract(
                                 cumulativeReleased
                         )
-                        .max(
-                                BigDecimal.ZERO
-                        )
+
                         .setScale(
                                 2,
                                 RoundingMode.HALF_UP
@@ -82,16 +80,7 @@ public class FlywheelReleaseMathService {
                                         2,
                                         RoundingMode.HALF_UP
                                 )
-                                .max(
-                                        percent(
-                                                BigDecimal.ZERO
-                                        )
-                                )
-                                .min(
-                                        new BigDecimal(
-                                                "100.00"
-                                        )
-                                );
+                                ;
 
         return new FlywheelReleaseMetricResult(
                 planned,

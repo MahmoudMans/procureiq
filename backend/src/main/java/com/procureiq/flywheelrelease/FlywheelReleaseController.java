@@ -262,6 +262,20 @@ public class FlywheelReleaseController {
         );
     }
 
+    @PostMapping("/batches/{batchId}/cancel")
+    @PreAuthorize("hasAnyRole('ADMIN','PROCUREMENT_MANAGER')")
+    public FlywheelReleaseBatchDetailResponse cancelBatch(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable UUID batchId,
+            @Valid @RequestBody FlywheelReleaseNoteInput input
+    ) {
+        return service.cancelBatch(
+                currentUserId(jwt),
+                batchId,
+                input
+        );
+    }
+
     private UUID currentUserId(
             Jwt jwt
     ) {

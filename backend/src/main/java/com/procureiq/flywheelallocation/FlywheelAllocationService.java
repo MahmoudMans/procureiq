@@ -1138,54 +1138,23 @@ public class FlywheelAllocationService {
             int eligibleStrategyCount,
             List<FlywheelAllocationMandateResponse> mandates
     ) {
-        BigDecimal authorizedAmount =
-                mandates.stream()
-                        .filter(
-                                mandate ->
-                                        mandate.status()
-                                                == FlywheelAllocationMandateStatus.AUTHORIZED
-                        )
-                        .map(
-                                FlywheelAllocationMandateResponse::
-                                        requestedAllocationAmount
-                        )
-                        .map(
-                                mathService::money
-                        )
-                        .reduce(
-                                BigDecimal.ZERO,
-                                BigDecimal::add
-                        )
-                        .setScale(
-                                2
-                        );
-
         return new FlywheelAllocationSummaryResponse(
                 eligibleStrategyCount,
-
                 mandates.size(),
-
-                countStatus(
-                        mandates,
-                        FlywheelAllocationMandateStatus.DRAFT
-                ),
-
-                countStatus(
-                        mandates,
-                        FlywheelAllocationMandateStatus.IN_REVIEW
-                ),
-
-                countStatus(
-                        mandates,
-                        FlywheelAllocationMandateStatus.AUTHORIZED
-                ),
-
-                countStatus(
-                        mandates,
-                        FlywheelAllocationMandateStatus.CLOSED
-                ),
-
-                authorizedAmount
+                countStatus(mandates, FlywheelAllocationMandateStatus.DRAFT),
+                countStatus(mandates, FlywheelAllocationMandateStatus.IN_REVIEW),
+                countStatus(mandates, FlywheelAllocationMandateStatus.AUTHORIZED),
+                countStatus(mandates, FlywheelAllocationMandateStatus.CLOSED),
+                com.procureiq.common.money.CurrencyTotals.sum(
+                        mandates.stream()
+                                .filter(
+                                        mandate -> mandate.status()
+                                                == FlywheelAllocationMandateStatus.AUTHORIZED
+                                )
+                                .toList(),
+                        FlywheelAllocationMandateResponse::currency,
+                        FlywheelAllocationMandateResponse::requestedAllocationAmount
+                )
         );
     }
 

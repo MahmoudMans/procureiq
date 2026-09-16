@@ -196,7 +196,7 @@ export interface FlywheelAllocationSummary {
   authorizedMandateCount: number;
   closedMandateCount: number;
 
-  authorizedAllocationAmount: number;
+  authorizedAllocationByCurrency: { currency: string; amount: number }[];
 }
 
 export interface FlywheelAllocationDashboard {

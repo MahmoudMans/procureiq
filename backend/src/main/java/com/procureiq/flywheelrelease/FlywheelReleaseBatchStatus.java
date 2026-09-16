@@ -4,5 +4,6 @@ public enum FlywheelReleaseBatchStatus {
     DRAFT,
     IN_EXECUTION,
     EXECUTED,
-    CLOSED
+    CLOSED,
+    CANCELLED
 }

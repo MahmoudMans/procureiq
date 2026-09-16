@@ -80,30 +80,21 @@ class FlywheelReleaseMathServiceTest {
     }
 
     @Test
-    void shouldNeverExposeNegativeRemainingAmount() {
-        FlywheelReleaseMetricResult result =
-                service.calculate(
-                        new BigDecimal(
-                                "500.00"
-                        ),
-                        List.of(),
-                        List.of(),
-                        new BigDecimal(
-                                "700.00"
-                        )
-                );
+    void shouldExposeOverrunInsteadOfMaskingIt() {
+        FlywheelReleaseMetricResult result = service.calculate(
+                new BigDecimal("500.00"),
+                List.of(),
+                List.of(),
+                new BigDecimal("700.00")
+        );
 
         assertEquals(
-                new BigDecimal(
-                        "0.00"
-                ),
+                new BigDecimal("-200.00"),
                 result.remainingMandateAmount()
         );
 
         assertEquals(
-                new BigDecimal(
-                        "100.00"
-                ),
+                new BigDecimal("140.00"),
                 result.cumulativeReleaseUtilizationPct()
         );
     }

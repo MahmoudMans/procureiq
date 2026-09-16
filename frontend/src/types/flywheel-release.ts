@@ -6,7 +6,8 @@ export type FlywheelReleaseBatchStatus =
   | "DRAFT"
   | "IN_EXECUTION"
   | "EXECUTED"
-  | "CLOSED";
+  | "CLOSED"
+  | "CANCELLED";
 
 export type FlywheelReleaseItemStatus =
   | "PENDING"
@@ -226,14 +227,16 @@ export interface FlywheelReleaseBatchDetail {
 
 export interface FlywheelReleaseSummary {
   eligibleMandateCount: number;
-
   batchCount: number;
   draftBatchCount: number;
   executionBatchCount: number;
   executedBatchCount: number;
   closedBatchCount: number;
-
-  cumulativeReleasedAmount: number;
+  cancelledBatchCount: number;
+  cumulativeReleasedByCurrency: {
+    currency: string;
+    amount: number;
+  }[];
 }
 
 export interface FlywheelReleaseDashboard {

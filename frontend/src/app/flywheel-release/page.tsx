@@ -366,12 +366,12 @@ export default function FlywheelReleasePage() {
           </span>
 
           <strong>
-            {money(
-              summary
-                ?.cumulativeReleasedAmount
-              ??
-              0,
-            )}
+            {(summary?.cumulativeReleasedByCurrency ?? []).length === 0 ? "No recorded amounts" :
+              (summary?.cumulativeReleasedByCurrency ?? []).map(total => (
+                <span key={total.currency} style={{ display: "block" }}>
+                  {money(total.amount, total.currency)}
+                </span>
+              ))}
           </strong>
         </article>
       </section>

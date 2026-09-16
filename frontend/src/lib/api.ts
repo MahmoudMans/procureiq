@@ -11889,3 +11889,16 @@ export async function getFlywheelReleaseSnapshot(
     `/flywheel-release/snapshots/${snapshotId}`,
   );
 }
+
+export async function cancelFlywheelReleaseBatch(
+  batchId: string,
+  note: string,
+): Promise<import("@/types/flywheel-release").FlywheelReleaseBatchDetail> {
+  return request<import("@/types/flywheel-release").FlywheelReleaseBatchDetail>(
+    `/flywheel-release/batches/${encodeURIComponent(batchId)}/cancel`,
+    {
+      method: "POST",
+      body: JSON.stringify({ note }),
+    },
+  );
+}
