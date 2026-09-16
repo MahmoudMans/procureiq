@@ -233,6 +233,10 @@ const coreNavigation = [
     href: "/capital-flywheel",
     label: "Capital flywheel",
     icon: Goal,
+  },{
+    href: "/flywheel-strategy",
+    label: "Flywheel strategy",
+    icon: Goal,
   },
 
 

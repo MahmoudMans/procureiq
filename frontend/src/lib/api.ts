@@ -11382,3 +11382,175 @@ export async function getCapitalFlywheelSnapshot(
     `/capital-flywheel/snapshots/${snapshotId}`,
   );
 }
+
+export async function getFlywheelStrategyDashboard(): Promise<
+  import("@/types/flywheel-strategy").FlywheelStrategyDashboard
+> {
+  return request<
+    import("@/types/flywheel-strategy").FlywheelStrategyDashboard
+  >(
+    "/flywheel-strategy",
+  );
+}
+
+export async function createFlywheelStrategyPortfolio(
+  input: {
+    title: string;
+    currency: string;
+    fiscalYear: number;
+    capitalCapacityAmount: number;
+    portfolioOwnerUserId: string;
+    strategicObjective: string;
+  },
+): Promise<
+  import("@/types/flywheel-strategy").FlywheelStrategyPortfolioDetail
+> {
+  return request<
+    import("@/types/flywheel-strategy").FlywheelStrategyPortfolioDetail
+  >(
+    "/flywheel-strategy/portfolios",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getFlywheelStrategyPortfolio(
+  portfolioId: string,
+): Promise<
+  import("@/types/flywheel-strategy").FlywheelStrategyPortfolioDetail
+> {
+  return request<
+    import("@/types/flywheel-strategy").FlywheelStrategyPortfolioDetail
+  >(
+    `/flywheel-strategy/portfolios/${portfolioId}`,
+  );
+}
+
+export async function addFlywheelStrategyItem(
+  portfolioId: string,
+  input: {
+    flywheelLineageId: string;
+    proposedCapacityAmount: number;
+  },
+): Promise<
+  import("@/types/flywheel-strategy").FlywheelStrategyPortfolioDetail
+> {
+  return request<
+    import("@/types/flywheel-strategy").FlywheelStrategyPortfolioDetail
+  >(
+    `/flywheel-strategy/portfolios/${portfolioId}/items`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function submitFlywheelStrategyForReview(
+  portfolioId: string,
+): Promise<
+  import("@/types/flywheel-strategy").FlywheelStrategyPortfolioDetail
+> {
+  return request<
+    import("@/types/flywheel-strategy").FlywheelStrategyPortfolioDetail
+  >(
+    `/flywheel-strategy/portfolios/${portfolioId}/ready-for-review`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function decideFlywheelStrategyItem(
+  itemId: string,
+  input: {
+    decision:
+      import("@/types/flywheel-strategy").FlywheelStrategyDecision;
+    decisionNote: string;
+  },
+): Promise<
+  import("@/types/flywheel-strategy").FlywheelStrategyPortfolioDetail
+> {
+  return request<
+    import("@/types/flywheel-strategy").FlywheelStrategyPortfolioDetail
+  >(
+    `/flywheel-strategy/items/${itemId}/decide`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function approveFlywheelStrategyPortfolio(
+  portfolioId: string,
+  note: string,
+): Promise<
+  import("@/types/flywheel-strategy").FlywheelStrategyPortfolioDetail
+> {
+  return request<
+    import("@/types/flywheel-strategy").FlywheelStrategyPortfolioDetail
+  >(
+    `/flywheel-strategy/portfolios/${portfolioId}/approve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function closeFlywheelStrategyPortfolio(
+  portfolioId: string,
+  note: string,
+): Promise<
+  import("@/types/flywheel-strategy").FlywheelStrategyPortfolioDetail
+> {
+  return request<
+    import("@/types/flywheel-strategy").FlywheelStrategyPortfolioDetail
+  >(
+    `/flywheel-strategy/portfolios/${portfolioId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureFlywheelStrategySnapshot(
+  portfolioId: string,
+): Promise<
+  import("@/types/flywheel-strategy").FlywheelStrategySnapshotDetail
+> {
+  return request<
+    import("@/types/flywheel-strategy").FlywheelStrategySnapshotDetail
+  >(
+    `/flywheel-strategy/portfolios/${portfolioId}/snapshots`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getFlywheelStrategySnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/flywheel-strategy").FlywheelStrategySnapshotDetail
+> {
+  return request<
+    import("@/types/flywheel-strategy").FlywheelStrategySnapshotDetail
+  >(
+    `/flywheel-strategy/snapshots/${snapshotId}`,
+  );
+}
