@@ -11701,3 +11701,191 @@ export async function getFlywheelAllocationSnapshot(
     `/flywheel-allocation/snapshots/${snapshotId}`,
   );
 }
+
+export async function getFlywheelReleaseDashboard(): Promise<
+  import("@/types/flywheel-release").FlywheelReleaseDashboard
+> {
+  return request<
+    import("@/types/flywheel-release").FlywheelReleaseDashboard
+  >(
+    "/flywheel-release",
+  );
+}
+
+export async function createFlywheelReleaseBatch(
+  input: {
+    allocationMandateId: string;
+    title: string;
+    releaseOwnerUserId: string;
+    releaseRationale: string;
+  },
+): Promise<
+  import("@/types/flywheel-release").FlywheelReleaseBatchDetail
+> {
+  return request<
+    import("@/types/flywheel-release").FlywheelReleaseBatchDetail
+  >(
+    "/flywheel-release/batches",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getFlywheelReleaseBatch(
+  batchId: string,
+): Promise<
+  import("@/types/flywheel-release").FlywheelReleaseBatchDetail
+> {
+  return request<
+    import("@/types/flywheel-release").FlywheelReleaseBatchDetail
+  >(
+    `/flywheel-release/batches/${batchId}`,
+  );
+}
+
+export async function addFlywheelReleaseItem(
+  batchId: string,
+  input: {
+    allocationItemId: string;
+    plannedReleaseAmount: number;
+  },
+): Promise<
+  import("@/types/flywheel-release").FlywheelReleaseBatchDetail
+> {
+  return request<
+    import("@/types/flywheel-release").FlywheelReleaseBatchDetail
+  >(
+    `/flywheel-release/batches/${batchId}/items`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function submitFlywheelReleaseForExecution(
+  batchId: string,
+): Promise<
+  import("@/types/flywheel-release").FlywheelReleaseBatchDetail
+> {
+  return request<
+    import("@/types/flywheel-release").FlywheelReleaseBatchDetail
+  >(
+    `/flywheel-release/batches/${batchId}/ready-for-execution`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function executeFlywheelReleaseItem(
+  itemId: string,
+  input: {
+    executionReference: string;
+    executionNote: string;
+  },
+): Promise<
+  import("@/types/flywheel-release").FlywheelReleaseBatchDetail
+> {
+  return request<
+    import("@/types/flywheel-release").FlywheelReleaseBatchDetail
+  >(
+    `/flywheel-release/items/${itemId}/release`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function cancelFlywheelReleaseItem(
+  itemId: string,
+  note: string,
+): Promise<
+  import("@/types/flywheel-release").FlywheelReleaseBatchDetail
+> {
+  return request<
+    import("@/types/flywheel-release").FlywheelReleaseBatchDetail
+  >(
+    `/flywheel-release/items/${itemId}/cancel`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function finalizeFlywheelReleaseBatch(
+  batchId: string,
+  note: string,
+): Promise<
+  import("@/types/flywheel-release").FlywheelReleaseBatchDetail
+> {
+  return request<
+    import("@/types/flywheel-release").FlywheelReleaseBatchDetail
+  >(
+    `/flywheel-release/batches/${batchId}/executed`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function closeFlywheelReleaseBatch(
+  batchId: string,
+  note: string,
+): Promise<
+  import("@/types/flywheel-release").FlywheelReleaseBatchDetail
+> {
+  return request<
+    import("@/types/flywheel-release").FlywheelReleaseBatchDetail
+  >(
+    `/flywheel-release/batches/${batchId}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureFlywheelReleaseSnapshot(
+  batchId: string,
+): Promise<
+  import("@/types/flywheel-release").FlywheelReleaseSnapshotDetail
+> {
+  return request<
+    import("@/types/flywheel-release").FlywheelReleaseSnapshotDetail
+  >(
+    `/flywheel-release/batches/${batchId}/snapshots`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getFlywheelReleaseSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/flywheel-release").FlywheelReleaseSnapshotDetail
+> {
+  return request<
+    import("@/types/flywheel-release").FlywheelReleaseSnapshotDetail
+  >(
+    `/flywheel-release/snapshots/${snapshotId}`,
+  );
+}

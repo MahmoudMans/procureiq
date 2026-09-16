@@ -241,6 +241,10 @@ const coreNavigation = [
     href: "/flywheel-allocation",
     label: "Capital mandates",
     icon: Goal,
+  },{
+    href: "/flywheel-release",
+    label: "Capital release",
+    icon: Goal,
   },
 
 
