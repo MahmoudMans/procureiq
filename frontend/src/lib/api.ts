@@ -1,4 +1,13 @@
 import type {
+  FlywheelContinuationOutcomeCaseDetail,
+  FlywheelContinuationOutcomeCaseInput,
+  FlywheelContinuationOutcomeDashboard,
+  FlywheelContinuationOutcomeItemInput,
+  FlywheelContinuationOutcomeNoteInput,
+  FlywheelContinuationOutcomeSnapshotDetail,
+} from "@/types/flywheel-continuation-outcome";
+
+import type {
   FlywheelResidualContinuationCaseDetail,
   FlywheelResidualContinuationCaseInput,
   FlywheelResidualContinuationDashboard,
@@ -12647,5 +12656,92 @@ export function captureFlywheelResidualContinuationSnapshot(id: string) {
 export function getFlywheelResidualContinuationSnapshot(id: string) {
   return request<FlywheelResidualContinuationSnapshotDetail>(
     `/api/v1/flywheel-remediation-continuations/snapshots/${id}`,
+  );
+}
+
+export function getFlywheelContinuationOutcomeDashboard() {
+  return request<FlywheelContinuationOutcomeDashboard>(
+    "/api/v1/flywheel-continuation-outcomes/dashboard",
+  );
+}
+
+export function createFlywheelContinuationOutcomeCase(
+  input: FlywheelContinuationOutcomeCaseInput,
+) {
+  return request<FlywheelContinuationOutcomeCaseDetail>(
+    "/api/v1/flywheel-continuation-outcomes/cases",
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function getFlywheelContinuationOutcomeCase(id: string) {
+  return request<FlywheelContinuationOutcomeCaseDetail>(
+    `/api/v1/flywheel-continuation-outcomes/cases/${id}`,
+  );
+}
+
+export function addFlywheelContinuationOutcomeItem(
+  id: string,
+  input: FlywheelContinuationOutcomeItemInput,
+) {
+  return request<FlywheelContinuationOutcomeCaseDetail>(
+    `/api/v1/flywheel-continuation-outcomes/cases/${id}/items`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function submitFlywheelContinuationOutcomeCase(id: string) {
+  return request<FlywheelContinuationOutcomeCaseDetail>(
+    `/api/v1/flywheel-continuation-outcomes/cases/${id}/submit`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export function verifyFlywheelContinuationOutcomeCase(
+  id: string,
+  input: FlywheelContinuationOutcomeNoteInput,
+) {
+  return request<FlywheelContinuationOutcomeCaseDetail>(
+    `/api/v1/flywheel-continuation-outcomes/cases/${id}/verify`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function closeFlywheelContinuationOutcomeCase(
+  id: string,
+  input: FlywheelContinuationOutcomeNoteInput,
+) {
+  return request<FlywheelContinuationOutcomeCaseDetail>(
+    `/api/v1/flywheel-continuation-outcomes/cases/${id}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function captureFlywheelContinuationOutcomeSnapshot(id: string) {
+  return request<FlywheelContinuationOutcomeSnapshotDetail>(
+    `/api/v1/flywheel-continuation-outcomes/cases/${id}/snapshots`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export function getFlywheelContinuationOutcomeSnapshot(id: string) {
+  return request<FlywheelContinuationOutcomeSnapshotDetail>(
+    `/api/v1/flywheel-continuation-outcomes/snapshots/${id}`,
   );
 }
