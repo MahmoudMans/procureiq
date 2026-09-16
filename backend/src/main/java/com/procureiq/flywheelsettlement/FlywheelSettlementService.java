@@ -21,7 +21,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@Transactional
+@Transactional(
+        isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED
+)
 public class FlywheelSettlementService {
 
     private final FlywheelSettlementRepository repository;
@@ -105,6 +107,10 @@ public class FlywheelSettlementService {
                 findCurrentUser(
                         currentUserId
                 ).getRole()
+        );
+
+        repository.lockReleaseBatch(
+                input.releaseBatchId()
         );
 
         FlywheelReleaseBatchDetailResponse release =
@@ -249,7 +255,7 @@ public class FlywheelSettlementService {
         );
 
         FlywheelSettlementRepository.CaseRow settlementCase =
-                requireCase(
+                requireLockedCase(
                         caseId
                 );
 
@@ -369,7 +375,7 @@ public class FlywheelSettlementService {
         );
 
         FlywheelSettlementRepository.CaseRow settlementCase =
-                requireCase(
+                requireLockedCase(
                         caseId
                 );
 
@@ -505,7 +511,7 @@ public class FlywheelSettlementService {
         );
 
         FlywheelSettlementRepository.CaseRow settlementCase =
-                requireCase(
+                requireLockedCase(
                         caseId
                 );
 
@@ -595,7 +601,7 @@ public class FlywheelSettlementService {
         );
 
         FlywheelSettlementRepository.CaseRow settlementCase =
-                requireCase(
+                requireLockedCase(
                         caseId
                 );
 
@@ -704,7 +710,7 @@ public class FlywheelSettlementService {
             UUID caseId
     ) {
         FlywheelSettlementRepository.CaseRow row =
-                requireCase(
+                requireLockedCase(
                         caseId
                 );
 
@@ -1339,6 +1345,43 @@ public class FlywheelSettlementService {
                 row.evidenceDate(),
                 row.evidenceNote()
         );
+    }
+
+
+    private FlywheelSettlementRepository.CaseRow requireLockedCase(
+            UUID caseId
+    ) {
+        FlywheelSettlementRepository.CaseRow observed =
+                requireCase(
+                        caseId
+                );
+
+        repository.lockReleaseBatch(
+                observed.releaseBatchId()
+        );
+
+        repository.lockCase(
+                caseId
+        );
+
+        FlywheelSettlementRepository.CaseRow current =
+                requireCase(
+                        caseId
+                );
+
+        if (
+                !current
+                        .releaseBatchId()
+                        .equals(
+                                observed.releaseBatchId()
+                        )
+        ) {
+            throw new IllegalStateException(
+                    "Settlement case source release changed while acquiring the governance lock."
+            );
+        }
+
+        return current;
     }
 
     private FlywheelSettlementRepository.CaseRow requireCase(

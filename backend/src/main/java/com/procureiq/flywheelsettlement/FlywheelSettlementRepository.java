@@ -561,7 +561,8 @@ public class FlywheelSettlementRepository {
         return jdbcTemplate.query(
                 snapshotSql()
                         + """
-                        WHERE settlement_snapshot.id = ?
+                        WHERE settlement_snapshot.sealed = TRUE
+                        AND settlement_snapshot.id = ?
                         """,
                 (
                         resultSet,
@@ -581,6 +582,8 @@ public class FlywheelSettlementRepository {
         return jdbcTemplate.query(
                 snapshotSql()
                         + """
+                        WHERE settlement_snapshot.sealed = TRUE
+
                         ORDER BY
                             settlement_snapshot.captured_at DESC
 
@@ -602,7 +605,8 @@ public class FlywheelSettlementRepository {
         return jdbcTemplate.query(
                 snapshotSql()
                         + """
-                        WHERE settlement_snapshot.settlement_case_id = ?
+                        WHERE settlement_snapshot.sealed = TRUE
+                        AND settlement_snapshot.settlement_case_id = ?
 
                         ORDER BY
                             settlement_snapshot.captured_at DESC
@@ -688,6 +692,122 @@ public class FlywheelSettlementRepository {
                         ),
                 snapshotId
         );
+    }
+
+
+    public void lockReleaseBatch(
+            UUID releaseBatchId
+    ) {
+        assertWriteTransaction();
+
+        List<UUID> ids =
+                jdbcTemplate.query(
+                        """
+                        SELECT id
+
+                        FROM procurement_flywheel_release_batches
+
+                        WHERE id = ?
+
+                        FOR UPDATE
+                        """,
+                        (
+                                resultSet,
+                                rowNumber
+                        ) ->
+                                resultSet.getObject(
+                                        "id",
+                                        UUID.class
+                                ),
+                        releaseBatchId
+                );
+
+        if (
+                ids.isEmpty()
+        ) {
+            throw new com.procureiq.common.exception.ResourceNotFoundException(
+                    "Flywheel release batch not found: "
+                            + releaseBatchId
+            );
+        }
+    }
+
+    public void lockCase(
+            UUID caseId
+    ) {
+        assertWriteTransaction();
+
+        List<UUID> ids =
+                jdbcTemplate.query(
+                        """
+                        SELECT id
+
+                        FROM procurement_flywheel_settlement_cases
+
+                        WHERE id = ?
+
+                        FOR UPDATE
+                        """,
+                        (
+                                resultSet,
+                                rowNumber
+                        ) ->
+                                resultSet.getObject(
+                                        "id",
+                                        UUID.class
+                                ),
+                        caseId
+                );
+
+        if (
+                ids.isEmpty()
+        ) {
+            throw new com.procureiq.common.exception.ResourceNotFoundException(
+                    "Flywheel settlement reconciliation case not found: "
+                            + caseId
+            );
+        }
+    }
+
+    private void assertWriteTransaction() {
+        if (
+                !org.springframework.transaction.support.TransactionSynchronizationManager
+                        .isActualTransactionActive()
+                ||
+                org.springframework.transaction.support.TransactionSynchronizationManager
+                        .isCurrentTransactionReadOnly()
+        ) {
+            throw new IllegalStateException(
+                    "Settlement locking requires an active writable transaction."
+            );
+        }
+
+        try {
+            java.sql.Connection connection =
+                    org.springframework.jdbc.datasource.DataSourceUtils
+                            .getConnection(
+                                    java.util.Objects.requireNonNull(
+                                            jdbcTemplate.getDataSource()
+                                    )
+                            );
+
+            if (
+                    connection.getTransactionIsolation()
+                            != java.sql.Connection.TRANSACTION_READ_COMMITTED
+            ) {
+                throw new IllegalStateException(
+                        "Settlement mutations require READ_COMMITTED isolation."
+                );
+            }
+
+        } catch (
+                SQLException exception
+        ) {
+            throw new IllegalStateException(
+                    "Cannot verify settlement transaction isolation.",
+                    exception
+            );
+        }
     }
 
     private String caseSql() {
@@ -818,8 +938,6 @@ public class FlywheelSettlementRepository {
                     user_account
                     ON user_account.id =
                        settlement_snapshot.captured_by_user_id
-
-                WHERE settlement_snapshot.sealed = TRUE
 
                 """;
     }
