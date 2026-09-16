@@ -12052,3 +12052,153 @@ export async function getFlywheelSettlementSnapshot(
     `/flywheel-settlement/snapshots/${encodeURIComponent(snapshotId)}`,
   );
 }
+
+export async function getFlywheelVarianceDashboard(): Promise<
+  import("@/types/flywheel-variance").FlywheelVarianceDashboard
+> {
+  return request<
+    import("@/types/flywheel-variance").FlywheelVarianceDashboard
+  >(
+    "/flywheel-variance",
+  );
+}
+
+export async function createFlywheelVariancePlan(
+  input: {
+    settlementCaseId: string;
+    title: string;
+    planOwnerUserId: string;
+    resolutionObjective: string;
+  },
+): Promise<
+  import("@/types/flywheel-variance").FlywheelVariancePlanDetail
+> {
+  return request<
+    import("@/types/flywheel-variance").FlywheelVariancePlanDetail
+  >(
+    "/flywheel-variance/plans",
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function getFlywheelVariancePlan(
+  planId: string,
+): Promise<
+  import("@/types/flywheel-variance").FlywheelVariancePlanDetail
+> {
+  return request<
+    import("@/types/flywheel-variance").FlywheelVariancePlanDetail
+  >(
+    `/flywheel-variance/plans/${encodeURIComponent(planId)}`,
+  );
+}
+
+export async function addFlywheelVarianceItem(
+  planId: string,
+  input: {
+    settlementItemId: string;
+    decision:
+      import("@/types/flywheel-variance").FlywheelVarianceDecision;
+    decisionRationale: string;
+    targetDate: string;
+  },
+): Promise<
+  import("@/types/flywheel-variance").FlywheelVariancePlanDetail
+> {
+  return request<
+    import("@/types/flywheel-variance").FlywheelVariancePlanDetail
+  >(
+    `/flywheel-variance/plans/${encodeURIComponent(planId)}/items`,
+    {
+      method: "POST",
+      body: JSON.stringify(
+        input,
+      ),
+    },
+  );
+}
+
+export async function submitFlywheelVarianceForReview(
+  planId: string,
+): Promise<
+  import("@/types/flywheel-variance").FlywheelVariancePlanDetail
+> {
+  return request<
+    import("@/types/flywheel-variance").FlywheelVariancePlanDetail
+  >(
+    `/flywheel-variance/plans/${encodeURIComponent(planId)}/ready-for-review`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function approveFlywheelVariancePlan(
+  planId: string,
+  note: string,
+): Promise<
+  import("@/types/flywheel-variance").FlywheelVariancePlanDetail
+> {
+  return request<
+    import("@/types/flywheel-variance").FlywheelVariancePlanDetail
+  >(
+    `/flywheel-variance/plans/${encodeURIComponent(planId)}/approve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function closeFlywheelVariancePlan(
+  planId: string,
+  note: string,
+): Promise<
+  import("@/types/flywheel-variance").FlywheelVariancePlanDetail
+> {
+  return request<
+    import("@/types/flywheel-variance").FlywheelVariancePlanDetail
+  >(
+    `/flywheel-variance/plans/${encodeURIComponent(planId)}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        note,
+      }),
+    },
+  );
+}
+
+export async function captureFlywheelVarianceSnapshot(
+  planId: string,
+): Promise<
+  import("@/types/flywheel-variance").FlywheelVarianceSnapshotDetail
+> {
+  return request<
+    import("@/types/flywheel-variance").FlywheelVarianceSnapshotDetail
+  >(
+    `/flywheel-variance/plans/${encodeURIComponent(planId)}/snapshots`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function getFlywheelVarianceSnapshot(
+  snapshotId: string,
+): Promise<
+  import("@/types/flywheel-variance").FlywheelVarianceSnapshotDetail
+> {
+  return request<
+    import("@/types/flywheel-variance").FlywheelVarianceSnapshotDetail
+  >(
+    `/flywheel-variance/snapshots/${encodeURIComponent(snapshotId)}`,
+  );
+}

@@ -249,6 +249,10 @@ const coreNavigation = [
     href: "/flywheel-settlement",
     label: "Settlement evidence",
     icon: Goal,
+  },{
+    href: "/flywheel-variance",
+    label: "Variance resolution",
+    icon: Goal,
   },
 
 
