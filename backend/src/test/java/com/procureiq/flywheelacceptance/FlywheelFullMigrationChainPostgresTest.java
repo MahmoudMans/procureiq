@@ -114,7 +114,7 @@ class FlywheelFullMigrationChainPostgresTest {
     }
 
     @Test
-    void fullMigrationChainReachesV81AndCreatesResidualCycleRollover()
+    void fullMigrationChainReachesV82AndHardensResidualCycleRolloverRuntime()
             throws Exception {
         Flyway flyway =
                 flyway();
@@ -133,7 +133,7 @@ class FlywheelFullMigrationChainPostgresTest {
         );
 
         assertEquals(
-                "81",
+                "82",
                 flyway
                         .info()
                         .current()
@@ -287,7 +287,7 @@ class FlywheelFullMigrationChainPostgresTest {
     }
 
     @Test
-    void currentV81DatabaseHasNoPendingMigration()
+    void currentV82DatabaseHasNoPendingMigration()
             throws Exception {
         Flyway flyway =
                 flyway();
@@ -312,7 +312,7 @@ class FlywheelFullMigrationChainPostgresTest {
         );
 
         assertEquals(
-                "81",
+                "82",
                 flyway
                         .info()
                         .current()
