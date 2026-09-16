@@ -114,7 +114,7 @@ class FlywheelFullMigrationChainPostgresTest {
     }
 
     @Test
-    void fullMigrationChainReachesV73AndSeparatesComplianceAuthorities()
+    void fullMigrationChainReachesV74AndCreatesResidualRemediationGovernance()
             throws Exception {
         Flyway flyway =
                 flyway();
@@ -133,7 +133,7 @@ class FlywheelFullMigrationChainPostgresTest {
         );
 
         assertEquals(
-                "73",
+                "74",
                 flyway
                         .info()
                         .current()
@@ -173,6 +173,22 @@ class FlywheelFullMigrationChainPostgresTest {
                 "supplier_document_vault_documents"
         );
 
+        assertTable(
+                "procurement_residual_remediation_plans"
+        );
+
+        assertTable(
+                "procurement_residual_remediation_items"
+        );
+
+        assertTable(
+                "procurement_residual_remediation_snapshots"
+        );
+
+        assertTable(
+                "procurement_residual_remediation_snapshot_items"
+        );
+
         assertNoTable(
                 "supplier_compliance_documents_v13_legacy"
         );
@@ -207,7 +223,7 @@ class FlywheelFullMigrationChainPostgresTest {
     }
 
     @Test
-    void currentV73DatabaseHasNoPendingMigration()
+    void currentV74DatabaseHasNoPendingMigration()
             throws Exception {
         Flyway flyway =
                 flyway();
@@ -232,7 +248,7 @@ class FlywheelFullMigrationChainPostgresTest {
         );
 
         assertEquals(
-                "73",
+                "74",
                 flyway
                         .info()
                         .current()

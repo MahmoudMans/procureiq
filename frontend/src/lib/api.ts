@@ -1,3 +1,13 @@
+import type {
+  FlywheelResidualRemediationDashboard,
+  FlywheelResidualRemediationItemInput,
+  FlywheelResidualRemediationNoteInput,
+  FlywheelResidualRemediationPlanDetail,
+  FlywheelResidualRemediationPlanInput,
+  FlywheelResidualRemediationSnapshotDetail,
+  FlywheelResidualRemediationSource,
+} from "@/types/flywheel-remediation";
+
 import {
   clearAccessToken,
   getAccessToken,
@@ -12352,5 +12362,98 @@ export async function getFlywheelVarianceExecutionSnapshot(
     import("@/types/flywheel-variance-execution").FlywheelVarianceExecutionSnapshotDetail
   >(
     `/flywheel-variance-execution/snapshots/${encodeURIComponent(snapshotId)}`,
+  );
+}
+
+export function getFlywheelResidualRemediationDashboard() {
+  return request<FlywheelResidualRemediationDashboard>(
+    "/api/v1/flywheel-remediation/dashboard",
+  );
+}
+
+export function getFlywheelResidualRemediationSources() {
+  return request<FlywheelResidualRemediationSource[]>(
+    "/api/v1/flywheel-remediation/sources",
+  );
+}
+
+export function createFlywheelResidualRemediationPlan(
+  input: FlywheelResidualRemediationPlanInput,
+) {
+  return request<FlywheelResidualRemediationPlanDetail>(
+    "/api/v1/flywheel-remediation/plans",
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function getFlywheelResidualRemediationPlan(id: string) {
+  return request<FlywheelResidualRemediationPlanDetail>(
+    `/api/v1/flywheel-remediation/plans/${id}`,
+  );
+}
+
+export function addFlywheelResidualRemediationItem(
+  id: string,
+  input: FlywheelResidualRemediationItemInput,
+) {
+  return request<FlywheelResidualRemediationPlanDetail>(
+    `/api/v1/flywheel-remediation/plans/${id}/items`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function submitFlywheelResidualRemediationPlan(id: string) {
+  return request<FlywheelResidualRemediationPlanDetail>(
+    `/api/v1/flywheel-remediation/plans/${id}/submit`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export function approveFlywheelResidualRemediationPlan(
+  id: string,
+  input: FlywheelResidualRemediationNoteInput,
+) {
+  return request<FlywheelResidualRemediationPlanDetail>(
+    `/api/v1/flywheel-remediation/plans/${id}/approve`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function closeFlywheelResidualRemediationPlan(
+  id: string,
+  input: FlywheelResidualRemediationNoteInput,
+) {
+  return request<FlywheelResidualRemediationPlanDetail>(
+    `/api/v1/flywheel-remediation/plans/${id}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function captureFlywheelResidualRemediationSnapshot(id: string) {
+  return request<FlywheelResidualRemediationSnapshotDetail>(
+    `/api/v1/flywheel-remediation/plans/${id}/snapshots`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export function getFlywheelResidualRemediationSnapshot(id: string) {
+  return request<FlywheelResidualRemediationSnapshotDetail>(
+    `/api/v1/flywheel-remediation/snapshots/${id}`,
   );
 }
