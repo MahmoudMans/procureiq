@@ -1,4 +1,13 @@
 import type {
+  FlywheelRemediationOutcomeCaseDetail,
+  FlywheelRemediationOutcomeCaseInput,
+  FlywheelRemediationOutcomeDashboard,
+  FlywheelRemediationOutcomeItemInput,
+  FlywheelRemediationOutcomeNoteInput,
+  FlywheelRemediationOutcomeSnapshotDetail,
+} from "@/types/flywheel-remediation-outcome";
+
+import type {
   FlywheelResidualRemediationDashboard,
   FlywheelResidualRemediationItemInput,
   FlywheelResidualRemediationNoteInput,
@@ -12455,5 +12464,92 @@ export function captureFlywheelResidualRemediationSnapshot(id: string) {
 export function getFlywheelResidualRemediationSnapshot(id: string) {
   return request<FlywheelResidualRemediationSnapshotDetail>(
     `/api/v1/flywheel-remediation/snapshots/${id}`,
+  );
+}
+
+export function getFlywheelRemediationOutcomeDashboard() {
+  return request<FlywheelRemediationOutcomeDashboard>(
+    "/api/v1/flywheel-remediation-outcomes/dashboard",
+  );
+}
+
+export function createFlywheelRemediationOutcomeCase(
+  input: FlywheelRemediationOutcomeCaseInput,
+) {
+  return request<FlywheelRemediationOutcomeCaseDetail>(
+    "/api/v1/flywheel-remediation-outcomes/cases",
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function getFlywheelRemediationOutcomeCase(id: string) {
+  return request<FlywheelRemediationOutcomeCaseDetail>(
+    `/api/v1/flywheel-remediation-outcomes/cases/${id}`,
+  );
+}
+
+export function addFlywheelRemediationOutcomeItem(
+  id: string,
+  input: FlywheelRemediationOutcomeItemInput,
+) {
+  return request<FlywheelRemediationOutcomeCaseDetail>(
+    `/api/v1/flywheel-remediation-outcomes/cases/${id}/items`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function submitFlywheelRemediationOutcomeCase(id: string) {
+  return request<FlywheelRemediationOutcomeCaseDetail>(
+    `/api/v1/flywheel-remediation-outcomes/cases/${id}/submit`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export function verifyFlywheelRemediationOutcomeCase(
+  id: string,
+  input: FlywheelRemediationOutcomeNoteInput,
+) {
+  return request<FlywheelRemediationOutcomeCaseDetail>(
+    `/api/v1/flywheel-remediation-outcomes/cases/${id}/verify`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function closeFlywheelRemediationOutcomeCase(
+  id: string,
+  input: FlywheelRemediationOutcomeNoteInput,
+) {
+  return request<FlywheelRemediationOutcomeCaseDetail>(
+    `/api/v1/flywheel-remediation-outcomes/cases/${id}/close`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function captureFlywheelRemediationOutcomeSnapshot(id: string) {
+  return request<FlywheelRemediationOutcomeSnapshotDetail>(
+    `/api/v1/flywheel-remediation-outcomes/cases/${id}/snapshots`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export function getFlywheelRemediationOutcomeSnapshot(id: string) {
+  return request<FlywheelRemediationOutcomeSnapshotDetail>(
+    `/api/v1/flywheel-remediation-outcomes/snapshots/${id}`,
   );
 }
