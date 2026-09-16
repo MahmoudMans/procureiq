@@ -88,7 +88,7 @@ public class GoodsReceiptEntity {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    @OrderBy("purchaseOrderLine.lineNumber ASC")
+    @OrderBy("lineNumber ASC")
     private List<GoodsReceiptLineEntity> lines =
             new ArrayList<>();
 
