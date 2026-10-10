@@ -23,6 +23,8 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -150,13 +152,39 @@ public class SecurityConfiguration {
         };
     }
 
+    /**
+     * Supplier portal requests carry an opaque portal session token in the Authorization
+     * header, not a signed JWT. Without this, the JWT filter tries to parse that token and
+     * rejects the request with 401 before the portal controllers ever see it.
+     *
+     * Only /api/v1/supplier-portal/ is excluded (note the trailing slash, so the staff
+     * endpoint /api/v1/supplier-portal-admin still requires a staff token). Those paths are
+     * already permitAll; the portal controllers validate their own session tokens.
+     */
+    @Bean
+    BearerTokenResolver portalAwareBearerTokenResolver() {
+        DefaultBearerTokenResolver delegate =
+                new DefaultBearerTokenResolver();
+
+        return request ->
+                request.getRequestURI()
+                        .startsWith(
+                                "/api/v1/supplier-portal/"
+                        )
+                        ? null
+                        : delegate.resolve(
+                                request
+                        );
+    }
+
     @Bean
     SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             Converter<
                     Jwt,
                     ? extends AbstractAuthenticationToken
-                    > jwtAuthenticationConverter
+                    > jwtAuthenticationConverter,
+            BearerTokenResolver portalAwareBearerTokenResolver
     ) throws Exception {
 
         http
@@ -195,6 +223,9 @@ public class SecurityConfiguration {
                 .oauth2ResourceServer(
                         oauth2 ->
                                 oauth2
+                                        .bearerTokenResolver(
+                                                portalAwareBearerTokenResolver
+                                        )
                                         .jwt(
                                                 jwt ->
                                                         jwt
