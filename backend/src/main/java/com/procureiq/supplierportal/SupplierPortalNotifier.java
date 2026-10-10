@@ -177,6 +177,117 @@ public class SupplierPortalNotifier {
         }
     }
 
+    /**
+     * Same recipients as notifyRfqTeam, for an event on a purchase order. The notification is
+     * filed under the RFQ the order came from, like the other supplier events, and links to
+     * the purchase order. Best-effort: a failure is logged and never reaches the supplier.
+     */
+    public void notifyPurchaseOrderTeam(
+            UUID primaryRecipientId,
+            UUID rfqId,
+            UUID purchaseOrderId,
+            String type,
+            String severity,
+            String title,
+            String message
+    ) {
+        Set<UUID> recipients =
+                new LinkedHashSet<>();
+
+        if (primaryRecipientId != null) {
+            recipients.add(
+                    primaryRecipientId
+            );
+        }
+
+        try {
+            appUserRepository
+                    .findAllByOrderByFullNameAsc()
+                    .stream()
+                    .filter(
+                            AppUserEntity::isActive
+                    )
+                    .filter(
+                            user ->
+                                    TEAM_ROLES.contains(
+                                            user.getRole()
+                                    )
+                    )
+                    .map(
+                            AppUserEntity::getId
+                    )
+                    .forEach(
+                            recipients::add
+                    );
+        } catch (
+                RuntimeException exception
+        ) {
+            log.warn(
+                    "Could not look up the sourcing team for purchase order {}; notifying the owner only: {}",
+                    purchaseOrderId,
+                    exception.toString()
+            );
+        }
+
+        for (
+                UUID recipient
+                : recipients
+        ) {
+            try {
+                jdbcTemplate.update(
+                        """
+                        INSERT INTO user_notifications (
+                            user_id,
+                            notification_key,
+                            notification_type,
+                            severity,
+                            title,
+                            message,
+                            entity_type,
+                            entity_id,
+                            href
+                        )
+                        VALUES (?, ?, ?, ?, ?, ?, 'RFQ', ?, ?)
+                        ON CONFLICT (
+                            user_id,
+                            notification_key
+                        )
+                        DO NOTHING
+                        """,
+                        recipient,
+                        type
+                                + ":"
+                                + purchaseOrderId
+                                + ":"
+                                + UUID.randomUUID(),
+                        type,
+                        severity,
+                        abbreviate(
+                                title,
+                                200
+                        ),
+                        abbreviate(
+                                message,
+                                1000
+                        ),
+                        rfqId,
+                        "/purchase-orders/"
+                                + purchaseOrderId
+                );
+            } catch (
+                    RuntimeException exception
+            ) {
+                log.warn(
+                        "Could not create the {} notification for user {} on purchase order {}: {}",
+                        type,
+                        recipient,
+                        purchaseOrderId,
+                        exception.toString()
+                );
+            }
+        }
+    }
+
     private static String abbreviate(
             String text,
             int max
