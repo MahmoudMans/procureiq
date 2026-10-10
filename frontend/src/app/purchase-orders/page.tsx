@@ -49,6 +49,7 @@ const STATUS_FILTERS: SegmentedOption[] = [
   { value: "", label: "All" },
   { value: "DRAFT", label: "Draft" },
   { value: "ISSUED", label: "Issued" },
+  { value: "SUPPLIER_REJECTED", label: "Rejected by supplier" },
   { value: "PARTIALLY_RECEIVED", label: "Partially received" },
   { value: "RECEIVED", label: "Received" },
   { value: "CANCELLED", label: "Cancelled" },
@@ -120,7 +121,14 @@ function buildColumns(today: string): Column<PurchaseOrder>[] {
       id: "status",
       header: "Status",
       sortValue: (order) => order.status,
-      cell: (order) => <StatusBadge value={order.status} />,
+      cell: (order) => (
+        <div className="kit-cell-stack">
+          <StatusBadge value={order.status} />
+          {order.status === "ISSUED" && order.supplierResponse === "REJECTED" ? (
+            <StatusBadge value="REJECTED" label="Supplier rejected" />
+          ) : null}
+        </div>
+      ),
     },
     {
       id: "value",
@@ -176,6 +184,18 @@ export default function PurchaseOrdersPage() {
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
+  const visibleOrders = useMemo(() => {
+    const loaded = orders ?? EMPTY_ORDERS;
+
+    if (status !== "SUPPLIER_REJECTED") {
+      return loaded;
+    }
+
+    return loaded.filter(
+      (order) => order.status === "ISSUED" && order.supplierResponse === "REJECTED",
+    );
+  }, [orders, status]);
+
   useEffect(() => {
     if (!allowed) {
       return;
@@ -219,7 +239,8 @@ export default function PurchaseOrdersPage() {
       try {
         const response = await getPurchaseOrders(
           query.trim() || undefined,
-          (status as PurchaseOrderStatus) || undefined,
+          ((status === "SUPPLIER_REJECTED" ? "ISSUED" : status) as PurchaseOrderStatus) ||
+          undefined,
         );
 
         if (active) {
@@ -258,7 +279,7 @@ export default function PurchaseOrdersPage() {
     );
   }
 
-  const rows = orders ?? EMPTY_ORDERS;
+  const rows = visibleOrders;
   const initialLoad = orders === null && error === null;
   const hasFilters = query.trim() !== "" || status !== "";
 
@@ -278,6 +299,7 @@ export default function PurchaseOrdersPage() {
         "Source RFQ",
         "Expected delivery",
         "Status",
+        "Supplier response",
         "Lines",
         "Currency",
         "Total",
@@ -291,6 +313,7 @@ export default function PurchaseOrdersPage() {
         order.rfqNumber,
         order.expectedDeliveryDate,
         order.status,
+        order.issuedAt ? order.supplierResponse : "",
         order.lines.length,
         order.currency,
         order.totalAmount,
