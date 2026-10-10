@@ -111,6 +111,11 @@ public class QuotationService {
                         input.supplierId()
                 );
 
+        assertSupplierNotDeclined(
+                rfq,
+                input.supplierId()
+        );
+
         if (
                 quotationRepository
                         .existsByRfq_IdAndSupplier_Id(
@@ -195,6 +200,12 @@ public class QuotationService {
                 quotation.getRfq()
         );
 
+        assertSupplierNotDeclined(
+                quotation.getRfq(),
+                quotation.getSupplier()
+                        .getId()
+        );
+
         applyCommercialTerms(
                 quotation,
                 input.leadTimeDays(),
@@ -248,6 +259,12 @@ public class QuotationService {
                     "Quotation validity date has already expired."
             );
         }
+
+        assertSupplierNotDeclined(
+                quotation.getRfq(),
+                quotation.getSupplier()
+                        .getId()
+        );
 
         quotation.setStatus(
                 QuotationStatus.SUBMITTED
@@ -794,6 +811,32 @@ public class QuotationService {
         ) {
             throw new IllegalArgumentException(
                     "Your ProcureIQ role cannot manage supplier quotations."
+            );
+        }
+    }
+
+    private void assertSupplierNotDeclined(
+            RfqEntity rfq,
+            UUID supplierId
+    ) {
+        boolean declined =
+                rfq.getInvitations()
+                        .stream()
+                        .anyMatch(
+                                invitation ->
+                                        invitation.getSupplier()
+                                                .getId()
+                                                .equals(
+                                                        supplierId
+                                                )
+                                        &&
+                                        invitation.getStatus()
+                                                == RfqInvitationStatus.DECLINED
+                        );
+
+        if (declined) {
+            throw new IllegalArgumentException(
+                    "This supplier has declined the invitation to this RFQ, so a quotation cannot be recorded or submitted for it. The supplier must reconsider the invitation first."
             );
         }
     }
