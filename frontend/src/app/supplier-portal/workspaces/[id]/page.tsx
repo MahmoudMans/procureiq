@@ -9,23 +9,20 @@ import {
   CircleAlert,
   Clock3,
   FileCheck2,
-  LogOut,
   MessageSquareText,
   Send,
-  ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { type KeyboardEvent, useEffect, useState } from "react";
 
+import { PortalHeader } from "@/components/supplier-portal/portal-header";
 import {
   completeSupplierPortalAction,
   getSupplierPortalWorkspace,
   sendSupplierPortalResponse,
-  supplierPortalLogout,
 } from "@/lib/api";
 import {
-  clearSupplierPortalToken,
   getSupplierPortalToken,
 } from "@/lib/supplier-portal-session";
 import type { CollaborationMessageType } from "@/types/supplier-collaboration";
@@ -272,18 +269,6 @@ export default function SupplierPortalWorkspacePage() {
     }
   }
 
-  async function logout() {
-    const token = getSupplierPortalToken();
-
-    clearSupplierPortalToken();
-
-    if (token) {
-      await supplierPortalLogout(token).catch(() => undefined);
-    }
-
-    router.replace("/supplier-portal/login");
-  }
-
   if (detail === null && loadError === null) {
     return (
       <main className="supplier-portal-shell">
@@ -340,22 +325,7 @@ export default function SupplierPortalWorkspacePage() {
 
   return (
     <main className="supplier-portal-shell">
-      <header className="supplier-portal-header">
-        <div className="supplier-portal-brand">
-          <ShieldCheck size={25} />
-
-          <div>
-            <span>ProcureIQ</span>
-
-            <strong>Supplier Portal</strong>
-          </div>
-        </div>
-
-        <button type="button" onClick={() => void logout()}>
-          <LogOut size={15} />
-          Sign out
-        </button>
-      </header>
+      <PortalHeader />
 
       <div className="supplier-portal-content">
         <Link href="/supplier-portal/home" className="supplier-portal-back-link">

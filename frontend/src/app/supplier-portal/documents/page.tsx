@@ -10,7 +10,6 @@ import {
   Download,
   FileClock,
   Files,
-  LogOut,
   ShieldCheck,
   Upload,
 } from "lucide-react";
@@ -18,14 +17,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
 
+import { PortalHeader } from "@/components/supplier-portal/portal-header";
 import {
   getSupplierPortalDocumentContent,
   getSupplierPortalDocumentDashboard,
-  supplierPortalLogout,
   uploadSupplierPortalDocument,
 } from "@/lib/api";
 import {
-  clearSupplierPortalToken,
   getSupplierPortalToken,
 } from "@/lib/supplier-portal-session";
 import type {
@@ -318,18 +316,6 @@ export default function SupplierPortalDocumentsPage() {
     }
   }
 
-  async function logout() {
-    const token = getSupplierPortalToken();
-
-    clearSupplierPortalToken();
-
-    if (token) {
-      await supplierPortalLogout(token).catch(() => undefined);
-    }
-
-    router.replace("/supplier-portal/login");
-  }
-
   if (dashboard === null && loadError === null) {
     return (
       <main className="supplier-portal-shell">
@@ -361,26 +347,7 @@ export default function SupplierPortalDocumentsPage() {
 
   return (
     <main className="supplier-portal-shell">
-      <header className="supplier-portal-header">
-        <div className="supplier-portal-brand">
-          <ShieldCheck size={25} />
-
-          <div>
-            <span>ProcureIQ</span>
-
-            <strong>Supplier Portal</strong>
-          </div>
-        </div>
-
-        <div className="supplier-portal-header-actions">
-          <Link href="/supplier-portal/home">Workspaces</Link>
-
-          <button type="button" onClick={() => void logout()}>
-            <LogOut size={15} />
-            Sign out
-          </button>
-        </div>
-      </header>
+      <PortalHeader />
 
       <div className="supplier-portal-content">
         <Link href="/supplier-portal/home" className="supplier-portal-back-link">
