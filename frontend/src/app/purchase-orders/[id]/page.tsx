@@ -6,12 +6,14 @@ import {
   Ban,
   Building2,
   CalendarDays,
+  CheckCircle2,
   CircleAlert,
   FileText,
   Info,
   PackageCheck,
   ReceiptText,
   RefreshCw,
+  RotateCcw,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -36,6 +38,7 @@ import {
   cancelPurchaseOrder,
   getPurchaseOrder,
   issuePurchaseOrder,
+  reopenPurchaseOrder,
   updatePurchaseOrder,
 } from "@/lib/api";
 import type { PurchaseOrder } from "@/types/purchase-order";
@@ -45,7 +48,7 @@ import type { PurchaseOrder } from "@/types/purchase-order";
 /* ------------------------------------------------------------------ */
 
 type OrderLine = PurchaseOrder["lines"][number];
-type OrderAction = "ISSUE" | "CANCEL";
+type OrderAction = "ISSUE" | "REOPEN" | "CANCEL";
 
 const DAY_MS = 86400000;
 
@@ -69,6 +72,16 @@ const ACTIONS: Record<OrderAction, ActionCopy> = {
     keep: "Not yet",
     done: "Purchase order issued",
     failed: "Could not issue the purchase order",
+    tone: "primary",
+  },
+  REOPEN: {
+    eyebrow: "Reopen for revision",
+    title: "Reopen this purchase order?",
+    confirm: "Reopen as draft",
+    busy: "Reopening…",
+    keep: "Not yet",
+    done: "Purchase order reopened as a draft",
+    failed: "Could not reopen the purchase order",
     tone: "primary",
   },
   CANCEL: {
@@ -167,6 +180,10 @@ function actionDescription(action: OrderAction, order: PurchaseOrder): string {
 
   if (action === "ISSUE") {
     return `${order.poNumber} for ${amount} with ${order.supplierName} will be issued and become a purchase commitment. Deliveries can then be recorded against it.`;
+  }
+
+  if (action === "REOPEN") {
+    return `${order.poNumber} goes back to a draft so you can correct it. ${order.supplierName} will not see it again until you issue it, and their response is cleared.`;
   }
 
   return `${order.poNumber} for ${amount} with ${order.supplierName} will be cancelled.`;
@@ -504,7 +521,9 @@ export default function PurchaseOrderDetailPage() {
       const updated =
         action === "ISSUE"
           ? await issuePurchaseOrder(order.id)
-          : await cancelPurchaseOrder(order.id);
+          : action === "REOPEN"
+            ? await reopenPurchaseOrder(order.id)
+            : await cancelPurchaseOrder(order.id);
 
       handleOrderUpdated(updated);
       setUnsavedId(null);
@@ -603,6 +622,27 @@ export default function PurchaseOrderDetailPage() {
     },
   ];
 
+  const supplierAnswered = order.supplierResponse !== "PENDING";
+  const showSupplierResponse =
+    order.issuedAt !== null && (order.status !== "CANCELLED" || supplierAnswered);
+
+  if (showSupplierResponse) {
+    kpis.push({
+      label: "Supplier response",
+      icon: CheckCircle2,
+      value:
+        order.supplierResponse === "ACKNOWLEDGED"
+          ? "Acknowledged"
+          : order.supplierResponse === "REJECTED"
+            ? "Rejected"
+            : "Awaiting response",
+      note: order.supplierRespondedAt
+        ? formatDateTime(order.supplierRespondedAt)
+        : `${order.supplierName} has not answered yet`,
+      tone: order.supplierResponse === "REJECTED" ? "warning" : "default",
+    });
+  }
+
   return (
     <div className="page-stack">
       <Link href="/purchase-orders" className="request-back-link">
@@ -635,6 +675,18 @@ export default function PurchaseOrderDetailPage() {
             <RefreshCw size={15} className={fetching ? "kit-spin" : undefined} />
             Refresh
           </button>
+
+          {order.status === "ISSUED" && order.supplierResponse === "REJECTED" ? (
+            <button
+              type="button"
+              className="button button--primary"
+              disabled={actionRunning}
+              onClick={() => setPendingAction("REOPEN")}
+            >
+              <RotateCcw size={16} />
+              Reopen for revision
+            </button>
+          ) : null}
 
           {order.status === "DRAFT" || order.status === "ISSUED" ? (
             <button
@@ -702,6 +754,31 @@ export default function PurchaseOrderDetailPage() {
           <Info size={17} />
 
           <div>{note}</div>
+        </div>
+      ) : null}
+
+      {order.supplierResponse === "REJECTED" ? (
+        <div className="kit-callout kit-callout--warning" role="status">
+          <AlertTriangle size={17} />
+
+          <div>
+            <strong>{order.supplierName} rejected this purchase order.</strong>{" "}
+            {order.supplierResponseNote
+              ? `Their reason: ${order.supplierResponseNote}. `
+              : "No reason was given. "}
+            {order.status === "ISSUED"
+              ? "Reopen it for revision to correct the order and issue it again, or cancel it."
+              : null}
+          </div>
+        </div>
+      ) : order.supplierResponse === "ACKNOWLEDGED" && order.supplierResponseNote ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <CheckCircle2 size={17} />
+
+          <div>
+            <strong>{order.supplierName} acknowledged this purchase order.</strong>{" "}
+            {`Their note: ${order.supplierResponseNote}`}
+          </div>
         </div>
       ) : null}
 
@@ -847,6 +924,15 @@ export default function PurchaseOrderDetailPage() {
           {pendingAction === "ISSUE" && lineCount === 0 ? (
             <p className="kit-dialog-note kit-dialog-note--warning">
               This order has no lines.
+            </p>
+          ) : null}
+
+          {pendingAction === "REOPEN" ? (
+            <p className="kit-dialog-note">
+              {order.supplierResponseNote
+                ? `Their reason: ${order.supplierResponseNote}. `
+                : ""}
+              The supplier will not see the order again until you issue it.
             </p>
           ) : null}
 

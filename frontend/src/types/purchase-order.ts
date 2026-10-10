@@ -5,6 +5,8 @@ export type PurchaseOrderStatus =
   | "RECEIVED"
   | "CANCELLED";
 
+export type SupplierPurchaseOrderResponse = "PENDING" | "ACKNOWLEDGED" | "REJECTED";
+
 export interface PurchaseOrderLine {
   id: string | null;
   lineNumber: number;
@@ -51,6 +53,9 @@ export interface PurchaseOrder {
   createdAt: string;
   updatedAt: string;
   version: number;
+  supplierResponse: SupplierPurchaseOrderResponse;
+  supplierRespondedAt: string | null;
+  supplierResponseNote: string | null;
 }
 
 export interface PurchaseOrderSummary {

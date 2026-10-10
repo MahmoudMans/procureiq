@@ -832,6 +832,19 @@ export async function cancelPurchaseOrder(
   );
 }
 
+export async function reopenPurchaseOrder(
+  id: string,
+): Promise<import("@/types/purchase-order").PurchaseOrder> {
+  return request<
+    import("@/types/purchase-order").PurchaseOrder
+  >(
+    `/purchase-orders/${id}/reopen`,
+    {
+      method: "POST",
+    },
+  );
+}
+
 export async function getDeliverySummary(): Promise<
   import("@/types/delivery").DeliverySummary
 > {
