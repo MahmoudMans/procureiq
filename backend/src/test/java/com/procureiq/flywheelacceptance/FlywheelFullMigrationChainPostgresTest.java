@@ -113,8 +113,79 @@ class FlywheelFullMigrationChainPostgresTest {
         }
     }
 
+    /**
+     * The highest versioned migration shipped with the application, read from the migration
+     * folder on the classpath. Reading it here means adding a migration does not break this
+     * test, which is what happened when V84 and V85 were added.
+     */
+    private static String latestMigrationVersion()
+            throws Exception {
+        java.net.URL folder =
+                FlywheelFullMigrationChainPostgresTest.class
+                        .getClassLoader()
+                        .getResource(
+                                "db/migration"
+                        );
+
+        if (
+                folder == null
+                        || !"file".equals(
+                                folder.getProtocol()
+                        )
+        ) {
+            throw new IllegalStateException(
+                    "The db/migration folder must be a plain directory on the test classpath."
+            );
+        }
+
+        java.io.File[] files =
+                new java.io.File(
+                        folder.toURI()
+                ).listFiles();
+
+        if (files == null) {
+            throw new IllegalStateException(
+                    "Could not list the db/migration folder."
+            );
+        }
+
+        java.util.regex.Pattern versioned =
+                java.util.regex.Pattern.compile(
+                        "^V(\\d+)__.+\\.sql$"
+                );
+
+        int highest = -1;
+
+        for (java.io.File file : files) {
+            java.util.regex.Matcher matcher =
+                    versioned.matcher(
+                            file.getName()
+                    );
+
+            if (matcher.matches()) {
+                highest =
+                        Math.max(
+                                highest,
+                                Integer.parseInt(
+                                        matcher.group(1)
+                                )
+                        );
+            }
+        }
+
+        if (highest < 0) {
+            throw new IllegalStateException(
+                    "No versioned migrations were found in db/migration."
+            );
+        }
+
+        return Integer.toString(
+                highest
+        );
+    }
+
     @Test
-    void fullMigrationChainReachesV83AndCreatesRecursiveRolloverEvidence()
+    void fullMigrationChainReachesLatestVersionAndCreatesRecursiveRolloverEvidence()
             throws Exception {
         Flyway flyway =
                 flyway();
@@ -133,7 +204,7 @@ class FlywheelFullMigrationChainPostgresTest {
         );
 
         assertEquals(
-                "83",
+                latestMigrationVersion(),
                 flyway
                         .info()
                         .current()
@@ -294,7 +365,7 @@ class FlywheelFullMigrationChainPostgresTest {
     }
 
     @Test
-    void currentV83DatabaseHasNoPendingMigration()
+    void currentDatabaseHasNoPendingMigration()
             throws Exception {
         Flyway flyway =
                 flyway();
@@ -319,7 +390,7 @@ class FlywheelFullMigrationChainPostgresTest {
         );
 
         assertEquals(
-                "83",
+                latestMigrationVersion(),
                 flyway
                         .info()
                         .current()
