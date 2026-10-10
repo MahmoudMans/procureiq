@@ -12,7 +12,7 @@ interface ProblemResponse {
   detail?: string;
 }
 
-async function portalRequest<T>(
+export async function portalRequest<T>(
   path: string,
   token: string,
   init: RequestInit = {},

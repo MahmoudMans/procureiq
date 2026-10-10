@@ -1,0 +1,88 @@
+/* "Recent updates" panel on the supplier portal home page */
+
+.portal-updates {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.portal-update {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding: 12px 14px;
+  border: 1px solid var(--border, rgba(100, 116, 139, 0.3));
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.portal-update:hover,
+.portal-update:focus-visible {
+  border-color: color-mix(in srgb, currentColor 40%, transparent);
+  background: color-mix(in srgb, currentColor 4%, transparent);
+}
+
+.portal-update__icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.portal-update--success .portal-update__icon {
+  color: var(--success, #15803d);
+}
+
+.portal-update--info .portal-update__icon {
+  color: var(--primary, #2563eb);
+}
+
+.portal-update--warning .portal-update__icon {
+  color: var(--warning, #b45309);
+}
+
+.portal-update--neutral .portal-update__icon {
+  color: var(--muted, #64748b);
+}
+
+.portal-update__body {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.portal-update__body strong {
+  font-size: 0.95rem;
+}
+
+.portal-update__body span {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.portal-update__when {
+  font-size: 0.78rem;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.portal-update-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--border, rgba(100, 116, 139, 0.3));
+  border-radius: 10px;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}

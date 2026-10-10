@@ -2,7 +2,7 @@
 
 import { LogOut, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { supplierPortalLogout } from "@/lib/api";
 import {
@@ -12,6 +12,11 @@ import {
 
 export function PortalHeader() {
   const router = useRouter();
+  const pathname = usePathname() ?? "";
+
+  function current(href: string): "page" | undefined {
+    return pathname === href || pathname.startsWith(`${href}/`) ? "page" : undefined;
+  }
 
   async function logout() {
     const token = getSupplierPortalToken();
@@ -38,13 +43,20 @@ export function PortalHeader() {
       </div>
 
       <div className="supplier-portal-header-actions">
-        <Link href="/supplier-portal/home">Home</Link>
+        <Link href="/supplier-portal/home" aria-current={current("/supplier-portal/home")}>
+          Home
+        </Link>
 
-        <Link href="/supplier-portal/rfqs" aria-current="page">
+        <Link href="/supplier-portal/rfqs" aria-current={current("/supplier-portal/rfqs")}>
           RFQs and quotations
         </Link>
 
-        <Link href="/supplier-portal/documents">Compliance documents</Link>
+        <Link
+          href="/supplier-portal/documents"
+          aria-current={current("/supplier-portal/documents")}
+        >
+          Compliance documents
+        </Link>
 
         <button type="button" onClick={() => void logout()}>
           <LogOut size={15} />
