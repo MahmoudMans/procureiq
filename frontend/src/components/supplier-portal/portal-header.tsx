@@ -52,6 +52,13 @@ export function PortalHeader() {
         </Link>
 
         <Link
+          href="/supplier-portal/purchase-orders"
+          aria-current={current("/supplier-portal/purchase-orders")}
+        >
+          Purchase orders
+        </Link>
+
+        <Link
           href="/supplier-portal/documents"
           aria-current={current("/supplier-portal/documents")}
         >

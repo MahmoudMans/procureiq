@@ -36,6 +36,7 @@ import type {
 } from "@/types/supplier-portal";
 
 import { PortalRfqUpdates } from "@/components/supplier-portal/portal-rfq-updates";
+import { PortalPurchaseOrders } from "@/components/supplier-portal/portal-purchase-orders";
 
 function readable(
   value: string,
@@ -368,6 +369,8 @@ export default function SupplierPortalHomePage() {
         </section>
 
         <PortalRfqUpdates />
+
+        <PortalPurchaseOrders />
 
         <section className="supplier-portal-panel">
           <div className="supplier-portal-panel-heading">

@@ -1,0 +1,166 @@
+/*
+ * Supplier portal: purchase order pages and the home panel.
+ * Colours derive from the surrounding text colour so the pages follow the portal theme.
+ */
+
+.portal-po-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.portal-po-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.8;
+}
+
+.portal-po-back:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.portal-po-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px 22px;
+  margin: 0;
+}
+
+.portal-po-facts dt {
+  margin-bottom: 2px;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.portal-po-facts dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.portal-po-facts .portal-po-wide {
+  grid-column: 1 / -1;
+}
+
+.portal-po-address {
+  white-space: pre-line;
+  font-weight: 500;
+}
+
+.portal-po-table-wrap {
+  overflow-x: auto;
+}
+
+.portal-po-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.portal-po-table th,
+.portal-po-table td {
+  padding: 9px 10px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.portal-po-table th {
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.75;
+}
+
+.portal-po-table .portal-po-num {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.portal-po-table small {
+  display: block;
+  opacity: 0.7;
+}
+
+.portal-po-totals {
+  display: grid;
+  gap: 6px;
+  max-width: 320px;
+  margin: 14px 0 0 auto;
+}
+
+.portal-po-totals > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.portal-po-totals .portal-po-grand {
+  padding-top: 8px;
+  font-weight: 700;
+  border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.button.portal-po-secondary {
+  color: inherit;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+}
+
+.button.portal-po-secondary:hover:not(:disabled) {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.portal-po-awaiting {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.portal-po-awaiting a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: 12px;
+}
+
+.portal-po-awaiting a:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.portal-po-awaiting strong {
+  display: block;
+}
+
+.portal-po-awaiting small {
+  opacity: 0.75;
+}
+
+.portal-po-more {
+  margin: 10px 0 0;
+  font-size: 0.9rem;
+}
+
+.portal-po-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  border: 1px solid color-mix(in srgb, #ef4444 30%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, #ef4444 10%, transparent);
+}
