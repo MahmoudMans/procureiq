@@ -125,6 +125,44 @@ public class SupplierPortalRfqController {
         );
     }
 
+    @PostMapping("/{rfqId}/decline")
+    public SupplierPortalRfqDetailResponse declineInvitation(
+            @RequestHeader(
+                    value = "Authorization",
+                    required = false
+            )
+            String authorization,
+
+            @PathVariable
+            UUID rfqId
+    ) {
+        return service.declineInvitation(
+                bearerToken(
+                        authorization
+                ),
+                rfqId
+        );
+    }
+
+    @PostMapping("/{rfqId}/reconsider")
+    public SupplierPortalRfqDetailResponse reconsiderInvitation(
+            @RequestHeader(
+                    value = "Authorization",
+                    required = false
+            )
+            String authorization,
+
+            @PathVariable
+            UUID rfqId
+    ) {
+        return service.reconsiderInvitation(
+                bearerToken(
+                        authorization
+                ),
+                rfqId
+        );
+    }
+
     private String bearerToken(
             String authorization
     ) {

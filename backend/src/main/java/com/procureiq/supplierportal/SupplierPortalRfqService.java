@@ -12,13 +12,16 @@ import com.procureiq.rfq.RfqStatus;
 import com.procureiq.rfq.RfqSupplierInvitationResponse;
 import com.procureiq.supplierportal.SupplierPortalRfqRepository.PortalSession;
 import com.procureiq.supplierportal.SupplierPortalRfqRepository.QuotationRef;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -26,16 +29,19 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * Lets an invited supplier respond to an RFQ through the portal.
+ * Lets an invited supplier respond to an RFQ through the portal: prepare, submit and withdraw
+ * a quotation, or decline the invitation.
  *
  * The existing quotation and RFQ services hold the commercial rules, so they are reused
  * unchanged. They act as an internal user, so each call runs as the RFQ owner (or, if that
- * user can no longer act, the user who invited the portal account). The portal audit trail
- * records which portal account really made each change.
+ * user can no longer act, the user who invited the portal account). That same user receives
+ * the bell notification. The portal audit trail records which portal account really made
+ * each change.
  *
- * This class is deliberately not transactional as a whole: finding a usable internal user
- * may involve a call that fails and is retried, which must not poison a shared transaction.
- * Changes are made inside an explicit transaction instead.
+ * This class is deliberately not transactional as a whole: finding a usable internal user may
+ * involve a call that fails and is retried, which must not poison a shared transaction.
+ * Changes are made inside an explicit transaction, and notifications are sent after it has
+ * committed so a notification problem can never undo the supplier's action.
  */
 @Service
 public class SupplierPortalRfqService {
@@ -47,6 +53,12 @@ public class SupplierPortalRfqService {
 
     private static final String NOT_AVAILABLE =
             "This RFQ was not found or is not available to your account.";
+
+    private static final String CLOSED_MESSAGE =
+            "This RFQ is no longer accepting responses.";
+
+    private static final String DECLINED_MESSAGE =
+            "You declined this invitation. Reconsider it to respond to this RFQ.";
 
     // Existing audit event type; the database restricts which types are allowed.
     private static final String AUDIT_EVENT =
@@ -66,23 +78,32 @@ public class SupplierPortalRfqService {
 
     private final SupplierPortalRfqRepository repository;
 
+    private final SupplierPortalInvitationRepository invitations;
+
     private final SupplierPortalSecurityService securityService;
 
     private final RfqService rfqService;
 
     private final QuotationService quotationService;
 
+    private final SupplierPortalNotifier notifier;
+
     private final TransactionTemplate transactions;
 
     public SupplierPortalRfqService(
             SupplierPortalRfqRepository repository,
+            SupplierPortalInvitationRepository invitations,
             SupplierPortalSecurityService securityService,
             RfqService rfqService,
             QuotationService quotationService,
+            SupplierPortalNotifier notifier,
             PlatformTransactionManager transactionManager
     ) {
         this.repository =
                 repository;
+
+        this.invitations =
+                invitations;
 
         this.securityService =
                 securityService;
@@ -93,11 +114,18 @@ public class SupplierPortalRfqService {
         this.quotationService =
                 quotationService;
 
+        this.notifier =
+                notifier;
+
         this.transactions =
                 new TransactionTemplate(
                         transactionManager
                 );
     }
+
+    /* ---------------------------------------------------------- */
+    /* Reading                                                     */
+    /* ---------------------------------------------------------- */
 
     public List<SupplierPortalRfqSummaryResponse> rfqs(
             String rawToken
@@ -171,15 +199,9 @@ public class SupplierPortalRfqService {
                             )
                     );
 
-            if (isOpen) {
-                open.add(
-                        summary
-                );
-            } else {
-                other.add(
-                        summary
-                );
-            }
+            (isOpen ? open : other).add(
+                    summary
+            );
         }
 
         open.sort(
@@ -226,6 +248,10 @@ public class SupplierPortalRfqService {
         );
     }
 
+    /* ---------------------------------------------------------- */
+    /* Quotation                                                   */
+    /* ---------------------------------------------------------- */
+
     public SupplierPortalRfqDetailResponse saveQuotation(
             String rawToken,
             UUID rfqId,
@@ -259,22 +285,21 @@ public class SupplierPortalRfqService {
 
                     if (existing == null) {
                         saved =
-                                quotationService
-                                        .createQuotation(
-                                                context.actorUserId(),
-                                                rfqId,
-                                                new QuotationCreateInput(
-                                                        session.supplierId(),
-                                                        input.leadTimeDays(),
-                                                        input.paymentTerms()
-                                                                .trim(),
-                                                        input.validityDate(),
-                                                        input.discountAmount(),
-                                                        input.shippingAmount(),
-                                                        input.taxAmount(),
-                                                        input.lines()
-                                                )
-                                        );
+                                quotationService.createQuotation(
+                                        context.actorUserId(),
+                                        rfqId,
+                                        new QuotationCreateInput(
+                                                session.supplierId(),
+                                                input.leadTimeDays(),
+                                                input.paymentTerms()
+                                                        .trim(),
+                                                input.validityDate(),
+                                                input.discountAmount(),
+                                                input.shippingAmount(),
+                                                input.taxAmount(),
+                                                input.lines()
+                                        )
+                                );
                     } else if (
                             "DRAFT".equals(
                                     existing.status()
@@ -295,21 +320,20 @@ public class SupplierPortalRfqService {
                         }
 
                         saved =
-                                quotationService
-                                        .updateQuotation(
-                                                context.actorUserId(),
-                                                existing.id(),
-                                                new QuotationUpdateInput(
-                                                        input.leadTimeDays(),
-                                                        input.paymentTerms()
-                                                                .trim(),
-                                                        input.validityDate(),
-                                                        input.discountAmount(),
-                                                        input.shippingAmount(),
-                                                        input.taxAmount(),
-                                                        input.lines()
-                                                )
-                                        );
+                                quotationService.updateQuotation(
+                                        context.actorUserId(),
+                                        existing.id(),
+                                        new QuotationUpdateInput(
+                                                input.leadTimeDays(),
+                                                input.paymentTerms()
+                                                        .trim(),
+                                                input.validityDate(),
+                                                input.discountAmount(),
+                                                input.shippingAmount(),
+                                                input.taxAmount(),
+                                                input.lines()
+                                        )
+                                );
                     } else {
                         throw new IllegalArgumentException(
                                 "Your quotation has already been submitted. Withdraw it first if you need to change it."
@@ -357,61 +381,88 @@ public class SupplierPortalRfqService {
                 context.rfq()
         );
 
-        transactions.executeWithoutResult(
-                transaction -> {
-                    QuotationRef existing =
-                            repository.findQuotationRef(
-                                    rfqId,
-                                    session.supplierId()
-                            );
+        QuotationResponse submitted =
+                transactions.execute(
+                        transaction -> {
+                            QuotationRef existing =
+                                    repository.findQuotationRef(
+                                            rfqId,
+                                            session.supplierId()
+                                    );
 
-                    if (existing == null) {
-                        throw new IllegalArgumentException(
-                                "Save your quotation as a draft before submitting it."
-                        );
-                    }
+                            if (existing == null) {
+                                throw new IllegalArgumentException(
+                                        "Save your quotation as a draft before submitting it."
+                                );
+                            }
 
-                    if (
-                            "SUBMITTED".equals(
-                                    existing.status()
-                            )
-                    ) {
-                        throw new IllegalArgumentException(
-                                "This quotation has already been submitted."
-                        );
-                    }
+                            if (
+                                    "SUBMITTED".equals(
+                                            existing.status()
+                                    )
+                            ) {
+                                throw new IllegalArgumentException(
+                                        "This quotation has already been submitted."
+                                );
+                            }
 
-                    if (
-                            !"DRAFT".equals(
-                                    existing.status()
-                            )
-                    ) {
-                        throw new IllegalArgumentException(
-                                "Save your revised quotation before submitting it."
-                        );
-                    }
+                            if (
+                                    !"DRAFT".equals(
+                                            existing.status()
+                                    )
+                            ) {
+                                throw new IllegalArgumentException(
+                                        "Save your revised quotation before submitting it."
+                                );
+                            }
 
-                    QuotationResponse submitted =
-                            quotationService
-                                    .submitQuotation(
+                            QuotationResponse result =
+                                    quotationService.submitQuotation(
                                             context.actorUserId(),
                                             existing.id()
                                     );
 
-                    repository.touchSession(
-                            session.sessionId()
-                    );
+                            repository.touchSession(
+                                    session.sessionId()
+                            );
 
-                    audit(
-                            session,
-                            "Quotation "
-                                    + submitted.quotationNumber()
-                                    + " submitted for RFQ "
-                                    + context.rfq()
-                                            .rfqNumber()
-                    );
-                }
-        );
+                            audit(
+                                    session,
+                                    "Quotation "
+                                            + result.quotationNumber()
+                                            + " submitted for RFQ "
+                                            + context.rfq()
+                                                    .rfqNumber()
+                            );
+
+                            return result;
+                        }
+                );
+
+        if (submitted != null) {
+            notifier.notifyRfqOwner(
+                    context.actorUserId(),
+                    rfqId,
+                    "SUPPLIER_QUOTATION_SUBMITTED",
+                    "INFO",
+                    "Supplier quotation received",
+                    supplierName(
+                            context.rfq(),
+                            session.supplierId()
+                    )
+                            + " submitted quotation "
+                            + submitted.quotationNumber()
+                            + " of "
+                            + money(
+                                    submitted.totalAmount(),
+                                    submitted.currency()
+                            )
+                            + " for "
+                            + context.rfq()
+                                    .rfqNumber()
+                            + "."
+            );
+        }
 
         return buildDetail(
                 session,
@@ -439,32 +490,152 @@ public class SupplierPortalRfqService {
                 context.rfq()
         );
 
-        transactions.executeWithoutResult(
-                transaction -> {
-                    QuotationRef existing =
-                            repository.findQuotationRef(
-                                    rfqId,
-                                    session.supplierId()
-                            );
+        QuotationResponse withdrawn =
+                transactions.execute(
+                        transaction -> {
+                            QuotationRef existing =
+                                    repository.findQuotationRef(
+                                            rfqId,
+                                            session.supplierId()
+                                    );
 
-                    if (
-                            existing == null
-                            ||
-                            !"SUBMITTED".equals(
-                                    existing.status()
-                            )
-                    ) {
-                        throw new IllegalArgumentException(
-                                "Only a submitted quotation can be withdrawn."
-                        );
-                    }
+                            if (
+                                    existing == null
+                                    ||
+                                    !"SUBMITTED".equals(
+                                            existing.status()
+                                    )
+                            ) {
+                                throw new IllegalArgumentException(
+                                        "Only a submitted quotation can be withdrawn."
+                                );
+                            }
 
-                    QuotationResponse withdrawn =
-                            quotationService
-                                    .withdrawQuotation(
+                            QuotationResponse result =
+                                    quotationService.withdrawQuotation(
                                             context.actorUserId(),
                                             existing.id()
                                     );
+
+                            repository.touchSession(
+                                    session.sessionId()
+                            );
+
+                            audit(
+                                    session,
+                                    "Quotation "
+                                            + result.quotationNumber()
+                                            + " withdrawn for RFQ "
+                                            + context.rfq()
+                                                    .rfqNumber()
+                            );
+
+                            return result;
+                        }
+                );
+
+        if (withdrawn != null) {
+            notifier.notifyRfqOwner(
+                    context.actorUserId(),
+                    rfqId,
+                    "SUPPLIER_QUOTATION_WITHDRAWN",
+                    "WARNING",
+                    "Supplier withdrew a quotation",
+                    supplierName(
+                            context.rfq(),
+                            session.supplierId()
+                    )
+                            + " withdrew quotation "
+                            + withdrawn.quotationNumber()
+                            + " for "
+                            + context.rfq()
+                                    .rfqNumber()
+                            + ". It no longer appears in the comparison."
+            );
+        }
+
+        return buildDetail(
+                session,
+                rfqId
+        );
+    }
+
+    /* ---------------------------------------------------------- */
+    /* Invitation                                                  */
+    /* ---------------------------------------------------------- */
+
+    public SupplierPortalRfqDetailResponse declineInvitation(
+            String rawToken,
+            UUID rfqId
+    ) {
+        PortalSession session =
+                requireSession(
+                        rawToken
+                );
+
+        RfqContext context =
+                requireContext(
+                        session,
+                        rfqId
+                );
+
+        RfqResponse rfq =
+                context.rfq();
+
+        if (
+                !isOpen(
+                        rfq,
+                        LocalDateTime.now()
+                )
+        ) {
+            throw new IllegalArgumentException(
+                    CLOSED_MESSAGE
+            );
+        }
+
+        if (
+                invitationStatus(
+                        rfq,
+                        session.supplierId()
+                )
+                == RfqInvitationStatus.DECLINED
+        ) {
+            throw new IllegalArgumentException(
+                    "You have already declined this invitation."
+            );
+        }
+
+        QuotationRef existing =
+                repository.findQuotationRef(
+                        rfqId,
+                        session.supplierId()
+                );
+
+        if (
+                existing != null
+                &&
+                "SUBMITTED".equals(
+                        existing.status()
+                )
+        ) {
+            throw new IllegalArgumentException(
+                    "Withdraw your submitted quotation before declining this invitation."
+            );
+        }
+
+        transactions.executeWithoutResult(
+                transaction -> {
+                    if (
+                            invitations.decline(
+                                    rfqId,
+                                    session.supplierId()
+                            )
+                            == 0
+                    ) {
+                        throw new IllegalArgumentException(
+                                "This invitation can no longer be declined."
+                        );
+                    }
 
                     repository.touchSession(
                             session.sessionId()
@@ -472,13 +643,27 @@ public class SupplierPortalRfqService {
 
                     audit(
                             session,
-                            "Quotation "
-                                    + withdrawn.quotationNumber()
-                                    + " withdrawn for RFQ "
-                                    + context.rfq()
-                                            .rfqNumber()
+                            "Invitation declined for RFQ "
+                                    + rfq.rfqNumber()
                     );
                 }
+        );
+
+        notifier.notifyRfqOwner(
+                context.actorUserId(),
+                rfqId,
+                "SUPPLIER_INVITATION_DECLINED",
+                "WARNING",
+                "Supplier declined an RFQ invitation",
+                supplierName(
+                        rfq,
+                        session.supplierId()
+                )
+                        + " declined the invitation to "
+                        + rfq.rfqNumber()
+                        + " ("
+                        + rfq.title()
+                        + ")."
         );
 
         return buildDetail(
@@ -486,6 +671,97 @@ public class SupplierPortalRfqService {
                 rfqId
         );
     }
+
+    public SupplierPortalRfqDetailResponse reconsiderInvitation(
+            String rawToken,
+            UUID rfqId
+    ) {
+        PortalSession session =
+                requireSession(
+                        rawToken
+                );
+
+        RfqContext context =
+                requireContext(
+                        session,
+                        rfqId
+                );
+
+        RfqResponse rfq =
+                context.rfq();
+
+        String blocked =
+                supplierIneligibleReason(
+                        session.supplierId()
+                );
+
+        if (blocked != null) {
+            throw new IllegalArgumentException(
+                    blocked
+            );
+        }
+
+        if (
+                !isOpen(
+                        rfq,
+                        LocalDateTime.now()
+                )
+        ) {
+            throw new IllegalArgumentException(
+                    CLOSED_MESSAGE
+            );
+        }
+
+        transactions.executeWithoutResult(
+                transaction -> {
+                    if (
+                            invitations.reconsider(
+                                    rfqId,
+                                    session.supplierId()
+                            )
+                            == 0
+                    ) {
+                        throw new IllegalArgumentException(
+                                "This invitation is not currently declined."
+                        );
+                    }
+
+                    repository.touchSession(
+                            session.sessionId()
+                    );
+
+                    audit(
+                            session,
+                            "Invitation reconsidered for RFQ "
+                                    + rfq.rfqNumber()
+                    );
+                }
+        );
+
+        notifier.notifyRfqOwner(
+                context.actorUserId(),
+                rfqId,
+                "SUPPLIER_INVITATION_RECONSIDERED",
+                "INFO",
+                "Supplier reconsidered an RFQ invitation",
+                supplierName(
+                        rfq,
+                        session.supplierId()
+                )
+                        + " reopened its response to "
+                        + rfq.rfqNumber()
+                        + " and may submit a quotation."
+        );
+
+        return buildDetail(
+                session,
+                rfqId
+        );
+    }
+
+    /* ---------------------------------------------------------- */
+    /* Helpers                                                     */
+    /* ---------------------------------------------------------- */
 
     private SupplierPortalRfqDetailResponse buildDetail(
             PortalSession session,
@@ -539,7 +815,7 @@ public class SupplierPortalRfqService {
                         rfq,
                         LocalDateTime.now()
                 ),
-                biddingBlockedReason(
+                supplierIneligibleReason(
                         session.supplierId()
                 ),
                 rfq.lineItems(),
@@ -606,7 +882,7 @@ public class SupplierPortalRfqService {
             UUID ownerUserId
     ) {
         List<UUID> candidates =
-                java.util.stream.Stream.of(
+                Stream.of(
                                 ownerUserId,
                                 session.invitedByUserId()
                         )
@@ -648,7 +924,7 @@ public class SupplierPortalRfqService {
             RfqResponse rfq
     ) {
         String blocked =
-                biddingBlockedReason(
+                supplierIneligibleReason(
                         session.supplierId()
                 );
 
@@ -665,12 +941,24 @@ public class SupplierPortalRfqService {
                 )
         ) {
             throw new IllegalArgumentException(
-                    "This RFQ is no longer accepting responses."
+                    CLOSED_MESSAGE
+            );
+        }
+
+        if (
+                invitationStatus(
+                        rfq,
+                        session.supplierId()
+                )
+                == RfqInvitationStatus.DECLINED
+        ) {
+            throw new IllegalArgumentException(
+                    DECLINED_MESSAGE
             );
         }
     }
 
-    private String biddingBlockedReason(
+    private String supplierIneligibleReason(
             UUID supplierId
     ) {
         String status =
@@ -723,6 +1011,39 @@ public class SupplierPortalRfqService {
                 .orElse(
                         RfqInvitationStatus.INVITED
                 );
+    }
+
+    private static String supplierName(
+            RfqResponse rfq,
+            UUID supplierId
+    ) {
+        return rfq.invitations()
+                .stream()
+                .filter(
+                        invitation ->
+                                supplierId.equals(
+                                        invitation.supplierId()
+                                )
+                )
+                .map(
+                        RfqSupplierInvitationResponse::supplierName
+                )
+                .findFirst()
+                .orElse(
+                        "A supplier"
+                );
+    }
+
+    private static String money(
+            BigDecimal amount,
+            String currency
+    ) {
+        return String.format(
+                Locale.ROOT,
+                "%,.2f %s",
+                amount,
+                currency
+        );
     }
 
     private static SupplierPortalQuotationSummaryResponse quotationSummary(

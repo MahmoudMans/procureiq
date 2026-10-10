@@ -15,6 +15,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import "@/components/supplier-portal/portal-rfqs.css";
+import { InvitationResponse } from "@/components/supplier-portal/invitation-response";
 import { PortalHeader } from "@/components/supplier-portal/portal-header";
 import {
   deadlineNote,
@@ -78,7 +79,10 @@ function QuotationEditor({ detail, onUpdated, onSessionExpired }: EditorProps) {
   const [apiError, setApiError] = useState<string | null>(null);
 
   const status = quotation?.status ?? null;
-  const mayRespond = detail.open && detail.biddingBlockedReason === null;
+  const mayRespond =
+    detail.open &&
+    detail.biddingBlockedReason === null &&
+    detail.invitationStatus !== "DECLINED";
   const canEdit = mayRespond && status !== "SUBMITTED";
   const canWithdraw = mayRespond && status === "SUBMITTED";
   const showPrices = canEdit || canWithdraw || quotation !== null;
@@ -895,6 +899,12 @@ export default function SupplierPortalRfqPage() {
             </button>
           </div>
         </section>
+
+        <InvitationResponse
+          detail={detail}
+          onUpdated={handleUpdated}
+          onSessionExpired={handleSessionExpired}
+        />
 
         <QuotationEditor
           key={`${detail.id}:${data.loadId}`}

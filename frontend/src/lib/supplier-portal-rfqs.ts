@@ -87,3 +87,21 @@ export function withdrawSupplierPortalQuotation(
     { method: "POST" },
   );
 }
+
+export function declineSupplierPortalInvitation(
+  token: string,
+  rfqId: string,
+): Promise<PortalRfqDetail> {
+  return portalRequest<PortalRfqDetail>(`/supplier-portal/rfqs/${rfqId}/decline`, token, {
+    method: "POST",
+  });
+}
+
+export function reconsiderSupplierPortalInvitation(
+  token: string,
+  rfqId: string,
+): Promise<PortalRfqDetail> {
+  return portalRequest<PortalRfqDetail>(`/supplier-portal/rfqs/${rfqId}/reconsider`, token, {
+    method: "POST",
+  });
+}

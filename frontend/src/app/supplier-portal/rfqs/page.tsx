@@ -33,7 +33,8 @@ import type { PortalRfqSummary } from "@/types/supplier-portal-rfq";
 const FORTY_EIGHT_HOURS = 48 * 60 * 60 * 1000;
 
 function RfqCard({ rfq, now }: { rfq: PortalRfqSummary; now: number | null }) {
-  const note = rfq.open ? deadlineNote(rfq.responseDeadline, now) : null;
+  const declined = rfq.invitationStatus === "DECLINED";
+  const note = rfq.open && !declined ? deadlineNote(rfq.responseDeadline, now) : null;
   const status = rfq.quotation?.status ?? null;
 
   return (
@@ -52,8 +53,12 @@ function RfqCard({ rfq, now }: { rfq: PortalRfqSummary; now: number | null }) {
           </small>
         </div>
 
-        <span className={`portal-rfq-pill portal-rfq-pill--${rfq.open ? "success" : "neutral"}`}>
-          {rfq.open ? "Open" : readable(rfq.rfqStatus)}
+        <span
+          className={`portal-rfq-pill portal-rfq-pill--${
+            declined ? "warning" : rfq.open ? "success" : "neutral"
+          }`}
+        >
+          {declined ? "Declined" : rfq.open ? "Open" : readable(rfq.rfqStatus)}
         </span>
       </div>
 
@@ -66,9 +71,11 @@ function RfqCard({ rfq, now }: { rfq: PortalRfqSummary; now: number | null }) {
       </div>
 
       <div className="supplier-portal-workspace-context">
-        <span className={`portal-rfq-pill portal-rfq-pill--${quotationTone(status)}`}>
-          {quotationLabel(status)}
-        </span>
+        {declined ? null : (
+          <span className={`portal-rfq-pill portal-rfq-pill--${quotationTone(status)}`}>
+            {quotationLabel(status)}
+          </span>
+        )}
 
         {rfq.quotation ? (
           <span>{formatMoney(rfq.quotation.totalAmount, rfq.currency)}</span>
@@ -155,8 +162,8 @@ export default function SupplierPortalRfqsPage() {
   }
 
   const all = rfqs ?? [];
-  const open = all.filter((rfq) => rfq.open);
-  const past = all.filter((rfq) => !rfq.open);
+  const open = all.filter((rfq) => rfq.open && rfq.invitationStatus !== "DECLINED");
+  const past = all.filter((rfq) => !rfq.open || rfq.invitationStatus === "DECLINED");
   const toRespond = open.filter((rfq) => needsQuotation(rfq.quotation?.status ?? null));
   const submitted = open.filter((rfq) => rfq.quotation?.status === "SUBMITTED");
 
@@ -282,7 +289,7 @@ export default function SupplierPortalRfqsPage() {
               <div>
                 <span>History</span>
 
-                <h2>Closed and past RFQs</h2>
+                <h2>Declined, closed and past RFQs</h2>
               </div>
             </div>
 
