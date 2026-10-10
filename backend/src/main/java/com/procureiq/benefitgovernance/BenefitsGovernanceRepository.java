@@ -40,8 +40,8 @@ public class BenefitsGovernanceRepository {
         return jdbcTemplate.query(
                 approvedScenarioSql()
                         + """
-                        WHERE scenario.id = ?
-                        """,
+                        AND scenario.id = ?
+                        """ + approvedScenarioGroupBy(),
                 (
                         resultSet,
                         rowNumber
@@ -60,7 +60,7 @@ public class BenefitsGovernanceRepository {
         return jdbcTemplate.query(
                 approvedScenarioSql()
                         + """
-                        WHERE NOT EXISTS (
+                        AND NOT EXISTS (
                             SELECT 1
                             FROM procurement_execution_portfolios
                                 portfolio
@@ -68,7 +68,7 @@ public class BenefitsGovernanceRepository {
                                 portfolio.source_scenario_id =
                                     scenario.id
                         )
-
+                        """ + approvedScenarioGroupBy() + """
                         ORDER BY
                             scenario.approved_at DESC,
                             scenario.scenario_code
@@ -948,6 +948,15 @@ public class BenefitsGovernanceRepository {
         );
     }
 
+    private String approvedScenarioGroupBy() {
+        return """
+                GROUP BY
+                    scenario.id,
+                    owner.full_name
+
+                """;
+    }
+
     private String approvedScenarioSql() {
         return """
                 SELECT
@@ -1008,9 +1017,6 @@ public class BenefitsGovernanceRepository {
                 WHERE scenario.status =
                     'APPROVED'
 
-                GROUP BY
-                    scenario.id,
-                    owner.full_name
 
                 """;
     }

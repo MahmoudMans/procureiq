@@ -197,7 +197,7 @@ public class PortfolioOptimizationRepository {
                 scenarioSql()
                         + """
                         WHERE scenario.id = ?
-                        """,
+                        """ + scenarioGroupBy(),
                 (
                         resultSet,
                         rowNumber
@@ -219,7 +219,7 @@ public class PortfolioOptimizationRepository {
                 scenarioSql()
                         + """
                         WHERE scenario.currency = ?
-
+                        """ + scenarioGroupBy() + """
                         ORDER BY
                             CASE scenario.status
                                 WHEN 'APPROVED'
@@ -566,6 +566,16 @@ public class PortfolioOptimizationRepository {
         );
     }
 
+    private String scenarioGroupBy() {
+        return """
+                GROUP BY
+                    scenario.id,
+                    owner.full_name,
+                    approver.full_name
+
+                """;
+    }
+
     private String scenarioSql() {
         return """
                 SELECT
@@ -676,10 +686,6 @@ public class PortfolioOptimizationRepository {
                     ON item.scenario_id =
                        scenario.id
 
-                GROUP BY
-                    scenario.id,
-                    owner.full_name,
-                    approver.full_name
 
                 """;
     }
