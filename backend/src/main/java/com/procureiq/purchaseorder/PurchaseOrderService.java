@@ -538,6 +538,68 @@ public class PurchaseOrderService {
         );
     }
 
+    /**
+     * Takes an issued purchase order that the supplier rejected back to a draft, so the buyer
+     * can correct it and issue it again. The order keeps its PO number and the supplier's
+     * answer is cleared. It only works while nothing has been received against the order; that
+     * condition lives in the update statement itself, so it cannot race a goods receipt.
+     */
+    public PurchaseOrderResponse reopenOrder(
+            UUID currentUserId,
+            UUID purchaseOrderId
+    ) {
+        AppUserEntity user =
+                findCurrentUser(
+                        currentUserId
+                );
+
+        assertPurchasingRole(
+                user.getRole()
+        );
+
+        PurchaseOrderEntity order =
+                findOrderEntity(
+                        purchaseOrderId
+                );
+
+        if (
+                order.getStatus()
+                        != PurchaseOrderStatus.ISSUED
+        ) {
+            throw new IllegalArgumentException(
+                    "Only issued purchase orders can be reopened for revision."
+            );
+        }
+
+        if (
+                !"REJECTED".equals(
+                        order.getSupplierResponse()
+                )
+        ) {
+            throw new IllegalArgumentException(
+                    "Only a purchase order the supplier rejected can be reopened for revision."
+            );
+        }
+
+        if (
+                purchaseOrderRepository
+                        .reopenRejected(
+                                order.getId()
+                        )
+                == 0
+        ) {
+            throw new IllegalArgumentException(
+                    "This purchase order can no longer be reopened. Goods may already have been received against it, or it has changed. Reload it and try again."
+            );
+        }
+
+        return toResponse(
+                findOrderEntity(
+                        purchaseOrderId
+                )
+        );
+    }
+
     private PurchaseOrderEntity findOrderEntity(
             UUID purchaseOrderId
     ) {
@@ -713,7 +775,10 @@ public class PurchaseOrderService {
                 order.getCancelledAt(),
                 order.getCreatedAt(),
                 order.getUpdatedAt(),
-                order.getVersion()
+                order.getVersion(),
+                order.getSupplierResponse(),
+                order.getSupplierRespondedAt(),
+                order.getSupplierResponseNote()
         );
     }
 

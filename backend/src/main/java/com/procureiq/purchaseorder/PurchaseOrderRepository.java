@@ -56,4 +56,41 @@ public interface PurchaseOrderRepository
             @Param("status")
             PurchaseOrderStatus status
     );
+
+    /**
+     * Reopens a rejected, issued order as a draft. The conditions are part of the statement, so
+     * it changes nothing (returns 0) if the order is not issued and rejected, or if any goods
+     * receipt exists. Returns the number of rows changed (0 or 1).
+     */
+    @org.springframework.data.jpa.repository.Modifying(
+            flushAutomatically = true,
+            clearAutomatically = true
+    )
+    @Query(
+            value = """
+                    UPDATE purchase_orders
+                    SET status = 'DRAFT',
+                        issued_by_user_id = NULL,
+                        issued_at = NULL,
+                        supplier_response = 'PENDING',
+                        supplier_responded_at = NULL,
+                        supplier_response_note = NULL,
+                        supplier_responded_by_account_id = NULL,
+                        updated_at = CURRENT_TIMESTAMP,
+                        version = version + 1
+                    WHERE id = :purchaseOrderId
+                    AND status = 'ISSUED'
+                    AND supplier_response = 'REJECTED'
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM goods_receipts receipt
+                        WHERE receipt.purchase_order_id = purchase_orders.id
+                    )
+                    """,
+            nativeQuery = true
+    )
+    int reopenRejected(
+            @Param("purchaseOrderId")
+            UUID purchaseOrderId
+    );
 }

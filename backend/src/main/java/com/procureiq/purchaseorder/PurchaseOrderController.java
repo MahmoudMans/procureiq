@@ -149,6 +149,21 @@ public class PurchaseOrderController {
                 );
     }
 
+    @PostMapping("/{id}/reopen")
+    public PurchaseOrderResponse reopenOrder(
+            @AuthenticationPrincipal
+            Jwt jwt,
+
+            @PathVariable
+            UUID id
+    ) {
+        return purchaseOrderService
+                .reopenOrder(
+                        currentUserId(jwt),
+                        id
+                );
+    }
+
     private UUID currentUserId(
             Jwt jwt
     ) {

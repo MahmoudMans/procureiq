@@ -198,6 +198,29 @@ public class PurchaseOrderEntity {
     )
     private Instant cancelledAt;
 
+    // Read-only on purpose: the supplier portal writes these columns directly, and Hibernate
+    // must never write a stale value back over a supplier's answer.
+    @jakarta.persistence.Column(
+            name = "supplier_response",
+            insertable = false,
+            updatable = false
+    )
+    private String supplierResponse;
+
+    @jakarta.persistence.Column(
+            name = "supplier_responded_at",
+            insertable = false,
+            updatable = false
+    )
+    private Instant supplierRespondedAt;
+
+    @jakarta.persistence.Column(
+            name = "supplier_response_note",
+            insertable = false,
+            updatable = false
+    )
+    private String supplierResponseNote;
+
     @Column(
             name = "created_at",
             nullable = false,
@@ -464,6 +487,20 @@ public class PurchaseOrderEntity {
             Instant cancelledAt
     ) {
         this.cancelledAt = cancelledAt;
+    }
+
+    public String getSupplierResponse() {
+        return supplierResponse == null
+                ? "PENDING"
+                : supplierResponse;
+    }
+
+    public Instant getSupplierRespondedAt() {
+        return supplierRespondedAt;
+    }
+
+    public String getSupplierResponseNote() {
+        return supplierResponseNote;
     }
 
     public Instant getCreatedAt() {

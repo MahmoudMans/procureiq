@@ -39,6 +39,9 @@ public record PurchaseOrderResponse(
         Instant cancelledAt,
         Instant createdAt,
         Instant updatedAt,
-        long version
+        long version,
+        String supplierResponse,
+        Instant supplierRespondedAt,
+        String supplierResponseNote
 ) {
 }
