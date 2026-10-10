@@ -594,6 +594,70 @@ async function main() {
 
   await expectBells('No submit notification for a draft', 'SUPPLIER_QUOTATION_SUBMITTED', rfq1.id, 0, 0, 0);
 
+  /* ---------------- Buyer edits a draft (regression: HTTP 409 when replacing lines) ---------------- */
+
+  {
+    const findBuyerQuote = async () => {
+      const list = await call('GET', `/rfqs/${rfq1.id}/quotations`, { token: buyer.token });
+
+      return (list ?? []).find(
+        (q) =>
+          q.supplierId === A.supplierId ||
+          q.supplier?.id === A.supplierId ||
+          q.id === draftA?.quotation?.id,
+      );
+    };
+
+    try {
+      const before = await findBuyerQuote();
+
+      if (!before?.id) {
+        throw new Error('the buyer cannot see supplier A’s draft quotation');
+      }
+
+      const totalBefore = Number(before.totalAmount);
+
+      const edited = await http('PUT', `/quotations/${before.id}`, {
+        token: buyer.token,
+        body: quotePayload(rfq1, [26, 41], 14),
+      });
+
+      check(
+        'Buyer edits the draft quotation (replaces its lines)',
+        edited.ok,
+        `HTTP ${edited.status}: ${problem(edited)}`,
+      );
+
+      if (edited.ok) {
+        const after = await findBuyerQuote();
+
+        check(
+          'The edit is saved: the total went up',
+          Number(after?.totalAmount) > totalBefore,
+          `total was ${totalBefore}, now ${after?.totalAmount}`,
+        );
+
+        const restored = await http('PUT', `/quotations/${before.id}`, {
+          token: buyer.token,
+          body: quotePayload(rfq1, [24, 38], 14),
+        });
+
+        const restoredQuote = restored.ok ? await findBuyerQuote() : null;
+
+        check(
+          'Buyer edits the draft again and restores the original prices',
+          restored.ok && Number(restoredQuote?.totalAmount) === totalBefore,
+          restored.ok
+            ? `total is ${restoredQuote?.totalAmount}, expected ${totalBefore}`
+            : `HTTP ${restored.status}: ${problem(restored)}`,
+        );
+      }
+    } catch (error) {
+      record('Buyer edits a draft quotation', false, error instanceof Error ? error.message : String(error));
+    }
+  }
+
+
   const submittedA = await step('A submits the quotation', async () =>
     call('POST', `/supplier-portal/rfqs/${rfq1.id}/quotation/submit`, { token: A.token }),
   );
