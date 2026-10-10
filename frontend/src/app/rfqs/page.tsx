@@ -4,760 +4,452 @@ import {
   Banknote,
   Building2,
   CircleAlert,
-  FileClock,
+  Download,
   FileText,
   Plus,
-  Search,
+  RefreshCw,
+  SearchX,
   Send,
+  ShieldAlert,
 } from "lucide-react";
-
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import {
-  useEffect,
-  useState,
-} from "react";
+  type Column,
+  DataTable,
+  EmptyState,
+  KpiGrid,
+  type KpiItem,
+  SearchField,
+  SegmentedFilter,
+  type SegmentedOption,
+  StatusBadge,
+  downloadCsv,
+  formatDateTime,
+  formatMoney,
+  timeOf,
+  useToast,
+} from "@/components/kit";
+import { getRfqs, getRfqSummary } from "@/lib/api";
+import type { Rfq, RfqStatus, RfqSummary } from "@/types/rfq";
 
-import {
-  useAuth,
-} from "@/components/auth/auth-provider";
+/* ------------------------------------------------------------------ */
+/* Constants & columns                                                 */
+/* ------------------------------------------------------------------ */
 
-import {
-  getRfqs,
-  getRfqSummary,
-} from "@/lib/api";
+const ALLOWED_ROLES = ["ADMIN", "PROCUREMENT_MANAGER", "BUYER"];
 
-import type {
-  Rfq,
-  RfqStatus,
-  RfqSummary,
-} from "@/types/rfq";
+const STATUS_FILTERS: SegmentedOption[] = [
+  { value: "", label: "All" },
+  { value: "DRAFT", label: "Draft" },
+  { value: "PUBLISHED", label: "Published" },
+  { value: "AWARDED", label: "Awarded" },
+  { value: "CLOSED", label: "Closed" },
+  { value: "CANCELLED", label: "Cancelled" },
+];
 
-function statusLabel(
-  status: RfqStatus,
-): string {
-  return status.replaceAll(
-    "_",
-    " ",
-  );
+const EMPTY_RFQS: Rfq[] = [];
+const integer = new Intl.NumberFormat("en-US");
+
+function buildColumns(now: number): Column<Rfq>[] {
+  return [
+    {
+      id: "rfq",
+      header: "RFQ",
+      sortValue: (rfq) => rfq.title.toLowerCase(),
+      cell: (rfq) => (
+        <div className="request-primary-cell">
+          <strong>
+            <Link href={`/rfqs/${rfq.id}`} className="supplier-360-link">
+              {rfq.title}
+            </Link>
+          </strong>
+
+          <span>
+            {rfq.rfqNumber} · {rfq.lineItems.length} line
+            {rfq.lineItems.length === 1 ? "" : "s"}
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: "source",
+      header: "Source request",
+      sortValue: (rfq) => rfq.purchaseRequestNumber,
+      cell: (rfq) => (
+        <div className="stacked-cell">
+          <strong>{rfq.purchaseRequestNumber}</strong>
+          <span>{rfq.departmentName}</span>
+        </div>
+      ),
+    },
+    {
+      id: "suppliers",
+      header: "Suppliers",
+      sortValue: (rfq) => rfq.invitations.length,
+      firstSort: "desc",
+      cell: (rfq) => <span className="kit-num">{rfq.invitations.length}</span>,
+    },
+    {
+      id: "deadline",
+      header: "Deadline",
+      sortValue: (rfq) => timeOf(rfq.responseDeadline),
+      cell: (rfq) => {
+        const state: string = rfq.status;
+        const deadline = timeOf(rfq.responseDeadline);
+        const passed = state === "PUBLISHED" && deadline !== null && deadline < now;
+
+        return (
+          <div className="kit-cell-stack">
+            <span>{formatDateTime(rfq.responseDeadline)}</span>
+
+            {passed ? (
+              <small className="kit-cell-flag kit-cell-flag--warning">
+                Deadline passed
+              </small>
+            ) : null}
+          </div>
+        );
+      },
+    },
+    {
+      id: "value",
+      header: "Value",
+      align: "right",
+      sortValue: (rfq) => rfq.purchaseRequestValue,
+      firstSort: "desc",
+      cell: (rfq) => (
+        <strong className="kit-num">
+          {formatMoney(rfq.purchaseRequestValue, rfq.currency)}
+        </strong>
+      ),
+    },
+    {
+      id: "status",
+      header: "Status",
+      sortValue: (rfq) => rfq.status,
+      cell: (rfq) => <StatusBadge value={rfq.status} />,
+    },
+    {
+      id: "owner",
+      header: "Owner",
+      sortValue: (rfq) => rfq.createdByName.toLowerCase(),
+      cell: (rfq) => rfq.createdByName,
+    },
+    {
+      id: "open",
+      header: <span className="kit-sr-only">Actions</span>,
+      align: "right",
+      width: 70,
+      cell: (rfq) => (
+        <Link href={`/rfqs/${rfq.id}`} className="table-action">
+          Open
+        </Link>
+      ),
+    },
+  ];
 }
 
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
+
 export default function RfqsPage() {
-  const {
-    user,
-  } = useAuth();
+  const { user } = useAuth();
+  const toast = useToast();
 
-  const [
-    rfqs,
-    setRfqs,
-  ] =
-    useState<Rfq[]>([]);
+  const allowed = user !== null && ALLOWED_ROLES.includes(user.role);
 
-  const [
-    summary,
-    setSummary,
-  ] =
-    useState<RfqSummary | null>(
-      null,
-    );
+  const [now] = useState(() => Date.now());
+  const columns = useMemo(() => buildColumns(now), [now]);
 
-  const [
-    query,
-    setQuery,
-  ] =
-    useState("");
+  const [rfqs, setRfqs] = useState<Rfq[] | null>(null);
+  const [summary, setSummary] = useState<RfqSummary | null>(null);
+  const [summaryFailed, setSummaryFailed] = useState(false);
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState("");
+  const [fetching, setFetching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
-  const [
-    status,
-    setStatus,
-  ] =
-    useState("");
-
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
-
-  const [
-    error,
-    setError,
-  ] =
-    useState<string | null>(
-      null,
-    );
-
-  const allowed =
-    user?.role ===
-      "ADMIN" ||
-    user?.role ===
-      "PROCUREMENT_MANAGER" ||
-    user?.role ===
-      "BUYER";
-
+  // Headline numbers: loaded once, and again on Refresh.
   useEffect(() => {
     if (!allowed) {
       return;
     }
 
-    let mounted = true;
+    let active = true;
 
-    const timeout =
-      window.setTimeout(
-        async () => {
-          try {
-            setLoading(
-              true,
-            );
+    async function loadSummary() {
+      try {
+        const response = await getRfqSummary();
 
-            setError(
-              null,
-            );
+        if (active) {
+          setSummary(response);
+          setSummaryFailed(false);
+        }
+      } catch {
+        if (active) {
+          setSummaryFailed(true);
+        }
+      }
+    }
 
-            const [
-              rfqResponse,
-              summaryResponse,
-            ] =
-              await Promise.all([
-                getRfqs({
-                  query:
-                    query ||
-                    undefined,
-
-                  status:
-                    (
-                      status as
-                        RfqStatus
-                    ) ||
-                    undefined,
-                }),
-
-                getRfqSummary(),
-              ]);
-
-            if (!mounted) {
-              return;
-            }
-
-            setRfqs(
-              rfqResponse,
-            );
-
-            setSummary(
-              summaryResponse,
-            );
-          } catch (
-            caughtError
-          ) {
-            if (!mounted) {
-              return;
-            }
-
-            setError(
-              caughtError instanceof
-                Error
-                ? caughtError
-                    .message
-                : "Unable to load RFQs.",
-            );
-          } finally {
-            if (mounted) {
-              setLoading(
-                false,
-              );
-            }
-          }
-        },
-        180,
-      );
+    void loadSummary();
 
     return () => {
-      mounted = false;
-
-      window.clearTimeout(
-        timeout,
-      );
+      active = false;
     };
-  }, [
-    allowed,
-    query,
-    status,
-  ]);
+  }, [allowed, reloadKey]);
+
+  // The list: debounced, and re-run whenever a filter changes.
+  useEffect(() => {
+    if (!allowed) {
+      return;
+    }
+
+    let active = true;
+
+    const timer = window.setTimeout(async () => {
+      setFetching(true);
+      setError(null);
+
+      try {
+        const response = await getRfqs({
+          query: query.trim() || undefined,
+          status: (status as RfqStatus) || undefined,
+        });
+
+        if (active) {
+          setRfqs(response);
+        }
+      } catch (caught) {
+        if (active) {
+          setError(caught instanceof Error ? caught.message : "Unable to load RFQs.");
+        }
+      } finally {
+        if (active) {
+          setFetching(false);
+        }
+      }
+    }, 200);
+
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+    };
+  }, [allowed, query, status, reloadKey]);
 
   if (!allowed) {
     return (
-      <div
-        className={
-          "page-stack"
-        }
-      >
-        <div
-          className={
-            "error-banner"
-          }
-        >
-          <CircleAlert
-            size={18}
+      <div className="page-stack">
+        <section className="panel">
+          <EmptyState
+            icon={ShieldAlert}
+            title="Access restricted"
+            description="Your ProcureIQ role cannot access strategic sourcing."
           />
-
-          Your ProcureIQ role
-          cannot access strategic
-          sourcing.
-        </div>
+        </section>
       </div>
     );
   }
 
-  return (
-    <div
-      className={
-        "page-stack"
-      }
-    >
-      <section
-        className={
-          "page-heading"
-        }
-      >
-        <div>
-          <span
-            className={
-              "eyebrow"
-            }
-          >
-            Strategic sourcing
-          </span>
+  const rows = rfqs ?? EMPTY_RFQS;
+  const initialLoad = rfqs === null && error === null;
+  const hasFilters = query.trim() !== "" || status !== "";
 
-          <h1>
-            RFQs & sourcing
-          </h1>
+  function clearFilters() {
+    setQuery("");
+    setStatus("");
+  }
+
+  function exportCsv() {
+    downloadCsv(
+      `procureiq-rfqs-${new Date().toISOString().slice(0, 10)}.csv`,
+      [
+        "RFQ number",
+        "Title",
+        "Purchase request",
+        "Department",
+        "Suppliers invited",
+        "Response deadline",
+        "Status",
+        "Currency",
+        "Value",
+        "Owner",
+      ],
+      rows.map((rfq) => [
+        rfq.rfqNumber,
+        rfq.title,
+        rfq.purchaseRequestNumber,
+        rfq.departmentName,
+        rfq.invitations.length,
+        rfq.responseDeadline,
+        rfq.status,
+        rfq.currency,
+        rfq.purchaseRequestValue,
+        rfq.createdByName,
+      ]),
+    );
+
+    toast.success(
+      "RFQs exported",
+      `${rows.length} ${rows.length === 1 ? "row" : "rows"} saved as CSV.`,
+    );
+  }
+
+  const kpis: KpiItem[] = [
+    {
+      label: "Total RFQs",
+      icon: FileText,
+      value: summary ? integer.format(summary.totalRfqs) : "—",
+      note: "Sourcing events managed by ProcureIQ.",
+    },
+    {
+      label: "Published",
+      icon: Send,
+      value: summary ? integer.format(summary.publishedRfqs) : "—",
+      note: "RFQs currently open for supplier responses.",
+    },
+    {
+      label: "Supplier invitations",
+      icon: Building2,
+      value: summary ? integer.format(summary.invitedSuppliers) : "—",
+      note: "Competitive supplier invitations across RFQs.",
+    },
+    {
+      label: "Active sourcing value",
+      icon: Banknote,
+      value: summary ? formatMoney(summary.activeSourcingValue, "EUR", true) : "—",
+      note: "Approved demand currently in active sourcing.",
+    },
+  ];
+
+  const emptyNode = hasFilters ? (
+    <EmptyState
+      icon={SearchX}
+      title="No RFQs match these filters"
+      description="Try a different search term or status, or clear the filters."
+      action={
+        <button
+          type="button"
+          className="button button--secondary"
+          onClick={clearFilters}
+        >
+          Clear filters
+        </button>
+      }
+    />
+  ) : (
+    <EmptyState
+      icon={FileText}
+      title="No RFQs yet"
+      description="Turn approved purchasing demand into a competitive sourcing event."
+      action={
+        <Link href="/rfqs/new" className="button button--primary">
+          <Plus size={16} />
+          New RFQ
+        </Link>
+      }
+    />
+  );
+
+  return (
+    <div className="page-stack">
+      <section className="page-heading">
+        <div>
+          <span className="eyebrow">Strategic sourcing</span>
+
+          <h1>RFQs &amp; sourcing</h1>
 
           <p>
-            Convert approved purchasing
-            demand into competitive
-            sourcing events and invite
-            qualified suppliers.
+            Convert approved purchasing demand into competitive sourcing events and
+            invite qualified suppliers.
           </p>
         </div>
 
-        <Link
-          href="/rfqs/new"
-          className={
-            "button button--primary"
-          }
-        >
-          <Plus size={17} />
-          New RFQ
-        </Link>
+        <div className="page-heading__actions">
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={() => setReloadKey((key) => key + 1)}
+            disabled={fetching}
+          >
+            <RefreshCw size={15} className={fetching ? "kit-spin" : undefined} />
+            Refresh
+          </button>
+
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={exportCsv}
+            disabled={rows.length === 0}
+          >
+            <Download size={15} />
+            Export CSV
+          </button>
+
+          <Link href="/rfqs/new" className="button button--primary">
+            <Plus size={17} />
+            New RFQ
+          </Link>
+        </div>
       </section>
 
-      {error ? (
-        <div
-          className={
-            "error-banner"
-          }
-        >
-          <CircleAlert
-            size={18}
-          />
+      <KpiGrid
+        items={kpis}
+        loading={summary === null && !summaryFailed}
+        ariaLabel="RFQ totals"
+      />
 
-          {error}
+      <div className="kit-toolbar">
+        <SearchField
+          value={query}
+          onChange={setQuery}
+          placeholder="Search RFQ number, title or purchase request"
+          ariaLabel="Search RFQs"
+          shortcut
+        />
+
+        <SegmentedFilter
+          options={STATUS_FILTERS}
+          value={status}
+          onChange={setStatus}
+          ariaLabel="Filter by status"
+        />
+      </div>
+
+      {error ? (
+        <div className="error-banner">
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button
+            type="button"
+            className="kit-banner-action"
+            onClick={() => setReloadKey((key) => key + 1)}
+          >
+            Try again
+          </button>
         </div>
       ) : null}
 
-      <section
-        className={
-          "rfq-kpi-grid"
-        }
-      >
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <FileText
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Total RFQs
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value"
-            }
-          >
-            {summary
-              ?.totalRfqs ??
-              "—"}
-          </strong>
-
-          <p>
-            Sourcing events managed
-            by ProcureIQ.
-          </p>
-        </article>
-
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <Send size={20} />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Published
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value"
-            }
-          >
-            {summary
-              ?.publishedRfqs ??
-              "—"}
-          </strong>
-
-          <p>
-            RFQs currently open
-            for supplier responses.
-          </p>
-        </article>
-
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <Building2
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Supplier invitations
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value"
-            }
-          >
-            {summary
-              ?.invitedSuppliers ??
-              "—"}
-          </strong>
-
-          <p>
-            Competitive supplier
-            invitations across RFQs.
-          </p>
-        </article>
-
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <Banknote
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Active sourcing value
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value rfq-value"
-            }
-          >
-            {summary
-              ? new Intl
-                  .NumberFormat(
-                    "en-US",
-                    {
-                      style:
-                        "currency",
-                      currency:
-                        "EUR",
-                      notation:
-                        "compact",
-                      maximumFractionDigits:
-                        1,
-                    },
-                  )
-                  .format(
-                    summary
-                      .activeSourcingValue,
-                  )
-              : "—"}
-          </strong>
-
-          <p>
-            Approved demand currently
-            in active sourcing.
-          </p>
-        </article>
-      </section>
-
-      <section
-        className={
-          "rfq-toolbar"
-        }
-      >
-        <div
-          className={
-            "supplier-toolbar__search"
-          }
-        >
-          <Search size={18} />
-
-          <input
-            value={query}
-            onChange={
-              event =>
-                setQuery(
-                  event
-                    .target
-                    .value,
-                )
-            }
-            placeholder={
-              "Search RFQ number, title or purchase request"
-            }
-          />
-        </div>
-
-        <div
-          className={
-            "select-wrapper"
-          }
-        >
-          <select
-            value={status}
-            onChange={
-              event =>
-                setStatus(
-                  event
-                    .target
-                    .value,
-                )
-            }
-          >
-            <option value="">
-              All statuses
-            </option>
-
-            <option value="DRAFT">
-              Draft
-            </option>
-
-            <option value="PUBLISHED">
-              Published
-            </option>
-
-            <option value="CLOSED">
-              Closed
-            </option>
-
-            <option value="CANCELLED">
-              Cancelled
-            </option>
-          </select>
-        </div>
-      </section>
-
-      <section
-        className={
-          "panel rfq-list-panel"
-        }
-      >
-        <div
-          className={
-            "supplier-panel__summary"
-          }
-        >
-          <div>
-            <FileClock
-              size={18}
-            />
-
-            <span>
-              {loading
-                ? "Loading sourcing events..."
-                : `${
-                    rfqs.length
-                  } RFQs found`}
-            </span>
-          </div>
-
-          <span>
-            Strategic sourcing workspace
-          </span>
-        </div>
-
-        <div
-          className={
-            "table-scroll"
-          }
-        >
-          <table
-            className={
-              "data-table rfq-table"
-            }
-          >
-            <thead>
-              <tr>
-                <th>
-                  RFQ
-                </th>
-
-                <th>
-                  Source request
-                </th>
-
-                <th>
-                  Suppliers
-                </th>
-
-                <th>
-                  Deadline
-                </th>
-
-                <th>
-                  Value
-                </th>
-
-                <th>
-                  Status
-                </th>
-
-                <th>
-                  Owner
-                </th>
-
-                <th />
-              </tr>
-            </thead>
-
-            <tbody>
-              {!loading &&
-                rfqs.map(
-                  rfq => (
-                    <tr
-                      key={
-                        rfq.id
-                      }
-                    >
-                      <td>
-                        <div
-                          className={
-                            "request-primary-cell"
-                          }
-                        >
-                          <strong>
-                            {
-                              rfq.title
-                            }
-                          </strong>
-
-                          <span>
-                            {
-                              rfq.rfqNumber
-                            }
-                            {" · "}
-                            {
-                              rfq.lineItems
-                                .length
-                            }
-                            {" lines"}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div
-                          className={
-                            "rfq-source-cell"
-                          }
-                        >
-                          <strong>
-                            {
-                              rfq.purchaseRequestNumber
-                            }
-                          </strong>
-
-                          <span>
-                            {
-                              rfq.departmentName
-                            }
-                          </span>
-                        </div>
-                      </td>
-
-                      <td>
-                        {
-                          rfq.invitations
-                            .length
-                        }
-                      </td>
-
-                      <td>
-                        {
-                          new Date(
-                            rfq.responseDeadline,
-                          )
-                            .toLocaleString()
-                        }
-                      </td>
-
-                      <td>
-                        <strong>
-                          {
-                            new Intl
-                              .NumberFormat(
-                                "en-US",
-                                {
-                                  style:
-                                    "currency",
-                                  currency:
-                                    rfq.currency,
-                                  maximumFractionDigits:
-                                    0,
-                                },
-                              )
-                              .format(
-                                rfq.purchaseRequestValue,
-                              )
-                          }
-                        </strong>
-                      </td>
-
-                      <td>
-                        <span
-                          className={
-                            `rfq-status rfq-status--${
-                              rfq.status
-                                .toLowerCase()
-                            }`
-                          }
-                        >
-                          {
-                            statusLabel(
-                              rfq.status,
-                            )
-                          }
-                        </span>
-                      </td>
-
-                      <td>
-                        {
-                          rfq.createdByName
-                        }
-                      </td>
-
-                      <td>
-                        <Link
-                          href={
-                            `/rfqs/${rfq.id}`
-                          }
-                          className={
-                            "table-action"
-                          }
-                        >
-                          Open
-                        </Link>
-                      </td>
-                    </tr>
-                  ),
-                )}
-
-              {!loading &&
-              rfqs.length === 0
-                ? (
-                  <tr>
-                    <td
-                      colSpan={8}
-                      className={
-                        "table-empty-state"
-                      }
-                    >
-                      No RFQs match
-                      the current filters.
-                    </td>
-                  </tr>
-                )
-                : null}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      {error && rfqs === null ? null : (
+        <DataTable
+          columns={columns}
+          rows={rows}
+          getRowId={(rfq) => rfq.id}
+          ariaLabel="RFQs"
+          loading={initialLoad}
+          busy={fetching}
+          empty={emptyNode}
+          persistKey="rfqs"
+          resetKey={`${query}|${status}`}
+        />
+      )}
     </div>
   );
 }

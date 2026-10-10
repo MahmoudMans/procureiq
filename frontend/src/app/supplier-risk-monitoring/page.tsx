@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {
   Activity,
   AlertTriangle,
@@ -628,7 +630,7 @@ export default function SupplierRiskMonitoringPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Supplier</th>
@@ -783,7 +785,7 @@ export default function SupplierRiskMonitoringPage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 

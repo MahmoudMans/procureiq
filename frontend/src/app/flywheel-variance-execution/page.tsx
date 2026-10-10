@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {
   CircleAlert,
   ClipboardCheck,
@@ -438,7 +440,7 @@ export default function FlywheelVarianceExecutionPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Plan</th>
@@ -554,7 +556,7 @@ export default function FlywheelVarianceExecutionPage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
@@ -733,7 +735,7 @@ export default function FlywheelVarianceExecutionPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Case</th>
@@ -870,7 +872,7 @@ export default function FlywheelVarianceExecutionPage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 

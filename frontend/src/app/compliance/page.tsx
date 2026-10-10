@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {
   AlertTriangle,
   CircleAlert,
@@ -777,7 +779,7 @@ export default function CompliancePage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Policy</th>
@@ -901,7 +903,7 @@ export default function CompliancePage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
     </div>

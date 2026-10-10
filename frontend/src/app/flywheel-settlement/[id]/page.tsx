@@ -1,18 +1,45 @@
 "use client";
 
 import {
+  AlertTriangle,
   ArrowLeft,
+  BadgeCheck,
   Camera,
   CircleAlert,
+  Coins,
+  FileCheck2,
+  Gauge,
+  Info,
+  Plus,
   ReceiptText,
+  RefreshCw,
+  TrendingDown,
 } from "lucide-react";
-
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { type FormEvent, useEffect, useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import {
-  useAuth,
-} from "@/components/auth/auth-provider";
-
+  type Column,
+  DataTable,
+  EmptyState,
+  Field,
+  KpiGrid,
+  type KpiItem,
+  Meter,
+  type MeterTone,
+  Modal,
+  Skeleton,
+  StatusBadge,
+  formatDate,
+  meterToneFor,
+  readable,
+  useToast,
+} from "@/components/kit";
+import { ActionDialog } from "@/components/kit/action-dialog";
+import { NumberField, numberError } from "@/components/kit/number-field";
+import { RationaleDialog } from "@/components/kit/rationale-dialog";
 import {
   addFlywheelSettlementItem,
   captureFlywheelSettlementSnapshot,
@@ -21,1332 +48,1205 @@ import {
   reconcileFlywheelSettlementCase,
   submitFlywheelSettlementForReview,
 } from "@/lib/api";
+import type { FlywheelSettlementCaseDetail } from "@/types/flywheel-settlement";
 
-import type {
-  FlywheelSettlementCaseDetail,
-} from "@/types/flywheel-settlement";
+/* ------------------------------------------------------------------ */
+/* Constants & helpers                                                 */
+/* ------------------------------------------------------------------ */
 
-import {
-  type FormEvent,
-  useEffect,
-  useState,
-} from "react";
+type SettlementCase = FlywheelSettlementCaseDetail["settlementCase"];
+type Candidate = FlywheelSettlementCaseDetail["candidates"][number];
+type SettlementItem = FlywheelSettlementCaseDetail["items"][number];
+type SettlementSnapshot = FlywheelSettlementCaseDetail["snapshots"][number];
+type Flow = "SUBMIT" | "SNAPSHOT";
+type EvidenceField = "item" | "amount" | "date" | "reference" | "note";
+type RationaleRequest = { kind: "RECONCILE" } | { kind: "CLOSE" };
 
-import {
-  useParams,
-} from "next/navigation";
+const MANAGE_ROLES = ["ADMIN", "PROCUREMENT_MANAGER", "BUYER"];
+const FINALIZE_ROLES = ["ADMIN", "PROCUREMENT_MANAGER"];
 
-function readable(
-  value: string,
-): string {
-  return value
-    .replaceAll(
-      "_",
-      " ",
-    )
-    .toLowerCase()
-    .replace(
-      /\b\w/g,
-      letter =>
-        letter.toUpperCase(),
-    );
+function money(value: number, currency: string): string {
+  return `${new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value)} ${currency}`;
 }
 
-function money(
-  value: number,
-  currency: string,
-): string {
-  return `${value.toLocaleString(
-    undefined,
+function showDate(value?: string | null): string {
+  return value ? formatDate(value) : "—";
+}
+
+function clampPercent(value: number): number {
+  return Math.min(100, Math.max(0, value));
+}
+
+/** Local calendar date as YYYY-MM-DD, offset by a number of days. */
+function isoDate(offsetDays: number): string {
+  const date = new Date();
+
+  date.setDate(date.getDate() + offsetDays);
+
+  const pad = (value: number) => String(value).padStart(2, "0");
+
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function CaseBadge({ status }: { status: string }) {
+  if (status === "RECONCILED") {
+    return <StatusBadge value="COMPLETED" label="Reconciled" />;
+  }
+
+  return <StatusBadge value={status} label={readable(status)} />;
+}
+
+function ItemStatusBadge({ status }: { status: string }) {
+  const upper = status.toUpperCase();
+
+  if (upper.includes("UNRESOLVED") || upper.includes("UNSETTLED")) {
+    return <StatusBadge value="OFF_TRACK" label={readable(status)} />;
+  }
+
+  if (upper.includes("PARTIAL")) {
+    return <StatusBadge value="PENDING" label={readable(status)} />;
+  }
+
+  if (upper.includes("SETTLED") || upper === "MATCHED") {
+    return <StatusBadge value="COMPLETED" label={readable(status)} />;
+  }
+
+  return <StatusBadge value={status} label={readable(status)} />;
+}
+
+function ProgressLine({
+  pct,
+  tone,
+  caption,
+  label,
+}: {
+  pct: number;
+  tone: MeterTone;
+  caption: string;
+  label: string;
+}) {
+  return (
+    <div className="kit-meter-wrap">
+      <Meter value={clampPercent(pct)} max={100} tone={tone} ariaLabel={label} />
+
+      <span className="kit-meter-caption">{caption}</span>
+    </div>
+  );
+}
+
+interface FlowCopy {
+  eyebrow: string;
+  title: string;
+  confirm: string;
+  busy: string;
+  keep: string;
+  done: string;
+  failed: string;
+}
+
+const FLOWS: Record<Flow, FlowCopy> = {
+  SUBMIT: {
+    eyebrow: "Evidence completeness gate",
+    title: "Submit reconciliation for review?",
+    confirm: "Submit for review",
+    busy: "Submitting…",
+    keep: "Not yet",
+    done: "Submitted for review",
+    failed: "Could not submit the reconciliation",
+  },
+  SNAPSHOT: {
+    eyebrow: "Immutable reconciliation evidence",
+    title: "Capture a settlement snapshot?",
+    confirm: "Capture snapshot",
+    busy: "Capturing…",
+    keep: "Not yet",
+    done: "Snapshot captured",
+    failed: "Could not capture the snapshot",
+  },
+};
+
+function flowDescription(flow: Flow, settlementCase: SettlementCase): string {
+  switch (flow) {
+    case "SUBMIT":
+      return `${settlementCase.reconciliationNumber} will be submitted for manager review. Evidence can no longer be added while it is under review.`;
+
+    case "SNAPSHOT":
+      return `The current state of ${settlementCase.reconciliationNumber} is recorded as an immutable snapshot.`;
+  }
+}
+
+interface RationaleCopy {
+  eyebrow: string;
+  title: string;
+  description: string;
+  label: string;
+  placeholder: string;
+  confirm: string;
+  busy: string;
+  done: string;
+}
+
+function rationaleCopy(request: RationaleRequest, settlementCase: SettlementCase): RationaleCopy {
+  switch (request.kind) {
+    case "RECONCILE": {
+      const variance = Math.abs(settlementCase.varianceAmount);
+
+      return {
+        eyebrow: "Manager reconciliation authority",
+        title: "Finalize reconciliation",
+        description:
+          variance > 0.005
+            ? `${settlementCase.reconciliationNumber} will be reconciled with a variance of ${money(variance, settlementCase.currency)} between released and settled.`
+            : `${settlementCase.reconciliationNumber} will be reconciled. Released and settled amounts agree.`,
+        label: "Reconciliation conclusion",
+        placeholder: "What does the settlement evidence conclude?",
+        confirm: "Reconcile case",
+        busy: "Reconciling…",
+        done: "Reconciliation finalized",
+      };
+    }
+
+    case "CLOSE":
+      return {
+        eyebrow: "Governance lifecycle",
+        title: "Close reconciliation",
+        description: `${settlementCase.reconciliationNumber} was reconciled. Closing it finishes the governance lifecycle.`,
+        label: "Closure rationale",
+        placeholder: "Summarise why this case can be closed.",
+        confirm: "Close case",
+        busy: "Closing…",
+        done: "Reconciliation case closed",
+      };
+  }
+}
+
+function performRationale(
+  request: RationaleRequest,
+  caseId: string,
+  note: string,
+): Promise<FlywheelSettlementCaseDetail> {
+  switch (request.kind) {
+    case "RECONCILE":
+      return reconcileFlywheelSettlementCase(caseId, note);
+
+    case "CLOSE":
+      return closeFlywheelSettlementCase(caseId, note);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Table columns                                                       */
+/* ------------------------------------------------------------------ */
+
+function buildItemColumns(currency: string): Column<SettlementItem>[] {
+  return [
     {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      id: "lineage",
+      header: "Lineage",
+      sortValue: (item) => item.rootTargetInitiativeTitle.toLowerCase(),
+      cell: (item) => (
+        <div className="request-primary-cell">
+          <strong>{item.rootTargetInitiativeTitle}</strong>
+
+          <span>{item.lineageNumber}</span>
+        </div>
+      ),
     },
-  )} ${currency}`;
+    {
+      id: "released",
+      header: "Released",
+      align: "right",
+      sortValue: (item) => item.sourceReleasedAmount,
+      cell: (item) => money(item.sourceReleasedAmount, currency),
+    },
+    {
+      id: "settled",
+      header: "Settled",
+      align: "right",
+      sortValue: (item) => item.settledAmount,
+      cell: (item) => <strong>{money(item.settledAmount, currency)}</strong>,
+    },
+    {
+      id: "variance",
+      header: "Variance",
+      align: "right",
+      sortValue: (item) => Math.abs(item.varianceAmount),
+      cell: (item) => (
+        <span className={Math.abs(item.varianceAmount) > 0.005 ? "kit-text-warning" : undefined}>
+          {money(item.varianceAmount, currency)}
+        </span>
+      ),
+    },
+    {
+      id: "status",
+      header: "Status",
+      sortValue: (item) => String(item.reconciliationStatus),
+      cell: (item) => <ItemStatusBadge status={String(item.reconciliationStatus)} />,
+    },
+    {
+      id: "reference",
+      header: "Reference",
+      sortValue: (item) => (item.evidenceReference ?? "").toLowerCase(),
+      cell: (item) => item.evidenceReference ?? <span className="kit-text-muted">—</span>,
+    },
+    {
+      id: "date",
+      header: "Date",
+      sortValue: (item) => item.evidenceDate ?? null,
+      cell: (item) => showDate(item.evidenceDate),
+    },
+    {
+      id: "note",
+      header: "Evidence",
+      cell: (item) => <span>{item.evidenceNote}</span>,
+    },
+  ];
+}
+
+function buildSnapshotColumns(): Column<SettlementSnapshot>[] {
+  return [
+    {
+      id: "snapshot",
+      header: "Snapshot",
+      sortValue: (item) => item.snapshotNumber,
+      cell: (item) => <strong>{item.snapshotNumber}</strong>,
+    },
+    {
+      id: "status",
+      header: "Status",
+      sortValue: (item) => String(item.caseStatus),
+      cell: (item) => <CaseBadge status={String(item.caseStatus)} />,
+    },
+    {
+      id: "settled",
+      header: "Settled",
+      align: "right",
+      sortValue: (item) => item.settledAmount,
+      cell: (item) => money(item.settledAmount, item.currency),
+    },
+    {
+      id: "variance",
+      header: "Variance",
+      align: "right",
+      sortValue: (item) => Math.abs(item.varianceAmount),
+      cell: (item) => money(item.varianceAmount, item.currency),
+    },
+    {
+      id: "settlement",
+      header: "Settlement",
+      align: "right",
+      sortValue: (item) => item.settlementPct,
+      cell: (item) => `${item.settlementPct.toFixed(1)}%`,
+    },
+    {
+      id: "by",
+      header: "Captured by",
+      sortValue: (item) => (item.capturedByName ?? "").toLowerCase(),
+      cell: (item) => item.capturedByName ?? <span className="kit-text-muted">—</span>,
+    },
+    {
+      id: "evidence",
+      header: <span className="kit-sr-only">Evidence</span>,
+      align: "right",
+      cell: (item) => (
+        <Link href={`/flywheel-settlement/snapshots/${item.id}`} className="table-action">
+          Evidence
+        </Link>
+      ),
+    },
+  ];
+}
+
+/* ------------------------------------------------------------------ */
+/* Record settlement evidence modal                                    */
+/* ------------------------------------------------------------------ */
+
+interface EvidenceModalProps {
+  caseId: string;
+  currency: string;
+  candidates: Candidate[];
+  onClose: () => void;
+  onSaved: (updated: FlywheelSettlementCaseDetail, title: string) => void;
+}
+
+function EvidenceModal({ caseId, currency, candidates, onClose, onSaved }: EvidenceModalProps) {
+  const first = candidates[0];
+
+  const [itemId, setItemId] = useState(first?.releaseItemId ?? "");
+  const [amount, setAmount] = useState(() => (first ? String(first.sourceReleasedAmount) : "0"));
+  const [date, setDate] = useState(() => isoDate(0));
+  const [reference, setReference] = useState(first?.executionReference ?? "");
+  const [note, setNote] = useState("");
+  const [errors, setErrors] = useState<Partial<Record<EvidenceField, string>>>({});
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const selected = candidates.find((candidate) => candidate.releaseItemId === itemId);
+  const amountValid = numberError(amount, { min: 0 }) === undefined;
+  const settled = amountValid ? Number(amount) : 0;
+  const released = selected ? selected.sourceReleasedAmount : 0;
+  const below = amountValid && selected !== undefined && settled < released - 0.005;
+  const above = amountValid && selected !== undefined && settled > released + 0.005;
+
+  function clearError(field: EvidenceField) {
+    setErrors((current) => {
+      const next = { ...current };
+
+      delete next[field];
+
+      return next;
+    });
+  }
+
+  function handleSelect(id: string) {
+    setItemId(id);
+    clearError("item");
+    clearError("amount");
+    clearError("reference");
+
+    const candidate = candidates.find((current) => current.releaseItemId === id);
+
+    if (candidate) {
+      setAmount(String(candidate.sourceReleasedAmount));
+      setReference(candidate.executionReference ?? "");
+    }
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (saving) {
+      return;
+    }
+
+    const next: Partial<Record<EvidenceField, string>> = {};
+
+    if (!itemId || !selected) {
+      next.item = "Select a released item.";
+    }
+
+    const problem = numberError(amount, { min: 0 });
+
+    if (problem) {
+      next.amount = problem;
+    }
+
+    if (!date) {
+      next.date = "Choose the evidence date.";
+    } else if (date > isoDate(0)) {
+      next.date = "The evidence date cannot be in the future.";
+    }
+
+    if (!problem && Number(amount) > 0 && !reference.trim()) {
+      next.reference = "An external evidence reference is required when an amount is settled.";
+    }
+
+    if (!note.trim()) {
+      next.note = "Describe the evidence.";
+    }
+
+    setErrors(next);
+
+    if (Object.keys(next).length > 0) {
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const updated = await addFlywheelSettlementItem(caseId, {
+        releaseItemId: itemId,
+        settledAmount: Number(amount),
+        evidenceReference: reference.trim() ? reference.trim() : null,
+        evidenceDate: date,
+        evidenceNote: note.trim(),
+      });
+
+      onSaved(updated, selected ? selected.rootTargetInitiativeTitle : "Released item");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to add settlement evidence.");
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Modal
+      eyebrow="Manual external evidence"
+      title="Record settlement evidence"
+      description="Record the external evidence that a released item was settled."
+      size="lg"
+      dismissible={!saving}
+      onClose={onClose}
+      footer={
+        <>
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={onClose}
+            disabled={saving}
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            form="settlement-evidence-form"
+            className="button button--primary"
+            disabled={saving}
+          >
+            {saving ? "Recording…" : "Record evidence"}
+          </button>
+        </>
+      }
+    >
+      <form id="settlement-evidence-form" onSubmit={handleSubmit} noValidate>
+        <div className="kit-pair-grid">
+          <div className="kit-pair-wide">
+            <Field label="Released item" htmlFor="settlement-item" error={errors.item}>
+              <select
+                id="settlement-item"
+                className="kit-field-input"
+                value={itemId}
+                aria-invalid={errors.item ? true : undefined}
+                onChange={(event) => handleSelect(event.target.value)}
+              >
+                {candidates.map((candidate) => (
+                  <option key={candidate.releaseItemId} value={candidate.releaseItemId}>
+                    {candidate.rootTargetInitiativeTitle} — {candidate.lineageNumber} —{" "}
+                    {money(candidate.sourceReleasedAmount, currency)}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          </div>
+
+          <NumberField
+            id="settlement-amount"
+            label={`Settled amount (${currency})`}
+            min={0}
+            step="0.01"
+            value={amount}
+            error={errors.amount}
+            onChange={(value) => {
+              setAmount(value);
+              clearError("amount");
+              clearError("reference");
+            }}
+          />
+
+          <Field label="Evidence date" htmlFor="settlement-date" error={errors.date}>
+            <input
+              id="settlement-date"
+              className="kit-field-input"
+              type="date"
+              value={date}
+              aria-invalid={errors.date ? true : undefined}
+              onChange={(event) => {
+                setDate(event.target.value);
+                clearError("date");
+              }}
+            />
+          </Field>
+
+          {selected ? (
+            <div className="kit-pair-wide">
+              <p className="kit-meta-line">
+                Released for this item: {money(selected.sourceReleasedAmount, currency)}
+              </p>
+            </div>
+          ) : null}
+
+          <div className="kit-pair-wide">
+            <Field
+              label="External evidence reference"
+              htmlFor="settlement-reference"
+              error={errors.reference}
+            >
+              <input
+                id="settlement-reference"
+                className="kit-field-input"
+                maxLength={300}
+                placeholder="Bank statement, ERP journal, treasury reference..."
+                value={reference}
+                aria-invalid={errors.reference ? true : undefined}
+                onChange={(event) => {
+                  setReference(event.target.value);
+                  clearError("reference");
+                }}
+              />
+            </Field>
+          </div>
+
+          <div className="kit-pair-wide">
+            <Field label="Evidence note" htmlFor="settlement-note" error={errors.note}>
+              <textarea
+                id="settlement-note"
+                className="kit-field-input"
+                rows={4}
+                maxLength={5000}
+                value={note}
+                aria-invalid={errors.note ? true : undefined}
+                onChange={(event) => {
+                  setNote(event.target.value);
+                  clearError("note");
+                }}
+              />
+            </Field>
+          </div>
+        </div>
+
+        {below ? (
+          <p className="kit-dialog-note kit-dialog-note--warning" style={{ marginTop: 14 }}>
+            The settled amount is below the released amount, which leaves a variance of{" "}
+            {money(released - settled, currency)}.
+          </p>
+        ) : null}
+
+        {above ? (
+          <p className="kit-dialog-note kit-dialog-note--warning" style={{ marginTop: 14 }}>
+            The settled amount is above the released amount of {money(released, currency)}.
+          </p>
+        ) : null}
+
+        {error ? (
+          <div className="error-banner" role="alert" style={{ marginTop: 16 }}>
+            <CircleAlert size={18} />
+            <span>{error}</span>
+          </div>
+        ) : null}
+      </form>
+    </Modal>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
+
+interface CaseData {
+  id: string;
+  detail: FlywheelSettlementCaseDetail;
 }
 
 export default function FlywheelSettlementCasePage() {
-  const params =
-    useParams<{
-      id: string;
-    }>();
+  const params = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const toast = useToast();
 
-  const {
-    user,
-  } = useAuth();
+  const canManage = user !== null && MANAGE_ROLES.includes(user.role);
+  const canFinalize = user !== null && FINALIZE_ROLES.includes(user.role);
 
-  const [
-    detail,
-    setDetail,
-  ] =
-    useState<
-      FlywheelSettlementCaseDetail |
-      null
-    >(null);
-
-  const [
-    releaseItemId,
-    setReleaseItemId,
-  ] =
-    useState("");
-
-  const [
-    settledAmount,
-    setSettledAmount,
-  ] =
-    useState(0);
-
-  const [
-    evidenceReference,
-    setEvidenceReference,
-  ] =
-    useState("");
-
-  const [
-    evidenceDate,
-    setEvidenceDate,
-  ] =
-    useState(
-      new Date()
-        .toISOString()
-        .slice(
-          0,
-          10,
-        ),
-    );
-
-  const [
-    evidenceNote,
-    setEvidenceNote,
-  ] =
-    useState("");
-
-  const [
-    reconciliationNote,
-    setReconciliationNote,
-  ] =
-    useState("");
-
-  const [
-    closeNote,
-    setCloseNote,
-  ] =
-    useState("");
-
-  const [
-    running,
-    setRunning,
-  ] =
-    useState(false);
-
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
-
-  const [
-    error,
-    setError,
-  ] =
-    useState<
-      string |
-      null
-    >(null);
-
-  const canManage =
-    user?.role ===
-      "ADMIN"
-    ||
-    user?.role ===
-      "PROCUREMENT_MANAGER"
-    ||
-    user?.role ===
-      "BUYER";
-
-  const canFinalize =
-    user?.role ===
-      "ADMIN"
-    ||
-    user?.role ===
-      "PROCUREMENT_MANAGER";
-
-  function syncCandidate(
-    response:
-      FlywheelSettlementCaseDetail,
-  ) {
-    const candidate =
-      response.candidates[0];
-
-    if (candidate) {
-      setReleaseItemId(
-        candidate.releaseItemId,
-      );
-
-      setSettledAmount(
-        candidate
-          .sourceReleasedAmount,
-      );
-
-      setEvidenceReference(
-        candidate
-          .executionReference
-          ??
-          "",
-      );
-    } else {
-      setReleaseItemId("");
-      setSettledAmount(0);
-      setEvidenceReference("");
-    }
-  }
-
-  async function reload() {
-    const response =
-      await getFlywheelSettlementCase(
-        params.id,
-      );
-
-    setDetail(
-      response,
-    );
-
-    syncCandidate(
-      response,
-    );
-  }
+  const [result, setResult] = useState<CaseData | null>(null);
+  const [flow, setFlow] = useState<Flow | null>(null);
+  const [flowRunning, setFlowRunning] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [rationale, setRationale] = useState<RationaleRequest | null>(null);
+  const [rationaleRunning, setRationaleRunning] = useState(false);
+  const [rationaleError, setRationaleError] = useState<string | null>(null);
+  const [fetching, setFetching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let active = true;
+    const id = params.id;
 
-    getFlywheelSettlementCase(
-      params.id,
-    )
-      .then(
-        response => {
-          if (!active) {
-            return;
-          }
+    const timer = window.setTimeout(async () => {
+      setFetching(true);
+      setError(null);
 
-          setDetail(
-            response,
+      try {
+        const response = await getFlywheelSettlementCase(id);
+
+        if (active) {
+          setResult({ id, detail: response });
+        }
+      } catch (caught) {
+        if (active) {
+          setError(
+            caught instanceof Error
+              ? caught.message
+              : "Unable to load settlement reconciliation case.",
           );
-
-          const candidate =
-            response.candidates[0];
-
-          if (candidate) {
-            setReleaseItemId(
-              candidate.releaseItemId,
-            );
-
-            setSettledAmount(
-              candidate
-                .sourceReleasedAmount,
-            );
-
-            setEvidenceReference(
-              candidate
-                .executionReference
-              ??
-              "",
-            );
-          }
-        },
-      )
-      .catch(
-        caughtError => {
-          if (active) {
-            setError(
-              caughtError instanceof
-                Error
-                ? caughtError.message
-                : "Unable to load settlement reconciliation case.",
-            );
-          }
-        },
-      )
-      .finally(
-        () => {
-          if (active) {
-            setLoading(false);
-          }
-        },
-      );
+        }
+      } finally {
+        if (active) {
+          setFetching(false);
+        }
+      }
+    }, 0);
 
     return () => {
       active = false;
+      window.clearTimeout(timer);
     };
-  }, [
-    params.id,
-  ]);
+  }, [params.id, reloadKey]);
 
-  async function addEvidence(
-    event:
-      FormEvent<HTMLFormElement>,
-  ) {
-    event.preventDefault();
+  const data = result !== null && result.id === params.id ? result : null;
+  const detail = data?.detail ?? null;
 
-    try {
-      setRunning(true);
-      setError(null);
-
-      const response =
-        await addFlywheelSettlementItem(
-          params.id,
-          {
-            releaseItemId,
-
-            settledAmount,
-
-            evidenceReference:
-              evidenceReference.trim()
-                ? evidenceReference.trim()
-                : null,
-
-            evidenceDate,
-
-            evidenceNote:
-              evidenceNote.trim(),
-          },
-        );
-
-      setDetail(
-        response,
-      );
-
-      setEvidenceNote("");
-
-      syncCandidate(
-        response,
-      );
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to add settlement evidence.",
-      );
-    } finally {
-      setRunning(false);
-    }
+  function reload() {
+    setReloadKey((key) => key + 1);
   }
 
-  async function submitReview() {
-    try {
-      setRunning(true);
-      setError(null);
-
-      setDetail(
-        await submitFlywheelSettlementForReview(
-          params.id,
-        ),
-      );
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to submit reconciliation for review.",
-      );
-    } finally {
-      setRunning(false);
-    }
+  function applyDetail(updated: FlywheelSettlementCaseDetail) {
+    setResult((current) => (current ? { ...current, detail: updated } : current));
   }
 
-  async function reconcile() {
-    if (
-      !reconciliationNote.trim()
-    ) {
-      setError(
-        "Reconciliation note is required.",
+  if (detail === null) {
+    if (error === null) {
+      return (
+        <div className="page-stack">
+          <Skeleton height={28} />
+          <Skeleton height={120} />
+          <Skeleton height={96} />
+          <Skeleton height={260} />
+        </div>
       );
-      return;
     }
 
-    try {
-      setRunning(true);
-      setError(null);
-
-      setDetail(
-        await reconcileFlywheelSettlementCase(
-          params.id,
-          reconciliationNote.trim(),
-        ),
-      );
-
-      setReconciliationNote("");
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to finalize reconciliation.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  async function closeCase() {
-    if (
-      !closeNote.trim()
-    ) {
-      setError(
-        "Closure note is required.",
-      );
-      return;
-    }
-
-    try {
-      setRunning(true);
-      setError(null);
-
-      setDetail(
-        await closeFlywheelSettlementCase(
-          params.id,
-          closeNote.trim(),
-        ),
-      );
-
-      setCloseNote("");
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to close reconciliation case.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  async function snapshot() {
-    try {
-      setRunning(true);
-      setError(null);
-
-      await captureFlywheelSettlementSnapshot(
-        params.id,
-      );
-
-      await reload();
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to capture settlement snapshot.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="request-detail-loading">
-        Loading settlement reconciliation...
-      </div>
-    );
-  }
-
-  if (!detail) {
     return (
       <div className="page-stack">
-        <Link
-          href="/flywheel-settlement"
-          className="request-back-link"
-        >
-          <ArrowLeft
-            size={16}
-          />
+        <Link href="/flywheel-settlement" className="request-back-link">
+          <ArrowLeft size={16} />
           Settlement evidence
         </Link>
 
         <div className="error-banner">
-          <CircleAlert
-            size={18}
-          />
+          <CircleAlert size={18} />
 
-          {error ??
-            "Settlement reconciliation case not found."}
+          <span>{error}</span>
+
+          <button type="button" className="kit-banner-action" onClick={reload}>
+            Try again
+          </button>
         </div>
       </div>
     );
   }
 
-  const settlementCase =
-    detail.settlementCase;
+  const { settlementCase: sc, releaseAuthority: release, candidates, items, snapshots } = detail;
+  const currency = sc.currency;
+  const status = String(sc.status);
+  const draft = status === "DRAFT";
+  const inReview = status === "IN_REVIEW";
+  const reconciled = status === "RECONCILED";
+  const busyAny = flowRunning || rationaleRunning;
+  const evidenceComplete = sc.itemCount === release.releasedItemCount && release.releasedItemCount > 0;
+  const canRecord = canManage && draft && candidates.length > 0;
+  const hasVariance = sc.itemCount > 0 && Math.abs(sc.varianceAmount) > 0.005;
 
-  const release =
-    detail.releaseAuthority;
+  async function confirmFlow() {
+    if (flow === null) {
+      return;
+    }
 
-  const evidenceComplete =
-    settlementCase.itemCount ===
-      release.releasedItemCount
-    &&
-    release.releasedItemCount > 0;
+    const action = flow;
+
+    setFlowRunning(true);
+
+    try {
+      if (action === "SUBMIT") {
+        applyDetail(await submitFlywheelSettlementForReview(params.id));
+      } else {
+        await captureFlywheelSettlementSnapshot(params.id);
+
+        reload();
+      }
+
+      setFlow(null);
+
+      toast.success(FLOWS[action].done, sc.reconciliationNumber);
+    } catch (caught) {
+      setFlow(null);
+
+      toast.error(
+        FLOWS[action].failed,
+        caught instanceof Error ? caught.message : "Unable to update the reconciliation case.",
+      );
+    } finally {
+      setFlowRunning(false);
+    }
+  }
+
+  async function confirmRationale(note: string) {
+    if (rationale === null) {
+      return;
+    }
+
+    const request = rationale;
+    const copy = rationaleCopy(request, sc);
+
+    setRationaleRunning(true);
+    setRationaleError(null);
+
+    try {
+      applyDetail(await performRationale(request, params.id, note.trim()));
+
+      setRationale(null);
+
+      toast.success(copy.done, sc.reconciliationNumber);
+    } catch (caught) {
+      setRationaleError(
+        caught instanceof Error ? caught.message : "Unable to record the decision.",
+      );
+    } finally {
+      setRationaleRunning(false);
+    }
+  }
+
+  function openRationale(request: RationaleRequest) {
+    setRationaleError(null);
+    setRationale(request);
+  }
+
+  function handleRecorded(updated: FlywheelSettlementCaseDetail, title: string) {
+    applyDetail(updated);
+    setRecording(false);
+    toast.success("Settlement evidence recorded", title);
+  }
+
+  const orderedItems = [...items].sort((a, b) => {
+    const gap = Math.abs(b.varianceAmount) - Math.abs(a.varianceAmount);
+
+    if (gap !== 0) {
+      return gap;
+    }
+
+    return a.rootTargetInitiativeTitle.localeCompare(b.rootTargetInitiativeTitle);
+  });
+
+  const rationaleInfo = rationale !== null ? rationaleCopy(rationale, sc) : null;
+
+  const kpis: KpiItem[] = [
+    {
+      label: "Released",
+      icon: Coins,
+      value: money(sc.sourceReleasedAmount, currency),
+      note: `${release.releasedItemCount} released ${release.releasedItemCount === 1 ? "item" : "items"}`,
+    },
+    {
+      label: "Settled",
+      icon: BadgeCheck,
+      value: money(sc.settledAmount, currency),
+      note: `${sc.itemCount} with evidence`,
+    },
+    {
+      label: "Variance",
+      icon: TrendingDown,
+      value: money(sc.varianceAmount, currency),
+      note: "Released less settled",
+      tone: hasVariance ? "warning" : "default",
+    },
+    {
+      label: "Settlement",
+      icon: Gauge,
+      value: `${sc.settlementPct.toFixed(1)}%`,
+      note: "Of the released amount",
+    },
+    {
+      label: "Partial",
+      icon: FileCheck2,
+      value: String(sc.partialCount),
+      note: "Partly settled items",
+      tone: sc.partialCount > 0 ? "warning" : "default",
+    },
+    {
+      label: "Unresolved",
+      icon: AlertTriangle,
+      value: String(sc.unresolvedCount),
+      note: "Items with no settlement",
+      tone: sc.unresolvedCount > 0 ? "warning" : "default",
+    },
+  ];
+
+  const itemColumns = buildItemColumns(currency);
+  const snapshotColumns = buildSnapshotColumns();
 
   return (
     <div className="page-stack">
-      <Link
-        href="/flywheel-settlement"
-        className="request-back-link"
-      >
-        <ArrowLeft
-          size={16}
-        />
+      <Link href="/flywheel-settlement" className="request-back-link">
+        <ArrowLeft size={16} />
         Settlement evidence
       </Link>
 
       <section className="fwstrategy-detail-heading">
         <div>
-          <span className="eyebrow">
-            Release settlement reconciliation
-          </span>
+          <div className="request-detail-heading__meta">
+            <span>{sc.reconciliationNumber}</span>
 
-          <h1>
-            {settlementCase.title}
-          </h1>
+            <CaseBadge status={status} />
+          </div>
+
+          <span className="eyebrow">Release settlement reconciliation</span>
+
+          <h1>{sc.title}</h1>
 
           <p>
-            {
-              settlementCase
-                .reconciliationNumber
-            }
+            {currency}
             {" · "}
-            {settlementCase.currency}
-            {" · "}
-            {
-              settlementCase
-                .releaseNumber
-            }
+            {sc.releaseNumber}
           </p>
         </div>
 
-        <div className="fwstrategy-heading-actions">
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={reload}
+            disabled={fetching}
+          >
+            <RefreshCw size={15} className={fetching ? "kit-spin" : undefined} />
+            Refresh
+          </button>
+
           {canManage ? (
             <button
               type="button"
-              className="button"
-              disabled={running}
-              onClick={
-                () =>
-                  void snapshot()
-              }
+              className="button button--secondary"
+              disabled={busyAny}
+              onClick={() => setFlow("SNAPSHOT")}
             >
-              <Camera
-                size={14}
-              />
+              <Camera size={15} />
               Snapshot
             </button>
           ) : null}
 
-          <span className="fwstrategy-status-chip">
-            {readable(
-              settlementCase.status,
-            )}
-          </span>
+          {canRecord ? (
+            <button
+              type="button"
+              className="button button--secondary"
+              disabled={busyAny}
+              onClick={() => setRecording(true)}
+            >
+              <Plus size={15} />
+              Record evidence
+            </button>
+          ) : null}
+
+          {canManage && draft ? (
+            <button
+              type="button"
+              className="button button--primary"
+              disabled={busyAny || !evidenceComplete}
+              title={
+                evidenceComplete
+                  ? undefined
+                  : "Every released item needs a settlement evidence record first"
+              }
+              onClick={() => setFlow("SUBMIT")}
+            >
+              <FileCheck2 size={16} />
+              Submit for review
+            </button>
+          ) : null}
+
+          {canFinalize && inReview ? (
+            <button
+              type="button"
+              className="button button--primary"
+              disabled={busyAny}
+              onClick={() => openRationale({ kind: "RECONCILE" })}
+            >
+              <BadgeCheck size={16} />
+              Reconcile case
+            </button>
+          ) : null}
+
+          {canFinalize && reconciled ? (
+            <button
+              type="button"
+              className="button button--primary"
+              disabled={busyAny}
+              onClick={() => openRationale({ kind: "CLOSE" })}
+            >
+              Close case
+            </button>
+          ) : null}
         </div>
       </section>
 
       {error ? (
         <div className="error-banner">
-          <CircleAlert
-            size={18}
-          />
-          {error}
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button type="button" className="kit-banner-action" onClick={reload}>
+            Try again
+          </button>
         </div>
       ) : null}
 
-      <section className="fwstrategy-detail-grid">
-        <article>
-          <span>
-            Released
-          </span>
+      {hasVariance ? (
+        <div className="kit-callout kit-callout--warning" role="status">
+          <AlertTriangle size={17} />
 
-          <strong>
-            {money(
-              settlementCase
-                .sourceReleasedAmount,
-              settlementCase.currency,
+          <div>
+            <strong>
+              Settled differs from released by {money(Math.abs(sc.varianceAmount), currency)}.
+            </strong>{" "}
+            {sc.partialCount} partly settled and {sc.unresolvedCount} unresolved{" "}
+            {sc.partialCount + sc.unresolvedCount === 1 ? "item" : "items"}.
+          </div>
+        </div>
+      ) : null}
+
+      {draft && canManage ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
+
+          <div>
+            {evidenceComplete ? (
+              <>
+                <strong>All settlement evidence is recorded.</strong> Every released item has an
+                evidence record. Submit the case for review.
+              </>
+            ) : (
+              <>
+                <strong>
+                  {candidates.length} released {candidates.length === 1 ? "item still needs" : "items still need"}{" "}
+                  settlement evidence.
+                </strong>{" "}
+                Every released source item needs one record before the case can enter review.
+              </>
             )}
-          </strong>
-        </article>
+          </div>
+        </div>
+      ) : null}
 
-        <article>
-          <span>
-            Settled
-          </span>
+      {inReview ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
 
-          <strong>
-            {money(
-              settlementCase
-                .settledAmount,
-              settlementCase.currency,
-            )}
-          </strong>
-        </article>
+          <div>
+            <strong>Awaiting manager reconciliation.</strong>{" "}
+            {canFinalize
+              ? "Use Reconcile case above."
+              : "A procurement manager or administrator needs to finalize it."}
+          </div>
+        </div>
+      ) : null}
 
-        <article>
-          <span>
-            Variance
-          </span>
+      {reconciled && canFinalize ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
 
-          <strong>
-            {money(
-              settlementCase
-                .varianceAmount,
-              settlementCase.currency,
-            )}
-          </strong>
-        </article>
+          <div>
+            <strong>The case is reconciled.</strong> Close it to finish the governance lifecycle.
+          </div>
+        </div>
+      ) : null}
 
-        <article>
-          <span>
-            Settlement
-          </span>
+      <KpiGrid items={kpis} ariaLabel="Settlement summary" />
 
-          <strong>
-            {
-              settlementCase
-                .settlementPct
-                .toFixed(1)
-            }
-            %
-          </strong>
-        </article>
+      <section className="panel">
+        <div className="panel__header">
+          <div>
+            <span className="eyebrow">Progress</span>
 
-        <article>
-          <span>
-            Partial
-          </span>
+            <h2>Evidence and settlement coverage</h2>
+          </div>
 
-          <strong>
-            {
-              settlementCase
-                .partialCount
-            }
-          </strong>
-        </article>
+          <Gauge size={19} />
+        </div>
 
-        <article>
-          <span>
-            Unresolved
-          </span>
+        {release.releasedItemCount > 0 ? (
+          <ProgressLine
+            pct={(sc.itemCount / release.releasedItemCount) * 100}
+            tone={evidenceComplete ? meterToneFor("success") : "primary"}
+            caption={`${sc.itemCount} of ${release.releasedItemCount} released items have settlement evidence`}
+            label="Released items with settlement evidence"
+          />
+        ) : null}
 
-          <strong>
-            {
-              settlementCase
-                .unresolvedCount
-            }
-          </strong>
-        </article>
+        <ProgressLine
+          pct={sc.settlementPct}
+          tone={sc.settlementPct >= 100 ? meterToneFor("success") : "primary"}
+          caption={`${money(sc.settledAmount, currency)} of ${money(sc.sourceReleasedAmount, currency)} released has settled (${sc.settlementPct.toFixed(1)}%)`}
+          label="Settled against released"
+        />
       </section>
 
       <section className="panel">
         <div className="panel__header">
           <div>
-            <span className="eyebrow">
-              Step 69/70 source authority
-            </span>
+            <span className="eyebrow">Step 69/70 source authority</span>
 
-            <h2>
-              Finalized release
-            </h2>
+            <h2>Finalized release</h2>
           </div>
 
-          <ReceiptText
-            size={19}
-          />
+          <ReceiptText size={19} />
         </div>
 
         <div className="fwstrategy-context-grid">
           <div>
-            <span>
-              Release
-            </span>
+            <span>Release</span>
 
-            <strong>
-              {
-                release
-                  .releaseNumber
-              }
-            </strong>
+            <strong>{release.releaseNumber}</strong>
           </div>
 
           <div>
-            <span>
-              Mandate
-            </span>
+            <span>Mandate</span>
 
-            <strong>
-              {
-                release
-                  .allocationMandateNumber
-              }
-            </strong>
+            <strong>{release.allocationMandateNumber}</strong>
           </div>
 
           <div>
-            <span>
-              Release owner
-            </span>
+            <span>Release owner</span>
 
-            <strong>
-              {
-                release
-                  .releaseOwnerName
-              }
-            </strong>
+            <strong>{release.releaseOwnerName}</strong>
           </div>
 
           <div>
-            <span>
-              Reconciliation owner
-            </span>
+            <span>Reconciliation owner</span>
 
-            <strong>
-              {
-                settlementCase
-                  .reconciliationOwnerName
-              }
-            </strong>
+            <strong>{sc.reconciliationOwnerName}</strong>
           </div>
 
           <div className="fwstrategy-context-wide">
-            <span>
-              Reconciliation rationale
-            </span>
+            <span>Reconciliation rationale</span>
 
-            <p>
-              {
-                settlementCase
-                  .reconciliationRationale
-              }
-            </p>
+            <p>{sc.reconciliationRationale}</p>
           </div>
         </div>
       </section>
 
-      {settlementCase.status ===
-        "DRAFT"
-      &&
-      canManage ? (
-        <form
-          className="panel"
-          onSubmit={addEvidence}
-        >
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Manual external evidence
-              </span>
+      <section className="panel">
+        <div className="panel__header">
+          <div>
+            <span className="eyebrow">Reconciliation evidence</span>
 
-              <h2>
-                Record settlement evidence
-              </h2>
-            </div>
+            <h2>Settlement items</h2>
           </div>
 
-          {detail.candidates.length >
-          0 ? (
-            <>
-              <div className="fwstrategy-form-grid">
-                <label className="request-field fwstrategy-form-wide">
-                  <span>
-                    Released item
-                  </span>
-
-                  <select
-                    value={
-                      releaseItemId
-                    }
-                    onChange={
-                      event => {
-                        const id =
-                          event.target.value;
-
-                        setReleaseItemId(
-                          id,
-                        );
-
-                        const candidate =
-                          detail.candidates.find(
-                            current =>
-                              current
-                                .releaseItemId ===
-                              id,
-                          );
-
-                        if (candidate) {
-                          setSettledAmount(
-                            candidate
-                              .sourceReleasedAmount,
-                          );
-
-                          setEvidenceReference(
-                            candidate
-                              .executionReference
-                            ??
-                            "",
-                          );
-                        }
-                      }
-                    }
-                  >
-                    {detail
-                      .candidates
-                      .map(
-                        candidate => (
-                          <option
-                            key={
-                              candidate
-                                .releaseItemId
-                            }
-                            value={
-                              candidate
-                                .releaseItemId
-                            }
-                          >
-                            {
-                              candidate
-                                .rootTargetInitiativeTitle
-                            }
-                            {" — "}
-                            {
-                              candidate
-                                .lineageNumber
-                            }
-                            {" — "}
-                            {money(
-                              candidate
-                                .sourceReleasedAmount,
-                              settlementCase.currency,
-                            )}
-                          </option>
-                        ),
-                      )}
-                  </select>
-                </label>
-
-                <label className="request-field">
-                  <span>
-                    Settled amount
-                  </span>
-
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={
-                      settledAmount
-                    }
-                    onChange={
-                      event =>
-                        setSettledAmount(
-                          Number(
-                            event.target
-                              .value,
-                          ),
-                        )
-                    }
-                  />
-                </label>
-
-                <label className="request-field">
-                  <span>
-                    Evidence date
-                  </span>
-
-                  <input
-                    type="date"
-                    required
-                    value={
-                      evidenceDate
-                    }
-                    onChange={
-                      event =>
-                        setEvidenceDate(
-                          event.target.value,
-                        )
-                    }
-                  />
-                </label>
-
-                <label className="request-field fwstrategy-form-wide">
-                  <span>
-                    External evidence reference
-                  </span>
-
-                  <input
-                    maxLength={300}
-                    placeholder="Bank statement, ERP journal, treasury reference..."
-                    value={
-                      evidenceReference
-                    }
-                    onChange={
-                      event =>
-                        setEvidenceReference(
-                          event.target.value,
-                        )
-                    }
-                  />
-                </label>
-
-                <label className="request-field fwstrategy-form-wide">
-                  <span>
-                    Evidence note
-                  </span>
-
-                  <textarea
-                    required
-                    rows={4}
-                    maxLength={5000}
-                    value={
-                      evidenceNote
-                    }
-                    onChange={
-                      event =>
-                        setEvidenceNote(
-                          event.target.value,
-                        )
-                    }
-                  />
-                </label>
-              </div>
-
-              <div className="fwstrategy-form-actions">
-                <button
-                  type="submit"
-                  className="button button--primary"
-                  disabled={
-                    running
-                    ||
-                    !releaseItemId
-                    ||
-                    settledAmount < 0
-                    ||
-                    !evidenceDate
-                    ||
-                    !evidenceNote.trim()
-                    ||
-                    (
-                      settledAmount > 0
-                      &&
-                      !evidenceReference.trim()
-                    )
-                  }
-                >
-                  Record evidence
-                </button>
-              </div>
-            </>
+          {canRecord ? (
+            <button
+              type="button"
+              className="button button--secondary"
+              disabled={busyAny}
+              onClick={() => setRecording(true)}
+            >
+              <Plus size={15} />
+              Record evidence
+            </button>
           ) : (
-            <p>
-              Every released item has
-              settlement evidence.
-            </p>
+            <ReceiptText size={19} />
           )}
-        </form>
-      ) : null}
+        </div>
+
+        <DataTable
+          columns={itemColumns}
+          rows={orderedItems}
+          getRowId={(item) => String(item.id)}
+          ariaLabel="Settlement items"
+          busy={fetching}
+          empty={
+            <EmptyState
+              icon={ReceiptText}
+              title="No settlement evidence"
+              description="No settlement evidence has been recorded."
+              action={
+                canRecord ? (
+                  <button
+                    type="button"
+                    className="button button--secondary"
+                    onClick={() => setRecording(true)}
+                  >
+                    <Plus size={15} />
+                    Record evidence
+                  </button>
+                ) : undefined
+              }
+            />
+          }
+        />
+      </section>
 
       <section className="panel">
         <div className="panel__header">
           <div>
-            <span className="eyebrow">
-              Reconciliation evidence
-            </span>
+            <span className="eyebrow">Immutable reconciliation evidence</span>
 
-            <h2>
-              Settlement items
-            </h2>
+            <h2>Snapshots</h2>
           </div>
+
+          {canManage ? (
+            <button
+              type="button"
+              className="button button--secondary"
+              disabled={busyAny}
+              onClick={() => setFlow("SNAPSHOT")}
+            >
+              <Camera size={15} />
+              Snapshot
+            </button>
+          ) : (
+            <Camera size={19} />
+          )}
         </div>
 
-        <div className="table-scroll">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Lineage</th>
-                <th>Released</th>
-                <th>Settled</th>
-                <th>Variance</th>
-                <th>Status</th>
-                <th>Reference</th>
-                <th>Date</th>
-                <th>Evidence</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {detail.items.map(
-                item => (
-                  <tr
-                    key={item.id}
-                  >
-                    <td>
-                      <div className="request-primary-cell">
-                        <strong>
-                          {
-                            item
-                              .rootTargetInitiativeTitle
-                          }
-                        </strong>
-
-                        <span>
-                          {
-                            item
-                              .lineageNumber
-                          }
-                        </span>
-                      </div>
-                    </td>
-
-                    <td>
-                      {money(
-                        item
-                          .sourceReleasedAmount,
-                        settlementCase.currency,
-                      )}
-                    </td>
-
-                    <td>
-                      {money(
-                        item
-                          .settledAmount,
-                        settlementCase.currency,
-                      )}
-                    </td>
-
-                    <td>
-                      {money(
-                        item
-                          .varianceAmount,
-                        settlementCase.currency,
-                      )}
-                    </td>
-
-                    <td>
-                      {readable(
-                        item
-                          .reconciliationStatus,
-                      )}
-                    </td>
-
-                    <td>
-                      {
-                        item
-                          .evidenceReference
-                        ??
-                        "—"
-                      }
-                    </td>
-
-                    <td>
-                      {
-                        item
-                          .evidenceDate
-                      }
-                    </td>
-
-                    <td>
-                      {
-                        item
-                          .evidenceNote
-                      }
-                    </td>
-                  </tr>
-                ),
-              )}
-
-              {detail.items.length ===
-              0 ? (
-                <tr>
-                  <td
-                    colSpan={8}
-                    className="table-empty-state"
-                  >
-                    No settlement evidence
-                    has been recorded.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          columns={snapshotColumns}
+          rows={snapshots}
+          getRowId={(item) => String(item.id)}
+          ariaLabel="Settlement snapshots"
+          busy={fetching}
+          empty={
+            <EmptyState
+              icon={Camera}
+              title="No snapshots"
+              description="No settlement snapshot has been captured yet."
+            />
+          }
+        />
       </section>
 
-      {settlementCase.status ===
-        "DRAFT"
-      &&
-      canManage ? (
-        <section className="panel">
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Evidence completeness gate
-              </span>
-
-              <h2>
-                Submit reconciliation for review
-              </h2>
-            </div>
-          </div>
-
-          <p>
-            Every RELEASED source item
-            must have a settlement
-            evidence record before the
-            case can enter review.
-          </p>
-
-          <div className="fwstrategy-form-actions">
-            <button
-              type="button"
-              className="button button--primary"
-              disabled={
-                running
-                ||
-                !evidenceComplete
-              }
-              onClick={
-                () =>
-                  void submitReview()
-              }
-            >
-              Submit for review
-            </button>
-          </div>
-        </section>
+      {recording ? (
+        <EvidenceModal
+          caseId={params.id}
+          currency={currency}
+          candidates={candidates}
+          onClose={() => setRecording(false)}
+          onSaved={handleRecorded}
+        />
       ) : null}
 
-      {settlementCase.status ===
-        "IN_REVIEW"
-      &&
-      canFinalize ? (
-        <section className="panel">
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Manager reconciliation authority
-              </span>
-
-              <h2>
-                Finalize reconciliation
-              </h2>
-            </div>
-          </div>
-
-          <label className="request-field">
-            <span>
-              Reconciliation conclusion
-            </span>
-
-            <textarea
-              rows={5}
-              maxLength={5000}
-              value={
-                reconciliationNote
-              }
-              onChange={
-                event =>
-                  setReconciliationNote(
-                    event.target.value,
-                  )
-              }
-            />
-          </label>
-
-          <div className="fwstrategy-form-actions">
-            <button
-              type="button"
-              className="button button--primary"
-              disabled={
-                running
-                ||
-                !reconciliationNote.trim()
-              }
-              onClick={
-                () =>
-                  void reconcile()
-              }
-            >
-              Reconcile case
-            </button>
-          </div>
-        </section>
+      {flow !== null ? (
+        <ActionDialog
+          eyebrow={FLOWS[flow].eyebrow}
+          title={FLOWS[flow].title}
+          description={flowDescription(flow, sc)}
+          confirmLabel={FLOWS[flow].confirm}
+          busyLabel={FLOWS[flow].busy}
+          cancelLabel={FLOWS[flow].keep}
+          busy={flowRunning}
+          onConfirm={() => void confirmFlow()}
+          onCancel={() => setFlow(null)}
+        />
       ) : null}
 
-      {settlementCase.status ===
-        "RECONCILED"
-      &&
-      canFinalize ? (
-        <section className="panel">
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Governance lifecycle
-              </span>
-
-              <h2>
-                Close reconciliation
-              </h2>
-            </div>
-          </div>
-
-          <label className="request-field">
-            <span>
-              Closure rationale
-            </span>
-
-            <textarea
-              rows={4}
-              maxLength={5000}
-              value={
-                closeNote
-              }
-              onChange={
-                event =>
-                  setCloseNote(
-                    event.target.value,
-                  )
-              }
-            />
-          </label>
-
-          <div className="fwstrategy-form-actions">
-            <button
-              type="button"
-              className="button"
-              disabled={
-                running
-                ||
-                !closeNote.trim()
-              }
-              onClick={
-                () =>
-                  void closeCase()
-              }
-            >
-              Close case
-            </button>
-          </div>
-        </section>
+      {rationale !== null && rationaleInfo !== null ? (
+        <RationaleDialog
+          eyebrow={rationaleInfo.eyebrow}
+          title={rationaleInfo.title}
+          description={rationaleInfo.description}
+          label={rationaleInfo.label}
+          placeholder={rationaleInfo.placeholder}
+          confirmLabel={rationaleInfo.confirm}
+          busyLabel={rationaleInfo.busy}
+          tone="primary"
+          maxLength={5000}
+          busy={rationaleRunning}
+          error={rationaleError}
+          onConfirm={(note) => void confirmRationale(note)}
+          onCancel={() => setRationale(null)}
+        />
       ) : null}
-
-      <section className="panel">
-        <div className="panel__header">
-          <div>
-            <span className="eyebrow">
-              Immutable reconciliation evidence
-            </span>
-
-            <h2>
-              Snapshots
-            </h2>
-          </div>
-        </div>
-
-        <div className="table-scroll">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Snapshot</th>
-                <th>Status</th>
-                <th>Settled</th>
-                <th>Variance</th>
-                <th>Settlement</th>
-                <th>Captured by</th>
-                <th />
-              </tr>
-            </thead>
-
-            <tbody>
-              {detail.snapshots.map(
-                snapshotItem => (
-                  <tr
-                    key={
-                      snapshotItem.id
-                    }
-                  >
-                    <td>
-                      {
-                        snapshotItem
-                          .snapshotNumber
-                      }
-                    </td>
-
-                    <td>
-                      {readable(
-                        snapshotItem
-                          .caseStatus,
-                      )}
-                    </td>
-
-                    <td>
-                      {money(
-                        snapshotItem
-                          .settledAmount,
-                        snapshotItem
-                          .currency,
-                      )}
-                    </td>
-
-                    <td>
-                      {money(
-                        snapshotItem
-                          .varianceAmount,
-                        snapshotItem
-                          .currency,
-                      )}
-                    </td>
-
-                    <td>
-                      {
-                        snapshotItem
-                          .settlementPct
-                          .toFixed(1)
-                      }
-                      %
-                    </td>
-
-                    <td>
-                      {
-                        snapshotItem
-                          .capturedByName
-                      }
-                    </td>
-
-                    <td>
-                      <Link
-                        href={
-                          `/flywheel-settlement/snapshots/${snapshotItem.id}`
-                        }
-                        className="table-action"
-                      >
-                        Evidence
-                      </Link>
-                    </td>
-                  </tr>
-                ),
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
     </div>
   );
 }

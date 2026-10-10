@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {
   Camera,
   CircleAlert,
@@ -466,7 +468,7 @@ export default function FundingExecutionPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Initiative</th>
@@ -574,7 +576,7 @@ export default function FundingExecutionPage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
@@ -747,7 +749,7 @@ export default function FundingExecutionPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Commitment</th>
@@ -872,7 +874,7 @@ export default function FundingExecutionPage() {
                   ),
                 )}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
@@ -894,7 +896,7 @@ export default function FundingExecutionPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Snapshot</th>
@@ -987,7 +989,7 @@ export default function FundingExecutionPage() {
                   ),
                 )}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 

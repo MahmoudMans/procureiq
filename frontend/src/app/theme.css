@@ -1,0 +1,1094 @@
+/* ==========================================================================
+   ProcureIQ — theme.css
+   Loaded AFTER globals.css (see layout.tsx). It does not replace anything:
+   it adds new tokens, a dark theme, refined interactions and the styles for
+   the new shell (grouped sidebar, command palette, breadcrumbs, drawer).
+
+   Sections
+     1. Tokens (light)         5. Sidebar (grouped nav)
+     2. Dark theme tokens      6. Command palette
+     3. Base polish            7. Breadcrumbs & page transitions
+     4. Component polish       8. Responsive  +  9. Reduced motion
+   ========================================================================== */
+
+
+/* ---------- 1. Tokens (light) ------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  --ring: 0 0 0 3px color-mix(in srgb, var(--primary) 28%, transparent);
+  --shadow-md:
+    0 4px 14px rgba(16, 24, 40, 0.07),
+    0 2px 4px rgba(16, 24, 40, 0.04);
+  --shadow-lg: 0 24px 64px rgba(16, 24, 40, 0.24);
+  --radius-sm: 8px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+
+/* ---------- 2. Dark theme tokens ----------------------------------------
+   Most of the app styles itself with these variables (--surface, --text,
+   --border ...), so redefining them re-themes existing pages automatically. */
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --background: #0a0f1a;
+  --surface: #111827;
+  --surface-soft: #151e2e;
+  --surface-muted: #1b2638;
+
+  --sidebar: #070b14;
+
+  --text: #e6eaf2;
+  --text-secondary: #9aa6b8;
+  --text-tertiary: #6b7789;
+
+  --border: #1f2a3c;
+  --border-strong: #2c3a52;
+
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --primary-soft: rgba(59, 130, 246, 0.15);
+
+  --success: #4ade80;
+  --success-soft: rgba(34, 197, 94, 0.13);
+
+  --warning: #fbbf24;
+  --warning-soft: rgba(245, 158, 11, 0.13);
+
+  --danger: #f87171;
+  --danger-soft: rgba(239, 68, 68, 0.13);
+
+  --shadow:
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 1px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md:
+    0 6px 18px rgba(0, 0, 0, 0.45),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.65);
+}
+
+/* Bare form controls (no author styling) follow the theme. :where() keeps
+   specificity at zero so any page-specific input style still wins. */
+:where(:root[data-theme="dark"]) :where(input, select, textarea) {
+  background-color: var(--surface-soft);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+
+/* ---------- 3. Base polish ---------------------------------------------- */
+
+:root {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+body {
+  font-family:
+    var(--font-inter),
+    Inter,
+    ui-sans-serif,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-feature-settings: "cv11", "ss01";
+  text-rendering: optimizeLegibility;
+  transition:
+    background-color 200ms var(--ease),
+    color 200ms var(--ease);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--primary) 28%, transparent);
+}
+
+/* Visible, consistent keyboard focus (zero specificity so it never fights page CSS). */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+
+  background: var(--surface);
+  color: var(--text-secondary);
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* Loading-shimmer utility for upcoming dashboards: <div className="skeleton" style={{height: 16}} /> */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--surface) 65%, transparent),
+    transparent
+  );
+  animation: skeleton-shimmer 1.4s infinite;
+}
+
+@keyframes skeleton-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+
+/* ---------- 4. Component polish ------------------------------------------ */
+
+/* Topbar: globals.css hard-codes a white rgba, so override it with tokens. */
+.topbar {
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+}
+
+.topbar__lead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.topbar__menu {
+  display: none;
+}
+
+.topbar__search {
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 140ms var(--ease),
+    background-color 140ms var(--ease),
+    box-shadow 140ms var(--ease);
+}
+
+.topbar__search:hover {
+  border-color: var(--border-strong);
+  background: var(--surface);
+}
+
+.topbar__search:focus-visible {
+  box-shadow: var(--ring);
+}
+
+.topbar__search-text {
+  flex: 1;
+  min-width: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: var(--text-tertiary);
+  font-size: 12.5px;
+}
+
+.icon-button {
+  cursor: pointer;
+  transition:
+    background-color 140ms var(--ease),
+    color 140ms var(--ease),
+    border-color 140ms var(--ease);
+}
+
+.icon-button:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.kpi-card,
+.panel {
+  transition:
+    border-color 160ms var(--ease),
+    box-shadow 160ms var(--ease);
+}
+
+.kpi-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md);
+}
+
+.button {
+  transition:
+    background-color 140ms var(--ease),
+    border-color 140ms var(--ease),
+    box-shadow 140ms var(--ease),
+    transform 90ms var(--ease),
+    opacity 140ms var(--ease);
+}
+
+.button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.data-table tbody tr {
+  transition: background-color 120ms var(--ease);
+}
+
+.data-table tbody tr:hover {
+  background: var(--surface-soft);
+}
+
+.page-heading h1 {
+  letter-spacing: -0.025em;
+}
+
+.application-loading__mark {
+  animation: pulse-soft 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.72;
+    transform: scale(0.96);
+  }
+}
+
+
+/* ---------- 5. Sidebar (grouped nav) ------------------------------------- */
+
+.sidebar__brand {
+  padding-bottom: 20px;
+  color: inherit;
+}
+
+/* The scrolling middle section: brand stays on top, user card stays at the bottom. */
+.nav-scroll {
+  flex: 1;
+  min-height: 0;
+
+  margin: 0 -8px;
+  padding: 0 8px;
+
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+}
+
+.nav-group {
+  margin-bottom: 2px;
+}
+
+.nav-group__header {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 9px 10px;
+
+  border: 0;
+  border-radius: 9px;
+
+  background: transparent;
+  color: #7f8896;
+
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-align: left;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    background-color 140ms var(--ease),
+    color 140ms var(--ease);
+}
+
+.nav-group__header:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #e5e7eb;
+}
+
+.nav-group--current > .nav-group__header {
+  color: #cbd5e1;
+}
+
+.nav-group__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.nav-group__dot {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18);
+}
+
+.nav-group__count {
+  padding: 1px 6px;
+
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.06);
+  color: #6b7280;
+
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.nav-group__chevron {
+  flex-shrink: 0;
+  transition: transform 180ms var(--ease);
+}
+
+.nav-group:not(.nav-group--open) .nav-group__chevron {
+  transform: rotate(-90deg);
+}
+
+.nav-group__items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  margin: 2px 0 8px 17px;
+  padding-left: 10px;
+
+  border-left: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.nav-item {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 8px 10px;
+
+  border-radius: 8px;
+
+  color: #9ca3af;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  transition:
+    background-color 120ms var(--ease),
+    color 120ms var(--ease);
+}
+
+.nav-item svg {
+  flex-shrink: 0;
+}
+
+.nav-item span {
+  min-width: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f9fafb;
+}
+
+.nav-item--active {
+  background: rgba(59, 130, 246, 0.16);
+  color: #ffffff;
+}
+
+.nav-item--active svg {
+  color: #60a5fa;
+}
+
+/* Accent bar that sits on top of the group's vertical guide line. */
+.nav-item--active::before {
+  content: "";
+
+  position: absolute;
+  left: -11px;
+  top: 7px;
+  bottom: 7px;
+
+  width: 2px;
+
+  border-radius: 2px;
+
+  background: #60a5fa;
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 14px 6px 0;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nav-user__avatar {
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 9px;
+
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.nav-user__meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.nav-user__meta strong,
+.nav-user__meta span {
+  display: block;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-user__meta strong {
+  color: #f3f4f6;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.nav-user__meta span {
+  margin-top: 2px;
+
+  color: #6b7280;
+  font-size: 10.5px;
+}
+
+.nav-user__logout {
+  width: 32px;
+  height: 32px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border: 0;
+  border-radius: 8px;
+
+  background: transparent;
+  color: #8b93a1;
+
+  transition:
+    background-color 140ms var(--ease),
+    color 140ms var(--ease);
+}
+
+.nav-user__logout:hover {
+  background: rgba(248, 113, 113, 0.14);
+  color: #fca5a5;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+
+/* ---------- 6. Command palette ------------------------------------------- */
+
+.palette-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  padding: 12vh 16px 16px;
+
+  background: rgba(2, 6, 23, 0.55);
+  backdrop-filter: blur(3px);
+
+  animation: overlay-in 140ms ease-out;
+}
+
+.palette {
+  width: min(640px, 100%);
+  max-height: min(560px, 76vh);
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+
+  animation: palette-in 180ms var(--ease);
+}
+
+.palette__input {
+  height: 56px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+
+  padding: 0 14px 0 18px;
+
+  border-bottom: 1px solid var(--border);
+
+  color: var(--text-tertiary);
+}
+
+.palette__input input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+  color: var(--text);
+
+  font-size: 15px;
+}
+
+.palette__input input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.palette__close {
+  width: 28px;
+  height: 28px;
+
+  display: grid;
+  place-items: center;
+
+  border: 0;
+  border-radius: 7px;
+
+  background: transparent;
+  color: var(--text-tertiary);
+}
+
+.palette__close:hover {
+  background: var(--surface-muted);
+  color: var(--text);
+}
+
+.palette__list {
+  flex: 1;
+  min-height: 0;
+
+  padding: 8px;
+
+  overflow-y: auto;
+}
+
+.palette__section-title {
+  padding: 10px 10px 6px;
+
+  color: var(--text-tertiary);
+
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.palette__item {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 9px 10px;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: transparent;
+  color: var(--text);
+
+  font-size: 13.5px;
+  text-align: left;
+}
+
+.palette__item-icon {
+  width: 30px;
+  height: 30px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 8px;
+
+  background: var(--surface-muted);
+  color: var(--text-secondary);
+}
+
+.palette__item-label {
+  flex: 1;
+  min-width: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-weight: 500;
+}
+
+.palette__item-hint {
+  color: var(--text-tertiary);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.palette__item--active {
+  background: var(--primary-soft);
+}
+
+.palette__item--active .palette__item-icon {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.palette__status,
+.palette__empty {
+  color: var(--text-tertiary);
+  font-size: 12.5px;
+}
+
+.palette__status {
+  padding: 10px;
+}
+
+.palette__empty {
+  padding: 34px 16px;
+
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.palette__footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+
+  padding: 10px 16px;
+
+  border-top: 1px solid var(--border);
+
+  background: var(--surface-soft);
+  color: var(--text-tertiary);
+
+  font-size: 11.5px;
+}
+
+.palette__footer span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes palette-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.985);
+  }
+}
+
+
+/* ---------- 7. Breadcrumbs & page transitions ---------------------------- */
+
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+
+  margin: 0 0 18px;
+
+  color: var(--text-tertiary);
+  font-size: 12.5px;
+}
+
+.breadcrumbs__step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.breadcrumbs svg {
+  flex-shrink: 0;
+}
+
+.breadcrumbs a {
+  color: var(--text-secondary);
+  transition: color 120ms var(--ease);
+}
+
+.breadcrumbs a:hover {
+  color: var(--primary);
+}
+
+.breadcrumbs__current {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Gentle entrance for every page. No fill-mode on purpose: once the animation
+   ends nothing is left on the element, so position:fixed dialogs inside pages
+   keep working (a lingering transform would trap them). */
+.main-content > .page-stack {
+  animation: page-in 240ms ease-out;
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
+/* ---------- 8. Responsive ------------------------------------------------ */
+
+@media (max-width: 1024px) {
+  .application-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Sidebar turns into a slide-in drawer. */
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 60;
+
+    width: min(300px, 86vw);
+
+    transform: translateX(-102%);
+    transition: transform 220ms var(--ease);
+  }
+
+  .sidebar--open {
+    transform: translateX(0);
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.45);
+  }
+
+  .sidebar-backdrop {
+    display: block;
+
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+
+    background: rgba(2, 6, 23, 0.55);
+    backdrop-filter: blur(2px);
+  }
+
+  .topbar {
+    padding: 0 16px;
+  }
+
+  .topbar__menu {
+    display: grid;
+  }
+
+  .topbar__search {
+    width: auto;
+    flex: 1;
+    max-width: 420px;
+  }
+
+  .topbar__actions {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 720px) {
+  .topbar__search .kbd,
+  .user-chip > div:not(.user-chip__avatar) {
+    display: none;
+  }
+
+  .main-content {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .palette-overlay {
+    padding-top: 8vh;
+  }
+
+  .palette__footer {
+    display: none;
+  }
+}
+
+
+/* ---------- 9. Reduced motion -------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* ==========================================================================
+   ProcureIQ step 2: dark-mode fixes
+   globals.css hard-codes a few light-only colours (white, #f1f3f5 ...).
+   These overrides give them dark equivalents. Only dark mode is touched,
+   except the secondary-button hover which had no hover state at all.
+   ========================================================================== */
+
+.button--secondary:hover:not(:disabled) {
+  background: var(--surface-soft);
+}
+
+:root[data-theme="dark"] .button--secondary {
+  border-color: var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+}
+
+:root[data-theme="dark"] .button--secondary:hover:not(:disabled) {
+  background: var(--surface-muted);
+}
+
+:root[data-theme="dark"] .eyebrow {
+  color: var(--text-secondary);
+}
+
+:root[data-theme="dark"] .category-chart__track {
+  background: var(--surface-muted);
+}
+
+:root[data-theme="dark"] .data-table td {
+  border-bottom-color: var(--border);
+  color: var(--text-secondary);
+}
+
+:root[data-theme="dark"] .stacked-cell strong {
+  color: var(--text-secondary);
+}
+
+:root[data-theme="dark"] .watchlist__item {
+  border-bottom-color: var(--border);
+}
+
+:root[data-theme="dark"] .company-avatar {
+  background: rgba(99, 102, 241, 0.18);
+  color: #a5b4fc;
+}
+
+:root[data-theme="dark"] .user-chip__avatar {
+  background: var(--primary-soft);
+  color: #93c5fd;
+}
+
+:root[data-theme="dark"] .badge--high {
+  background: rgba(244, 63, 94, 0.14);
+  color: #fb7185;
+}
+
+:root[data-theme="dark"] .error-banner {
+  border-color: rgba(248, 113, 113, 0.32);
+}
+
+:root[data-theme="dark"] .rating-cell {
+  color: #fbbf24;
+}
+
+
+/* ==========================================================================
+   ProcureIQ step 3: dark-mode sweep (best effort)
+   globals.css hard-codes white backgrounds, pale status colours and dark grey
+   text in many page-specific classes. This block re-points the common ones.
+   Anything still bright on a page: tell me the page and I'll add it here.
+   The supplier portal keeps its own light design on purpose.
+   ========================================================================== */
+
+:root[data-theme="dark"] ::placeholder {
+  color: var(--text-tertiary);
+  opacity: 1;
+}
+
+/* 1. Form controls (hundreds of inputs share this) */
+:root[data-theme="dark"] .main-content :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]), select, textarea),
+:root[data-theme="dark"] .login-form input {
+  border-color: var(--border-strong);
+  background-color: var(--surface);
+  color: var(--text);
+}
+
+/* 2. Hard-coded dark label colours that vanish on a dark surface */
+:root[data-theme="dark"] :is(
+  .form-grid label > span,
+  .request-field > span,
+  .login-form label > span,
+  .demo-account-section__header > span,
+  .select-wrapper select
+) {
+  color: var(--text-secondary);
+}
+
+/* 3. White cards, panels and buttons */
+:root[data-theme="dark"] :is(
+  .supplier-toolbar__search,
+  .select-wrapper,
+  .dialog,
+  .module-placeholder,
+  .request-line-card,
+  .request-line-remove,
+  .request-total-card,
+  .approval-icon-action,
+  .rfq-supplier-option,
+  .quotation-supplier-card,
+  .quotation-icon-button,
+  .quotation-ranking-card,
+  .evaluation-ranking-card,
+  .activity-tab--active,
+  .activity-mark-all,
+  .notification-card,
+  .notification-read-button,
+  .reports-period-panel,
+  .budget-period-control,
+  .budget-check-metrics > div,
+  .planning-period-control,
+  .planning-plan-card__metrics > div,
+  .planning-item-metrics > div,
+  .planning-inline-action,
+  .savings-period-control,
+  .command-center-controls,
+  .command-center-search,
+  .command-center-breakdown-icon,
+  .command-center-action-icon,
+  .command-center-mini-action > div,
+  .demand-candidate-metrics > div,
+  .delivery-receipt-card,
+  .supplier-performance-inline-action,
+  .supplier-capa-completion-note,
+  .compliance-inline-button
+) {
+  background: var(--surface);
+}
+
+:root[data-theme="dark"] :is(.planning-plan-card:hover, .command-center-action:hover) {
+  background: var(--surface-soft);
+}
+
+/* 4. Login and loading screens */
+:root[data-theme="dark"] :is(.login-page, .login-page__form-panel, .application-loading) {
+  background: var(--background);
+}
+
+:root[data-theme="dark"] .demo-account {
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+:root[data-theme="dark"] .demo-account:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-soft);
+}
+
+/* 5. Pale status chips and info banners: invert lightness, keep the hue */
+:root[data-theme="dark"] :is(
+  [class*="-status--"],
+  [class*="-severity--"],
+  [class*="-band--"],
+  [class*="-priority--"],
+  [class*="-health--"],
+  [class*="-matrix--"],
+  [class*="-renewal--"],
+  [class*="-state--"],
+  [class*="-gate--"],
+  [class*="-match--"],
+  [class*="-route--"],
+  [class*="-risk--"],
+  [class*="-capacity--"],
+  [class*="-criticality--"],
+  [class*="-outcome--"],
+  [class*="-nature--"],
+  [class*="-rating--"],
+  [class*="role-badge--"],
+  [class$="-note"],
+  [class$="-banner"]
+):not(.supplier-portal-shell *, .error-banner, .dash-note, .kit-badge) {
+  filter: invert(1) hue-rotate(180deg);
+}

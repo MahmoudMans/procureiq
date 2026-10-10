@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {
   CircleAlert,
   Landmark,
@@ -391,7 +393,7 @@ export default function FlywheelAllocationPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Strategy</th>
@@ -509,7 +511,7 @@ export default function FlywheelAllocationPage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
@@ -690,7 +692,7 @@ export default function FlywheelAllocationPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Mandate</th>
@@ -802,7 +804,7 @@ export default function FlywheelAllocationPage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 

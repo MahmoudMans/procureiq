@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {
   AlertTriangle,
   CircleAlert,
@@ -716,7 +718,7 @@ export default function CategoryManagementPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Strategy</th>
@@ -852,7 +854,7 @@ export default function CategoryManagementPage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 

@@ -1,535 +1,599 @@
 "use client";
 
 import {
+  AlertTriangle,
   ArrowLeft,
+  BadgeCheck,
   CircleAlert,
+  Coins,
+  Gauge,
   Goal,
+  Hourglass,
+  Info,
+  RefreshCw,
+  Send,
+  TrendingDown,
+  WalletCards,
 } from "lucide-react";
-
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import {
-  useAuth,
-} from "@/components/auth/auth-provider";
-
+  KpiGrid,
+  type KpiItem,
+  Meter,
+  type MeterTone,
+  Skeleton,
+  StatusBadge,
+  formatDateTime,
+  meterToneFor,
+  readable,
+  useToast,
+} from "@/components/kit";
+import { ActionDialog } from "@/components/kit/action-dialog";
+import { RationaleDialog } from "@/components/kit/rationale-dialog";
 import {
   closeStrategicValueCase,
   getStrategicValueCase,
   submitStrategicValueForReview,
   verifyStrategicValueCase,
 } from "@/lib/api";
+import type { StrategicValueCaseDetail } from "@/types/strategic-value";
 
-import type {
-  StrategicValueCaseDetail,
-} from "@/types/strategic-value";
+/* ------------------------------------------------------------------ */
+/* Constants & helpers                                                 */
+/* ------------------------------------------------------------------ */
 
-import {
-  useEffect,
-  useState,
-} from "react";
+type ValueCase = StrategicValueCaseDetail["valueCase"];
+type RationaleRequest = { kind: "VERIFY" } | { kind: "CLOSE" };
 
-import {
-  useParams,
-} from "next/navigation";
+const MANAGE_ROLES = ["ADMIN", "PROCUREMENT_MANAGER", "BUYER"];
+const FINALIZE_ROLES = ["ADMIN", "PROCUREMENT_MANAGER"];
 
-function readable(
-  value: string,
-): string {
-  return value
-    .replaceAll(
-      "_",
-      " ",
-    )
-    .toLowerCase()
-    .replace(
-      /\b\w/g,
-      letter =>
-        letter.toUpperCase(),
-    );
+function money(value: number, currency: string): string {
+  return `${new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value)} ${currency}`;
 }
 
-function money(
-  value: number,
-  currency: string,
-): string {
-  return `${value.toLocaleString(
-    undefined,
-    {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    },
-  )} ${currency}`;
+function clampPercent(value: number): number {
+  return Math.min(100, Math.max(0, value));
+}
+
+function CaseBadge({ status }: { status: string }) {
+  switch (status) {
+    case "READY_FOR_REVIEW":
+      return <StatusBadge value="IN_REVIEW" label="Ready for review" />;
+
+    case "VERIFIED":
+      return <StatusBadge value="COMPLETED" label="Verified" />;
+
+    default:
+      return <StatusBadge value={status} label={readable(status)} />;
+  }
+}
+
+function ProgressLine({
+  pct,
+  tone,
+  caption,
+  label,
+}: {
+  pct: number;
+  tone: MeterTone;
+  caption: string;
+  label: string;
+}) {
+  return (
+    <div className="kit-meter-wrap">
+      <Meter value={clampPercent(pct)} max={100} tone={tone} ariaLabel={label} />
+
+      <span className="kit-meter-caption">{caption}</span>
+    </div>
+  );
+}
+
+interface RationaleCopy {
+  eyebrow: string;
+  title: string;
+  description: string;
+  label: string;
+  placeholder: string;
+  confirm: string;
+  busy: string;
+  done: string;
+}
+
+function rationaleCopy(request: RationaleRequest, valueCase: ValueCase): RationaleCopy {
+  switch (request.kind) {
+    case "VERIFY": {
+      const below = valueCase.roiPct < valueCase.targetRoiPct - 0.05;
+
+      return {
+        eyebrow: "Independent financial governance",
+        title: "Verify value case",
+        description: `${valueCase.caseNumber} will be verified with an ROI of ${valueCase.roiPct.toFixed(1)}% against a target of ${valueCase.targetRoiPct.toFixed(1)}% and a net value of ${money(valueCase.netValueAmount, valueCase.currency)}.${below ? " The ROI is below the target, so the note should explain why the case is verified." : ""}`,
+        label: "Verification note",
+        placeholder: "What supports the governed valuation?",
+        confirm: "Verify value case",
+        busy: "Verifying…",
+        done: "Value case verified",
+      };
+    }
+
+    case "CLOSE":
+      return {
+        eyebrow: "Governance closure",
+        title: "Close value case",
+        description: `${valueCase.caseNumber} was verified. Closing it finishes the governance lifecycle.`,
+        label: "Closure note",
+        placeholder: "Summarise why this case can be closed.",
+        confirm: "Close value case",
+        busy: "Closing…",
+        done: "Value case closed",
+      };
+  }
+}
+
+function performRationale(
+  request: RationaleRequest,
+  caseId: string,
+  note: string,
+): Promise<StrategicValueCaseDetail> {
+  switch (request.kind) {
+    case "VERIFY":
+      return verifyStrategicValueCase(caseId, note);
+
+    case "CLOSE":
+      return closeStrategicValueCase(caseId, note);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
+
+interface CaseData {
+  id: string;
+  detail: StrategicValueCaseDetail;
 }
 
 export default function StrategicValueCasePage() {
-  const params =
-    useParams<{
-      id: string;
-    }>();
+  const params = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const toast = useToast();
 
-  const {
-    user,
-  } = useAuth();
+  const canManage = user !== null && MANAGE_ROLES.includes(user.role);
+  const canFinalize = user !== null && FINALIZE_ROLES.includes(user.role);
 
-  const [
-    detail,
-    setDetail,
-  ] =
-    useState<
-      StrategicValueCaseDetail |
-      null
-    >(null);
-
-  const [
-    governanceNote,
-    setGovernanceNote,
-  ] =
-    useState("");
-
-  const [
-    running,
-    setRunning,
-  ] =
-    useState(false);
-
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
-
-  const [
-    error,
-    setError,
-  ] =
-    useState<
-      string |
-      null
-    >(null);
-
-  const canManage =
-    user?.role ===
-      "ADMIN"
-    ||
-    user?.role ===
-      "PROCUREMENT_MANAGER"
-    ||
-    user?.role ===
-      "BUYER";
-
-  const canFinalize =
-    user?.role ===
-      "ADMIN"
-    ||
-    user?.role ===
-      "PROCUREMENT_MANAGER";
+  const [result, setResult] = useState<CaseData | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitRunning, setSubmitRunning] = useState(false);
+  const [rationale, setRationale] = useState<RationaleRequest | null>(null);
+  const [rationaleRunning, setRationaleRunning] = useState(false);
+  const [rationaleError, setRationaleError] = useState<string | null>(null);
+  const [fetching, setFetching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let active = true;
+    const id = params.id;
 
-    getStrategicValueCase(
-      params.id,
-    )
-      .then(
-        response => {
-          if (active) {
-            setDetail(
-              response,
-            );
-          }
-        },
-      )
-      .catch(
-        caughtError => {
-          if (active) {
-            setError(
-              caughtError instanceof
-                Error
-                ? caughtError.message
-                : "Unable to load strategic value case.",
-            );
-          }
-        },
-      )
-      .finally(
-        () => {
-          if (active) {
-            setLoading(false);
-          }
-        },
-      );
+    const timer = window.setTimeout(async () => {
+      setFetching(true);
+      setError(null);
+
+      try {
+        const response = await getStrategicValueCase(id);
+
+        if (active) {
+          setResult({ id, detail: response });
+        }
+      } catch (caught) {
+        if (active) {
+          setError(
+            caught instanceof Error ? caught.message : "Unable to load strategic value case.",
+          );
+        }
+      } finally {
+        if (active) {
+          setFetching(false);
+        }
+      }
+    }, 0);
 
     return () => {
       active = false;
+      window.clearTimeout(timer);
     };
-  }, [
-    params.id,
-  ]);
+  }, [params.id, reloadKey]);
 
-  async function submitForReview() {
-    try {
-      setRunning(true);
-      setError(null);
+  const data = result !== null && result.id === params.id ? result : null;
+  const detail = data?.detail ?? null;
 
-      setDetail(
-        await submitStrategicValueForReview(
-          params.id,
-        ),
-      );
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to submit strategic value case.",
-      );
-    } finally {
-      setRunning(false);
-    }
+  function reload() {
+    setReloadKey((key) => key + 1);
   }
 
-  async function verifyCase() {
-    if (!governanceNote.trim()) {
-      return;
-    }
-
-    try {
-      setRunning(true);
-      setError(null);
-
-      setDetail(
-        await verifyStrategicValueCase(
-          params.id,
-          governanceNote,
-        ),
-      );
-
-      setGovernanceNote("");
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to verify strategic value case.",
-      );
-    } finally {
-      setRunning(false);
-    }
+  function applyDetail(updated: StrategicValueCaseDetail) {
+    setResult((current) => (current ? { ...current, detail: updated } : current));
   }
 
-  async function closeCase() {
-    if (!governanceNote.trim()) {
-      return;
+  if (detail === null) {
+    if (error === null) {
+      return (
+        <div className="page-stack">
+          <Skeleton height={28} />
+          <Skeleton height={120} />
+          <Skeleton height={96} />
+          <Skeleton height={260} />
+        </div>
+      );
     }
 
-    try {
-      setRunning(true);
-      setError(null);
-
-      setDetail(
-        await closeStrategicValueCase(
-          params.id,
-          governanceNote,
-        ),
-      );
-
-      setGovernanceNote("");
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to close strategic value case.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="request-detail-loading">
-        Loading strategic value case...
-      </div>
-    );
-  }
-
-  if (!detail) {
     return (
       <div className="page-stack">
-        <Link
-          href="/strategic-value"
-          className="request-back-link"
-        >
-          <ArrowLeft
-            size={16}
-          />
+        <Link href="/strategic-value" className="request-back-link">
+          <ArrowLeft size={16} />
           Strategic value
         </Link>
 
         <div className="error-banner">
-          <CircleAlert
-            size={18}
-          />
-          {error ??
-            "Strategic value case not found."}
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button type="button" className="kit-banner-action" onClick={reload}>
+            Try again
+          </button>
         </div>
       </div>
     );
   }
 
-  const valueCase =
-    detail.valueCase;
+  const { valueCase: vc } = detail;
+  const currency = vc.currency;
+  const status = String(vc.status);
+  const active = status === "ACTIVE";
+  const ready = status === "READY_FOR_REVIEW";
+  const verified = status === "VERIFIED";
+  const closed = status === "CLOSED";
+  const busyAny = submitRunning || rationaleRunning;
+  const belowTarget = vc.roiPct < vc.targetRoiPct - 0.05;
+  const paybackLate = vc.paybackMonths !== null && vc.paybackMonths > vc.targetPaybackMonths + 0.05;
+  const atRisk = vc.valueAtRiskAmount > 0.005;
+  const roiAgainstTarget = vc.targetRoiPct > 0 ? (vc.roiPct / vc.targetRoiPct) * 100 : 0;
+
+  async function confirmSubmit() {
+    setSubmitRunning(true);
+
+    try {
+      applyDetail(await submitStrategicValueForReview(params.id));
+
+      setSubmitting(false);
+
+      toast.success("Submitted for review", vc.caseNumber);
+    } catch (caught) {
+      setSubmitting(false);
+
+      toast.error(
+        "Could not submit the value case",
+        caught instanceof Error ? caught.message : "Unable to submit strategic value case.",
+      );
+    } finally {
+      setSubmitRunning(false);
+    }
+  }
+
+  async function confirmRationale(note: string) {
+    if (rationale === null) {
+      return;
+    }
+
+    const request = rationale;
+    const copy = rationaleCopy(request, vc);
+
+    setRationaleRunning(true);
+    setRationaleError(null);
+
+    try {
+      applyDetail(await performRationale(request, params.id, note.trim()));
+
+      setRationale(null);
+
+      toast.success(copy.done, vc.caseNumber);
+    } catch (caught) {
+      setRationaleError(
+        caught instanceof Error ? caught.message : "Unable to record the decision.",
+      );
+    } finally {
+      setRationaleRunning(false);
+    }
+  }
+
+  function openRationale(request: RationaleRequest) {
+    setRationaleError(null);
+    setRationale(request);
+  }
+
+  const rationaleInfo = rationale !== null ? rationaleCopy(rationale, vc) : null;
+
+  const kpis: KpiItem[] = [
+    {
+      label: "ROI",
+      icon: Gauge,
+      value: `${vc.roiPct.toFixed(1)}%`,
+      note: `Target ${vc.targetRoiPct.toFixed(1)}%`,
+      tone: belowTarget ? "warning" : "default",
+    },
+    {
+      label: "Investment",
+      icon: Coins,
+      value: money(vc.investmentCostAmount, currency),
+      note: "Governed investment cost",
+    },
+    {
+      label: "Durable value",
+      icon: WalletCards,
+      value: money(vc.durableHorizonValueAmount, currency),
+      note: `Over ${vc.valueHorizonMonths} months`,
+    },
+    {
+      label: "Net value",
+      icon: BadgeCheck,
+      value: money(vc.netValueAmount, currency),
+      note: "Durable value less total cost",
+    },
+    {
+      label: "Value at risk",
+      icon: TrendingDown,
+      value: money(vc.valueAtRiskAmount, currency),
+      note: "Lost to persistence decay",
+      tone: atRisk ? "warning" : "default",
+    },
+    {
+      label: "Payback",
+      icon: Hourglass,
+      value: vc.paybackMonths === null ? "N/A" : `${vc.paybackMonths.toFixed(1)} mo`,
+      note: `Target ${vc.targetPaybackMonths.toFixed(1)} mo`,
+      tone: paybackLate ? "warning" : "default",
+    },
+  ];
 
   return (
     <div className="page-stack">
-      <Link
-        href="/strategic-value"
-        className="request-back-link"
-      >
-        <ArrowLeft
-          size={16}
-        />
+      <Link href="/strategic-value" className="request-back-link">
+        <ArrowLeft size={16} />
         Strategic value
       </Link>
 
       <section className="value-detail-heading">
         <div>
-          <span className="eyebrow">
-            Long-term ROI governance
-          </span>
+          <div className="request-detail-heading__meta">
+            <span>{vc.caseNumber}</span>
 
-          <h1>
-            {valueCase.initiativeTitle}
-          </h1>
+            <CaseBadge status={status} />
+
+            <StatusBadge value={String(vc.valueHealth)} label={readable(String(vc.valueHealth))} />
+          </div>
+
+          <span className="eyebrow">Long-term ROI governance</span>
+
+          <h1>{vc.initiativeTitle}</h1>
 
           <p>
-            {valueCase.caseNumber}
+            {vc.persistencePlanNumber}
             {" · "}
-            {valueCase.persistencePlanNumber}
-            {" · "}
-            {valueCase.commitmentNumber}
+            {vc.commitmentNumber}
           </p>
         </div>
 
-        <span
-          className={
-            `value-health value-health--${valueCase.valueHealth.toLowerCase().replaceAll("_", "-")}`
-          }
-        >
-          {readable(
-            valueCase.valueHealth,
-          )}
-        </span>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={reload}
+            disabled={fetching}
+          >
+            <RefreshCw size={15} className={fetching ? "kit-spin" : undefined} />
+            Refresh
+          </button>
+
+          {canManage && active ? (
+            <button
+              type="button"
+              className="button button--primary"
+              disabled={busyAny}
+              onClick={() => setSubmitting(true)}
+            >
+              <Send size={15} />
+              Submit for review
+            </button>
+          ) : null}
+
+          {canFinalize && ready ? (
+            <button
+              type="button"
+              className="button button--primary"
+              disabled={busyAny}
+              onClick={() => openRationale({ kind: "VERIFY" })}
+            >
+              <BadgeCheck size={16} />
+              Verify value case
+            </button>
+          ) : null}
+
+          {canFinalize && verified ? (
+            <button
+              type="button"
+              className="button button--primary"
+              disabled={busyAny}
+              onClick={() => openRationale({ kind: "CLOSE" })}
+            >
+              Close case
+            </button>
+          ) : null}
+        </div>
       </section>
 
       {error ? (
         <div className="error-banner">
-          <CircleAlert
-            size={18}
-          />
-          {error}
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button type="button" className="kit-banner-action" onClick={reload}>
+            Try again
+          </button>
         </div>
       ) : null}
 
-      <section className="value-detail-grid">
-        <article className="value-score-card">
-          <span>
-            ROI
-          </span>
+      {belowTarget ? (
+        <div className="kit-callout kit-callout--warning" role="status">
+          <AlertTriangle size={17} />
 
-          <strong>
-            {valueCase.roiPct.toFixed(
-              1,
-            )}
-            %
-          </strong>
+          <div>
+            <strong>ROI is below the target.</strong> It is {vc.roiPct.toFixed(1)}% against a
+            target of {vc.targetRoiPct.toFixed(1)}%.
+          </div>
+        </div>
+      ) : null}
 
-          <small>
-            Target
-            {" "}
-            {valueCase.targetRoiPct.toFixed(
-              1,
-            )}
-            %
-          </small>
-        </article>
+      {paybackLate && vc.paybackMonths !== null ? (
+        <div className="kit-callout kit-callout--warning" role="status">
+          <AlertTriangle size={17} />
 
-        <article>
-          <span>
-            Investment
-          </span>
+          <div>
+            <strong>Payback is slower than the target.</strong> It is {vc.paybackMonths.toFixed(1)}{" "}
+            months against a target of {vc.targetPaybackMonths.toFixed(1)} months.
+          </div>
+        </div>
+      ) : null}
 
-          <strong>
-            {money(
-              valueCase.investmentCostAmount,
-              valueCase.currency,
-            )}
-          </strong>
-        </article>
+      {active && canManage ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
 
-        <article>
-          <span>
-            Durable value
-          </span>
+          <div>
+            <strong>Submit the value case when the valuation is final.</strong> Submission freezes
+            the governed financial assumptions for independent management verification. Upstream
+            Step 53 and Step 55 evidence stays read-only.
+          </div>
+        </div>
+      ) : null}
 
-          <strong>
-            {money(
-              valueCase.durableHorizonValueAmount,
-              valueCase.currency,
-            )}
-          </strong>
-        </article>
+      {ready ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
 
-        <article>
-          <span>
-            Net value
-          </span>
+          <div>
+            <strong>Awaiting independent verification.</strong>{" "}
+            {canFinalize
+              ? "Use Verify value case above."
+              : "A procurement manager or administrator needs to verify it."}
+          </div>
+        </div>
+      ) : null}
 
-          <strong>
-            {money(
-              valueCase.netValueAmount,
-              valueCase.currency,
-            )}
-          </strong>
-        </article>
+      {verified && canFinalize ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
 
-        <article>
-          <span>
-            Value at risk
-          </span>
+          <div>
+            <strong>The value case is verified.</strong> Close it to finish the governance
+            lifecycle.
+          </div>
+        </div>
+      ) : null}
 
-          <strong className="value-risk-text">
-            {money(
-              valueCase.valueAtRiskAmount,
-              valueCase.currency,
-            )}
-          </strong>
-        </article>
+      {closed ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
 
-        <article>
-          <span>
-            Payback
-          </span>
+          <div>
+            <strong>This value case is closed.</strong> The governed valuation is final.
+          </div>
+        </div>
+      ) : null}
 
-          <strong>
-            {valueCase.paybackMonths ===
-            null
-              ? "N/A"
-              : `${valueCase.paybackMonths.toFixed(1)} mo`}
-          </strong>
+      <KpiGrid items={kpis} ariaLabel="Value case summary" />
 
-          <small>
-            Target
-            {" "}
-            {valueCase.targetPaybackMonths.toFixed(
-              1,
-            )}
-            {" mo"}
-          </small>
-        </article>
+      <section className="panel">
+        <div className="panel__header">
+          <div>
+            <span className="eyebrow">Progress</span>
+
+            <h2>Return and persistence</h2>
+          </div>
+
+          <Gauge size={19} />
+        </div>
+
+        <ProgressLine
+          pct={roiAgainstTarget}
+          tone={belowTarget ? "primary" : meterToneFor("success")}
+          caption={`ROI ${vc.roiPct.toFixed(1)}% against a target of ${vc.targetRoiPct.toFixed(1)}%`}
+          label="ROI against the target"
+        />
+
+        <ProgressLine
+          pct={vc.persistencePct}
+          tone="primary"
+          caption={`Step 55 persistence ${vc.persistencePct.toFixed(1)}% — ${money(vc.durableAnnualValueAmount, currency)} durable of ${money(vc.annualizedValueAmount, currency)} annualized value`}
+          label="Value persistence"
+        />
       </section>
 
       <section className="panel">
         <div className="panel__header">
           <div>
-            <span className="eyebrow">
-              Durable-value bridge
-            </span>
+            <span className="eyebrow">Durable-value bridge</span>
 
-            <h2>
-              Persistence-adjusted economics
-            </h2>
+            <h2>Persistence-adjusted economics</h2>
           </div>
 
-          <Goal
-            size={19}
-          />
+          <Goal size={19} />
         </div>
 
         <div className="value-bridge-grid">
           <div>
-            <span>
-              Step 53 validated contribution
-            </span>
+            <span>Step 53 validated contribution</span>
 
-            <strong>
-              {valueCase.step53ValidatedContributionPoints.toFixed(
-                1,
-              )}
-              {" pts"}
-            </strong>
+            <strong>{vc.step53ValidatedContributionPoints.toFixed(1)} pts</strong>
           </div>
 
           <div>
-            <span>
-              Step 55 persistence
-            </span>
+            <span>Step 55 persistence</span>
 
-            <strong>
-              {valueCase.persistencePct.toFixed(
-                1,
-              )}
-              %
-            </strong>
+            <strong>{vc.persistencePct.toFixed(1)}%</strong>
           </div>
 
           <div>
-            <span>
-              Annualized baseline value
-            </span>
+            <span>Annualized baseline value</span>
 
-            <strong>
-              {money(
-                valueCase.annualizedValueAmount,
-                valueCase.currency,
-              )}
-            </strong>
+            <strong>{money(vc.annualizedValueAmount, currency)}</strong>
           </div>
 
           <div>
-            <span>
-              Durable annual value
-            </span>
+            <span>Durable annual value</span>
 
-            <strong>
-              {money(
-                valueCase.durableAnnualValueAmount,
-                valueCase.currency,
-              )}
-            </strong>
+            <strong>{money(vc.durableAnnualValueAmount, currency)}</strong>
           </div>
 
           <div>
-            <span>
-              Baseline horizon value
-            </span>
+            <span>Baseline horizon value</span>
 
-            <strong>
-              {money(
-                valueCase.baselineHorizonValueAmount,
-                valueCase.currency,
-              )}
-            </strong>
+            <strong>{money(vc.baselineHorizonValueAmount, currency)}</strong>
           </div>
 
           <div>
-            <span>
-              Decayed value
-            </span>
+            <span>Decayed value</span>
 
-            <strong className="value-risk-text">
-              {money(
-                valueCase.decayedValueAmount,
-                valueCase.currency,
-              )}
-            </strong>
+            <strong className="value-risk-text">{money(vc.decayedValueAmount, currency)}</strong>
           </div>
         </div>
       </section>
@@ -537,291 +601,125 @@ export default function StrategicValueCasePage() {
       <section className="panel">
         <div className="panel__header">
           <div>
-            <span className="eyebrow">
-              Financial authority
-            </span>
+            <span className="eyebrow">Financial authority</span>
 
-            <h2>
-              Governed valuation baseline
-            </h2>
+            <h2>Governed valuation baseline</h2>
           </div>
         </div>
 
         <div className="value-financial-grid">
           <div>
             <span>Value owner</span>
-            <strong>
-              {valueCase.valueOwnerName}
-            </strong>
+
+            <strong>{vc.valueOwnerName}</strong>
           </div>
 
           <div>
             <span>Currency</span>
-            <strong>
-              {valueCase.currency}
-            </strong>
+
+            <strong>{currency}</strong>
           </div>
 
           <div>
             <span>Horizon</span>
-            <strong>
-              {valueCase.valueHorizonMonths}
-              {" months"}
-            </strong>
+
+            <strong>{vc.valueHorizonMonths} months</strong>
           </div>
 
           <div>
             <span>Annual operating cost</span>
-            <strong>
-              {money(
-                valueCase.annualOperatingCostAmount,
-                valueCase.currency,
-              )}
-            </strong>
+
+            <strong>{money(vc.annualOperatingCostAmount, currency)}</strong>
           </div>
 
           <div>
             <span>Total cost</span>
-            <strong>
-              {money(
-                valueCase.totalCostAmount,
-                valueCase.currency,
-              )}
-            </strong>
+
+            <strong>{money(vc.totalCostAmount, currency)}</strong>
           </div>
 
           <div>
             <span>Status</span>
-            <strong>
-              {readable(
-                valueCase.status,
-              )}
-            </strong>
+
+            <strong>{readable(status)}</strong>
           </div>
         </div>
 
         <div className="value-valuation-note">
-          <strong>
-            Valuation evidence
-          </strong>
+          <strong>Valuation evidence</strong>
 
-          <p>
-            {valueCase.valuationNote}
-          </p>
+          <p>{vc.valuationNote}</p>
         </div>
       </section>
 
       <div className="value-source-links">
-        <Link
-          href={
-            `/outcome-persistence/${valueCase.persistencePlanId}`
-          }
-          className="table-action"
-        >
+        <Link href={`/outcome-persistence/${vc.persistencePlanId}`} className="table-action">
           Step 55 persistence evidence
         </Link>
 
-        <Link
-          href={
-            `/strategy-execution/${valueCase.commitmentId}`
-          }
-          className="table-action"
-        >
+        <Link href={`/strategy-execution/${vc.commitmentId}`} className="table-action">
           Step 53 execution evidence
         </Link>
       </div>
 
-      {canManage &&
-      valueCase.status ===
-        "ACTIVE" ? (
-        <section className="panel">
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Independent review gate
-              </span>
-
-              <h2>
-                Submit value case
-              </h2>
-            </div>
-          </div>
-
-          <p className="value-governance-copy">
-            Submission freezes the
-            governed financial assumptions
-            for independent management
-            verification. Upstream Step 53
-            and Step 55 evidence remains
-            read-only.
-          </p>
-
-          <div className="value-form-actions">
-            <button
-              type="button"
-              className="button button--primary"
-              disabled={running}
-              onClick={
-                () =>
-                  void submitForReview()
-              }
-            >
-              Submit for review
-            </button>
-          </div>
-        </section>
-      ) : null}
-
-      {canFinalize &&
-      valueCase.status ===
-        "READY_FOR_REVIEW" ? (
-        <section className="panel">
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Independent financial governance
-              </span>
-
-              <h2>
-                Verify value case
-              </h2>
-            </div>
-          </div>
-
-          <label className="request-field">
-            <span>
-              Verification note
-            </span>
-
-            <textarea
-              rows={6}
-              value={governanceNote}
-              onChange={
-                event =>
-                  setGovernanceNote(
-                    event.target.value,
-                  )
-              }
-            />
-          </label>
-
-          <div className="value-form-actions">
-            <button
-              type="button"
-              className="button button--primary"
-              disabled={
-                running
-                ||
-                !governanceNote.trim()
-              }
-              onClick={
-                () =>
-                  void verifyCase()
-              }
-            >
-              Verify value case
-            </button>
-          </div>
-        </section>
-      ) : null}
-
-      {canFinalize &&
-      valueCase.status ===
-        "VERIFIED" ? (
-        <section className="panel">
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Governance closure
-              </span>
-
-              <h2>
-                Close value case
-              </h2>
-            </div>
-          </div>
-
-          <label className="request-field">
-            <span>
-              Closure note
-            </span>
-
-            <textarea
-              rows={6}
-              value={governanceNote}
-              onChange={
-                event =>
-                  setGovernanceNote(
-                    event.target.value,
-                  )
-              }
-            />
-          </label>
-
-          <div className="value-form-actions">
-            <button
-              type="button"
-              className="button button--primary"
-              disabled={
-                running
-                ||
-                !governanceNote.trim()
-              }
-              onClick={
-                () =>
-                  void closeCase()
-              }
-            >
-              Close value case
-            </button>
-          </div>
-        </section>
-      ) : null}
-
-      {valueCase.verificationNote ? (
+      {vc.verificationNote ? (
         <section className="value-verification-note">
-          <strong>
-            Independent verification
-          </strong>
+          <strong>Independent verification</strong>
 
-          <p>
-            {valueCase.verificationNote}
-          </p>
+          <p>{vc.verificationNote}</p>
 
           <small>
-            {valueCase.verifiedByName}
-            {" · "}
-            {valueCase.verifiedAt
-              ? new Date(
-                  valueCase.verifiedAt,
-                )
-                  .toLocaleString()
-              : ""}
+            {vc.verifiedByName ?? "Management"}
+            {vc.verifiedAt ? ` · ${formatDateTime(vc.verifiedAt)}` : ""}
           </small>
         </section>
       ) : null}
 
       <section className="value-method-note">
-        <Goal
-          size={18}
-        />
+        <Goal size={18} />
 
         <div>
-          <strong>
-            ROI uses only governed monetary assumptions
-          </strong>
+          <strong>ROI uses only governed monetary assumptions</strong>
 
           <p>
-            Persistence percentage adjusts
-            the separately entered
-            financial value baseline.
-            Contribution points remain
-            non-monetary evidence and are
-            displayed only for
+            Persistence percentage adjusts the separately entered financial value baseline.
+            Contribution points remain non-monetary evidence and are displayed only for
             traceability.
           </p>
         </div>
       </section>
+
+      {submitting ? (
+        <ActionDialog
+          eyebrow="Independent review gate"
+          title="Submit value case for review?"
+          description={`${vc.caseNumber} will be submitted at an ROI of ${vc.roiPct.toFixed(1)}% against a target of ${vc.targetRoiPct.toFixed(1)}%. The governed financial assumptions are frozen for independent management verification.`}
+          confirmLabel="Submit for review"
+          busyLabel="Submitting…"
+          cancelLabel="Not yet"
+          busy={submitRunning}
+          onConfirm={() => void confirmSubmit()}
+          onCancel={() => setSubmitting(false)}
+        />
+      ) : null}
+
+      {rationale !== null && rationaleInfo !== null ? (
+        <RationaleDialog
+          eyebrow={rationaleInfo.eyebrow}
+          title={rationaleInfo.title}
+          description={rationaleInfo.description}
+          label={rationaleInfo.label}
+          placeholder={rationaleInfo.placeholder}
+          confirmLabel={rationaleInfo.confirm}
+          busyLabel={rationaleInfo.busy}
+          tone="primary"
+          maxLength={5000}
+          busy={rationaleRunning}
+          error={rationaleError}
+          onConfirm={(note) => void confirmRationale(note)}
+          onCancel={() => setRationale(null)}
+        />
+      ) : null}
     </div>
   );
 }

@@ -5,30 +5,38 @@ import {
   ArrowLeft,
   BadgeCheck,
   CircleAlert,
+  Clock,
   FilePlus2,
   FileWarning,
+  Gauge,
+  Info,
   Play,
+  RefreshCw,
   SearchCheck,
   ShieldAlert,
   XCircle,
 } from "lucide-react";
-
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { type FormEvent, useEffect, useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import {
-  type FormEvent,
-  useEffect,
-  useState,
-} from "react";
-
-import {
-  useParams,
-} from "next/navigation";
-
-import {
-  useAuth,
-} from "@/components/auth/auth-provider";
-
+  type Column,
+  DataTable,
+  EmptyState,
+  Field,
+  KpiGrid,
+  type KpiItem,
+  Modal,
+  Skeleton,
+  StatusBadge,
+  formatDate,
+  formatDateTime,
+  readable,
+  useToast,
+} from "@/components/kit";
+import { RationaleDialog } from "@/components/kit/rationale-dialog";
 import {
   addAnomalyInvestigationEvidence,
   cancelAnomalyInvestigation,
@@ -38,7 +46,6 @@ import {
   getAnomalyControlFinding,
   startAnomalyInvestigation,
 } from "@/lib/api";
-
 import type {
   AnomalyContext,
   AnomalyFindingDetail,
@@ -48,722 +55,947 @@ import type {
   InvestigationPriority,
 } from "@/types/anomaly-control";
 
-function readable(
-  value: string,
-): string {
-  return value
-    .replaceAll(
-      "_",
-      " ",
-    )
-    .toLowerCase()
-    .replace(
-      /\b\w/g,
-      letter =>
-        letter.toUpperCase(),
-    );
+/* ------------------------------------------------------------------ */
+/* Constants & helpers                                                 */
+/* ------------------------------------------------------------------ */
+
+type ContextUser = AnomalyContext["users"][number];
+type Evidence = Investigation["evidence"][number];
+
+const INVESTIGATE_ROLES = ["ADMIN", "PROCUREMENT_MANAGER", "BUYER"];
+const DISPOSE_ROLES = ["ADMIN", "PROCUREMENT_MANAGER"];
+
+const PRIORITIES = [
+  { value: "LOW", label: "Low" },
+  { value: "MEDIUM", label: "Medium" },
+  { value: "HIGH", label: "High" },
+  { value: "CRITICAL", label: "Critical" },
+];
+
+const EVIDENCE_TYPES = [
+  { value: "NOTE", label: "Note" },
+  { value: "TRANSACTION_REFERENCE", label: "Transaction reference" },
+  { value: "DOCUMENT_REFERENCE", label: "Document reference" },
+  { value: "CONTROL_TEST", label: "Control test" },
+];
+
+const DISPOSITIONS = [
+  {
+    value: "CONFIRMED",
+    label: "Confirm anomaly",
+    hint: "The investigation confirms the signal as a genuine control anomaly.",
+  },
+  {
+    value: "DISMISSED",
+    label: "Dismiss signal",
+    hint: "The investigation finds no control concern, so the signal is dismissed.",
+  },
+  {
+    value: "RESOLVED",
+    label: "Resolved control issue",
+    hint: "The underlying control issue has been addressed.",
+  },
+];
+
+function money(value: number, currency: string): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 2,
+  }).format(value);
 }
 
-function defaultDueDate(): string {
-  const date =
-    new Date();
+/** Local calendar date as YYYY-MM-DD, offset by a number of days. */
+function isoDate(offsetDays: number): string {
+  const date = new Date();
 
-  date.setUTCDate(
-    date.getUTCDate() + 14,
-  );
+  date.setDate(date.getDate() + offsetDays);
 
-  return date
-    .toISOString()
-    .slice(
-      0,
-      10,
-    );
+  const pad = (value: number) => String(value).padStart(2, "0");
+
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
-function money(
-  value: number,
-  currency: string,
-): string {
-  return new Intl.NumberFormat(
-    "en-US",
+function isActive(investigation: Investigation): boolean {
+  return investigation.status === "OPEN" || investigation.status === "IN_PROGRESS";
+}
+
+function LevelBadge({ level }: { level: string }) {
+  return <StatusBadge value={level} label={readable(level)} />;
+}
+
+function InvestigationBadge({ status }: { status: string }) {
+  if (status === "IN_PROGRESS") {
+    return <StatusBadge value="IN_PROGRESS" label="In progress" />;
+  }
+
+  return <StatusBadge value={status} label={readable(status)} />;
+}
+
+/* ------------------------------------------------------------------ */
+/* Table columns                                                       */
+/* ------------------------------------------------------------------ */
+
+function buildEvidenceColumns(): Column<Evidence>[] {
+  return [
     {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 2,
+      id: "type",
+      header: "Type",
+      sortValue: (item) => String(item.evidenceType),
+      cell: (item) => readable(String(item.evidenceType)),
     },
-  ).format(value);
+    {
+      id: "evidence",
+      header: "Evidence",
+      cell: (item) => <span>{item.referenceText}</span>,
+    },
+    {
+      id: "by",
+      header: "Added by",
+      sortValue: (item) => (item.addedByName ?? "").toLowerCase(),
+      cell: (item) => item.addedByName ?? <span className="kit-text-muted">—</span>,
+    },
+    {
+      id: "added",
+      header: "Added",
+      sortValue: (item) => item.createdAt,
+      cell: (item) => formatDateTime(item.createdAt),
+    },
+  ];
+}
+
+/* ------------------------------------------------------------------ */
+/* Open investigation modal                                            */
+/* ------------------------------------------------------------------ */
+
+interface OpenModalProps {
+  findingId: string;
+  owners: ContextUser[];
+  onClose: () => void;
+  onSaved: () => Promise<void>;
+}
+
+function OpenInvestigationModal({ findingId, owners, onClose, onSaved }: OpenModalProps) {
+  const [ownerId, setOwnerId] = useState(owners[0]?.id ?? "");
+  const [priority, setPriority] = useState<InvestigationPriority>("HIGH");
+  const [dueDate, setDueDate] = useState(() => isoDate(14));
+  const [dueError, setDueError] = useState<string | undefined>(undefined);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const dueInPast = dueDate !== "" && dueDate < isoDate(0);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (saving) {
+      return;
+    }
+
+    if (!dueDate) {
+      setDueError("Choose a due date.");
+
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      await createAnomalyInvestigation(findingId, {
+        ownerUserId: ownerId || undefined,
+        priority,
+        dueDate,
+      });
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to create investigation.");
+      setSaving(false);
+
+      return;
+    }
+
+    await onSaved();
+  }
+
+  return (
+    <Modal
+      eyebrow="Investigation workflow"
+      title="Open investigation"
+      description="Assign an owner, a priority and a due date for the case."
+      size="md"
+      dismissible={!saving}
+      onClose={onClose}
+      footer={
+        <>
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={onClose}
+            disabled={saving}
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            form="anomaly-open-form"
+            className="button button--primary"
+            disabled={saving}
+          >
+            <SearchCheck size={16} />
+            {saving ? "Opening…" : "Open investigation"}
+          </button>
+        </>
+      }
+    >
+      <form id="anomaly-open-form" onSubmit={handleSubmit} noValidate>
+        <div className="kit-pair-grid">
+          {owners.length > 0 ? (
+            <div className="kit-pair-wide">
+              <Field label="Owner" htmlFor="anomaly-owner">
+                <select
+                  id="anomaly-owner"
+                  className="kit-field-input"
+                  value={ownerId}
+                  onChange={(event) => setOwnerId(event.target.value)}
+                >
+                  {owners.map((candidate) => (
+                    <option key={candidate.id} value={candidate.id}>
+                      {candidate.fullName} — {candidate.role}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+          ) : null}
+
+          <Field label="Priority" htmlFor="anomaly-priority">
+            <select
+              id="anomaly-priority"
+              className="kit-field-input"
+              value={priority}
+              onChange={(event) => setPriority(event.target.value as InvestigationPriority)}
+            >
+              {PRIORITIES.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <Field label="Due date" htmlFor="anomaly-due" error={dueError}>
+            <input
+              id="anomaly-due"
+              className="kit-field-input"
+              type="date"
+              value={dueDate}
+              aria-invalid={dueError ? true : undefined}
+              onChange={(event) => {
+                setDueDate(event.target.value);
+                setDueError(undefined);
+              }}
+            />
+          </Field>
+        </div>
+
+        {dueInPast ? (
+          <p className="kit-dialog-note kit-dialog-note--warning" style={{ marginTop: 14 }}>
+            The due date is in the past, so the case will be flagged as overdue immediately.
+          </p>
+        ) : null}
+
+        {error ? (
+          <div className="error-banner" role="alert" style={{ marginTop: 16 }}>
+            <CircleAlert size={18} />
+            <span>{error}</span>
+          </div>
+        ) : null}
+      </form>
+    </Modal>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Add evidence modal                                                  */
+/* ------------------------------------------------------------------ */
+
+interface EvidenceModalProps {
+  investigation: Investigation;
+  onClose: () => void;
+  onSaved: () => Promise<void>;
+}
+
+function AddEvidenceModal({ investigation, onClose, onSaved }: EvidenceModalProps) {
+  const [evidenceType, setEvidenceType] = useState<InvestigationEvidenceType>("NOTE");
+  const [text, setText] = useState("");
+  const [textError, setTextError] = useState<string | undefined>(undefined);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (saving) {
+      return;
+    }
+
+    if (!text.trim()) {
+      setTextError("Enter the investigation evidence.");
+
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      await addAnomalyInvestigationEvidence(investigation.id, {
+        evidenceType,
+        referenceText: text.trim(),
+      });
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : "Unable to add investigation evidence.",
+      );
+      setSaving(false);
+
+      return;
+    }
+
+    await onSaved();
+  }
+
+  return (
+    <Modal
+      eyebrow={investigation.caseNumber}
+      title="Add investigation evidence"
+      description="Record a note, a reference or a control test that supports the conclusion."
+      size="md"
+      dismissible={!saving}
+      onClose={onClose}
+      footer={
+        <>
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={onClose}
+            disabled={saving}
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            form="anomaly-evidence-form"
+            className="button button--primary"
+            disabled={saving}
+          >
+            <FilePlus2 size={16} />
+            {saving ? "Adding…" : "Add evidence"}
+          </button>
+        </>
+      }
+    >
+      <form id="anomaly-evidence-form" onSubmit={handleSubmit} noValidate>
+        <div className="kit-pair-grid">
+          <div className="kit-pair-wide">
+            <Field label="Evidence type" htmlFor="anomaly-evidence-type">
+              <select
+                id="anomaly-evidence-type"
+                className="kit-field-input"
+                value={evidenceType}
+                onChange={(event) =>
+                  setEvidenceType(event.target.value as InvestigationEvidenceType)
+                }
+              >
+                {EVIDENCE_TYPES.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          </div>
+
+          <div className="kit-pair-wide">
+            <Field label="Investigation evidence" htmlFor="anomaly-evidence-text" error={textError}>
+              <textarea
+                id="anomaly-evidence-text"
+                className="kit-field-input"
+                rows={5}
+                value={text}
+                aria-invalid={textError ? true : undefined}
+                onChange={(event) => {
+                  setText(event.target.value);
+                  setTextError(undefined);
+                }}
+              />
+            </Field>
+          </div>
+        </div>
+
+        {error ? (
+          <div className="error-banner" role="alert" style={{ marginTop: 16 }}>
+            <CircleAlert size={18} />
+            <span>{error}</span>
+          </div>
+        ) : null}
+      </form>
+    </Modal>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Close and dispose modal                                             */
+/* ------------------------------------------------------------------ */
+
+interface CloseModalProps {
+  investigation: Investigation;
+  onClose: () => void;
+  onSaved: (label: string) => Promise<void>;
+}
+
+function CloseCaseModal({ investigation, onClose, onSaved }: CloseModalProps) {
+  const [disposition, setDisposition] = useState<InvestigationDisposition>("RESOLVED");
+  const [note, setNote] = useState("");
+  const [noteError, setNoteError] = useState<string | undefined>(undefined);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const selected = DISPOSITIONS.find((option) => option.value === disposition);
+  const noEvidence = investigation.evidence.length === 0;
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (saving) {
+      return;
+    }
+
+    if (!note.trim()) {
+      setNoteError("An investigation conclusion is required.");
+
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      await closeAnomalyInvestigation(investigation.id, {
+        disposition,
+        note: note.trim(),
+      });
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to close investigation.");
+      setSaving(false);
+
+      return;
+    }
+
+    await onSaved(selected ? selected.label : "Case closed");
+  }
+
+  return (
+    <Modal
+      eyebrow="Controlled disposition"
+      title="Close and dispose"
+      description={`${investigation.caseNumber} will be closed and the finding will receive the disposition you choose.`}
+      size="md"
+      dismissible={!saving}
+      onClose={onClose}
+      footer={
+        <>
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={onClose}
+            disabled={saving}
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            form="anomaly-close-form"
+            className="button button--primary"
+            disabled={saving}
+          >
+            <BadgeCheck size={16} />
+            {saving ? "Closing…" : "Close & dispose"}
+          </button>
+        </>
+      }
+    >
+      <form id="anomaly-close-form" onSubmit={handleSubmit} noValidate>
+        <div className="kit-pair-grid">
+          <div className="kit-pair-wide">
+            <Field label="Disposition" htmlFor="anomaly-disposition">
+              <select
+                id="anomaly-disposition"
+                className="kit-field-input"
+                value={disposition}
+                onChange={(event) =>
+                  setDisposition(event.target.value as InvestigationDisposition)
+                }
+              >
+                {DISPOSITIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </Field>
+
+            {selected ? <p className="kit-meta-line">{selected.hint}</p> : null}
+          </div>
+
+          <div className="kit-pair-wide">
+            <Field
+              label="Investigation conclusion / rationale"
+              htmlFor="anomaly-conclusion"
+              error={noteError}
+            >
+              <textarea
+                id="anomaly-conclusion"
+                className="kit-field-input"
+                rows={5}
+                value={note}
+                aria-invalid={noteError ? true : undefined}
+                onChange={(event) => {
+                  setNote(event.target.value);
+                  setNoteError(undefined);
+                }}
+              />
+            </Field>
+          </div>
+        </div>
+
+        {noEvidence ? (
+          <p className="kit-dialog-note kit-dialog-note--warning" style={{ marginTop: 14 }}>
+            No evidence has been added to this case. A conclusion normally cites supporting
+            evidence.
+          </p>
+        ) : null}
+
+        {error ? (
+          <div className="error-banner" role="alert" style={{ marginTop: 16 }}>
+            <CircleAlert size={18} />
+            <span>{error}</span>
+          </div>
+        ) : null}
+      </form>
+    </Modal>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
+
+interface FindingData {
+  id: string;
+  detail: AnomalyFindingDetail;
+  context: AnomalyContext;
 }
 
 export default function AnomalyFindingPage() {
-  const params =
-    useParams<{
-      id: string;
-    }>();
+  const params = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const toast = useToast();
 
-  const {
-    user,
-  } = useAuth();
+  const canInvestigate = user !== null && INVESTIGATE_ROLES.includes(user.role);
+  const canDispose = user !== null && DISPOSE_ROLES.includes(user.role);
 
-  const [
-    detail,
-    setDetail,
-  ] =
-    useState<
-      AnomalyFindingDetail |
-      null
-    >(null);
-
-  const [
-    context,
-    setContext,
-  ] =
-    useState<
-      AnomalyContext |
-      null
-    >(null);
-
-  const [
-    ownerUserId,
-    setOwnerUserId,
-  ] =
-    useState("");
-
-  const [
-    priority,
-    setPriority,
-  ] =
-    useState<InvestigationPriority>(
-      "HIGH",
-    );
-
-  const [
-    dueDate,
-    setDueDate,
-  ] =
-    useState(
-      defaultDueDate(),
-    );
-
-  const [
-    evidenceTypes,
-    setEvidenceTypes,
-  ] =
-    useState<
-      Record<
-        string,
-        InvestigationEvidenceType
-      >
-    >({});
-
-  const [
-    evidenceTexts,
-    setEvidenceTexts,
-  ] =
-    useState<
-      Record<
-        string,
-        string
-      >
-    >({});
-
-  const [
-    closeDisposition,
-    setCloseDisposition,
-  ] =
-    useState<
-      Record<
-        string,
-        InvestigationDisposition
-      >
-    >({});
-
-  const [
-    closeNotes,
-    setCloseNotes,
-  ] =
-    useState<
-      Record<
-        string,
-        string
-      >
-    >({});
-
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
-
-  const [
-    running,
-    setRunning,
-  ] =
-    useState(false);
-
-  const [
-    error,
-    setError,
-  ] =
-    useState<
-      string |
-      null
-    >(null);
-
-  const canInvestigate =
-    user?.role ===
-      "ADMIN"
-    ||
-    user?.role ===
-      "PROCUREMENT_MANAGER"
-    ||
-    user?.role ===
-      "BUYER";
-
-  const canDispose =
-    user?.role ===
-      "ADMIN"
-    ||
-    user?.role ===
-      "PROCUREMENT_MANAGER";
+  const [result, setResult] = useState<FindingData | null>(null);
+  const [opening, setOpening] = useState(false);
+  const [evidenceId, setEvidenceId] = useState<string | null>(null);
+  const [closeId, setCloseId] = useState<string | null>(null);
+  const [cancelId, setCancelId] = useState<string | null>(null);
+  const [cancelRunning, setCancelRunning] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+  const [workingId, setWorkingId] = useState<string | null>(null);
+  const [fetching, setFetching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let active = true;
+    const id = params.id;
 
-    Promise.all([
-      getAnomalyControlFinding(
-        params.id,
-      ),
-      getAnomalyControlContext(),
-    ])
-      .then(
-        ([
-          findingResponse,
-          contextResponse,
-        ]) => {
-          if (!active) {
-            return;
-          }
+    const timer = window.setTimeout(async () => {
+      setFetching(true);
+      setError(null);
 
-          setDetail(
-            findingResponse,
-          );
+      try {
+        const [findingResponse, contextResponse] = await Promise.all([
+          getAnomalyControlFinding(id),
+          getAnomalyControlContext(),
+        ]);
 
-          setContext(
-            contextResponse,
-          );
-
-          const owner =
-            contextResponse.users.find(
-              candidate =>
-                candidate.role !==
-                  "REQUESTER",
-            );
-
-          if (owner) {
-            setOwnerUserId(
-              owner.id,
-            );
-          }
-
-          setError(null);
-        },
-      )
-      .catch(
-        caughtError => {
-          if (!active) {
-            return;
-          }
-
-          setError(
-            caughtError instanceof
-              Error
-              ? caughtError.message
-              : "Unable to load anomaly finding.",
-          );
-        },
-      )
-      .finally(
-        () => {
-          if (active) {
-            setLoading(false);
-          }
-        },
-      );
+        if (active) {
+          setResult({ id, detail: findingResponse, context: contextResponse });
+        }
+      } catch (caught) {
+        if (active) {
+          setError(caught instanceof Error ? caught.message : "Unable to load anomaly finding.");
+        }
+      } finally {
+        if (active) {
+          setFetching(false);
+        }
+      }
+    }, 0);
 
     return () => {
       active = false;
+      window.clearTimeout(timer);
     };
-  }, [
-    params.id,
-  ]);
+  }, [params.id, reloadKey]);
 
-  async function reload() {
-    setDetail(
-      await getAnomalyControlFinding(
-        params.id,
-      ),
-    );
+  const data = result !== null && result.id === params.id ? result : null;
+  const detail = data?.detail ?? null;
+  const context = data?.context ?? null;
+
+  function reload() {
+    setReloadKey((key) => key + 1);
   }
 
-  async function createInvestigation(
-    event:
-      FormEvent<HTMLFormElement>,
-  ) {
-    event.preventDefault();
+  async function refresh() {
+    const id = params.id;
 
     try {
-      setRunning(true);
-      setError(null);
+      const fresh = await getAnomalyControlFinding(id);
 
-      await createAnomalyInvestigation(
-        params.id,
-        {
-          ownerUserId:
-            ownerUserId
-            ||
-            undefined,
-          priority,
-          dueDate,
-        },
+      setResult((current) =>
+        current && current.id === id ? { ...current, detail: fresh } : current,
       );
-
-      await reload();
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to create investigation.",
-      );
-    } finally {
-      setRunning(false);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to refresh the finding.");
     }
   }
 
-  async function startInvestigation(
-    investigation:
-      Investigation,
-  ) {
-    try {
-      setRunning(true);
-      setError(null);
-
-      await startAnomalyInvestigation(
-        investigation.id,
+  if (detail === null) {
+    if (error === null) {
+      return (
+        <div className="page-stack">
+          <Skeleton height={28} />
+          <Skeleton height={120} />
+          <Skeleton height={96} />
+          <Skeleton height={260} />
+        </div>
       );
-
-      await reload();
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to start investigation.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  async function addEvidence(
-    investigation:
-      Investigation,
-  ) {
-    const referenceText =
-      evidenceTexts[
-        investigation.id
-      ]
-      ??
-      "";
-
-    const evidenceType =
-      evidenceTypes[
-        investigation.id
-      ]
-      ??
-      "NOTE";
-
-    if (!referenceText.trim()) {
-      setError(
-        "Investigation evidence text is required.",
-      );
-
-      return;
     }
 
-    try {
-      setRunning(true);
-      setError(null);
-
-      await addAnomalyInvestigationEvidence(
-        investigation.id,
-        {
-          evidenceType,
-          referenceText,
-        },
-      );
-
-      setEvidenceTexts(
-        current => ({
-          ...current,
-          [investigation.id]:
-            "",
-        }),
-      );
-
-      await reload();
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to add investigation evidence.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  async function closeInvestigation(
-    investigation:
-      Investigation,
-  ) {
-    const note =
-      closeNotes[
-        investigation.id
-      ]
-      ??
-      "";
-
-    const disposition =
-      closeDisposition[
-        investigation.id
-      ]
-      ??
-      "RESOLVED";
-
-    if (!note.trim()) {
-      setError(
-        "Investigation conclusion is required.",
-      );
-
-      return;
-    }
-
-    try {
-      setRunning(true);
-      setError(null);
-
-      await closeAnomalyInvestigation(
-        investigation.id,
-        {
-          disposition,
-          note,
-        },
-      );
-
-      await reload();
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to close investigation.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  async function cancelInvestigation(
-    investigation:
-      Investigation,
-  ) {
-    const note =
-      closeNotes[
-        investigation.id
-      ]
-      ??
-      "";
-
-    if (!note.trim()) {
-      setError(
-        "Cancellation rationale is required.",
-      );
-
-      return;
-    }
-
-    try {
-      setRunning(true);
-      setError(null);
-
-      await cancelAnomalyInvestigation(
-        investigation.id,
-        note,
-      );
-
-      await reload();
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to cancel investigation.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="request-detail-loading">
-        Loading anomaly finding...
-      </div>
-    );
-  }
-
-  if (!detail) {
     return (
       <div className="page-stack">
-        <Link
-          href="/anomaly-control"
-          className="request-back-link"
-        >
-          <ArrowLeft
-            size={16}
-          />
+        <Link href="/anomaly-control" className="request-back-link">
+          <ArrowLeft size={16} />
           Anomaly control
         </Link>
 
         <div className="error-banner">
-          <CircleAlert
-            size={18}
-          />
-          {error ??
-            "Anomaly finding not found."}
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button type="button" className="kit-banner-action" onClick={reload}>
+            Try again
+          </button>
         </div>
       </div>
     );
   }
 
-  const {
-    finding,
-    investigations,
-  } = detail;
+  const { finding, investigations } = detail;
+  const owners = (context?.users ?? []).filter((candidate) => candidate.role !== "REQUESTER");
 
-  const activeInvestigation =
-    investigations.find(
-      investigation =>
-        investigation.status ===
-          "OPEN"
-        ||
-        investigation.status ===
-          "IN_PROGRESS",
-    );
+  const activeInvestigation = investigations.find(isActive);
+  const activeCount = investigations.filter(isActive).length;
+  const overdueCount = investigations.filter(
+    (investigation) => investigation.overdue && isActive(investigation),
+  ).length;
+  const findingOpen = finding.status === "OPEN";
+  const busyAny = workingId !== null || cancelRunning;
+
+  const evidenceTarget =
+    investigations.find((investigation) => String(investigation.id) === evidenceId) ?? null;
+  const closeTarget =
+    investigations.find((investigation) => String(investigation.id) === closeId) ?? null;
+  const cancelTarget =
+    investigations.find((investigation) => String(investigation.id) === cancelId) ?? null;
+
+  async function afterChange(title: string, detailText: string) {
+    await refresh();
+
+    toast.success(title, detailText);
+  }
+
+  async function handleOpened() {
+    await afterChange("Investigation opened", finding.ruleCode);
+
+    setOpening(false);
+  }
+
+  async function handleEvidenceAdded(investigation: Investigation) {
+    await afterChange("Evidence added", investigation.caseNumber);
+
+    setEvidenceId(null);
+  }
+
+  async function handleClosed(investigation: Investigation, label: string) {
+    await afterChange("Case closed", `${investigation.caseNumber} — ${label}`);
+
+    setCloseId(null);
+  }
+
+  async function startInvestigation(investigation: Investigation) {
+    if (workingId !== null) {
+      return;
+    }
+
+    setWorkingId(String(investigation.id));
+
+    try {
+      await startAnomalyInvestigation(investigation.id);
+
+      await afterChange("Investigation started", investigation.caseNumber);
+    } catch (caught) {
+      toast.error(
+        "Could not start the investigation",
+        caught instanceof Error ? caught.message : "Unable to start investigation.",
+      );
+    } finally {
+      setWorkingId(null);
+    }
+  }
+
+  async function confirmCancel(note: string) {
+    if (cancelTarget === null) {
+      return;
+    }
+
+    const target = cancelTarget;
+
+    setCancelRunning(true);
+    setCancelError(null);
+
+    try {
+      await cancelAnomalyInvestigation(target.id, note.trim());
+
+      await afterChange("Case cancelled", target.caseNumber);
+
+      setCancelId(null);
+    } catch (caught) {
+      setCancelError(
+        caught instanceof Error ? caught.message : "Unable to cancel investigation.",
+      );
+    } finally {
+      setCancelRunning(false);
+    }
+  }
+
+  const orderedInvestigations = [...investigations].sort((a, b) => {
+    const left = isActive(a) ? 0 : 1;
+    const right = isActive(b) ? 0 : 1;
+
+    if (left !== right) {
+      return left - right;
+    }
+
+    return String(a.dueDate).localeCompare(String(b.dueDate));
+  });
+
+  const exposureText =
+    finding.exposureValue !== null
+      ? finding.currency
+        ? money(finding.exposureValue, finding.currency)
+        : finding.exposureValue.toFixed(2)
+      : "—";
+
+  const kpis: KpiItem[] = [
+    {
+      label: "Metric",
+      icon: Gauge,
+      value: finding.metricValue !== null ? finding.metricValue.toFixed(2) : "—",
+      note: readable(String(finding.signalType)),
+    },
+    {
+      label: "Exposure",
+      icon: AlertTriangle,
+      value: exposureText,
+      note: "Value at stake",
+    },
+    {
+      label: "Investigations",
+      icon: SearchCheck,
+      value: String(investigations.length),
+      note: activeCount > 0 ? `${activeCount} active` : "None active",
+    },
+    {
+      label: "Overdue",
+      icon: Clock,
+      value: String(overdueCount),
+      note: overdueCount > 0 ? "Active cases past their due date" : "No overdue case",
+      tone: overdueCount > 0 ? "warning" : "default",
+    },
+  ];
+
+  const evidenceColumns = buildEvidenceColumns();
 
   return (
     <div className="page-stack">
-      <Link
-        href="/anomaly-control"
-        className="request-back-link"
-      >
-        <ArrowLeft
-          size={16}
-        />
+      <Link href="/anomaly-control" className="request-back-link">
+        <ArrowLeft size={16} />
         Anomaly control
       </Link>
 
       <section className="anomaly-detail-heading">
         <div>
           <div className="request-detail-heading__meta">
-            <span>
-              {finding.ruleCode}
-            </span>
+            <span>{finding.ruleCode}</span>
 
-            <span
-              className={
-                `anomaly-severity anomaly-severity--${finding.severity.toLowerCase()}`
-              }
-            >
-              {finding.severity}
-            </span>
+            <LevelBadge level={String(finding.severity)} />
 
-            <span
-              className={
-                `anomaly-status anomaly-status--${finding.status.toLowerCase().replaceAll("_", "-")}`
-              }
-            >
-              {readable(
-                finding.status,
-              )}
-            </span>
+            <StatusBadge value={String(finding.status)} label={readable(String(finding.status))} />
           </div>
 
-          <h1>
-            {finding.ruleTitle}
-          </h1>
+          <h1>{finding.ruleTitle}</h1>
 
           <p>
-            {readable(
-              finding.signalType,
-            )}
+            {readable(String(finding.signalType))}
             {" · "}
-            {finding.entityReference ??
-              finding.entityId}
+            {finding.entityReference ?? finding.entityId}
           </p>
         </div>
 
         <div className="anomaly-score-card">
-          <span>
-            Anomaly score
-          </span>
+          <span>Anomaly score</span>
 
-          <strong>
-            {finding.anomalyScore.toFixed(
-              0,
-            )}
-          </strong>
+          <strong>{finding.anomalyScore.toFixed(0)}</strong>
         </div>
       </section>
 
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
+        <button
+          type="button"
+          className="button button--secondary"
+          onClick={reload}
+          disabled={fetching}
+        >
+          <RefreshCw size={15} className={fetching ? "kit-spin" : undefined} />
+          Refresh
+        </button>
+
+        {canInvestigate && findingOpen && !activeInvestigation ? (
+          <button
+            type="button"
+            className="button button--primary"
+            disabled={busyAny}
+            onClick={() => setOpening(true)}
+          >
+            <SearchCheck size={16} />
+            Open investigation
+          </button>
+        ) : null}
+      </div>
+
       {error ? (
         <div className="error-banner">
-          <CircleAlert
-            size={18}
-          />
-          {error}
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button type="button" className="kit-banner-action" onClick={reload}>
+            Try again
+          </button>
         </div>
       ) : null}
+
+      {canInvestigate && findingOpen && !activeInvestigation ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
+
+          <div>
+            <strong>No investigation is open.</strong> Open an investigation to confirm, dismiss or
+            resolve this signal. Otherwise it stays open until a future scan resolves it.
+          </div>
+        </div>
+      ) : null}
+
+      {overdueCount > 0 ? (
+        <div className="kit-callout kit-callout--warning" role="status">
+          <AlertTriangle size={17} />
+
+          <div>
+            <strong>
+              {overdueCount} {overdueCount === 1 ? "investigation is" : "investigations are"}{" "}
+              overdue.
+            </strong>{" "}
+            Add the missing evidence and close or cancel {overdueCount === 1 ? "it" : "them"}.
+          </div>
+        </div>
+      ) : null}
+
+      {activeInvestigation && canInvestigate && !canDispose ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
+
+          <div>
+            <strong>You can add evidence to the active case.</strong> A procurement manager or
+            administrator needs to close and dispose it.
+          </div>
+        </div>
+      ) : null}
+
+      <KpiGrid items={kpis} ariaLabel="Finding summary" />
 
       <section className="anomaly-detail-grid">
         <section className="panel">
           <div className="panel__header">
             <div>
-              <span className="eyebrow">
-                Control evidence
-              </span>
+              <span className="eyebrow">Control evidence</span>
 
-              <h2>
-                Detection details
-              </h2>
+              <h2>Detection details</h2>
             </div>
 
-            <SearchCheck
-              size={19}
-            />
+            <SearchCheck size={19} />
           </div>
 
           <div className="anomaly-evidence-grid">
             <div>
-              <span>
-                Entity type
-              </span>
+              <span>Entity type</span>
 
-              <strong>
-                {readable(
-                  finding.entityType,
-                )}
-              </strong>
+              <strong>{readable(String(finding.entityType))}</strong>
             </div>
 
             <div>
-              <span>
-                Reference
-              </span>
+              <span>Reference</span>
 
-              <strong>
-                {finding.entityReference ??
-                  "—"}
-              </strong>
+              <strong>{finding.entityReference ?? "—"}</strong>
             </div>
 
             <div>
-              <span>
-                Metric
-              </span>
+              <span>First detected</span>
 
-              <strong>
-                {finding.metricValue !==
-                null
-                  ? finding.metricValue.toFixed(
-                      2,
-                    )
-                  : "—"}
-              </strong>
+              <strong>{formatDateTime(finding.detectedAt)}</strong>
             </div>
 
             <div>
-              <span>
-                Exposure
-              </span>
+              <span>Last detected</span>
 
-              <strong>
-                {finding.exposureValue !==
-                null
-                  ? finding.currency
-                    ? money(
-                        finding.exposureValue,
-                        finding.currency,
-                      )
-                    : finding.exposureValue.toFixed(
-                        2,
-                      )
-                  : "—"}
-              </strong>
-            </div>
-
-            <div>
-              <span>
-                First detected
-              </span>
-
-              <strong>
-                {new Date(
-                  finding.detectedAt,
-                )
-                  .toLocaleString()}
-              </strong>
-            </div>
-
-            <div>
-              <span>
-                Last detected
-              </span>
-
-              <strong>
-                {new Date(
-                  finding.lastSeenAt,
-                )
-                  .toLocaleString()}
-              </strong>
+              <strong>{formatDateTime(finding.lastSeenAt)}</strong>
             </div>
           </div>
 
-          <div className="anomaly-details-text">
-            {finding.details}
-          </div>
+          <div className="anomaly-details-text">{finding.details}</div>
 
           <div className="anomaly-not-proof">
-            <ShieldAlert
-              size={15}
-            />
+            <ShieldAlert size={15} />
 
             <span>
-              This anomaly is a control
-              indicator, not a conclusion
-              of fraud or misconduct.
+              This anomaly is a control indicator, not a conclusion of fraud or misconduct.
             </span>
           </div>
         </section>
@@ -771,211 +1003,76 @@ export default function AnomalyFindingPage() {
         <section className="panel">
           <div className="panel__header">
             <div>
-              <span className="eyebrow">
-                Disposition
-              </span>
+              <span className="eyebrow">Disposition</span>
 
-              <h2>
-                Control status
-              </h2>
+              <h2>Control status</h2>
             </div>
 
-            <FileWarning
-              size={19}
-            />
+            <FileWarning size={19} />
           </div>
 
           <div className="anomaly-disposition-card">
-            <span>
-              {readable(
-                finding.status,
-              )}
-            </span>
+            <StatusBadge value={String(finding.status)} label={readable(String(finding.status))} />
 
             {finding.dispositionNote ? (
               <>
-                <strong>
-                  {finding.dispositionNote}
-                </strong>
+                <strong>{finding.dispositionNote}</strong>
 
                 <small>
-                  {finding.disposedByName ??
-                    "Automated control engine"}
-                  {finding.disposedAt
-                    ? ` · ${new Date(
-                        finding.disposedAt,
-                      ).toLocaleString()}`
-                    : ""}
+                  {finding.disposedByName ?? "Automated control engine"}
+                  {finding.disposedAt ? ` · ${formatDateTime(finding.disposedAt)}` : ""}
                 </small>
               </>
             ) : (
               <p>
-                The finding remains open
-                until automatically
-                resolved by a future scan
-                or explicitly investigated
-                and disposed.
+                The finding remains open until automatically resolved by a future scan or
+                explicitly investigated and disposed.
               </p>
             )}
           </div>
         </section>
       </section>
 
-      {canInvestigate &&
-      finding.status ===
-        "OPEN" &&
-      !activeInvestigation ? (
-        <form
-          className="panel"
-          onSubmit={createInvestigation}
-        >
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Investigation workflow
-              </span>
-
-              <h2>
-                Open investigation
-              </h2>
-            </div>
-
-            <FilePlus2
-              size={19}
-            />
-          </div>
-
-          <div className="anomaly-investigation-form">
-            <label className="request-field">
-              <span>
-                Owner
-              </span>
-
-              <select
-                value={ownerUserId}
-                onChange={
-                  event =>
-                    setOwnerUserId(
-                      event.target.value,
-                    )
-                }
-              >
-                {context
-                  ?.users
-                  .filter(
-                    candidate =>
-                      candidate.role !==
-                      "REQUESTER",
-                  )
-                  .map(
-                    candidate => (
-                      <option
-                        key={candidate.id}
-                        value={candidate.id}
-                      >
-                        {candidate.fullName}
-                        {" — "}
-                        {candidate.role}
-                      </option>
-                    ),
-                  )}
-              </select>
-            </label>
-
-            <label className="request-field">
-              <span>
-                Priority
-              </span>
-
-              <select
-                value={priority}
-                onChange={
-                  event =>
-                    setPriority(
-                      event.target.value as
-                        InvestigationPriority,
-                    )
-                }
-              >
-                <option value="LOW">
-                  Low
-                </option>
-
-                <option value="MEDIUM">
-                  Medium
-                </option>
-
-                <option value="HIGH">
-                  High
-                </option>
-
-                <option value="CRITICAL">
-                  Critical
-                </option>
-              </select>
-            </label>
-
-            <label className="request-field">
-              <span>
-                Due date
-              </span>
-
-              <input
-                required
-                type="date"
-                value={dueDate}
-                onChange={
-                  event =>
-                    setDueDate(
-                      event.target.value,
-                    )
-                }
-              />
-            </label>
-          </div>
-
-          <div className="anomaly-form-actions">
-            <button
-              type="submit"
-              className="button button--primary"
-              disabled={running}
-            >
-              <SearchCheck
-                size={16}
-              />
-              Open investigation
-            </button>
-          </div>
-        </form>
-      ) : null}
-
       <section className="panel">
         <div className="panel__header">
           <div>
-            <span className="eyebrow">
-              Case management
-            </span>
+            <span className="eyebrow">Case management</span>
 
-            <h2>
-              Investigations
-            </h2>
+            <h2>Investigations</h2>
           </div>
 
-          <SearchCheck
-            size={19}
-          />
+          {canInvestigate && findingOpen && !activeInvestigation ? (
+            <button
+              type="button"
+              className="button button--secondary"
+              disabled={busyAny}
+              onClick={() => setOpening(true)}
+            >
+              <SearchCheck size={15} />
+              Open investigation
+            </button>
+          ) : (
+            <SearchCheck size={19} />
+          )}
         </div>
 
-        {investigations.length ===
-        0 ? (
-          <div className="anomaly-empty">
-            No investigation has been
-            opened for this signal.
-          </div>
+        {orderedInvestigations.length === 0 ? (
+          <EmptyState
+            icon={SearchCheck}
+            title="No investigations"
+            description="No investigation has been opened for this signal."
+          />
         ) : (
           <div className="anomaly-investigation-list">
-            {investigations.map(
-              investigation => (
+            {orderedInvestigations.map((investigation) => {
+              const active = isActive(investigation);
+              const starting = workingId === String(investigation.id);
+
+              const evidenceRows = [...investigation.evidence].sort((a, b) =>
+                b.createdAt.localeCompare(a.createdAt),
+              );
+
+              return (
                 <article
                   key={investigation.id}
                   className={
@@ -986,353 +1083,165 @@ export default function AnomalyFindingPage() {
                 >
                   <div className="anomaly-investigation-heading">
                     <div>
-                      <span
-                        className={
-                          `anomaly-investigation-status anomaly-investigation-status--${investigation.status.toLowerCase().replaceAll("_", "-")}`
-                        }
-                      >
-                        {readable(
-                          investigation.status,
-                        )}
-                      </span>
+                      <div className="request-detail-heading__meta">
+                        <InvestigationBadge status={String(investigation.status)} />
 
-                      <strong>
-                        {investigation.caseNumber}
-                      </strong>
+                        <LevelBadge level={String(investigation.priority)} />
+                      </div>
 
-                      <small>
-                        Owner:
-                        {" "}
-                        {investigation.ownerName}
-                        {" · Priority: "}
-                        {investigation.priority}
-                      </small>
+                      <strong>{investigation.caseNumber}</strong>
+
+                      <small>Owner: {investigation.ownerName}</small>
                     </div>
 
                     <div>
-                      <span>
-                        Due
-                      </span>
+                      <span>Due</span>
 
-                      <strong
-                        className={
-                          investigation.overdue
-                            ? "anomaly-overdue"
-                            : ""
-                        }
-                      >
-                        {new Date(
-                          `${investigation.dueDate}T00:00:00`,
-                        )
-                          .toLocaleDateString()}
+                      <strong className={investigation.overdue ? "kit-text-danger" : undefined}>
+                        {formatDate(investigation.dueDate)}
                       </strong>
                     </div>
                   </div>
 
                   {investigation.conclusion ? (
-                    <div className="anomaly-conclusion">
-                      {investigation.conclusion}
-                    </div>
+                    <div className="anomaly-conclusion">{investigation.conclusion}</div>
                   ) : null}
 
-                  <div className="anomaly-evidence-list">
-                    {investigation.evidence.map(
-                      evidence => (
-                        <div
-                          key={evidence.id}
-                        >
-                          <span>
-                            {readable(
-                              evidence.evidenceType,
-                            )}
-                          </span>
+                  {evidenceRows.length > 0 ? (
+                    <DataTable
+                      columns={evidenceColumns}
+                      rows={evidenceRows}
+                      getRowId={(item) => String(item.id)}
+                      ariaLabel={`Evidence for ${investigation.caseNumber}`}
+                      busy={fetching}
+                    />
+                  ) : (
+                    <p className="kit-meta-line">No evidence has been added to this case yet.</p>
+                  )}
 
-                          <strong>
-                            {evidence.referenceText}
-                          </strong>
-
-                          <small>
-                            {evidence.addedByName}
-                            {" · "}
-                            {new Date(
-                              evidence.createdAt,
-                            )
-                              .toLocaleString()}
-                          </small>
-                        </div>
-                      ),
-                    )}
-                  </div>
-
-                  {canInvestigate &&
-                  (
-                    investigation.status ===
-                      "OPEN"
-                    ||
-                    investigation.status ===
-                      "IN_PROGRESS"
-                  ) ? (
-                    <div className="anomaly-investigation-controls">
-                      {investigation.status ===
-                      "OPEN" ? (
-                        <button
-                          type="button"
-                          disabled={running}
-                          onClick={
-                            () =>
-                              void startInvestigation(
-                                investigation,
-                              )
-                          }
-                        >
-                          <Play
-                            size={14}
-                          />
-                          Start
-                        </button>
-                      ) : null}
-
-                      <select
-                        value={
-                          evidenceTypes[
-                            investigation.id
-                          ]
-                          ??
-                          "NOTE"
-                        }
-                        onChange={
-                          event =>
-                            setEvidenceTypes(
-                              current => ({
-                                ...current,
-                                [investigation.id]:
-                                  event.target.value as
-                                    InvestigationEvidenceType,
-                              }),
-                            )
-                        }
-                      >
-                        <option value="NOTE">
-                          Note
-                        </option>
-
-                        <option value="TRANSACTION_REFERENCE">
-                          Transaction reference
-                        </option>
-
-                        <option value="DOCUMENT_REFERENCE">
-                          Document reference
-                        </option>
-
-                        <option value="CONTROL_TEST">
-                          Control test
-                        </option>
-                      </select>
-
-                      <input
-                        value={
-                          evidenceTexts[
-                            investigation.id
-                          ]
-                          ??
-                          ""
-                        }
-                        placeholder={
-                          "Investigation evidence"
-                        }
-                        onChange={
-                          event =>
-                            setEvidenceTexts(
-                              current => ({
-                                ...current,
-                                [investigation.id]:
-                                  event.target.value,
-                              }),
-                            )
-                        }
-                      />
-
-                      <button
-                        type="button"
-                        disabled={
-                          running
-                          ||
-                          !(
-                            evidenceTexts[
-                              investigation.id
-                            ]
-                            ??
-                            ""
-                          )
-                            .trim()
-                        }
-                        onClick={
-                          () =>
-                            void addEvidence(
-                              investigation,
-                            )
-                        }
-                      >
-                        <FilePlus2
-                          size={14}
-                        />
-                        Add evidence
-                      </button>
-                    </div>
-                  ) : null}
-
-                  {canDispose &&
-                  (
-                    investigation.status ===
-                      "OPEN"
-                    ||
-                    investigation.status ===
-                      "IN_PROGRESS"
-                  ) ? (
-                    <div className="anomaly-disposition-controls">
-                      <select
-                        value={
-                          closeDisposition[
-                            investigation.id
-                          ]
-                          ??
-                          "RESOLVED"
-                        }
-                        onChange={
-                          event =>
-                            setCloseDisposition(
-                              current => ({
-                                ...current,
-                                [investigation.id]:
-                                  event.target.value as
-                                    InvestigationDisposition,
-                              }),
-                            )
-                        }
-                      >
-                        <option value="CONFIRMED">
-                          Confirm anomaly
-                        </option>
-
-                        <option value="DISMISSED">
-                          Dismiss signal
-                        </option>
-
-                        <option value="RESOLVED">
-                          Resolved control issue
-                        </option>
-                      </select>
-
-                      <textarea
-                        rows={3}
-                        value={
-                          closeNotes[
-                            investigation.id
-                          ]
-                          ??
-                          ""
-                        }
-                        placeholder={
-                          "Investigation conclusion / rationale"
-                        }
-                        onChange={
-                          event =>
-                            setCloseNotes(
-                              current => ({
-                                ...current,
-                                [investigation.id]:
-                                  event.target.value,
-                              }),
-                            )
-                        }
-                      />
-
-                      <div>
+                  {active && canInvestigate ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 10,
+                        alignItems: "center",
+                        marginTop: 12,
+                      }}
+                    >
+                      {investigation.status === "OPEN" ? (
                         <button
                           type="button"
                           className="button button--secondary"
-                          disabled={
-                            running
-                            ||
-                            !(
-                              closeNotes[
-                                investigation.id
-                              ]
-                              ??
-                              ""
-                            )
-                              .trim()
-                          }
-                          onClick={
-                            () =>
-                              void cancelInvestigation(
-                                investigation,
-                              )
-                          }
+                          disabled={busyAny}
+                          onClick={() => void startInvestigation(investigation)}
                         >
-                          <XCircle
-                            size={16}
-                          />
-                          Cancel case
+                          <Play size={14} />
+                          {starting ? "Starting…" : "Start"}
                         </button>
+                      ) : null}
 
-                        <button
-                          type="button"
-                          className="button button--primary"
-                          disabled={
-                            running
-                            ||
-                            !(
-                              closeNotes[
-                                investigation.id
-                              ]
-                              ??
-                              ""
-                            )
-                              .trim()
-                          }
-                          onClick={
-                            () =>
-                              void closeInvestigation(
-                                investigation,
-                              )
-                          }
-                        >
-                          <BadgeCheck
-                            size={16}
-                          />
-                          Close & dispose
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        className="button button--secondary"
+                        disabled={busyAny}
+                        onClick={() => setEvidenceId(String(investigation.id))}
+                      >
+                        <FilePlus2 size={14} />
+                        Add evidence
+                      </button>
+
+                      {canDispose ? (
+                        <>
+                          <button
+                            type="button"
+                            className="button button--secondary request-cancel-button"
+                            disabled={busyAny}
+                            onClick={() => {
+                              setCancelError(null);
+                              setCancelId(String(investigation.id));
+                            }}
+                          >
+                            <XCircle size={14} />
+                            Cancel case
+                          </button>
+
+                          <button
+                            type="button"
+                            className="button button--primary"
+                            disabled={busyAny}
+                            onClick={() => setCloseId(String(investigation.id))}
+                          >
+                            <BadgeCheck size={14} />
+                            Close & dispose
+                          </button>
+                        </>
+                      ) : null}
                     </div>
                   ) : null}
                 </article>
-              ),
-            )}
+              );
+            })}
           </div>
         )}
       </section>
 
       <section className="anomaly-control-note">
-        <AlertTriangle
-          size={18}
-        />
+        <AlertTriangle size={18} />
 
         <div>
-          <strong>
-            Governed interpretation
-          </strong>
+          <strong>Governed interpretation</strong>
 
           <p>
-            A deterministic anomaly
-            score is a prioritization
-            signal. Confirmation requires
-            an explicit investigation,
-            supporting evidence and a
-            controlled disposition.
+            A deterministic anomaly score is a prioritization signal. Confirmation requires an
+            explicit investigation, supporting evidence and a controlled disposition.
           </p>
         </div>
       </section>
+
+      {opening ? (
+        <OpenInvestigationModal
+          findingId={params.id}
+          owners={owners}
+          onClose={() => setOpening(false)}
+          onSaved={handleOpened}
+        />
+      ) : null}
+
+      {evidenceTarget !== null ? (
+        <AddEvidenceModal
+          investigation={evidenceTarget}
+          onClose={() => setEvidenceId(null)}
+          onSaved={() => handleEvidenceAdded(evidenceTarget)}
+        />
+      ) : null}
+
+      {closeTarget !== null ? (
+        <CloseCaseModal
+          investigation={closeTarget}
+          onClose={() => setCloseId(null)}
+          onSaved={(label) => handleClosed(closeTarget, label)}
+        />
+      ) : null}
+
+      {cancelTarget !== null ? (
+        <RationaleDialog
+          eyebrow="Case management"
+          title="Cancel this case"
+          description={`${cancelTarget.caseNumber} will be cancelled without a disposition.`}
+          label="Cancellation rationale"
+          placeholder="Why is this case being cancelled?"
+          confirmLabel="Cancel case"
+          busyLabel="Cancelling…"
+          cancelLabel="Keep case"
+          tone="danger"
+          maxLength={2000}
+          busy={cancelRunning}
+          error={cancelError}
+          onConfirm={(note) => void confirmCancel(note)}
+          onCancel={() => setCancelId(null)}
+        />
+      ) : null}
     </div>
   );
 }

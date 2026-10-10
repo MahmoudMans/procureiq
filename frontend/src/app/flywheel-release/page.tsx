@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {
   CircleAlert,
   WalletCards,
@@ -394,7 +396,7 @@ export default function FlywheelReleasePage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Mandate</th>
@@ -505,7 +507,7 @@ export default function FlywheelReleasePage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
@@ -684,7 +686,7 @@ export default function FlywheelReleasePage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Release</th>
@@ -795,7 +797,7 @@ export default function FlywheelReleasePage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 

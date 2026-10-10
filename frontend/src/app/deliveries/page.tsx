@@ -5,86 +5,179 @@ import {
   Boxes,
   CheckCircle2,
   CircleAlert,
-  Clock3,
+  Download,
+  PackageSearch,
+  RefreshCw,
+  SearchX,
+  ShieldAlert,
   Truck,
 } from "lucide-react";
-
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+  type Column,
+  DataTable,
+  EmptyState,
+  KpiGrid,
+  type KpiItem,
+  SearchField,
+  SegmentedFilter,
+  type SegmentedOption,
+  StatusBadge,
+  downloadCsv,
+  formatDate,
+  formatMoney,
+  timeOf,
+  todayIso,
+  useToast,
+} from "@/components/kit";
+import { getDeliverySummary, getPurchaseOrders } from "@/lib/api";
+import type { DeliverySummary } from "@/types/delivery";
+import type { PurchaseOrder } from "@/types/purchase-order";
 
-import {
-  useAuth,
-} from "@/components/auth/auth-provider";
+/* ------------------------------------------------------------------ */
+/* Constants & helpers                                                 */
+/* ------------------------------------------------------------------ */
 
-import {
-  getDeliverySummary,
-  getPurchaseOrders,
-} from "@/lib/api";
+const ALLOWED_ROLES = ["ADMIN", "PROCUREMENT_MANAGER", "BUYER"];
 
-import type {
-  DeliverySummary,
-} from "@/types/delivery";
+/** Orders that belong on the delivery board. */
+const TRACKED: string[] = ["ISSUED", "PARTIALLY_RECEIVED", "RECEIVED"];
 
-import type {
-  PurchaseOrder,
-} from "@/types/purchase-order";
+/** Orders where goods are still expected. */
+const AWAITING: string[] = ["ISSUED", "PARTIALLY_RECEIVED"];
 
-const TODAY_ISO =
-  new Date()
-    .toISOString()
-    .slice(
-      0,
-      10,
-    );
+const integer = new Intl.NumberFormat("en-US");
+
+function isLate(order: PurchaseOrder, today: string): boolean {
+  return AWAITING.includes(order.status) && order.expectedDeliveryDate < today;
+}
+
+function daysLate(expected: string, today: string): number {
+  const now = timeOf(today);
+  const due = timeOf(expected);
+
+  if (now === null || due === null) {
+    return 0;
+  }
+
+  return Math.max(Math.round((now - due) / 86_400_000), 0);
+}
+
+/** Open orders first (soonest date on top), then received orders (newest first). */
+function byUrgency(a: PurchaseOrder, b: PurchaseOrder): number {
+  const aOpen = AWAITING.includes(a.status);
+  const bOpen = AWAITING.includes(b.status);
+
+  if (aOpen !== bOpen) {
+    return aOpen ? -1 : 1;
+  }
+
+  return aOpen
+    ? a.expectedDeliveryDate.localeCompare(b.expectedDeliveryDate)
+    : b.expectedDeliveryDate.localeCompare(a.expectedDeliveryDate);
+}
+
+function buildColumns(today: string): Column<PurchaseOrder>[] {
+  return [
+    {
+      id: "order",
+      header: "Purchase order",
+      sortValue: (order) => order.poNumber,
+      cell: (order) => (
+        <div className="request-primary-cell">
+          <strong>
+            <Link href={`/purchase-orders/${order.id}`} className="supplier-360-link">
+              {order.poNumber}
+            </Link>
+          </strong>
+
+          <span>{order.rfqNumber}</span>
+        </div>
+      ),
+    },
+    {
+      id: "supplier",
+      header: "Supplier",
+      sortValue: (order) => order.supplierName.toLowerCase(),
+      cell: (order) => (
+        <div className="stacked-cell">
+          <strong>{order.supplierName}</strong>
+          <span>{order.supplierCode}</span>
+        </div>
+      ),
+    },
+    {
+      id: "delivery",
+      header: "Expected delivery",
+      sortValue: (order) => order.expectedDeliveryDate,
+      cell: (order) => (
+        <div className="kit-cell-stack">
+          <span>{formatDate(order.expectedDeliveryDate)}</span>
+
+          {isLate(order, today) ? (
+            <small className="kit-cell-flag">
+              Overdue by {daysLate(order.expectedDeliveryDate, today)}d
+            </small>
+          ) : null}
+        </div>
+      ),
+    },
+    {
+      id: "status",
+      header: "Status",
+      sortValue: (order) => order.status,
+      cell: (order) => <StatusBadge value={order.status} />,
+    },
+    {
+      id: "value",
+      header: "Value",
+      align: "right",
+      sortValue: (order) => order.totalAmount,
+      firstSort: "desc",
+      cell: (order) => (
+        <strong className="kit-num">
+          {formatMoney(order.totalAmount, order.currency)}
+        </strong>
+      ),
+    },
+    {
+      id: "action",
+      header: <span className="kit-sr-only">Actions</span>,
+      align: "right",
+      width: 80,
+      cell: (order) => (
+        <Link href={`/purchase-orders/${order.id}`} className="table-action">
+          {order.status === "RECEIVED" ? "View" : "Receive"}
+        </Link>
+      ),
+    },
+  ];
+}
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
 
 export default function DeliveriesPage() {
-  const {
-    user,
-  } = useAuth();
+  const { user } = useAuth();
+  const toast = useToast();
 
-  const [
-    orders,
-    setOrders,
-  ] =
-    useState<PurchaseOrder[]>(
-      [],
-    );
+  const allowed = user !== null && ALLOWED_ROLES.includes(user.role);
 
-  const [
-    summary,
-    setSummary,
-  ] =
-    useState<
-      DeliverySummary |
-      null
-    >(null);
+  const [today] = useState(() => todayIso());
+  const columns = useMemo(() => buildColumns(today), [today]);
 
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
-
-  const [
-    error,
-    setError,
-  ] =
-    useState<string | null>(
-      null,
-    );
-
-  const allowed =
-    user?.role ===
-      "ADMIN" ||
-    user?.role ===
-      "PROCUREMENT_MANAGER" ||
-    user?.role ===
-      "BUYER";
+  const [orders, setOrders] = useState<PurchaseOrder[] | null>(null);
+  const [summary, setSummary] = useState<DeliverySummary | null>(null);
+  const [summaryFailed, setSummaryFailed] = useState(false);
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState("");
+  const [fetching, setFetching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!allowed) {
@@ -93,556 +186,284 @@ export default function DeliveriesPage() {
 
     let active = true;
 
-    Promise.all([
-      getPurchaseOrders(),
-      getDeliverySummary(),
-    ])
-      .then(
-        ([
-          orderResponse,
-          summaryResponse,
-        ]) => {
-          if (!active) {
-            return;
-          }
+    const timer = window.setTimeout(async () => {
+      setFetching(true);
+      setError(null);
+      setSummaryFailed(false);
 
-          setOrders(
-            orderResponse,
-          );
+      const [orderResult, summaryResult] = await Promise.allSettled([
+        getPurchaseOrders(),
+        getDeliverySummary(),
+      ]);
 
-          setSummary(
-            summaryResponse,
-          );
+      if (!active) {
+        return;
+      }
 
-          setError(
-            null,
-          );
-        },
-      )
-      .catch(
-        caughtError => {
-          if (!active) {
-            return;
-          }
+      if (orderResult.status === "fulfilled") {
+        setOrders(orderResult.value);
+      } else {
+        setError(
+          orderResult.reason instanceof Error
+            ? orderResult.reason.message
+            : "Unable to load delivery operations.",
+        );
+      }
 
-          setError(
-            caughtError instanceof
-              Error
-              ? caughtError
-                  .message
-              : "Unable to load delivery operations.",
-          );
-        },
-      )
-      .finally(
-        () => {
-          if (active) {
-            setLoading(
-              false,
-            );
-          }
-        },
-      );
+      if (summaryResult.status === "fulfilled") {
+        setSummary(summaryResult.value);
+      } else {
+        setSummaryFailed(true);
+      }
+
+      setFetching(false);
+    }, 0);
 
     return () => {
       active = false;
+      window.clearTimeout(timer);
     };
-  }, [
-    allowed,
-  ]);
+  }, [allowed, reloadKey]);
 
-  const deliveryOrders =
-    useMemo(
-      () =>
-        orders.filter(
-          order =>
-            order.status ===
-              "ISSUED" ||
-            order.status ===
-              "PARTIALLY_RECEIVED" ||
-            order.status ===
-              "RECEIVED",
-        ),
-      [orders],
-    );
+  const tracked = useMemo(
+    () => (orders ?? []).filter((order) => TRACKED.includes(order.status)),
+    [orders],
+  );
+
+  const rows = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+
+    return tracked
+      .filter((order) =>
+        filter === "OVERDUE"
+          ? isLate(order, today)
+          : !filter || order.status === filter,
+      )
+      .filter(
+        (order) =>
+          !normalized ||
+          [order.poNumber, order.rfqNumber, order.supplierName, order.supplierCode]
+            .join(" ")
+            .toLowerCase()
+            .includes(normalized),
+      )
+      .sort(byUrgency);
+  }, [tracked, query, filter, today]);
 
   if (!allowed) {
     return (
-      <div
-        className={
-          "page-stack"
-        }
-      >
-        <div
-          className={
-            "error-banner"
-          }
-        >
-          Your role cannot
-          access delivery operations.
-        </div>
+      <div className="page-stack">
+        <section className="panel">
+          <EmptyState
+            icon={ShieldAlert}
+            title="Access restricted"
+            description="Your role cannot access delivery operations."
+          />
+        </section>
       </div>
     );
   }
 
-  return (
-    <div
-      className={
-        "page-stack"
-      }
-    >
-      <section
-        className={
-          "page-heading"
-        }
-      >
-        <div>
-          <span
-            className={
-              "eyebrow"
-            }
-          >
-            Order fulfillment
-          </span>
+  const initialLoad = orders === null && error === null;
+  const hasFilters = query.trim() !== "" || filter !== "";
+  const overdueCount = tracked.filter((order) => isLate(order, today)).length;
 
-          <h1>
-            Deliveries
-          </h1>
+  const filterOptions: SegmentedOption[] = [
+    { value: "", label: "All" },
+    {
+      value: "OVERDUE",
+      label: overdueCount > 0 ? `Overdue · ${overdueCount}` : "Overdue",
+    },
+    { value: "ISSUED", label: "Issued" },
+    { value: "PARTIALLY_RECEIVED", label: "Partially received" },
+    { value: "RECEIVED", label: "Received" },
+  ];
+
+  function clearFilters() {
+    setQuery("");
+    setFilter("");
+  }
+
+  function exportCsv() {
+    downloadCsv(
+      `procureiq-deliveries-${new Date().toISOString().slice(0, 10)}.csv`,
+      [
+        "PO number",
+        "Supplier",
+        "Supplier code",
+        "Source RFQ",
+        "Expected delivery",
+        "Status",
+        "Overdue",
+        "Currency",
+        "Total",
+      ],
+      rows.map((order) => [
+        order.poNumber,
+        order.supplierName,
+        order.supplierCode,
+        order.rfqNumber,
+        order.expectedDeliveryDate,
+        order.status,
+        isLate(order, today) ? "Yes" : "No",
+        order.currency,
+        order.totalAmount,
+      ]),
+    );
+
+    toast.success(
+      "Deliveries exported",
+      `${rows.length} ${rows.length === 1 ? "row" : "rows"} saved as CSV.`,
+    );
+  }
+
+  const overdueOrders = summary?.overdueOrders ?? 0;
+
+  const kpis: KpiItem[] = [
+    {
+      label: "Goods receipts",
+      icon: Truck,
+      value: summary ? integer.format(summary.totalReceipts) : "—",
+      note: "Recorded physical delivery events.",
+    },
+    {
+      label: "Open deliveries",
+      icon: Boxes,
+      value: summary ? integer.format(summary.openOrders) : "—",
+      note: "Issued or partially received purchase orders.",
+    },
+    {
+      label: "Overdue orders",
+      icon: AlertTriangle,
+      value: summary ? integer.format(overdueOrders) : "—",
+      note: "Open commitments past expected delivery.",
+      tone: overdueOrders > 0 ? "warning" : "default",
+    },
+    {
+      label: "Completed",
+      icon: CheckCircle2,
+      value: summary ? integer.format(summary.completedOrders) : "—",
+      note: "Fully received purchase orders.",
+    },
+  ];
+
+  const emptyNode = hasFilters ? (
+    <EmptyState
+      icon={SearchX}
+      title="No orders match these filters"
+      description="Try a different search term or status, or clear the filters."
+      action={
+        <button
+          type="button"
+          className="button button--secondary"
+          onClick={clearFilters}
+        >
+          Clear filters
+        </button>
+      }
+    />
+  ) : (
+    <EmptyState
+      icon={PackageSearch}
+      title="No orders to track yet"
+      description="Issued purchase orders appear here so you can record receipts as goods arrive."
+      action={
+        <Link href="/purchase-orders" className="button button--secondary">
+          Go to purchase orders
+        </Link>
+      }
+    />
+  );
+
+  return (
+    <div className="page-stack">
+      <section className="page-heading">
+        <div>
+          <span className="eyebrow">Order fulfillment</span>
+
+          <h1>Deliveries</h1>
 
           <p>
-            Track supplier fulfillment,
-            partial receipts, overdue
-            orders and completed
-            deliveries.
+            Track supplier fulfillment, partial receipts, overdue orders and
+            completed deliveries.
           </p>
+        </div>
+
+        <div className="page-heading__actions">
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={() => setReloadKey((key) => key + 1)}
+            disabled={fetching}
+          >
+            <RefreshCw size={15} className={fetching ? "kit-spin" : undefined} />
+            Refresh
+          </button>
+
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={exportCsv}
+            disabled={rows.length === 0}
+          >
+            <Download size={15} />
+            Export CSV
+          </button>
         </div>
       </section>
 
+      <KpiGrid
+        items={kpis}
+        loading={summary === null && !summaryFailed}
+        ariaLabel="Delivery totals"
+      />
+
+      <div className="kit-toolbar">
+        <SearchField
+          value={query}
+          onChange={setQuery}
+          placeholder="Search PO, supplier or RFQ"
+          ariaLabel="Search deliveries"
+          shortcut
+        />
+
+        <SegmentedFilter
+          options={filterOptions}
+          value={filter}
+          onChange={setFilter}
+          ariaLabel="Filter deliveries"
+        />
+      </div>
+
       {error ? (
-        <div
-          className={
-            "error-banner"
-          }
-        >
-          <CircleAlert
-            size={18}
-          />
-          {error}
+        <div className="error-banner">
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button
+            type="button"
+            className="kit-banner-action"
+            onClick={() => setReloadKey((key) => key + 1)}
+          >
+            Try again
+          </button>
         </div>
       ) : null}
 
-      <section
-        className={
-          "delivery-kpi-grid"
-        }
-      >
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <Truck
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Goods receipts
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value"
-            }
-          >
-            {
-              summary
-                ?.totalReceipts ??
-              "—"
-            }
-          </strong>
-
-          <p>
-            Recorded physical
-            delivery events.
-          </p>
-        </article>
-
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <Boxes
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Open deliveries
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value"
-            }
-          >
-            {
-              summary
-                ?.openOrders ??
-              "—"
-            }
-          </strong>
-
-          <p>
-            Issued or partially
-            received purchase orders.
-          </p>
-        </article>
-
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <AlertTriangle
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Overdue orders
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value"
-            }
-          >
-            {
-              summary
-                ?.overdueOrders ??
-              "—"
-            }
-          </strong>
-
-          <p>
-            Open commitments past
-            expected delivery.
-          </p>
-        </article>
-
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <CheckCircle2
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Completed
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value"
-            }
-          >
-            {
-              summary
-                ?.completedOrders ??
-              "—"
-            }
-          </strong>
-
-          <p>
-            Fully received purchase
-            orders.
-          </p>
-        </article>
-      </section>
-
-      <section
-        className={
-          "panel delivery-list-panel"
-        }
-      >
-        <div
-          className={
-            "supplier-panel__summary"
-          }
-        >
-          <div>
-            <Clock3
-              size={18}
-            />
-
-            <span>
-              {loading
-                ? "Loading delivery operations..."
-                : `${
-                    deliveryOrders.length
-                  } tracked orders`}
-            </span>
-          </div>
-
-          <span>
-            Receiving control
-          </span>
-        </div>
-
-        <div
-          className={
-            "table-scroll"
-          }
-        >
-          <table
-            className={
-              "data-table delivery-table"
-            }
-          >
-            <thead>
-              <tr>
-                <th>
-                  Purchase order
-                </th>
-
-                <th>
-                  Supplier
-                </th>
-
-                <th>
-                  Expected delivery
-                </th>
-
-                <th>
-                  Status
-                </th>
-
-                <th>
-                  Value
-                </th>
-
-                <th />
-              </tr>
-            </thead>
-
-            <tbody>
-              {!loading &&
-                deliveryOrders.map(
-                  order => {
-                    const overdue =
-                      (
-                        order.status ===
-                          "ISSUED" ||
-                        order.status ===
-                          "PARTIALLY_RECEIVED"
-                      )
-                      &&
-                      order.expectedDeliveryDate <
-                        TODAY_ISO;
-
-                    return (
-                      <tr
-                        key={
-                          order.id
-                        }
-                      >
-                        <td>
-                          <div
-                            className={
-                              "request-primary-cell"
-                            }
-                          >
-                            <strong>
-                              {
-                                order
-                                  .poNumber
-                              }
-                            </strong>
-
-                            <span>
-                              {
-                                order
-                                  .rfqNumber
-                              }
-                            </span>
-                          </div>
-                        </td>
-
-                        <td>
-                          {
-                            order
-                              .supplierName
-                          }
-                        </td>
-
-                        <td>
-                          <div
-                            className={
-                              "delivery-date-cell"
-                            }
-                          >
-                            <span>
-                              {
-                                new Date(
-                                  `${order.expectedDeliveryDate}T00:00:00`,
-                                )
-                                  .toLocaleDateString()
-                              }
-                            </span>
-
-                            {overdue ? (
-                              <small>
-                                Overdue
-                              </small>
-                            ) : null}
-                          </div>
-                        </td>
-
-                        <td>
-                          <span
-                            className={
-                              `po-status po-status--${
-                                order.status
-                                  .toLowerCase()
-                              }`
-                            }
-                          >
-                            {
-                              order.status
-                                .replaceAll(
-                                  "_",
-                                  " ",
-                                )
-                            }
-                          </span>
-                        </td>
-
-                        <td>
-                          <strong>
-                            {
-                              new Intl
-                                .NumberFormat(
-                                  "en-US",
-                                  {
-                                    style:
-                                      "currency",
-                                    currency:
-                                      order
-                                        .currency,
-                                    maximumFractionDigits:
-                                      0,
-                                  },
-                                )
-                                .format(
-                                  order
-                                    .totalAmount,
-                                )
-                            }
-                          </strong>
-                        </td>
-
-                        <td>
-                          <Link
-                            href={
-                              `/purchase-orders/${order.id}`
-                            }
-                            className={
-                              "table-action"
-                            }
-                          >
-                            Receive
-                          </Link>
-                        </td>
-                      </tr>
-                    );
-                  },
-                )}
-
-              {!loading &&
-              deliveryOrders.length ===
-                0 ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className={
-                      "table-empty-state"
-                    }
-                  >
-                    No issued purchase
-                    orders are currently
-                    tracked for delivery.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      {error && orders === null ? null : (
+        <DataTable
+          columns={columns}
+          rows={rows}
+          getRowId={(order) => order.id}
+          ariaLabel="Tracked deliveries"
+          loading={initialLoad}
+          busy={fetching}
+          empty={emptyNode}
+          persistKey="deliveries"
+          resetKey={`${query}|${filter}`}
+        />
+      )}
     </div>
   );
 }

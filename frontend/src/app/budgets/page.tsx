@@ -1,27 +1,41 @@
 "use client";
 
 import {
-  AlertTriangle,
   Banknote,
   CircleAlert,
+  Download,
   Gauge,
   Landmark,
   Plus,
+  RefreshCw,
   SearchCheck,
+  SearchX,
   WalletCards,
 } from "lucide-react";
-
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import {
-  useEffect,
-  useState,
-} from "react";
-
-import {
-  useAuth,
-} from "@/components/auth/auth-provider";
-
+  type BadgeTone,
+  type Column,
+  DataTable,
+  EmptyState,
+  KpiGrid,
+  type KpiItem,
+  Meter,
+  SearchField,
+  SegmentedFilter,
+  type SegmentedOption,
+  SelectField,
+  type SelectOption,
+  StatusBadge,
+  downloadCsv,
+  formatMoney,
+  meterToneFor,
+  readable,
+  useToast,
+} from "@/components/kit";
 import {
   checkPurchaseRequestBudget,
   getBudgetAlerts,
@@ -29,7 +43,6 @@ import {
   getBudgetSummary,
   getBudgetUsage,
 } from "@/lib/api";
-
 import type {
   BudgetAlert,
   BudgetContextOptions,
@@ -38,224 +51,308 @@ import type {
   PurchaseRequestBudgetCheck,
 } from "@/types/budget";
 
-const CURRENT_YEAR =
-  new Date()
-    .getUTCFullYear();
+/* ------------------------------------------------------------------ */
+/* Constants & helpers                                                 */
+/* ------------------------------------------------------------------ */
 
-function money(
-  value: number,
-  currency: string,
-): string {
-  return new Intl
-    .NumberFormat(
-      "en-US",
-      {
-        style: "currency",
-        currency,
-        notation:
-          Math.abs(value) >=
-          100000
-            ? "compact"
-            : "standard",
-        maximumFractionDigits: 1,
-      },
-    )
-    .format(value);
+const CURRENT_YEAR = new Date().getUTCFullYear();
+const MANAGER_ROLES = ["ADMIN", "PROCUREMENT_MANAGER"];
+const ALERTS_COLLAPSED = 5;
+
+const YEAR_OPTIONS: SelectOption[] = [
+  CURRENT_YEAR - 1,
+  CURRENT_YEAR,
+  CURRENT_YEAR + 1,
+  CURRENT_YEAR + 2,
+].map((year) => ({ value: String(year), label: String(year) }));
+
+const CURRENCY_OPTIONS: SelectOption[] = ["EUR", "USD", "GBP", "TND"].map((code) => ({
+  value: code,
+  label: code,
+}));
+
+const SCOPE_FILTERS: SegmentedOption[] = [
+  { value: "", label: "All" },
+  { value: "DEPARTMENT", label: "Department" },
+  { value: "CATEGORY", label: "Category" },
+];
+
+const EMPTY_USAGE: BudgetUsage[] = [];
+const EMPTY_ALERTS: BudgetAlert[] = [];
+const EMPTY_REQUESTS: BudgetContextOptions["purchaseRequests"] = [];
+const integer = new Intl.NumberFormat("en-US");
+
+/** Alert levels are free text from the API, so colour them by what they say. */
+function levelTone(level: string): BadgeTone {
+  const value = level.toUpperCase();
+
+  if (value.includes("EXCEED") || value.includes("CRITICAL") || value.includes("BLOCK")) {
+    return "danger";
+  }
+
+  if (value.includes("WARN")) {
+    return "warning";
+  }
+
+  return "success";
 }
 
+function levelRank(level: string): number {
+  const tone = levelTone(level);
+
+  return tone === "danger" ? 2 : tone === "warning" ? 1 : 0;
+}
+
+interface BudgetData {
+  key: string;
+  summary: BudgetSummary | null;
+  usage: BudgetUsage[] | null;
+  alerts: BudgetAlert[];
+  options: BudgetContextOptions | null;
+}
+
+function valueOf<T>(result: PromiseSettledResult<T>, fallback: T): T {
+  return result.status === "fulfilled" ? result.value : fallback;
+}
+
+function messageOf(result: PromiseSettledResult<unknown>): string | null {
+  if (result.status !== "rejected") {
+    return null;
+  }
+
+  return result.reason instanceof Error
+    ? result.reason.message
+    : "Unable to load budget control.";
+}
+
+async function fetchBudgets(
+  fiscalYear: number,
+  currency: string,
+): Promise<{ data: BudgetData; error: string | null }> {
+  const [summaryR, usageR, alertsR, optionsR] = await Promise.allSettled([
+    getBudgetSummary(fiscalYear, currency),
+    getBudgetUsage(fiscalYear, currency),
+    getBudgetAlerts(fiscalYear, currency),
+    getBudgetContextOptions(),
+  ]);
+
+  return {
+    data: {
+      key: `${fiscalYear}|${currency}`,
+      summary: valueOf<BudgetSummary | null>(summaryR, null),
+      usage: valueOf<BudgetUsage[] | null>(usageR, null),
+      alerts: valueOf<BudgetAlert[]>(alertsR, EMPTY_ALERTS),
+      options: valueOf<BudgetContextOptions | null>(optionsR, null),
+    },
+    error: messageOf(summaryR) ?? messageOf(usageR) ?? messageOf(alertsR) ?? messageOf(optionsR),
+  };
+}
+
+const COLUMNS: Column<BudgetUsage>[] = [
+  {
+    id: "allocation",
+    header: "Allocation",
+    sortValue: (item) => item.scopeLabel.toLowerCase(),
+    cell: (item) => (
+      <div className="stacked-cell">
+        <strong>{item.scopeLabel}</strong>
+
+        <span>
+          {item.scopeType === "DEPARTMENT" ? "Department" : "Category"} ·{" "}
+          {item.hardLimit ? "Hard limit" : "Soft limit"}
+        </span>
+      </div>
+    ),
+  },
+  {
+    id: "budget",
+    header: "Budget",
+    align: "right",
+    sortValue: (item) => item.budgetAmount,
+    firstSort: "desc",
+    cell: (item) => (
+      <strong className="kit-num">{formatMoney(item.budgetAmount, item.currency)}</strong>
+    ),
+  },
+  {
+    id: "committed",
+    header: "Committed",
+    align: "right",
+    sortValue: (item) => item.committedSpend,
+    firstSort: "desc",
+    cell: (item) => (
+      <span className="kit-num">{formatMoney(item.committedSpend, item.currency)}</span>
+    ),
+  },
+  {
+    id: "pipeline",
+    header: "Pipeline",
+    align: "right",
+    sortValue: (item) => item.openRequestExposure,
+    firstSort: "desc",
+    cell: (item) => (
+      <span className="kit-num">
+        {formatMoney(item.openRequestExposure, item.currency)}
+      </span>
+    ),
+  },
+  {
+    id: "forecast",
+    header: "Forecast utilization",
+    sortValue: (item) => item.forecastUtilizationPercent,
+    firstSort: "desc",
+    cell: (item) => {
+      const tone = levelTone(item.alertLevel);
+
+      return (
+        <Meter
+          value={item.forecastUtilizationPercent}
+          max={100}
+          label={`${item.forecastUtilizationPercent.toFixed(1)}%`}
+          tone={tone === "success" ? "primary" : meterToneFor(tone)}
+          ariaLabel="Forecast utilization"
+        />
+      );
+    },
+  },
+  {
+    id: "remaining",
+    header: "Remaining",
+    align: "right",
+    sortValue: (item) => item.remainingForecast,
+    cell: (item) => (
+      <span className={`kit-num${item.remainingForecast < 0 ? " kit-text-danger" : ""}`}>
+        {formatMoney(item.remainingForecast, item.currency)}
+      </span>
+    ),
+  },
+  {
+    id: "level",
+    header: "Status",
+    sortValue: (item) => levelRank(item.alertLevel),
+    firstSort: "desc",
+    cell: (item) => (
+      <div className="kit-cell-stack">
+        <StatusBadge value={item.alertLevel} tone={levelTone(item.alertLevel)} />
+
+        <small>Warns at {item.warningThresholdPercent.toFixed(0)}%</small>
+      </div>
+    ),
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
+
 export default function BudgetsPage() {
-  const {
-    user,
-  } = useAuth();
+  const { user } = useAuth();
+  const toast = useToast();
 
-  const [
-    fiscalYear,
-    setFiscalYear,
-  ] =
-    useState(
-      CURRENT_YEAR,
-    );
+  const canManage = user !== null && MANAGER_ROLES.includes(user.role);
 
-  const [
-    currency,
-    setCurrency,
-  ] =
-    useState("EUR");
-
-  const [
-    summary,
-    setSummary,
-  ] =
-    useState<
-      BudgetSummary |
-      null
-    >(null);
-
-  const [
-    usage,
-    setUsage,
-  ] =
-    useState<
-      BudgetUsage[]
-    >([]);
-
-  const [
-    alerts,
-    setAlerts,
-  ] =
-    useState<
-      BudgetAlert[]
-    >([]);
-
-  const [
-    options,
-    setOptions,
-  ] =
-    useState<
-      BudgetContextOptions |
-      null
-    >(null);
-
-  const [
-    requestId,
-    setRequestId,
-  ] =
-    useState("");
-
-  const [
-    requestCheck,
-    setRequestCheck,
-  ] =
-    useState<
-      PurchaseRequestBudgetCheck |
-      null
-    >(null);
-
-  const [
-    checking,
-    setChecking,
-  ] =
-    useState(false);
-
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
-
-  const [
-    error,
-    setError,
-  ] =
-    useState<string | null>(
-      null,
-    );
-
-  const canManage =
-    user?.role ===
-      "ADMIN" ||
-    user?.role ===
-      "PROCUREMENT_MANAGER";
+  const [fiscalYear, setFiscalYear] = useState(CURRENT_YEAR);
+  const [currency, setCurrency] = useState("EUR");
+  const [result, setResult] = useState<BudgetData | null>(null);
+  const [query, setQuery] = useState("");
+  const [scope, setScope] = useState("");
+  const [level, setLevel] = useState("");
+  const [showAllAlerts, setShowAllAlerts] = useState(false);
+  const [requestId, setRequestId] = useState("");
+  const [requestCheck, setRequestCheck] = useState<PurchaseRequestBudgetCheck | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [fetching, setFetching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let active = true;
 
-    Promise.all([
-      getBudgetSummary(
-        fiscalYear,
-        currency,
-      ),
-      getBudgetUsage(
-        fiscalYear,
-        currency,
-      ),
-      getBudgetAlerts(
-        fiscalYear,
-        currency,
-      ),
-      getBudgetContextOptions(),
-    ])
-      .then(
-        ([
-          summaryResponse,
-          usageResponse,
-          alertResponse,
-          optionResponse,
-        ]) => {
-          if (!active) {
-            return;
-          }
+    const timer = window.setTimeout(async () => {
+      setFetching(true);
+      setError(null);
 
-          setSummary(
-            summaryResponse,
-          );
+      const response = await fetchBudgets(fiscalYear, currency);
 
-          setUsage(
-            usageResponse,
-          );
+      if (!active) {
+        return;
+      }
 
-          setAlerts(
-            alertResponse,
-          );
-
-          setOptions(
-            optionResponse,
-          );
-
-          setError(null);
-        },
-      )
-      .catch(
-        caughtError => {
-          if (!active) {
-            return;
-          }
-
-          setError(
-            caughtError instanceof
-              Error
-              ? caughtError.message
-              : "Unable to load budget control.",
-          );
-        },
-      )
-      .finally(
-        () => {
-          if (active) {
-            setLoading(false);
-          }
-        },
-      );
+      setResult(response.data);
+      setError(response.error);
+      setFetching(false);
+    }, 0);
 
     return () => {
       active = false;
+      window.clearTimeout(timer);
     };
-  }, [
-    fiscalYear,
-    currency,
-  ]);
+  }, [fiscalYear, currency, reloadKey]);
+
+  // Figures are only shown once they belong to the selected year and currency.
+  const data = result !== null && result.key === `${fiscalYear}|${currency}` ? result : null;
+
+  const summary = data?.summary ?? null;
+  const usage = data?.usage ?? null;
+  const alerts = data?.alerts ?? EMPTY_ALERTS;
+
+  // The request list does not depend on year or currency, so it survives switching.
+  const requests = result?.options?.purchaseRequests ?? EMPTY_REQUESTS;
+
+  const requestOptions = useMemo<SelectOption[]>(
+    () => [
+      { value: "", label: "Select request" },
+      ...requests.map((request) => ({
+        value: String(request.id),
+        label: `${request.requestNumber} — ${request.title}`,
+      })),
+    ],
+    [requests],
+  );
+
+  const levelOptions = useMemo<SelectOption[]>(() => {
+    const unique = Array.from(
+      new Set((usage ?? EMPTY_USAGE).map((item) => item.alertLevel)),
+    ).sort();
+
+    return [
+      { value: "", label: "All" },
+      ...unique.map((value) => ({ value, label: readable(value) })),
+    ];
+  }, [usage]);
+
+  const rows = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+
+    return (usage ?? EMPTY_USAGE)
+      .filter((item) => !scope || item.scopeType === scope)
+      .filter((item) => !level || item.alertLevel === level)
+      .filter((item) => !normalized || item.scopeLabel.toLowerCase().includes(normalized));
+  }, [usage, query, scope, level]);
+
+  const hasFilters = query.trim() !== "" || scope !== "" || level !== "";
+  const visibleAlerts = showAllAlerts ? alerts : alerts.slice(0, ALERTS_COLLAPSED);
+
+  function clearFilters() {
+    setQuery("");
+    setScope("");
+    setLevel("");
+  }
 
   async function runBudgetCheck() {
     if (!requestId) {
       return;
     }
 
-    try {
-      setChecking(true);
-      setError(null);
+    setChecking(true);
 
-      setRequestCheck(
-        await checkPurchaseRequestBudget(
-          requestId,
-        ),
-      );
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
+    try {
+      setRequestCheck(await checkPurchaseRequestBudget(requestId));
+    } catch (caught) {
+      toast.error(
+        "Could not check the budget",
+        caught instanceof Error
+          ? caught.message
           : "Unable to evaluate purchase request budget.",
       );
     } finally {
@@ -263,707 +360,365 @@ export default function BudgetsPage() {
     }
   }
 
-  return (
-    <div
-      className={
-        "page-stack"
+  function exportCsv() {
+    downloadCsv(
+      `procureiq-budgets-${fiscalYear}-${currency}.csv`,
+      [
+        "Allocation",
+        "Scope",
+        "Limit type",
+        "Currency",
+        "Budget",
+        "Committed",
+        "Open request exposure",
+        "Forecast utilization (%)",
+        "Remaining forecast",
+        "Warning threshold (%)",
+        "Alert level",
+      ],
+      rows.map((item) => [
+        item.scopeLabel,
+        item.scopeType,
+        item.hardLimit ? "Hard" : "Soft",
+        item.currency,
+        item.budgetAmount,
+        item.committedSpend,
+        item.openRequestExposure,
+        item.forecastUtilizationPercent.toFixed(1),
+        item.remainingForecast,
+        item.warningThresholdPercent,
+        item.alertLevel,
+      ]),
+    );
+
+    toast.success(
+      "Budgets exported",
+      `${rows.length} ${rows.length === 1 ? "row" : "rows"} saved as CSV.`,
+    );
+  }
+
+  const exceeded = summary?.exceededAllocations ?? 0;
+  const warnings = summary?.warningAllocations ?? 0;
+
+  const kpis: KpiItem[] = [
+    {
+      label: "Total budget",
+      icon: WalletCards,
+      value: summary ? formatMoney(summary.totalBudget, currency, true) : "—",
+      note: `${integer.format(summary?.activeAllocations ?? 0)} active allocations`,
+    },
+    {
+      label: "Committed",
+      icon: Banknote,
+      value: summary ? formatMoney(summary.committedSpend, currency, true) : "—",
+      note: `${(summary?.utilizationPercent ?? 0).toFixed(1)}% utilization`,
+    },
+    {
+      label: "Open exposure",
+      icon: Landmark,
+      value: summary ? formatMoney(summary.openRequestExposure, currency, true) : "—",
+      note: "Submitted and approved requests not yet committed.",
+    },
+    {
+      label: "Forecast utilization",
+      icon: Gauge,
+      value: summary ? `${summary.forecastUtilizationPercent.toFixed(1)}%` : "—",
+      note: `${integer.format(exceeded)} exceeded · ${integer.format(warnings)} warning`,
+      tone: exceeded > 0 ? "warning" : "default",
+    },
+  ];
+
+  const emptyNode = hasFilters ? (
+    <EmptyState
+      icon={SearchX}
+      title="No allocations match these filters"
+      description="Try a different search term, scope or status, or clear the filters."
+      action={
+        <button
+          type="button"
+          className="button button--secondary"
+          onClick={clearFilters}
+        >
+          Clear filters
+        </button>
       }
-    >
-      <section
-        className={
-          "page-heading"
-        }
-      >
-        <div>
-          <span
-            className={
-              "eyebrow"
-            }
-          >
-            Procurement planning
-          </span>
-
-          <h1>
-            Budget control
-          </h1>
-
-          <p>
-            Track approved budgets,
-            committed spend, open
-            procurement exposure,
-            forecast utilization and
-            request-level budget impact.
-          </p>
-        </div>
-
-        {canManage ? (
-          <Link
-            href="/budgets/new"
-            className={
-              "button button--primary"
-            }
-          >
+    />
+  ) : (
+    <EmptyState
+      icon={WalletCards}
+      title={`No active allocations for ${fiscalYear}`}
+      description={`No department or category budgets exist for ${fiscalYear} in ${currency}.`}
+      action={
+        canManage ? (
+          <Link href="/budgets/new" className="button button--primary">
             <Plus size={16} />
             New allocation
           </Link>
-        ) : null}
+        ) : undefined
+      }
+    />
+  );
+
+  return (
+    <div className="page-stack">
+      <section className="page-heading">
+        <div>
+          <span className="eyebrow">Procurement planning</span>
+
+          <h1>Budget control</h1>
+
+          <p>
+            Track approved budgets, committed spend, open procurement exposure,
+            forecast utilization and request-level budget impact.
+          </p>
+        </div>
+
+        <div className="page-heading__actions">
+          <SelectField
+            label="Fiscal year"
+            value={String(fiscalYear)}
+            onChange={(value) => setFiscalYear(Number(value))}
+            options={YEAR_OPTIONS}
+          />
+
+          <SelectField
+            label="Currency"
+            value={currency}
+            onChange={setCurrency}
+            options={CURRENCY_OPTIONS}
+          />
+
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={() => setReloadKey((key) => key + 1)}
+            disabled={fetching}
+          >
+            <RefreshCw size={15} className={fetching ? "kit-spin" : undefined} />
+            Refresh
+          </button>
+
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={exportCsv}
+            disabled={rows.length === 0}
+          >
+            <Download size={15} />
+            Export CSV
+          </button>
+
+          {canManage ? (
+            <Link href="/budgets/new" className="button button--primary">
+              <Plus size={16} />
+              New allocation
+            </Link>
+          ) : null}
+        </div>
       </section>
 
       {error ? (
-        <div
-          className={
-            "error-banner"
-          }
-        >
-          <CircleAlert
-            size={18}
-          />
-          {error}
+        <div className="error-banner">
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button
+            type="button"
+            className="kit-banner-action"
+            onClick={() => setReloadKey((key) => key + 1)}
+          >
+            Try again
+          </button>
         </div>
       ) : null}
 
-      <section
-        className={
-          "budget-period-control"
-        }
-      >
-        <label>
-          <span>
-            Fiscal year
-          </span>
-
-          <select
-            value={
-              fiscalYear
-            }
-            onChange={
-              event =>
-                setFiscalYear(
-                  Number(
-                    event.target.value,
-                  ),
-                )
-            }
-          >
-            {[
-              CURRENT_YEAR - 1,
-              CURRENT_YEAR,
-              CURRENT_YEAR + 1,
-              CURRENT_YEAR + 2,
-            ].map(
-              year => (
-                <option
-                  key={year}
-                  value={year}
-                >
-                  {year}
-                </option>
-              ),
-            )}
-          </select>
-        </label>
-
-        <label>
-          <span>Currency</span>
-
-          <select
-            value={currency}
-            onChange={
-              event =>
-                setCurrency(
-                  event.target.value,
-                )
-            }
-          >
-            <option value="EUR">
-              EUR
-            </option>
-            <option value="USD">
-              USD
-            </option>
-            <option value="GBP">
-              GBP
-            </option>
-            <option value="TND">
-              TND
-            </option>
-          </select>
-        </label>
-      </section>
-
-      <section
-        className={
-          "budget-kpi-grid"
-        }
-      >
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <WalletCards
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Total budget
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value budget-money-kpi"
-            }
-          >
-            {summary
-              ? money(
-                  summary
-                    .totalBudget,
-                  currency,
-                )
-              : "—"}
-          </strong>
-
-          <p>
-            {
-              summary
-                ?.activeAllocations ??
-              0
-            }
-            {" active allocations"}
-          </p>
-        </article>
-
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <Banknote
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Committed
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value budget-money-kpi"
-            }
-          >
-            {summary
-              ? money(
-                  summary
-                    .committedSpend,
-                  currency,
-                )
-              : "—"}
-          </strong>
-
-          <p>
-            {summary
-              ?.utilizationPercent
-              .toFixed(1) ??
-              "0.0"}
-            {"% utilization"}
-          </p>
-        </article>
-
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <Landmark
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Open exposure
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value budget-money-kpi"
-            }
-          >
-            {summary
-              ? money(
-                  summary
-                    .openRequestExposure,
-                  currency,
-                )
-              : "—"}
-          </strong>
-
-          <p>
-            Submitted and approved
-            requests not yet committed.
-          </p>
-        </article>
-
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <Gauge
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Forecast utilization
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value"
-            }
-          >
-            {summary
-              ?.forecastUtilizationPercent
-              .toFixed(1) ??
-              "—"}
-            %
-          </strong>
-
-          <p>
-            {
-              summary
-                ?.exceededAllocations ??
-              0
-            }
-            {" exceeded · "}
-            {
-              summary
-                ?.warningAllocations ??
-              0
-            }
-            {" warning"}
-          </p>
-        </article>
-      </section>
+      <KpiGrid
+        items={kpis}
+        loading={data === null && error === null}
+        ariaLabel="Budget totals"
+      />
 
       {alerts.length > 0 ? (
         <section className="panel">
           <div className="panel__header">
             <div>
-              <span className="eyebrow">
-                Budget alerts
-              </span>
+              <span className="eyebrow">Budget alerts</span>
 
-              <h2>
-                Forecast exceptions
-              </h2>
+              <h2>Forecast exceptions</h2>
             </div>
 
-            <AlertTriangle size={19} />
+            <span className="kit-count-pill">{alerts.length}</span>
           </div>
 
           <div className="budget-alert-list">
-            {alerts.map(
-              alert => (
-                <article
-                  key={alert.allocationId}
-                  className={
-                    `budget-alert budget-alert--${alert.alertLevel.toLowerCase()}`
-                  }
-                >
-                  <div>
-                    <strong>
-                      {alert.scopeLabel}
-                    </strong>
+            {visibleAlerts.map((alert) => (
+              <article
+                key={alert.allocationId}
+                className={`budget-alert budget-alert--${alert.alertLevel.toLowerCase()}`}
+              >
+                <div>
+                  <strong>{alert.scopeLabel}</strong>
 
-                    <span>
-                      {alert.message}
-                    </span>
-                  </div>
+                  <span>{alert.message}</span>
+                </div>
 
-                  <div>
-                    <strong>
-                      {alert.forecastUtilizationPercent.toFixed(1)}
-                      %
-                    </strong>
+                <div>
+                  <strong>{alert.forecastUtilizationPercent.toFixed(1)}%</strong>
 
-                    <span>
-                      {alert.hardLimit
-                        ? "Hard limit"
-                        : "Soft limit"}
-                    </span>
-                  </div>
-                </article>
-              ),
-            )}
+                  <span>{alert.hardLimit ? "Hard limit" : "Soft limit"}</span>
+                </div>
+              </article>
+            ))}
           </div>
+
+          {alerts.length > ALERTS_COLLAPSED ? (
+            <div className="kit-panel-footer">
+              <button
+                type="button"
+                className="button button--secondary"
+                onClick={() => setShowAllAlerts((open) => !open)}
+              >
+                {showAllAlerts ? "Show fewer" : `Show all ${alerts.length} alerts`}
+              </button>
+            </div>
+          ) : null}
         </section>
       ) : null}
 
-      <section className="panel">
-        <div className="panel__header">
-          <div>
-            <span className="eyebrow">
-              Budget utilization
-            </span>
+      <div className="kit-toolbar">
+        <SearchField
+          value={query}
+          onChange={setQuery}
+          placeholder="Search department or category"
+          ariaLabel="Search allocations"
+          shortcut
+        />
 
-            <h2>
-              Allocation control
-            </h2>
-          </div>
+        <SegmentedFilter
+          options={SCOPE_FILTERS}
+          value={scope}
+          onChange={setScope}
+          ariaLabel="Filter by allocation scope"
+        />
 
-          <WalletCards size={19} />
-        </div>
+        <SelectField
+          label="Status"
+          value={level}
+          onChange={setLevel}
+          options={levelOptions}
+        />
+      </div>
 
-        <div className="budget-allocation-list">
-          {!loading &&
-            usage.map(
-              item => (
-                <article
-                  key={item.allocationId}
-                  className={
-                    `budget-allocation-card budget-allocation-card--${item.alertLevel.toLowerCase()}`
-                  }
-                >
-                  <div className="budget-allocation-heading">
-                    <div>
-                      <strong>
-                        {item.scopeLabel}
-                      </strong>
-
-                      <span>
-                        {item.scopeType ===
-                        "DEPARTMENT"
-                          ? "Department budget"
-                          : "Category budget"}
-                        {" · "}
-                        {item.hardLimit
-                          ? "Hard limit"
-                          : "Soft limit"}
-                      </span>
-                    </div>
-
-                    <strong>
-                      {money(
-                        item.budgetAmount,
-                        item.currency,
-                      )}
-                    </strong>
-                  </div>
-
-                  <div className="budget-progress-labels">
-                    <span>
-                      Committed{" "}
-                      {money(
-                        item.committedSpend,
-                        item.currency,
-                      )}
-                    </span>
-
-                    <span>
-                      Pipeline{" "}
-                      {money(
-                        item.openRequestExposure,
-                        item.currency,
-                      )}
-                    </span>
-
-                    <strong>
-                      Forecast{" "}
-                      {item.forecastUtilizationPercent.toFixed(1)}
-                      %
-                    </strong>
-                  </div>
-
-                  <div className="budget-progress-track">
-                    <div
-                      style={{
-                        width:
-                          `${Math.min(
-                            100,
-                            Math.max(
-                              0,
-                              item.forecastUtilizationPercent,
-                            ),
-                          )}%`,
-                      }}
-                    />
-                  </div>
-
-                  <div className="budget-allocation-footer">
-                    <span>
-                      Remaining:{" "}
-                      {money(
-                        item.remainingForecast,
-                        item.currency,
-                      )}
-                    </span>
-
-                    <span>
-                      Warning at{" "}
-                      {item.warningThresholdPercent.toFixed(0)}
-                      %
-                    </span>
-
-                    <span
-                      className={
-                        `budget-level budget-level--${item.alertLevel.toLowerCase()}`
-                      }
-                    >
-                      {item.alertLevel}
-                    </span>
-                  </div>
-                </article>
-              ),
-            )}
-
-          {!loading &&
-          usage.length === 0 ? (
-            <div className="budget-empty">
-              No active allocations
-              exist for this fiscal year
-              and currency.
-            </div>
-          ) : null}
-        </div>
-      </section>
+      {data !== null && usage === null ? null : (
+        <DataTable
+          columns={COLUMNS}
+          rows={rows}
+          getRowId={(item) => item.allocationId}
+          ariaLabel="Budget allocations"
+          loading={data === null}
+          busy={fetching}
+          empty={emptyNode}
+          defaultSort={{ id: "forecast", dir: "desc" }}
+          persistKey="budgets"
+          resetKey={`${query}|${scope}|${level}|${fiscalYear}|${currency}`}
+        />
+      )}
 
       <section className="panel">
         <div className="panel__header">
           <div>
-            <span className="eyebrow">
-              Purchase-request gate
-            </span>
+            <span className="eyebrow">Purchase-request gate</span>
 
-            <h2>
-              Budget impact check
-            </h2>
+            <h2>Budget impact check</h2>
           </div>
 
           <SearchCheck size={19} />
         </div>
 
         <div className="budget-check-controls">
-          <label className="request-field">
-            <span>
-              Purchase request
-            </span>
-
-            <select
-              value={requestId}
-              onChange={
-                event => {
-                  setRequestId(
-                    event.target.value,
-                  );
-
-                  setRequestCheck(
-                    null,
-                  );
-                }
-              }
-            >
-              <option value="">
-                Select request
-              </option>
-
-              {options
-                ?.purchaseRequests
-                .map(
-                  request => (
-                    <option
-                      key={request.id}
-                      value={request.id}
-                    >
-                      {request.requestNumber}
-                      {" — "}
-                      {request.title}
-                    </option>
-                  ),
-                )}
-            </select>
-          </label>
+          <SelectField
+            label="Purchase request"
+            value={requestId}
+            onChange={(value) => {
+              setRequestId(value);
+              setRequestCheck(null);
+            }}
+            options={requestOptions}
+          />
 
           <button
             type="button"
             className="button button--primary"
-            disabled={
-              checking ||
-              !requestId
-            }
-            onClick={
-              () =>
-                void runBudgetCheck()
-            }
+            disabled={checking || !requestId}
+            onClick={() => void runBudgetCheck()}
           >
             <SearchCheck size={16} />
-
-            {checking
-              ? "Checking..."
-              : "Check budget"}
+            {checking ? "Checking…" : "Check budget"}
           </button>
         </div>
 
         {requestCheck ? (
           <article
-            className={
-              `budget-check-result budget-check-result--${requestCheck.alertLevel.toLowerCase()}`
-            }
+            className={`budget-check-result budget-check-result--${requestCheck.alertLevel.toLowerCase()}`}
           >
             <div className="budget-check-result__header">
               <div>
-                <strong>
-                  {requestCheck.requestNumber}
-                </strong>
+                <strong>{requestCheck.requestNumber}</strong>
 
                 <span>
-                  {requestCheck.departmentName}
-                  {" · "}
-                  {money(
-                    requestCheck.requestAmount,
-                    requestCheck.currency,
-                  )}
+                  {requestCheck.departmentName} ·{" "}
+                  {formatMoney(requestCheck.requestAmount, requestCheck.currency)}
                 </span>
               </div>
 
-              <span
-                className={
-                  `budget-level budget-level--${requestCheck.alertLevel.toLowerCase()}`
-                }
-              >
-                {requestCheck.blocked
-                  ? "BLOCKED"
-                  : requestCheck.alertLevel}
-              </span>
+              <StatusBadge
+                value={requestCheck.blocked ? "BLOCKED" : requestCheck.alertLevel}
+                tone={requestCheck.blocked ? "danger" : levelTone(requestCheck.alertLevel)}
+              />
             </div>
 
-            <p>
-              {requestCheck.message}
-            </p>
+            <p>{requestCheck.message}</p>
 
             {requestCheck.budgetConfigured ? (
               <div className="budget-check-metrics">
-                <div>
-                  <span>Budget</span>
-                  <strong>
-                    {money(
-                      requestCheck.budgetAmount,
-                      requestCheck.currency,
-                    )}
-                  </strong>
-                </div>
-
-                <div>
-                  <span>
-                    Current forecast
-                  </span>
-
-                  <strong>
-                    {money(
+                {[
+                  {
+                    label: "Budget",
+                    value: formatMoney(requestCheck.budgetAmount, requestCheck.currency),
+                  },
+                  {
+                    label: "Current forecast",
+                    value: formatMoney(
                       requestCheck.currentForecastExposure,
                       requestCheck.currency,
-                    )}
-                  </strong>
-                </div>
-
-                <div>
-                  <span>
-                    Projected
-                  </span>
-
-                  <strong>
-                    {money(
+                    ),
+                  },
+                  {
+                    label: "Projected",
+                    value: formatMoney(
                       requestCheck.projectedForecastExposure,
                       requestCheck.currency,
-                    )}
-                  </strong>
-                </div>
-
-                <div>
-                  <span>
-                    Remaining
-                  </span>
-
-                  <strong>
-                    {money(
+                    ),
+                  },
+                  {
+                    label: "Remaining",
+                    value: formatMoney(
                       requestCheck.remainingAfterRequest,
                       requestCheck.currency,
-                    )}
-                  </strong>
-                </div>
+                    ),
+                  },
+                  {
+                    label: "Utilization",
+                    value: `${requestCheck.projectedUtilizationPercent.toFixed(1)}%`,
+                  },
+                ].map((metric) => (
+                  <div key={metric.label}>
+                    <span>{metric.label}</span>
 
-                <div>
-                  <span>
-                    Utilization
-                  </span>
-
-                  <strong>
-                    {requestCheck.projectedUtilizationPercent.toFixed(1)}
-                    %
-                  </strong>
-                </div>
+                    <strong>{metric.value}</strong>
+                  </div>
+                ))}
               </div>
             ) : null}
           </article>

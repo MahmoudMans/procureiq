@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {
   Camera,
   CircleAlert,
@@ -432,7 +434,7 @@ export default function CapitalRecyclingPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Source</th>
@@ -536,7 +538,7 @@ export default function CapitalRecyclingPage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
@@ -689,7 +691,7 @@ export default function CapitalRecyclingPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Source</th>
@@ -801,7 +803,7 @@ export default function CapitalRecyclingPage() {
                   ),
                 )}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
@@ -823,7 +825,7 @@ export default function CapitalRecyclingPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Snapshot</th>
@@ -903,7 +905,7 @@ export default function CapitalRecyclingPage() {
                   ),
                 )}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 

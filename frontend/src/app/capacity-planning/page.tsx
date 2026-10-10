@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {
   Camera,
   CircleAlert,
@@ -660,7 +662,7 @@ export default function CapacityPlanningPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Team member</th>
@@ -780,7 +782,7 @@ export default function CapacityPlanningPage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
@@ -802,7 +804,7 @@ export default function CapacityPlanningPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Work item</th>
@@ -913,7 +915,7 @@ export default function CapacityPlanningPage() {
                     ),
                   )}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
@@ -1254,7 +1256,7 @@ export default function CapacityPlanningPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Snapshot</th>
@@ -1342,7 +1344,7 @@ export default function CapacityPlanningPage() {
                     ),
                   )}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 

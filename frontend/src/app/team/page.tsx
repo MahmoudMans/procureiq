@@ -3,663 +3,457 @@
 import {
   Building2,
   CircleAlert,
+  Download,
+  RefreshCw,
+  SearchX,
   ShieldCheck,
   UserCheck,
   Users,
 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+  type BadgeTone,
+  type Column,
+  DataTable,
+  EmptyState,
+  KpiGrid,
+  type KpiItem,
+  SearchField,
+  SelectField,
+  type SelectOption,
+  StatusBadge,
+  downloadCsv,
+  initialsOf,
+  useToast,
+} from "@/components/kit";
+import { getDepartments, getUsers } from "@/lib/api";
+import type { AuthUser, Department } from "@/types/auth";
 
-import {
-  useAuth,
-} from "@/components/auth/auth-provider";
+/* ------------------------------------------------------------------ */
+/* Constants & columns                                                 */
+/* ------------------------------------------------------------------ */
 
-import {
-  getDepartments,
-  getUsers,
-} from "@/lib/api";
+const ADMIN_ROLES = ["ADMIN", "PROCUREMENT_MANAGER"];
 
-import type {
-  AuthUser,
-  Department,
-} from "@/types/auth";
+const ROLE_ORDER: AuthUser["role"][] = [
+  "ADMIN",
+  "PROCUREMENT_MANAGER",
+  "BUYER",
+  "REQUESTER",
+  "APPROVER",
+];
 
-function roleLabel(
-  role: AuthUser["role"],
-): string {
-  switch (role) {
-    case "ADMIN":
-      return "Administrator";
+const ROLE_LABELS: Record<AuthUser["role"], string> = {
+  ADMIN: "Administrator",
+  PROCUREMENT_MANAGER: "Procurement Manager",
+  BUYER: "Buyer",
+  REQUESTER: "Requester",
+  APPROVER: "Approver",
+};
 
-    case "PROCUREMENT_MANAGER":
-      return "Procurement Manager";
+const ROLE_TONES: Record<AuthUser["role"], BadgeTone> = {
+  ADMIN: "accent",
+  PROCUREMENT_MANAGER: "info",
+  BUYER: "success",
+  REQUESTER: "neutral",
+  APPROVER: "warning",
+};
 
-    case "BUYER":
-      return "Buyer";
+const EMPTY_USERS: AuthUser[] = [];
+const EMPTY_DEPARTMENTS: Department[] = [];
+const integer = new Intl.NumberFormat("en-US");
 
-    case "REQUESTER":
-      return "Requester";
+const COLUMNS: Column<AuthUser>[] = [
+  {
+    id: "user",
+    header: "User",
+    sortValue: (member) => member.fullName.toLowerCase(),
+    cell: (member) => (
+      <div className="supplier-cell">
+        <div className="company-avatar">{initialsOf(member.fullName)}</div>
 
-    case "APPROVER":
-      return "Approver";
-  }
-}
+        <div>
+          <strong>{member.fullName}</strong>
 
-function initials(
-  fullName: string,
-): string {
-  return fullName
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map(
-      value => value[0],
-    )
-    .join("")
-    .toUpperCase();
-}
+          <span>{member.email}</span>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "role",
+    header: "Role",
+    sortValue: (member) => ROLE_ORDER.indexOf(member.role),
+    cell: (member) => (
+      <StatusBadge
+        value={member.role}
+        label={ROLE_LABELS[member.role]}
+        tone={ROLE_TONES[member.role]}
+        dot={false}
+      />
+    ),
+  },
+  {
+    id: "department",
+    header: "Department",
+    sortValue: (member) => member.departmentName.toLowerCase(),
+    cell: (member) => member.departmentName,
+  },
+  {
+    id: "jobTitle",
+    header: "Job title",
+    sortValue: (member) => member.jobTitle.toLowerCase(),
+    cell: (member) => member.jobTitle,
+  },
+  {
+    id: "status",
+    header: "Status",
+    sortValue: (member) => (member.active ? 0 : 1),
+    cell: (member) => <StatusBadge value={member.active ? "ACTIVE" : "INACTIVE"} />,
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
 
 export default function TeamPage() {
-  const {
-    user: currentUser,
-  } = useAuth();
+  const { user: currentUser } = useAuth();
+  const toast = useToast();
 
-  const [
-    users,
-    setUsers,
-  ] =
-    useState<AuthUser[]>([]);
+  const allowed = currentUser !== null && ADMIN_ROLES.includes(currentUser.role);
 
-  const [
-    departments,
-    setDepartments,
-  ] =
-    useState<Department[]>([]);
-
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
-
-  const [
-    error,
-    setError,
-  ] =
-    useState<string | null>(
-      null,
-    );
-
-  const allowed =
-    currentUser?.role ===
-      "ADMIN" ||
-    currentUser?.role ===
-      "PROCUREMENT_MANAGER";
+  const [users, setUsers] = useState<AuthUser[] | null>(null);
+  const [departments, setDepartments] = useState<Department[] | null>(null);
+  const [query, setQuery] = useState("");
+  const [role, setRole] = useState("");
+  const [fetching, setFetching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!allowed) {
       return;
     }
 
-    let mounted = true;
+    let active = true;
 
-    async function load() {
-      try {
-        setLoading(true);
+    const timer = window.setTimeout(async () => {
+      setFetching(true);
+      setError(null);
 
-        const [
-          userResponse,
-          departmentResponse,
-        ] =
-          await Promise.all([
-            getUsers(),
-            getDepartments(),
-          ]);
+      const [userResult, departmentResult] = await Promise.allSettled([
+        getUsers(),
+        getDepartments(),
+      ]);
 
-        if (!mounted) {
-          return;
-        }
-
-        setUsers(
-          userResponse,
-        );
-
-        setDepartments(
-          departmentResponse,
-        );
-      } catch (caughtError) {
-        if (!mounted) {
-          return;
-        }
-
-        setError(
-          caughtError instanceof Error
-            ? caughtError.message
-            : "Unable to load team information.",
-        );
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+      if (!active) {
+        return;
       }
-    }
 
-    void load();
+      if (userResult.status === "fulfilled") {
+        setUsers(userResult.value);
+      }
+
+      if (departmentResult.status === "fulfilled") {
+        setDepartments(departmentResult.value);
+      }
+
+      const failure =
+        userResult.status === "rejected"
+          ? userResult.reason
+          : departmentResult.status === "rejected"
+            ? departmentResult.reason
+            : null;
+
+      if (failure !== null) {
+        setError(
+          failure instanceof Error ? failure.message : "Unable to load team information.",
+        );
+      }
+
+      setFetching(false);
+    }, 0);
 
     return () => {
-      mounted = false;
+      active = false;
+      window.clearTimeout(timer);
     };
-  }, [allowed]);
+  }, [allowed, reloadKey]);
 
-  const roleCounts =
-    useMemo(() => {
-      return users.reduce<
-        Record<string, number>
-      >(
-        (
-          accumulator,
-          member,
-        ) => {
-          accumulator[
-            member.role
-          ] =
-            (
-              accumulator[
-                member.role
-              ] ?? 0
-            ) + 1;
+  const all = users ?? EMPTY_USERS;
+  const departmentList = departments ?? EMPTY_DEPARTMENTS;
 
-          return accumulator;
-        },
-        {},
+  const roleCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    for (const member of all) {
+      counts[member.role] = (counts[member.role] ?? 0) + 1;
+    }
+
+    return counts;
+  }, [all]);
+
+  const roleOptions = useMemo<SelectOption[]>(
+    () => [
+      { value: "", label: "All" },
+      ...ROLE_ORDER.map((value) => ({
+        value,
+        label: `${ROLE_LABELS[value]} · ${roleCounts[value] ?? 0}`,
+      })),
+    ],
+    [roleCounts],
+  );
+
+  const rows = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+
+    return all
+      .filter((member) => !role || member.role === role)
+      .filter(
+        (member) =>
+          !normalized ||
+          [
+            member.fullName,
+            member.email,
+            member.departmentName,
+            member.jobTitle,
+            ROLE_LABELS[member.role],
+          ]
+            .join(" ")
+            .toLowerCase()
+            .includes(normalized),
       );
-    }, [users]);
+  }, [all, query, role]);
 
   if (!allowed) {
     return (
       <div className="page-stack">
-
-        <section
-          className={
-            "page-heading"
-          }
-        >
+        <section className="page-heading">
           <div>
-            <span className="eyebrow">
-              Access management
-            </span>
+            <span className="eyebrow">Access management</span>
 
-            <h1>
-              Team & access
-            </h1>
+            <h1>Team &amp; access</h1>
           </div>
         </section>
 
-        <div className="error-banner">
-          <ShieldCheck
-            size={18}
+        <section className="panel">
+          <EmptyState
+            icon={ShieldCheck}
+            title="Access restricted"
+            description="Your current role cannot access procurement team administration."
           />
-
-          <span>
-            Your current role cannot
-            access procurement team
-            administration.
-          </span>
-        </div>
-
+        </section>
       </div>
     );
   }
 
+  const initialLoad = users === null && error === null;
+  const hasFilters = query.trim() !== "" || role !== "";
+
+  function clearFilters() {
+    setQuery("");
+    setRole("");
+  }
+
+  function exportCsv() {
+    downloadCsv(
+      `procureiq-team-${new Date().toISOString().slice(0, 10)}.csv`,
+      ["Name", "Email", "Role", "Department", "Job title", "Status"],
+      rows.map((member) => [
+        member.fullName,
+        member.email,
+        ROLE_LABELS[member.role],
+        member.departmentName,
+        member.jobTitle,
+        member.active ? "Active" : "Inactive",
+      ]),
+    );
+
+    toast.success(
+      "Team exported",
+      `${rows.length} ${rows.length === 1 ? "row" : "rows"} saved as CSV.`,
+    );
+  }
+
+  const buyingUsers =
+    (roleCounts.ADMIN ?? 0) + (roleCounts.PROCUREMENT_MANAGER ?? 0) + (roleCounts.BUYER ?? 0);
+
+  const kpis: KpiItem[] = [
+    {
+      label: "Platform users",
+      icon: Users,
+      value: users ? integer.format(users.length) : "—",
+      note: "Active procurement identities configured locally.",
+    },
+    {
+      label: "Departments",
+      icon: Building2,
+      value: departments ? integer.format(departments.length) : "—",
+      note: "Organizational units available for procurement workflows.",
+    },
+    {
+      label: "Security roles",
+      icon: ShieldCheck,
+      value: String(ROLE_ORDER.length),
+      note: "Administration, management, buyer, requester and approver.",
+    },
+    {
+      label: "Buying users",
+      icon: UserCheck,
+      value: users ? integer.format(buyingUsers) : "—",
+      note: "Users authorized to participate in supplier management.",
+    },
+  ];
+
+  const emptyNode = hasFilters ? (
+    <EmptyState
+      icon={SearchX}
+      title="No team members match these filters"
+      description="Try a different name, email or role, or clear the filters."
+      action={
+        <button
+          type="button"
+          className="button button--secondary"
+          onClick={clearFilters}
+        >
+          Clear filters
+        </button>
+      }
+    />
+  ) : (
+    <EmptyState
+      icon={Users}
+      title="No users found"
+      description="No ProcureIQ identities are configured yet."
+    />
+  );
+
   return (
     <div className="page-stack">
-
-      <section
-        className={
-          "page-heading"
-        }
-      >
+      <section className="page-heading">
         <div>
-          <span className="eyebrow">
-            Access management
-          </span>
+          <span className="eyebrow">Access management</span>
 
-          <h1>
-            Team & access
-          </h1>
+          <h1>Team &amp; access</h1>
 
           <p>
-            Review ProcureIQ users,
-            procurement roles and
-            organizational departments.
+            Review ProcureIQ users, procurement roles and organizational departments.
           </p>
         </div>
+
+        <div className="page-heading__actions">
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={() => setReloadKey((key) => key + 1)}
+            disabled={fetching}
+          >
+            <RefreshCw size={15} className={fetching ? "kit-spin" : undefined} />
+            Refresh
+          </button>
+
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={exportCsv}
+            disabled={rows.length === 0}
+          >
+            <Download size={15} />
+            Export CSV
+          </button>
+        </div>
       </section>
+
+      <KpiGrid
+        items={kpis}
+        loading={users === null && departments === null && error === null}
+        ariaLabel="Team totals"
+      />
+
+      <div className="kit-toolbar">
+        <SearchField
+          value={query}
+          onChange={setQuery}
+          placeholder="Search name, email, department or job title"
+          ariaLabel="Search team members"
+          shortcut
+        />
+
+        <SelectField label="Role" value={role} onChange={setRole} options={roleOptions} />
+      </div>
 
       {error ? (
         <div className="error-banner">
-          <CircleAlert
-            size={18}
-          />
-          {error}
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button
+            type="button"
+            className="kit-banner-action"
+            onClick={() => setReloadKey((key) => key + 1)}
+          >
+            Try again
+          </button>
         </div>
       ) : null}
 
-      <section
-        className={
-          "team-kpi-grid"
-        }
-      >
-
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <Users size={20} />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Platform users
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value"
-            }
-          >
-            {loading
-              ? "—"
-              : users.length}
-          </strong>
-
-          <p>
-            Active procurement identities
-            configured locally.
-          </p>
-        </article>
-
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <Building2
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Departments
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value"
-            }
-          >
-            {loading
-              ? "—"
-              : departments.length}
-          </strong>
-
-          <p>
-            Organizational units available
-            for procurement workflows.
-          </p>
-        </article>
-
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <ShieldCheck
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Security roles
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value"
-            }
-          >
-            5
-          </strong>
-
-          <p>
-            Administration, management,
-            buyer, requester and approver.
-          </p>
-        </article>
-
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <UserCheck
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Buying users
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value"
-            }
-          >
-            {
-              (
-                roleCounts.ADMIN ??
-                0
-              ) +
-              (
-                roleCounts
-                  .PROCUREMENT_MANAGER ??
-                0
-              ) +
-              (
-                roleCounts.BUYER ??
-                0
-              )
-            }
-          </strong>
-
-          <p>
-            Users authorized to participate
-            in supplier management.
-          </p>
-        </article>
-
-      </section>
+      {error && users === null ? null : (
+        <DataTable
+          columns={COLUMNS}
+          rows={rows}
+          getRowId={(member) => member.id}
+          ariaLabel="Procurement team"
+          loading={initialLoad}
+          busy={fetching}
+          empty={emptyNode}
+          defaultSort={{ id: "role", dir: "asc" }}
+          persistKey="team"
+          resetKey={`${query}|${role}`}
+        />
+      )}
 
       <section className="panel">
-
-        <div
-          className={
-            "panel__header"
-          }
-        >
+        <div className="panel__header">
           <div>
-            <span className="eyebrow">
-              Identity directory
-            </span>
+            <span className="eyebrow">Organization</span>
 
-            <h2>
-              Procurement team
-            </h2>
+            <h2>Departments</h2>
           </div>
+
+          <span className="kit-count-pill">{departmentList.length}</span>
         </div>
 
-        <div className="table-scroll">
-
-          <table
-            className={
-              "data-table team-table"
-            }
-          >
-
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Role</th>
-                <th>Department</th>
-                <th>Job title</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-
-            <tbody>
-
-              {users.map(
-                member => (
-                  <tr
-                    key={
-                      member.id
-                    }
-                  >
-
-                    <td>
-                      <div
-                        className={
-                          "supplier-cell"
-                        }
-                      >
-
-                        <div
-                          className={
-                            "company-avatar"
-                          }
-                        >
-                          {initials(
-                            member
-                              .fullName,
-                          )}
-                        </div>
-
-                        <div>
-                          <strong>
-                            {
-                              member
-                                .fullName
-                            }
-                          </strong>
-
-                          <span>
-                            {
-                              member
-                                .email
-                            }
-                          </span>
-                        </div>
-
-                      </div>
-                    </td>
-
-                    <td>
-                      <span
-                        className={
-                          `role-badge role-badge--${
-                            member.role
-                              .toLowerCase()
-                              .replaceAll(
-                                "_",
-                                "-",
-                              )
-                          }`
-                        }
-                      >
-                        {
-                          roleLabel(
-                            member.role,
-                          )
-                        }
-                      </span>
-                    </td>
-
-                    <td>
-                      {
-                        member
-                          .departmentName
-                      }
-                    </td>
-
-                    <td>
-                      {
-                        member
-                          .jobTitle
-                      }
-                    </td>
-
-                    <td>
-                      <span
-                        className={
-                          member.active
-                            ? "badge badge--status-active"
-                            : "badge badge--status-inactive"
-                        }
-                      >
-                        {
-                          member.active
-                            ? "ACTIVE"
-                            : "INACTIVE"
-                        }
-                      </span>
-                    </td>
-
-                  </tr>
-                ),
-              )}
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </section>
-
-      <section className="panel">
-
-        <div
-          className={
-            "panel__header"
-          }
-        >
-          <div>
-            <span className="eyebrow">
-              Organization
-            </span>
-
-            <h2>
-              Departments
-            </h2>
-          </div>
-        </div>
-
-        <div
-          className={
-            "department-grid"
-          }
-        >
-          {departments.map(
-            department => (
-              <article
-                key={
-                  department.id
-                }
-                className={
-                  "department-card"
-                }
-              >
-                <div
-                  className={
-                    "department-card__icon"
-                  }
-                >
-                  <Building2
-                    size={18}
-                  />
+        {departments !== null && departmentList.length === 0 ? (
+          <EmptyState
+            compact
+            icon={Building2}
+            title="No departments"
+            description="No organizational units are configured yet."
+          />
+        ) : (
+          <div className="department-grid">
+            {departmentList.map((department) => (
+              <article key={department.id} className="department-card">
+                <div className="department-card__icon">
+                  <Building2 size={18} />
                 </div>
 
                 <div>
-                  <span>
-                    {
-                      department.code
-                    }
-                  </span>
+                  <span>{department.code}</span>
 
-                  <strong>
-                    {
-                      department.name
-                    }
-                  </strong>
+                  <strong>{department.name}</strong>
 
-                  <p>
-                    {
-                      department.description
-                    }
-                  </p>
+                  {department.description ? <p>{department.description}</p> : null}
                 </div>
               </article>
-            ),
-          )}
-        </div>
-
+            ))}
+          </div>
+        )}
       </section>
-
     </div>
   );
 }

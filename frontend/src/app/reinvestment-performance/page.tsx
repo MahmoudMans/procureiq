@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {
   Camera,
   CircleAlert,
@@ -464,7 +466,7 @@ export default function ReinvestmentPerformancePage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Target</th>
@@ -573,7 +575,7 @@ export default function ReinvestmentPerformancePage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
@@ -773,7 +775,7 @@ export default function ReinvestmentPerformancePage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Target</th>
@@ -882,7 +884,7 @@ export default function ReinvestmentPerformancePage() {
                   ),
                 )}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
@@ -904,7 +906,7 @@ export default function ReinvestmentPerformancePage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Snapshot</th>
@@ -994,7 +996,7 @@ export default function ReinvestmentPerformancePage() {
                   ),
                 )}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 

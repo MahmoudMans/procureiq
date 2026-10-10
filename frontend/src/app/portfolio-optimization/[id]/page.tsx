@@ -1,450 +1,672 @@
 "use client";
 
 import {
+  AlertTriangle,
+  Archive,
   ArrowLeft,
   BadgeCheck,
   CircleAlert,
+  Coins,
+  Gauge,
   GitCompareArrows,
-  RefreshCcw,
+  Info,
+  RefreshCw,
+  ShieldAlert,
   ShieldCheck,
   SlidersHorizontal,
+  Target,
+  XCircle,
 } from "lucide-react";
-
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
-import {
-  useParams,
-} from "next/navigation";
-
-import {
-  useAuth,
-} from "@/components/auth/auth-provider";
-
+  type Column,
+  DataTable,
+  EmptyState,
+  KpiGrid,
+  type KpiItem,
+  Meter,
+  type MeterTone,
+  Skeleton,
+  StatusBadge,
+  formatDateTime,
+  meterToneFor,
+  readable,
+  useToast,
+} from "@/components/kit";
+import { ActionDialog } from "@/components/kit/action-dialog";
 import {
   approvePortfolioOptimizationScenario,
   archivePortfolioOptimizationScenario,
   evaluatePortfolioOptimizationScenario,
   getPortfolioOptimizationScenario,
 } from "@/lib/api";
+import type { PortfolioScenarioDetail } from "@/types/portfolio-optimization";
 
-import type {
-  PortfolioScenarioDetail,
-} from "@/types/portfolio-optimization";
+/* ------------------------------------------------------------------ */
+/* Constants & helpers                                                 */
+/* ------------------------------------------------------------------ */
 
-function readable(
-  value: string,
-): string {
-  return value
-    .replaceAll(
-      "_",
-      " ",
-    )
-    .toLowerCase()
-    .replace(
-      /\b\w/g,
-      letter =>
-        letter.toUpperCase(),
-    );
+type Scenario = PortfolioScenarioDetail["scenario"];
+type ScenarioItem = PortfolioScenarioDetail["items"][number];
+type Flow = "EVALUATE" | "APPROVE" | "ARCHIVE";
+
+const EVALUATE_ROLES = ["ADMIN", "PROCUREMENT_MANAGER", "BUYER"];
+const APPROVE_ROLES = ["ADMIN", "PROCUREMENT_MANAGER"];
+
+function money(value: number, currency: string): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(value);
 }
 
-function money(
-  value: number,
-  currency: string,
-): string {
-  return new Intl.NumberFormat(
-    "en-US",
+function clampPercent(value: number): number {
+  return Math.min(100, Math.max(0, value));
+}
+
+function usagePct(value: number, limit: number): number {
+  return limit > 0 ? (value / limit) * 100 : 0;
+}
+
+function plural(count: number, one: string, many: string): string {
+  return `${count} ${count === 1 ? one : many}`;
+}
+
+function ScenarioBadge({ status }: { status: string }) {
+  if (status === "EVALUATED") {
+    return <StatusBadge value="READY" label="Evaluated" />;
+  }
+
+  return <StatusBadge value={status} label={readable(status)} />;
+}
+
+function DecisionBadge({ decision }: { decision: string }) {
+  switch (decision) {
+    case "SELECTED":
+      return <StatusBadge value="APPROVED" label="Selected" />;
+
+    case "EXCLUDED":
+      return <StatusBadge value="CANCELLED" label="Excluded" />;
+
+    default:
+      return <StatusBadge value={decision} label={readable(decision)} />;
+  }
+}
+
+function ProgressLine({
+  pct,
+  tone,
+  caption,
+  label,
+}: {
+  pct: number;
+  tone: MeterTone;
+  caption: string;
+  label: string;
+}) {
+  return (
+    <div className="kit-meter-wrap">
+      <Meter value={clampPercent(pct)} max={100} tone={tone} ariaLabel={label} />
+
+      <span className="kit-meter-caption">{caption}</span>
+    </div>
+  );
+}
+
+interface FlowCopy {
+  eyebrow: string;
+  title: string;
+  description: string;
+  confirm: string;
+  busy: string;
+  keep: string;
+  done: string;
+  failed: string;
+}
+
+function flowCopy(flow: Flow, scenario: Scenario): FlowCopy {
+  switch (flow) {
+    case "EVALUATE": {
+      const again = String(scenario.status) === "EVALUATED";
+
+      return {
+        eyebrow: "Constraint-based selection",
+        title: again ? "Re-evaluate this scenario?" : "Evaluate this scenario?",
+        description: again
+          ? `${scenario.scenarioCode} will be recalculated against its current constraints. The new selection replaces the existing results.`
+          : `${scenario.scenarioCode} will select and exclude initiatives under its hard constraints.`,
+        confirm: again ? "Re-evaluate" : "Evaluate scenario",
+        busy: "Evaluating…",
+        keep: "Not yet",
+        done: again ? "Scenario re-evaluated" : "Scenario evaluated",
+        failed: "Could not evaluate the scenario",
+      };
+    }
+
+    case "APPROVE":
+      return {
+        eyebrow: "Portfolio governance",
+        title: "Approve this scenario?",
+        description: `${scenario.scenarioCode} will be approved with ${scenario.selectedCount} of ${scenario.candidateCount} initiatives, ${money(scenario.selectedBudget, scenario.currency)} of managed value and ${money(scenario.selectedTargetSavings, scenario.currency)} of target savings. The approval is recorded under your name.`,
+        confirm: "Approve scenario",
+        busy: "Approving…",
+        keep: "Not yet",
+        done: "Scenario approved",
+        failed: "Could not approve the scenario",
+      };
+
+    case "ARCHIVE":
+      return {
+        eyebrow: "Scenario lifecycle",
+        title: "Archive this scenario?",
+        description: `${scenario.scenarioCode} will be archived. An archived scenario can no longer be evaluated or approved.`,
+        confirm: "Archive scenario",
+        busy: "Archiving…",
+        keep: "Keep scenario",
+        done: "Scenario archived",
+        failed: "Could not archive the scenario",
+      };
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Table columns                                                       */
+/* ------------------------------------------------------------------ */
+
+function buildSelectedColumns(currency: string): Column<ScenarioItem>[] {
+  return [
     {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 0,
+      id: "rank",
+      header: "Rank",
+      align: "right",
+      sortValue: (item) => item.rankPosition ?? null,
+      cell: (item) =>
+        item.rankPosition !== null && item.rankPosition !== undefined ? (
+          <strong>#{item.rankPosition}</strong>
+        ) : (
+          "—"
+        ),
     },
-  ).format(value);
+    {
+      id: "initiative",
+      header: "Initiative",
+      sortValue: (item) => item.initiativeTitle.toLowerCase(),
+      cell: (item) => (
+        <div className="request-primary-cell">
+          <strong>{item.initiativeTitle}</strong>
+
+          <span>
+            {item.initiativeNumber}
+            {" · "}
+            {readable(String(item.initiativeType))}
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: "category",
+      header: "Category",
+      sortValue: (item) => String(item.categoryName).toLowerCase(),
+      cell: (item) => (
+        <div className="request-primary-cell">
+          <strong>{item.categoryName}</strong>
+
+          <span>{readable(String(item.matrixPosition))}</span>
+        </div>
+      ),
+    },
+    {
+      id: "utility",
+      header: "Utility",
+      align: "right",
+      sortValue: (item) => item.utilityScore,
+      cell: (item) => <strong className="portfolio-utility">{item.utilityScore.toFixed(1)}</strong>,
+    },
+    {
+      id: "value",
+      header: "Managed value",
+      align: "right",
+      sortValue: (item) => item.estimatedValue,
+      cell: (item) => money(item.estimatedValue, currency),
+    },
+    {
+      id: "savings",
+      header: "Savings",
+      align: "right",
+      sortValue: (item) => item.targetSavings,
+      cell: (item) => money(item.targetSavings, currency),
+    },
+    {
+      id: "efficiency",
+      header: "Efficiency",
+      align: "right",
+      sortValue: (item) => item.savingsEfficiencyPct,
+      cell: (item) => item.savingsEfficiencyPct.toFixed(1),
+    },
+    {
+      id: "risk",
+      header: "Risk",
+      align: "right",
+      sortValue: (item) => item.supplyRiskScore,
+      cell: (item) => item.supplyRiskScore.toFixed(1),
+    },
+  ];
+}
+
+function buildExcludedColumns(currency: string): Column<ScenarioItem>[] {
+  return [
+    {
+      id: "initiative",
+      header: "Initiative",
+      sortValue: (item) => item.initiativeTitle.toLowerCase(),
+      cell: (item) => (
+        <div className="request-primary-cell">
+          <strong>{item.initiativeTitle}</strong>
+
+          <span>
+            {item.initiativeNumber}
+            {" · "}
+            {item.categoryName}
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: "utility",
+      header: "Utility",
+      align: "right",
+      sortValue: (item) => item.utilityScore,
+      cell: (item) => <strong>{item.utilityScore.toFixed(1)}</strong>,
+    },
+    {
+      id: "value",
+      header: "Managed value",
+      align: "right",
+      sortValue: (item) => item.estimatedValue,
+      cell: (item) => money(item.estimatedValue, currency),
+    },
+    {
+      id: "reason",
+      header: "Exclusion reason",
+      cell: (item) => <span>{item.exclusionReason ?? "Excluded by scenario constraints."}</span>,
+    },
+  ];
+}
+
+function buildDecompositionColumns(): Column<ScenarioItem>[] {
+  return [
+    {
+      id: "initiative",
+      header: "Initiative",
+      sortValue: (item) => item.initiativeTitle.toLowerCase(),
+      cell: (item) => (
+        <div className="request-primary-cell">
+          <strong>{item.initiativeTitle}</strong>
+
+          <span>{item.categoryName}</span>
+        </div>
+      ),
+    },
+    {
+      id: "decision",
+      header: "Decision",
+      sortValue: (item) => String(item.decision),
+      cell: (item) => <DecisionBadge decision={String(item.decision)} />,
+    },
+    {
+      id: "utility",
+      header: "Utility",
+      align: "right",
+      sortValue: (item) => item.utilityScore,
+      cell: (item) => <strong>{item.utilityScore.toFixed(1)}</strong>,
+    },
+    {
+      id: "efficiency",
+      header: "Savings efficiency",
+      align: "right",
+      sortValue: (item) => item.savingsEfficiencyPct,
+      cell: (item) => item.savingsEfficiencyPct.toFixed(1),
+    },
+    {
+      id: "strategic",
+      header: "Strategic value",
+      align: "right",
+      sortValue: (item) => item.strategicValueScore,
+      cell: (item) => item.strategicValueScore.toFixed(1),
+    },
+    {
+      id: "priority",
+      header: "Priority",
+      align: "right",
+      sortValue: (item) => item.priorityScore,
+      cell: (item) => item.priorityScore.toFixed(1),
+    },
+    {
+      id: "urgency",
+      header: "Matrix urgency",
+      align: "right",
+      sortValue: (item) => item.matrixUrgencyScore,
+      cell: (item) => item.matrixUrgencyScore.toFixed(1),
+    },
+  ];
+}
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
+
+interface ScenarioData {
+  id: string;
+  detail: PortfolioScenarioDetail;
 }
 
 export default function PortfolioOptimizationScenarioPage() {
-  const params =
-    useParams<{
-      id: string;
-    }>();
+  const params = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const toast = useToast();
 
-  const {
-    user,
-  } = useAuth();
+  const canEvaluate = user !== null && EVALUATE_ROLES.includes(user.role);
+  const canApprove = user !== null && APPROVE_ROLES.includes(user.role);
 
-  const [
-    detail,
-    setDetail,
-  ] =
-    useState<
-      PortfolioScenarioDetail |
-      null
-    >(null);
-
-  const [
-    runMessage,
-    setRunMessage,
-  ] =
-    useState<
-      string |
-      null
-    >(null);
-
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
-
-  const [
-    running,
-    setRunning,
-  ] =
-    useState(false);
-
-  const [
-    error,
-    setError,
-  ] =
-    useState<
-      string |
-      null
-    >(null);
-
-  const canEvaluate =
-    user?.role ===
-      "ADMIN"
-    ||
-    user?.role ===
-      "PROCUREMENT_MANAGER"
-    ||
-    user?.role ===
-      "BUYER";
-
-  const canApprove =
-    user?.role ===
-      "ADMIN"
-    ||
-    user?.role ===
-      "PROCUREMENT_MANAGER";
+  const [result, setResult] = useState<ScenarioData | null>(null);
+  const [flow, setFlow] = useState<Flow | null>(null);
+  const [flowRunning, setFlowRunning] = useState(false);
+  const [fetching, setFetching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let active = true;
+    const id = params.id;
 
-    getPortfolioOptimizationScenario(
-      params.id,
-    )
-      .then(
-        response => {
-          if (!active) {
-            return;
-          }
+    const timer = window.setTimeout(async () => {
+      setFetching(true);
+      setError(null);
 
-          setDetail(
-            response,
-          );
+      try {
+        const response = await getPortfolioOptimizationScenario(id);
 
-          setError(null);
-        },
-      )
-      .catch(
-        caughtError => {
-          if (!active) {
-            return;
-          }
-
+        if (active) {
+          setResult({ id, detail: response });
+        }
+      } catch (caught) {
+        if (active) {
           setError(
-            caughtError instanceof
-              Error
-              ? caughtError.message
-              : "Unable to load portfolio scenario.",
+            caught instanceof Error ? caught.message : "Unable to load portfolio scenario.",
           );
-        },
-      )
-      .finally(
-        () => {
-          if (active) {
-            setLoading(false);
-          }
-        },
-      );
+        }
+      } finally {
+        if (active) {
+          setFetching(false);
+        }
+      }
+    }, 0);
 
     return () => {
       active = false;
+      window.clearTimeout(timer);
     };
-  }, [
-    params.id,
-  ]);
+  }, [params.id, reloadKey]);
 
-  async function reload() {
-    setDetail(
-      await getPortfolioOptimizationScenario(
-        params.id,
-      ),
-    );
+  const data = result !== null && result.id === params.id ? result : null;
+  const detail = data?.detail ?? null;
+
+  function reload() {
+    setReloadKey((key) => key + 1);
   }
 
-  async function evaluate() {
+  async function refresh() {
+    const id = params.id;
+
     try {
-      setRunning(true);
-      setError(null);
-      setRunMessage(null);
+      const fresh = await getPortfolioOptimizationScenario(id);
 
-      const result =
-        await evaluatePortfolioOptimizationScenario(
-          params.id,
-        );
-
-      await reload();
-
-      setRunMessage(
-        `${result.selectedCount} selected · ${result.excludedCount} excluded · ${result.minimumTargetMet ? "minimum savings satisfied" : "minimum savings not satisfied"}`,
+      setResult((current) =>
+        current && current.id === id ? { ...current, detail: fresh } : current,
       );
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to evaluate portfolio scenario.",
-      );
-    } finally {
-      setRunning(false);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to refresh the scenario.");
     }
   }
 
-  async function approve() {
-    try {
-      setRunning(true);
-      setError(null);
-
-      await approvePortfolioOptimizationScenario(
-        params.id,
+  if (detail === null) {
+    if (error === null) {
+      return (
+        <div className="page-stack">
+          <Skeleton height={28} />
+          <Skeleton height={120} />
+          <Skeleton height={96} />
+          <Skeleton height={260} />
+        </div>
       );
-
-      await reload();
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to approve portfolio scenario.",
-      );
-    } finally {
-      setRunning(false);
     }
-  }
 
-  async function archive() {
-    try {
-      setRunning(true);
-      setError(null);
-
-      await archivePortfolioOptimizationScenario(
-        params.id,
-      );
-
-      await reload();
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to archive portfolio scenario.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  const selected =
-    useMemo(
-      () =>
-        detail
-          ?.items
-          .filter(
-            item =>
-              item.decision ===
-                "SELECTED",
-          )
-        ??
-        [],
-      [
-        detail,
-      ],
-    );
-
-  const excluded =
-    useMemo(
-      () =>
-        detail
-          ?.items
-          .filter(
-            item =>
-              item.decision ===
-                "EXCLUDED",
-          )
-        ??
-        [],
-      [
-        detail,
-      ],
-    );
-
-  if (loading) {
-    return (
-      <div className="request-detail-loading">
-        Loading portfolio scenario...
-      </div>
-    );
-  }
-
-  if (!detail) {
     return (
       <div className="page-stack">
-        <Link
-          href="/portfolio-optimization"
-          className="request-back-link"
-        >
-          <ArrowLeft
-            size={16}
-          />
+        <Link href="/portfolio-optimization" className="request-back-link">
+          <ArrowLeft size={16} />
           Portfolio optimization
         </Link>
 
         <div className="error-banner">
-          <CircleAlert
-            size={18}
-          />
-          {error ??
-            "Portfolio scenario not found."}
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button type="button" className="kit-banner-action" onClick={reload}>
+            Try again
+          </button>
         </div>
       </div>
     );
   }
 
-  const {
-    scenario,
-  } = detail;
+  const { scenario } = detail;
+  const currency = scenario.currency;
+  const status = String(scenario.status);
+  const draft = status === "DRAFT";
+  const evaluated = status === "EVALUATED";
+  const approvedStatus = status === "APPROVED";
+  const archived = status === "ARCHIVED";
+  const showUsage = !draft;
+  const canRunEvaluate = canEvaluate && (draft || evaluated);
+  const approveBlocked = !scenario.minimumTargetMet
+    ? "The minimum savings constraint is not satisfied"
+    : scenario.selectedCount === 0
+      ? "No initiative is selected"
+      : undefined;
+
+  const selected = detail.items
+    .filter((item) => item.decision === "SELECTED")
+    .sort((a, b) => (a.rankPosition ?? 0) - (b.rankPosition ?? 0));
+
+  const excluded = detail.items
+    .filter((item) => item.decision === "EXCLUDED")
+    .sort((a, b) => b.utilityScore - a.utilityScore);
+
+  const decomposition = [...detail.items].sort((a, b) => b.utilityScore - a.utilityScore);
+
+  const breaches: string[] = [];
+
+  if (showUsage) {
+    if (scenario.selectedBudget > scenario.budgetLimit + 0.5) {
+      breaches.push("managed value");
+    }
+
+    if (scenario.selectedCount > scenario.maxInitiatives) {
+      breaches.push("initiative count");
+    }
+
+    if (scenario.averageSelectedRisk > scenario.maxAverageRiskScore + 0.05) {
+      breaches.push("average risk");
+    }
+  }
+
+  const shortfall = scenario.minTotalTargetSavings - scenario.selectedTargetSavings;
+  const flowInfo = flow !== null ? flowCopy(flow, scenario) : null;
+
+  async function confirmFlow() {
+    if (flow === null) {
+      return;
+    }
+
+    const action = flow;
+    const copy = flowCopy(action, scenario);
+
+    setFlowRunning(true);
+
+    try {
+      let detailText: string = scenario.scenarioCode;
+
+      if (action === "EVALUATE") {
+        const outcome = await evaluatePortfolioOptimizationScenario(params.id);
+
+        detailText = `${outcome.selectedCount} selected · ${outcome.excludedCount} excluded · ${outcome.minimumTargetMet ? "minimum savings satisfied" : "minimum savings not satisfied"}`;
+      } else if (action === "APPROVE") {
+        await approvePortfolioOptimizationScenario(params.id);
+      } else {
+        await archivePortfolioOptimizationScenario(params.id);
+      }
+
+      await refresh();
+
+      setFlow(null);
+
+      toast.success(copy.done, detailText);
+    } catch (caught) {
+      setFlow(null);
+
+      toast.error(
+        copy.failed,
+        caught instanceof Error ? caught.message : "Unable to update the portfolio scenario.",
+      );
+    } finally {
+      setFlowRunning(false);
+    }
+  }
+
+  const kpis: KpiItem[] = [
+    {
+      label: "Selected initiatives",
+      icon: BadgeCheck,
+      value: `${scenario.selectedCount} / ${scenario.candidateCount}`,
+      note: "Selected of all candidates",
+    },
+    {
+      label: "Managed value",
+      icon: Coins,
+      value: money(scenario.selectedBudget, currency),
+      note: "Of the selected initiatives",
+    },
+    {
+      label: "Target savings",
+      icon: Target,
+      value: money(scenario.selectedTargetSavings, currency),
+      note: scenario.minimumTargetMet ? "Meets the minimum" : "Below the minimum",
+      tone: showUsage && !scenario.minimumTargetMet ? "warning" : "default",
+    },
+    {
+      label: "Savings / managed value",
+      icon: Gauge,
+      value: `${scenario.savingsToBudgetPct.toFixed(1)}%`,
+      note: "Savings efficiency of the portfolio",
+    },
+    {
+      label: "Average risk",
+      icon: ShieldAlert,
+      value: scenario.averageSelectedRisk.toFixed(1),
+      note: `Maximum ${scenario.maxAverageRiskScore.toFixed(1)}`,
+      tone:
+        showUsage && scenario.averageSelectedRisk > scenario.maxAverageRiskScore + 0.05
+          ? "warning"
+          : "default",
+    },
+    {
+      label: "Excluded",
+      icon: XCircle,
+      value: String(excluded.length),
+      note: "Removed by the constraints",
+    },
+  ];
+
+  const selectedColumns = buildSelectedColumns(currency);
+  const excludedColumns = buildExcludedColumns(currency);
+  const decompositionColumns = buildDecompositionColumns();
 
   return (
     <div className="page-stack">
-      <Link
-        href="/portfolio-optimization"
-        className="request-back-link"
-      >
-        <ArrowLeft
-          size={16}
-        />
+      <Link href="/portfolio-optimization" className="request-back-link">
+        <ArrowLeft size={16} />
         Portfolio optimization
       </Link>
 
       <section className="portfolio-detail-heading">
         <div>
           <div className="request-detail-heading__meta">
-            <span>
-              {scenario.scenarioCode}
-            </span>
+            <span>{scenario.scenarioCode}</span>
 
-            <span
-              className={
-                `portfolio-status portfolio-status--${scenario.status.toLowerCase()}`
-              }
-            >
-              {readable(
-                scenario.status,
-              )}
-            </span>
+            <ScenarioBadge status={status} />
           </div>
 
-          <h1>
-            {scenario.name}
-          </h1>
+          <h1>{scenario.name}</h1>
 
           <p>
-            {scenario.currency}
+            {currency}
             {" · Owner: "}
             {scenario.ownerName}
           </p>
         </div>
 
-        <div className="portfolio-detail-actions">
-          {canEvaluate &&
-          (
-            scenario.status ===
-              "DRAFT"
-            ||
-            scenario.status ===
-              "EVALUATED"
-          ) ? (
-            <button
-              type="button"
-              className="button button--primary"
-              disabled={running}
-              onClick={
-                () =>
-                  void evaluate()
-              }
-            >
-              <RefreshCcw
-                size={16}
-              />
-              {scenario.status ===
-              "EVALUATED"
-                ? "Re-evaluate"
-                : "Evaluate scenario"}
-            </button>
-          ) : null}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={reload}
+            disabled={fetching}
+          >
+            <RefreshCw size={15} className={fetching ? "kit-spin" : undefined} />
+            Refresh
+          </button>
 
-          {canApprove &&
-          scenario.status ===
-            "EVALUATED" ? (
-            <button
-              type="button"
-              className="button button--primary"
-              disabled={
-                running
-                ||
-                !scenario.minimumTargetMet
-                ||
-                scenario.selectedCount ===
-                  0
-              }
-              onClick={
-                () =>
-                  void approve()
-              }
-            >
-              <BadgeCheck
-                size={16}
-              />
-              Approve scenario
-            </button>
-          ) : null}
-
-          {canApprove &&
-          scenario.status !==
-            "ARCHIVED" ? (
+          {canApprove && !archived ? (
             <button
               type="button"
               className="button button--secondary"
-              disabled={running}
-              onClick={
-                () =>
-                  void archive()
-              }
+              disabled={flowRunning}
+              onClick={() => setFlow("ARCHIVE")}
             >
+              <Archive size={15} />
               Archive
+            </button>
+          ) : null}
+
+          {canRunEvaluate ? (
+            <button
+              type="button"
+              className={`button ${draft ? "button--primary" : "button--secondary"}`}
+              disabled={flowRunning}
+              onClick={() => setFlow("EVALUATE")}
+            >
+              <GitCompareArrows size={16} />
+              {evaluated ? "Re-evaluate" : "Evaluate scenario"}
+            </button>
+          ) : null}
+
+          {canApprove && evaluated ? (
+            <button
+              type="button"
+              className="button button--primary"
+              disabled={flowRunning || approveBlocked !== undefined}
+              title={approveBlocked}
+              onClick={() => setFlow("APPROVE")}
+            >
+              <BadgeCheck size={16} />
+              Approve scenario
             </button>
           ) : null}
         </div>
@@ -452,164 +674,143 @@ export default function PortfolioOptimizationScenarioPage() {
 
       {error ? (
         <div className="error-banner">
-          <CircleAlert
-            size={18}
-          />
-          {error}
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button type="button" className="kit-banner-action" onClick={reload}>
+            Try again
+          </button>
         </div>
       ) : null}
 
-      {runMessage ? (
-        <div className="portfolio-run-banner">
-          <GitCompareArrows
-            size={16}
-          />
-          {runMessage}
+      {draft && canEvaluate ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
+
+          <div>
+            <strong>Evaluate the scenario to build the portfolio.</strong> Initiatives are selected
+            and excluded under the hard constraints below.
+          </div>
         </div>
       ) : null}
 
-      <section className="portfolio-detail-kpis">
-        <article>
-          <span>
-            Selected initiatives
-          </span>
+      {evaluated && !scenario.minimumTargetMet ? (
+        <div className="kit-callout kit-callout--warning" role="status">
+          <AlertTriangle size={17} />
 
-          <strong>
-            {scenario.selectedCount}
-            {" / "}
-            {scenario.candidateCount}
-          </strong>
-        </article>
+          <div>
+            <strong>The minimum savings constraint is not satisfied.</strong> The selection is{" "}
+            {money(Math.max(shortfall, 0), currency)} short of the required{" "}
+            {money(scenario.minTotalTargetSavings, currency)}, so the scenario cannot be approved.
+            Create another scenario with adjusted constraints.
+          </div>
+        </div>
+      ) : null}
 
-        <article>
-          <span>
-            Managed value
-          </span>
+      {evaluated && scenario.minimumTargetMet && scenario.selectedCount === 0 ? (
+        <div className="kit-callout kit-callout--warning" role="status">
+          <AlertTriangle size={17} />
 
-          <strong>
-            {money(
-              scenario.selectedBudget,
-              scenario.currency,
-            )}
-          </strong>
-        </article>
+          <div>
+            <strong>No initiative is selected.</strong> The scenario cannot be approved until an
+            evaluation selects at least one initiative.
+          </div>
+        </div>
+      ) : null}
 
-        <article>
-          <span>
-            Target savings
-          </span>
+      {breaches.length > 0 ? (
+        <div className="kit-callout kit-callout--warning" role="status">
+          <AlertTriangle size={17} />
 
-          <strong>
-            {money(
-              scenario.selectedTargetSavings,
-              scenario.currency,
-            )}
-          </strong>
-        </article>
+          <div>
+            <strong>The selection is outside {plural(breaches.length, "constraint", "constraints")}.</strong>{" "}
+            Check the {breaches.join(", ")} against the limits below.
+          </div>
+        </div>
+      ) : null}
 
-        <article>
-          <span>
-            Average risk
-          </span>
+      {evaluated && !approveBlocked && canApprove ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
 
-          <strong>
-            {scenario.averageSelectedRisk.toFixed(
-              1,
-            )}
-          </strong>
-        </article>
-      </section>
+          <div>
+            <strong>The scenario meets the minimum savings.</strong> Approve it when the selection
+            is acceptable, or re-evaluate it after the constraints change.
+          </div>
+        </div>
+      ) : null}
+
+      {evaluated && !canApprove ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
+
+          <div>
+            <strong>Awaiting approval.</strong> A procurement manager or administrator needs to
+            approve the scenario.
+          </div>
+        </div>
+      ) : null}
+
+      {archived ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
+
+          <div>
+            <strong>This scenario is archived.</strong> It can no longer be evaluated or approved.
+          </div>
+        </div>
+      ) : null}
+
+      <KpiGrid items={kpis} ariaLabel="Scenario summary" />
 
       <section className="portfolio-detail-grid">
         <section className="panel">
           <div className="panel__header">
             <div>
-              <span className="eyebrow">
-                Hard constraints
-              </span>
+              <span className="eyebrow">Hard constraints</span>
 
-              <h2>
-                Scenario controls
-              </h2>
+              <h2>Scenario controls</h2>
             </div>
 
-            <SlidersHorizontal
-              size={19}
-            />
+            <SlidersHorizontal size={19} />
           </div>
 
           <div className="portfolio-constraint-grid">
             <div>
-              <span>
-                Budget / managed-value cap
-              </span>
+              <span>Budget / managed-value cap</span>
 
-              <strong>
-                {money(
-                  scenario.budgetLimit,
-                  scenario.currency,
-                )}
-              </strong>
+              <strong>{money(scenario.budgetLimit, currency)}</strong>
             </div>
 
             <div>
-              <span>
-                Maximum initiatives
-              </span>
+              <span>Maximum initiatives</span>
 
-              <strong>
-                {scenario.maxInitiatives}
-              </strong>
+              <strong>{scenario.maxInitiatives}</strong>
             </div>
 
             <div>
-              <span>
-                Maximum average risk
-              </span>
+              <span>Maximum average risk</span>
 
-              <strong>
-                {scenario.maxAverageRiskScore.toFixed(
-                  1,
-                )}
-              </strong>
+              <strong>{scenario.maxAverageRiskScore.toFixed(1)}</strong>
             </div>
 
             <div>
-              <span>
-                Minimum savings target
-              </span>
+              <span>Minimum savings target</span>
 
-              <strong>
-                {money(
-                  scenario.minTotalTargetSavings,
-                  scenario.currency,
-                )}
-              </strong>
+              <strong>{money(scenario.minTotalTargetSavings, currency)}</strong>
             </div>
 
             <div>
-              <span>
-                Critical categories
-              </span>
+              <span>Critical categories</span>
 
-              <strong>
-                {scenario.allowCriticalPriority
-                  ? "Allowed"
-                  : "Excluded"}
-              </strong>
+              <strong>{scenario.allowCriticalPriority ? "Allowed" : "Excluded"}</strong>
             </div>
 
             <div>
-              <span>
-                Savings / managed value
-              </span>
+              <span>Savings / managed value</span>
 
-              <strong>
-                {scenario.savingsToBudgetPct.toFixed(
-                  1,
-                )}
-                %
-              </strong>
+              <strong>{scenario.savingsToBudgetPct.toFixed(1)}%</strong>
             </div>
           </div>
         </section>
@@ -617,18 +818,12 @@ export default function PortfolioOptimizationScenarioPage() {
         <section className="panel">
           <div className="panel__header">
             <div>
-              <span className="eyebrow">
-                Governance check
-              </span>
+              <span className="eyebrow">Governance check</span>
 
-              <h2>
-                Scenario readiness
-              </h2>
+              <h2>Scenario readiness</h2>
             </div>
 
-            <ShieldCheck
-              size={19}
-            />
+            <ShieldCheck size={19} />
           </div>
 
           <div
@@ -645,358 +840,178 @@ export default function PortfolioOptimizationScenarioPage() {
             </strong>
 
             <p>
-              Required:
-              {" "}
-              {money(
-                scenario.minTotalTargetSavings,
-                scenario.currency,
-              )}
+              Required: {money(scenario.minTotalTargetSavings, currency)}
               {" · Selected: "}
-              {money(
-                scenario.selectedTargetSavings,
-                scenario.currency,
-              )}
+              {money(scenario.selectedTargetSavings, currency)}
             </p>
           </div>
 
           {scenario.approvedAt ? (
             <div className="portfolio-approval-info">
-              <BadgeCheck
-                size={15}
-              />
+              <BadgeCheck size={15} />
 
               <span>
-                Approved by
-                {" "}
-                {scenario.approvedByName ??
-                  "Procurement governance"}
+                Approved by {scenario.approvedByName ?? "Procurement governance"}
                 {" on "}
-                {new Date(
-                  scenario.approvedAt,
-                )
-                  .toLocaleString()}
+                {formatDateTime(scenario.approvedAt)}
               </span>
             </div>
           ) : null}
 
           {detail.notes ? (
             <div className="portfolio-notes">
-              <strong>
-                Scenario notes
-              </strong>
+              <strong>Scenario notes</strong>
 
-              <p>
-                {detail.notes}
-              </p>
+              <p>{detail.notes}</p>
             </div>
           ) : null}
         </section>
       </section>
 
-      <section className="panel">
-        <div className="panel__header">
-          <div>
-            <span className="eyebrow">
-              Recommended portfolio
-            </span>
-
-            <h2>
-              Selected initiatives
-            </h2>
-          </div>
-
-          <span className="portfolio-count">
-            {selected.length}
-            {" selected"}
-          </span>
-        </div>
-
-        <div className="table-scroll">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Initiative</th>
-                <th>Category</th>
-                <th>Utility</th>
-                <th>Managed value</th>
-                <th>Savings</th>
-                <th>Efficiency</th>
-                <th>Risk</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {selected.map(
-                item => (
-                  <tr
-                    key={item.id}
-                  >
-                    <td>
-                      <strong>
-                        #{item.rankPosition}
-                      </strong>
-                    </td>
-
-                    <td>
-                      <div className="request-primary-cell">
-                        <strong>
-                          {item.initiativeTitle}
-                        </strong>
-
-                        <span>
-                          {item.initiativeNumber}
-                          {" · "}
-                          {readable(
-                            item.initiativeType,
-                          )}
-                        </span>
-                      </div>
-                    </td>
-
-                    <td>
-                      <div className="request-primary-cell">
-                        <strong>
-                          {item.categoryName}
-                        </strong>
-
-                        <span>
-                          {readable(
-                            item.matrixPosition,
-                          )}
-                        </span>
-                      </div>
-                    </td>
-
-                    <td>
-                      <strong className="portfolio-utility">
-                        {item.utilityScore.toFixed(
-                          1,
-                        )}
-                      </strong>
-                    </td>
-
-                    <td>
-                      {money(
-                        item.estimatedValue,
-                        scenario.currency,
-                      )}
-                    </td>
-
-                    <td>
-                      {money(
-                        item.targetSavings,
-                        scenario.currency,
-                      )}
-                    </td>
-
-                    <td>
-                      {item.savingsEfficiencyPct.toFixed(
-                        1,
-                      )}
-                    </td>
-
-                    <td>
-                      {item.supplyRiskScore.toFixed(
-                        1,
-                      )}
-                    </td>
-                  </tr>
-                ),
-              )}
-
-              {selected.length ===
-              0 ? (
-                <tr>
-                  <td
-                    colSpan={8}
-                    className="table-empty-state"
-                  >
-                    No initiatives have
-                    been selected. Evaluate
-                    the scenario or adjust
-                    its constraints by
-                    creating another
-                    scenario.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="panel">
-        <div className="panel__header">
-          <div>
-            <span className="eyebrow">
-              Constraint transparency
-            </span>
-
-            <h2>
-              Excluded initiatives
-            </h2>
-          </div>
-
-          <span className="portfolio-count">
-            {excluded.length}
-            {" excluded"}
-          </span>
-        </div>
-
-        <div className="portfolio-excluded-list">
-          {excluded.map(
-            item => (
-              <article
-                key={item.id}
-              >
-                <div>
-                  <strong>
-                    {item.initiativeTitle}
-                  </strong>
-
-                  <span>
-                    {item.initiativeNumber}
-                    {" · "}
-                    {item.categoryName}
-                  </span>
-                </div>
-
-                <div>
-                  <span>
-                    Utility
-                  </span>
-
-                  <strong>
-                    {item.utilityScore.toFixed(
-                      1,
-                    )}
-                  </strong>
-                </div>
-
-                <p>
-                  {item.exclusionReason ??
-                    "Excluded by scenario constraints."}
-                </p>
-              </article>
-            ),
-          )}
-
-          {excluded.length ===
-          0 ? (
-            <div className="portfolio-empty">
-              No excluded initiatives.
-            </div>
-          ) : null}
-        </div>
-      </section>
-
-      {detail.items.length >
-      0 ? (
+      {showUsage ? (
         <section className="panel">
           <div className="panel__header">
             <div>
-              <span className="eyebrow">
-                Explainability
-              </span>
+              <span className="eyebrow">Hard constraints</span>
 
-              <h2>
-                Initiative score decomposition
-              </h2>
+              <h2>Constraint usage</h2>
             </div>
+
+            <Gauge size={19} />
           </div>
 
-          <div className="portfolio-score-list">
-            {detail.items
-              .slice()
-              .sort(
-                (
-                  left,
-                  right,
-                ) =>
-                  right.utilityScore
-                  -
-                  left.utilityScore,
-              )
-              .map(
-                item => (
-                  <article
-                    key={
-                      `score-${item.id}`
-                    }
-                  >
-                    <div className="portfolio-score-heading">
-                      <div>
-                        <strong>
-                          {item.initiativeTitle}
-                        </strong>
+          <ProgressLine
+            pct={usagePct(scenario.selectedBudget, scenario.budgetLimit)}
+            tone="primary"
+            caption={`${money(scenario.selectedBudget, currency)} of the ${money(scenario.budgetLimit, currency)} managed-value cap (${usagePct(scenario.selectedBudget, scenario.budgetLimit).toFixed(1)}%)`}
+            label="Managed value against the cap"
+          />
 
-                        <span>
-                          {item.categoryName}
-                        </span>
-                      </div>
+          <ProgressLine
+            pct={usagePct(scenario.selectedCount, scenario.maxInitiatives)}
+            tone="primary"
+            caption={`${scenario.selectedCount} of the ${scenario.maxInitiatives} maximum initiatives`}
+            label="Selected initiatives against the maximum"
+          />
 
-                      <strong>
-                        {item.utilityScore.toFixed(
-                          1,
-                        )}
-                      </strong>
-                    </div>
+          <ProgressLine
+            pct={usagePct(scenario.averageSelectedRisk, scenario.maxAverageRiskScore)}
+            tone="primary"
+            caption={`Average risk ${scenario.averageSelectedRisk.toFixed(1)} against a maximum of ${scenario.maxAverageRiskScore.toFixed(1)}`}
+            label="Average risk against the maximum"
+          />
 
-                    <div className="portfolio-score-components">
-                      <div>
-                        <span>
-                          Savings efficiency
-                        </span>
-
-                        <strong>
-                          {item.savingsEfficiencyPct.toFixed(
-                            1,
-                          )}
-                        </strong>
-                      </div>
-
-                      <div>
-                        <span>
-                          Strategic value
-                        </span>
-
-                        <strong>
-                          {item.strategicValueScore.toFixed(
-                            1,
-                          )}
-                        </strong>
-                      </div>
-
-                      <div>
-                        <span>
-                          Priority
-                        </span>
-
-                        <strong>
-                          {item.priorityScore.toFixed(
-                            1,
-                          )}
-                        </strong>
-                      </div>
-
-                      <div>
-                        <span>
-                          Matrix urgency
-                        </span>
-
-                        <strong>
-                          {item.matrixUrgencyScore.toFixed(
-                            1,
-                          )}
-                        </strong>
-                      </div>
-                    </div>
-                  </article>
-                ),
-              )}
-          </div>
+          {scenario.minTotalTargetSavings > 0 ? (
+            <ProgressLine
+              pct={usagePct(scenario.selectedTargetSavings, scenario.minTotalTargetSavings)}
+              tone={scenario.minimumTargetMet ? meterToneFor("success") : "primary"}
+              caption={`${money(scenario.selectedTargetSavings, currency)} of the ${money(scenario.minTotalTargetSavings, currency)} minimum savings target`}
+              label="Target savings against the minimum"
+            />
+          ) : null}
         </section>
+      ) : null}
+
+      <section className="panel">
+        <div className="panel__header">
+          <div>
+            <span className="eyebrow">Recommended portfolio</span>
+
+            <h2>Selected initiatives</h2>
+          </div>
+
+          <span className="portfolio-count">{selected.length} selected</span>
+        </div>
+
+        <DataTable
+          columns={selectedColumns}
+          rows={selected}
+          getRowId={(item) => String(item.id)}
+          ariaLabel="Selected initiatives"
+          busy={fetching}
+          empty={
+            <EmptyState
+              icon={GitCompareArrows}
+              title="No initiatives selected"
+              description="No initiatives have been selected. Evaluate the scenario or adjust its constraints by creating another scenario."
+              action={
+                canRunEvaluate ? (
+                  <button
+                    type="button"
+                    className="button button--secondary"
+                    onClick={() => setFlow("EVALUATE")}
+                  >
+                    <GitCompareArrows size={15} />
+                    {evaluated ? "Re-evaluate" : "Evaluate scenario"}
+                  </button>
+                ) : undefined
+              }
+            />
+          }
+        />
+      </section>
+
+      <section className="panel">
+        <div className="panel__header">
+          <div>
+            <span className="eyebrow">Constraint transparency</span>
+
+            <h2>Excluded initiatives</h2>
+          </div>
+
+          <span className="portfolio-count">{excluded.length} excluded</span>
+        </div>
+
+        <DataTable
+          columns={excludedColumns}
+          rows={excluded}
+          getRowId={(item) => String(item.id)}
+          ariaLabel="Excluded initiatives"
+          busy={fetching}
+          empty={
+            <EmptyState
+              icon={ShieldCheck}
+              title="No excluded initiatives"
+              description="No initiative was excluded by the scenario constraints."
+            />
+          }
+        />
+      </section>
+
+      {decomposition.length > 0 ? (
+        <section className="panel">
+          <div className="panel__header">
+            <div>
+              <span className="eyebrow">Explainability</span>
+
+              <h2>Initiative score decomposition</h2>
+            </div>
+
+            <SlidersHorizontal size={19} />
+          </div>
+
+          <DataTable
+            columns={decompositionColumns}
+            rows={decomposition}
+            getRowId={(item) => `score-${String(item.id)}`}
+            ariaLabel="Initiative score decomposition"
+            busy={fetching}
+          />
+        </section>
+      ) : null}
+
+      {flow !== null && flowInfo !== null ? (
+        <ActionDialog
+          eyebrow={flowInfo.eyebrow}
+          title={flowInfo.title}
+          description={flowInfo.description}
+          confirmLabel={flowInfo.confirm}
+          busyLabel={flowInfo.busy}
+          cancelLabel={flowInfo.keep}
+          busy={flowRunning}
+          onConfirm={() => void confirmFlow()}
+          onCancel={() => setFlow(null)}
+        />
       ) : null}
     </div>
   );

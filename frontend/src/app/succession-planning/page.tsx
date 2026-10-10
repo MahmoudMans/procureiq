@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {
   Camera,
   CircleAlert,
@@ -574,7 +576,7 @@ export default function SuccessionPlanningPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Capability</th>
@@ -702,7 +704,7 @@ export default function SuccessionPlanningPage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
@@ -880,7 +882,7 @@ export default function SuccessionPlanningPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Snapshot</th>
@@ -954,7 +956,7 @@ export default function SuccessionPlanningPage() {
                     ),
                   )}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 

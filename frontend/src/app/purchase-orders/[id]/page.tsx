@@ -1,1161 +1,860 @@
 "use client";
 
 import {
+  AlertTriangle,
   ArrowLeft,
   Ban,
   Building2,
   CalendarDays,
   CircleAlert,
   FileText,
+  Info,
   PackageCheck,
   ReceiptText,
+  RefreshCw,
 } from "lucide-react";
-
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { type FormEvent, useEffect, useState } from "react";
 
 import {
-  type FormEvent,
-  useEffect,
-  useState,
-} from "react";
-
-import {
-  useParams,
-} from "next/navigation";
-
-import {
-  DeliveryWorkspace,
-} from "@/components/deliveries/delivery-workspace";
-
+  type Column,
+  DataTable,
+  EmptyState,
+  Field,
+  KpiGrid,
+  type KpiItem,
+  Skeleton,
+  StatusBadge,
+  formatDate,
+  formatDateTime,
+  useToast,
+} from "@/components/kit";
+import { ActionDialog } from "@/components/kit/action-dialog";
+import { DeliveryWorkspace } from "@/components/deliveries/delivery-workspace";
 import {
   cancelPurchaseOrder,
   getPurchaseOrder,
   issuePurchaseOrder,
   updatePurchaseOrder,
 } from "@/lib/api";
+import type { PurchaseOrder } from "@/types/purchase-order";
 
-import type {
-  PurchaseOrder,
-} from "@/types/purchase-order";
+/* ------------------------------------------------------------------ */
+/* Constants & helpers                                                 */
+/* ------------------------------------------------------------------ */
 
-export default function PurchaseOrderDetailPage() {
-  const params =
-    useParams<{
-      id: string;
-    }>();
+type OrderLine = PurchaseOrder["lines"][number];
+type OrderAction = "ISSUE" | "CANCEL";
 
-  const [
-    order,
-    setOrder,
-  ] =
-    useState<
-      PurchaseOrder |
-      null
-    >(null);
+const DAY_MS = 86400000;
 
-  const [
-    expectedDeliveryDate,
-    setExpectedDeliveryDate,
-  ] =
-    useState("");
+interface ActionCopy {
+  eyebrow: string;
+  title: string;
+  confirm: string;
+  busy: string;
+  keep: string;
+  done: string;
+  failed: string;
+  tone: "primary" | "danger";
+}
 
-  const [
-    deliveryAddress,
-    setDeliveryAddress,
-  ] =
-    useState("");
+const ACTIONS: Record<OrderAction, ActionCopy> = {
+  ISSUE: {
+    eyebrow: "Issue purchase order",
+    title: "Issue this purchase order?",
+    confirm: "Issue purchase order",
+    busy: "Issuing…",
+    keep: "Not yet",
+    done: "Purchase order issued",
+    failed: "Could not issue the purchase order",
+    tone: "primary",
+  },
+  CANCEL: {
+    eyebrow: "Cancel purchase order",
+    title: "Cancel this purchase order?",
+    confirm: "Cancel PO",
+    busy: "Cancelling…",
+    keep: "Keep PO",
+    done: "Purchase order cancelled",
+    failed: "Could not cancel the purchase order",
+    tone: "danger",
+  },
+};
 
-  const [
-    buyerNotes,
-    setBuyerNotes,
-  ] =
-    useState("");
+function money(value: number, currency: string): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
 
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
+/** Today's date in the browser's time zone, as YYYY-MM-DD. */
+function localIsoDate(): string {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
 
-  const [
-    saving,
-    setSaving,
-  ] =
-    useState(false);
+  return `${now.getFullYear()}-${month}-${day}`;
+}
 
-  const [
-    actionRunning,
-    setActionRunning,
-  ] =
-    useState(false);
+/** Whole days from one YYYY-MM-DD date to another (negative = the second is earlier). */
+function daysBetween(from: string, to: string): number | null {
+  const start = Date.parse(`${from}T00:00:00`);
+  const end = Date.parse(`${to}T00:00:00`);
 
-  const [
-    error,
-    setError,
-  ] =
-    useState<string | null>(
-      null,
-    );
+  if (Number.isNaN(start) || Number.isNaN(end)) {
+    return null;
+  }
 
-  useEffect(() => {
-    let active = true;
+  return Math.round((end - start) / DAY_MS);
+}
 
-    getPurchaseOrder(
-      params.id,
-    )
-      .then(
-        response => {
-          if (!active) {
-            return;
-          }
+interface DeliveryState {
+  text: string;
+  late: boolean;
+}
 
-          setOrder(
-            response,
-          );
+function deliveryState(
+  status: string,
+  expected: string,
+  today: string | null,
+): DeliveryState | null {
+  if ((status !== "ISSUED" && status !== "PARTIALLY_RECEIVED") || today === null) {
+    return null;
+  }
 
-          setExpectedDeliveryDate(
-            response
-              .expectedDeliveryDate,
-          );
+  const days = daysBetween(today, expected);
 
-          setDeliveryAddress(
-            response
-              .deliveryAddress,
-          );
+  if (days === null) {
+    return null;
+  }
 
-          setBuyerNotes(
-            response
-              .buyerNotes ??
-            "",
-          );
+  if (days < 0) {
+    return { text: `${-days} ${-days === 1 ? "day" : "days"} overdue`, late: true };
+  }
 
-          setError(
-            null,
-          );
-        },
-      )
-      .catch(
-        caughtError => {
-          if (!active) {
-            return;
-          }
+  if (days === 0) {
+    return { text: "due today", late: false };
+  }
 
-          setError(
-            caughtError instanceof
-              Error
-              ? caughtError
-                  .message
-              : "Unable to load purchase order.",
-          );
-        },
-      )
-      .finally(
-        () => {
-          if (active) {
-            setLoading(
-              false,
-            );
-          }
-        },
-      );
+  return { text: `${days} ${days === 1 ? "day" : "days"} left`, late: false };
+}
 
-    return () => {
-      active = false;
-    };
-  }, [
-    params.id,
-  ]);
+function guidance(status: string): string | null {
+  switch (status) {
+    case "DRAFT":
+      return "This purchase order is a draft. Confirm the delivery details, then issue it to commit the spend.";
 
-  async function handleSave(
-    event:
-      FormEvent<HTMLFormElement>,
-  ) {
+    case "ISSUED":
+      return "Issued. Record each delivery below as the goods arrive.";
+
+    case "PARTIALLY_RECEIVED":
+      return "Part of this order has been received. Record the remaining deliveries below.";
+
+    case "RECEIVED":
+      return "Fully received. What remains is invoice matching and payment.";
+
+    default:
+      return null;
+  }
+}
+
+function actionDescription(action: OrderAction, order: PurchaseOrder): string {
+  const amount = money(order.totalAmount, order.currency);
+
+  if (action === "ISSUE") {
+    return `${order.poNumber} for ${amount} with ${order.supplierName} will be issued and become a purchase commitment. Deliveries can then be recorded against it.`;
+  }
+
+  return `${order.poNumber} for ${amount} with ${order.supplierName} will be cancelled.`;
+}
+
+function buildLineColumns(currency: string): Column<OrderLine>[] {
+  return [
+    {
+      id: "line",
+      header: "Line",
+      width: 70,
+      sortValue: (line) => line.lineNumber,
+      cell: (line) => line.lineNumber,
+    },
+    {
+      id: "item",
+      header: "Item",
+      sortValue: (line) => line.itemName.toLowerCase(),
+      cell: (line) => (
+        <div className="request-primary-cell">
+          <strong>{line.itemName}</strong>
+
+          <span>{line.description ?? "No description"}</span>
+        </div>
+      ),
+    },
+    {
+      id: "category",
+      header: "Category",
+      sortValue: (line) => (line.category ?? "").toLowerCase(),
+      cell: (line) => line.category ?? "—",
+    },
+    {
+      id: "quantity",
+      header: "Qty",
+      align: "right",
+      sortValue: (line) => line.quantity,
+      cell: (line) => (
+        <span className="kit-num">
+          {line.quantity} {line.unit}
+        </span>
+      ),
+    },
+    {
+      id: "unitPrice",
+      header: "Unit price",
+      align: "right",
+      sortValue: (line) => line.unitPrice,
+      cell: (line) => <span className="kit-num">{money(line.unitPrice, currency)}</span>,
+    },
+    {
+      id: "total",
+      header: "Total",
+      align: "right",
+      sortValue: (line) => line.lineTotal,
+      firstSort: "desc",
+      cell: (line) => <strong className="kit-num">{money(line.lineTotal, currency)}</strong>,
+    },
+  ];
+}
+
+/* ------------------------------------------------------------------ */
+/* Delivery details form (drafts only)                                 */
+/* ------------------------------------------------------------------ */
+
+interface DeliveryValues {
+  expected: string;
+  address: string;
+  notes: string;
+}
+
+function valuesOf(order: PurchaseOrder): DeliveryValues {
+  return {
+    expected: order.expectedDeliveryDate,
+    address: order.deliveryAddress,
+    notes: order.buyerNotes ?? "",
+  };
+}
+
+function isDirty(values: DeliveryValues, order: PurchaseOrder): boolean {
+  const base = valuesOf(order);
+
+  return (
+    values.expected !== base.expected ||
+    values.address.trim() !== base.address.trim() ||
+    values.notes.trim() !== base.notes.trim()
+  );
+}
+
+interface DeliveryFormProps {
+  order: PurchaseOrder;
+  onSaved: (updated: PurchaseOrder) => void;
+  onDirtyChange: (dirty: boolean) => void;
+}
+
+function DeliveryForm({ order, onSaved, onDirtyChange }: DeliveryFormProps) {
+  const toast = useToast();
+
+  const [values, setValues] = useState<DeliveryValues>(() => valuesOf(order));
+  const [errors, setErrors] = useState<{ expected?: string; address?: string }>({});
+  const [formError, setFormError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const dirty = isDirty(values, order);
+
+  function change(patch: Partial<DeliveryValues>) {
+    const next = { ...values, ...patch };
+
+    setValues(next);
+    onDirtyChange(isDirty(next, order));
+  }
+
+  function reset() {
+    setValues(valuesOf(order));
+    setErrors({});
+    setFormError(null);
+    onDirtyChange(false);
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!order) {
+    if (saving) {
       return;
     }
 
-    try {
-      setSaving(
-        true,
-      );
+    const next: { expected?: string; address?: string } = {};
 
-      setError(
-        null,
-      );
-
-      const updated =
-        await updatePurchaseOrder(
-          order.id,
-          {
-            expectedDeliveryDate,
-
-            deliveryAddress:
-              deliveryAddress
-                .trim(),
-
-            buyerNotes:
-              buyerNotes
-                .trim() ||
-              undefined,
-          },
-        );
-
-      setOrder(
-        updated,
-      );
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError
-              .message
-          : "Unable to update purchase order.",
-      );
-    } finally {
-      setSaving(
-        false,
-      );
+    if (!values.expected) {
+      next.expected = "Choose the expected delivery date.";
     }
-  }
 
-  async function runAction(
-    action:
-      "ISSUE" |
-      "CANCEL",
-  ) {
-    if (!order) {
+    if (!values.address.trim()) {
+      next.address = "Enter the delivery address.";
+    }
+
+    setErrors(next);
+
+    if (next.expected || next.address) {
       return;
     }
 
+    setSaving(true);
+    setFormError(null);
+
     try {
-      setActionRunning(
-        true,
-      );
+      const updated = await updatePurchaseOrder(order.id, {
+        expectedDeliveryDate: values.expected,
+        deliveryAddress: values.address.trim(),
+        buyerNotes: values.notes.trim() || undefined,
+      });
 
-      setError(
-        null,
-      );
+      onSaved(updated);
+    } catch (caught) {
+      const message =
+        caught instanceof Error ? caught.message : "Unable to update purchase order.";
 
-      const updated =
-        action ===
-          "ISSUE"
-          ? await issuePurchaseOrder(
-              order.id,
-            )
-          : await cancelPurchaseOrder(
-              order.id,
-            );
-
-      setOrder(
-        updated,
-      );
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError
-              .message
-          : "Unable to update purchase order status.",
-      );
+      setFormError(message);
+      toast.error("Could not save the delivery details", message);
     } finally {
-      setActionRunning(
-        false,
-      );
+      setSaving(false);
     }
-  }
-
-  if (loading) {
-    return (
-      <div
-        className={
-          "request-detail-loading"
-        }
-      >
-        Loading purchase
-        order...
-      </div>
-    );
-  }
-
-  if (!order) {
-    return (
-      <div
-        className={
-          "page-stack"
-        }
-      >
-        <Link
-          href={
-            "/purchase-orders"
-          }
-          className={
-            "request-back-link"
-          }
-        >
-          <ArrowLeft
-            size={16}
-          />
-
-          Purchase orders
-        </Link>
-
-        <div
-          className={
-            "error-banner"
-          }
-        >
-          <CircleAlert
-            size={18}
-          />
-
-          {error ??
-            "Purchase order not found."}
-        </div>
-      </div>
-    );
   }
 
   return (
-    <div
-      className={
-        "page-stack"
-      }
-    >
-      <Link
-        href={
-          "/purchase-orders"
-        }
-        className={
-          "request-back-link"
-        }
-      >
-        <ArrowLeft
-          size={16}
-        />
+    <form className="panel" onSubmit={handleSubmit} noValidate>
+      <div className="panel__header">
+        <div>
+          <span className="eyebrow">Order logistics</span>
 
+          <h2>Delivery details</h2>
+        </div>
+      </div>
+
+      <div className="kit-pair-grid">
+        <Field label="Expected delivery" htmlFor="po-expected" error={errors.expected}>
+          <input
+            id="po-expected"
+            className="kit-field-input"
+            type="date"
+            value={values.expected}
+            aria-invalid={errors.expected ? true : undefined}
+            onChange={(event) => {
+              change({ expected: event.target.value });
+              setErrors((current) => ({ ...current, expected: undefined }));
+            }}
+          />
+        </Field>
+
+        <div className="kit-pair-wide">
+          <Field label="Delivery address" htmlFor="po-address" error={errors.address}>
+            <textarea
+              id="po-address"
+              className="kit-field-input"
+              rows={4}
+              maxLength={1000}
+              value={values.address}
+              aria-invalid={errors.address ? true : undefined}
+              onChange={(event) => {
+                change({ address: event.target.value });
+                setErrors((current) => ({ ...current, address: undefined }));
+              }}
+            />
+          </Field>
+        </div>
+
+        <div className="kit-pair-wide">
+          <Field label="Buyer notes" htmlFor="po-notes">
+            <textarea
+              id="po-notes"
+              className="kit-field-input"
+              rows={4}
+              maxLength={2000}
+              value={values.notes}
+              onChange={(event) => change({ notes: event.target.value })}
+            />
+          </Field>
+        </div>
+      </div>
+
+      {formError ? (
+        <div className="error-banner" role="alert" style={{ marginTop: 16 }}>
+          <CircleAlert size={18} />
+          <span>{formError}</span>
+        </div>
+      ) : null}
+
+      <div className="kit-form-footer">
+        {dirty ? <span className="kit-form-state">Unsaved changes</span> : null}
+
+        {dirty ? (
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={reset}
+            disabled={saving}
+          >
+            Discard changes
+          </button>
+        ) : null}
+
+        <button type="submit" className="button button--primary" disabled={saving || !dirty}>
+          {saving ? "Saving…" : "Save PO draft"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
+
+interface OrderData {
+  id: string;
+  order: PurchaseOrder;
+}
+
+export default function PurchaseOrderDetailPage() {
+  const params = useParams<{ id: string }>();
+  const toast = useToast();
+
+  const [result, setResult] = useState<OrderData | null>(null);
+  const [pendingAction, setPendingAction] = useState<OrderAction | null>(null);
+  const [actionRunning, setActionRunning] = useState(false);
+  const [unsavedId, setUnsavedId] = useState<string | null>(null);
+  const [fetching, setFetching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [today, setToday] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    const id = params.id;
+
+    const timer = window.setTimeout(async () => {
+      setFetching(true);
+      setError(null);
+
+      try {
+        const response = await getPurchaseOrder(id);
+
+        if (active) {
+          setResult({ id, order: response });
+        }
+      } catch (caught) {
+        if (active) {
+          setError(
+            caught instanceof Error ? caught.message : "Unable to load purchase order.",
+          );
+        }
+      } finally {
+        if (active) {
+          setFetching(false);
+        }
+      }
+    }, 0);
+
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+    };
+  }, [params.id, reloadKey]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setToday(localIsoDate()), 0);
+
+    return () => window.clearTimeout(timer);
+  }, [result]);
+
+  const data = result !== null && result.id === params.id ? result : null;
+  const order = data?.order ?? null;
+
+  function handleOrderUpdated(updated: PurchaseOrder) {
+    setResult((current) => (current ? { ...current, order: updated } : current));
+  }
+
+  function handleSaved(updated: PurchaseOrder) {
+    handleOrderUpdated(updated);
+    setUnsavedId(null);
+
+    toast.success("Delivery details saved", updated.poNumber);
+  }
+
+  async function confirmAction() {
+    if (!order || pendingAction === null) {
+      return;
+    }
+
+    const action = pendingAction;
+
+    setActionRunning(true);
+
+    try {
+      const updated =
+        action === "ISSUE"
+          ? await issuePurchaseOrder(order.id)
+          : await cancelPurchaseOrder(order.id);
+
+      handleOrderUpdated(updated);
+      setUnsavedId(null);
+      setPendingAction(null);
+
+      toast.success(ACTIONS[action].done, updated.poNumber);
+    } catch (caught) {
+      setPendingAction(null);
+
+      toast.error(
+        ACTIONS[action].failed,
+        caught instanceof Error ? caught.message : "Unable to update purchase order status.",
+      );
+    } finally {
+      setActionRunning(false);
+    }
+  }
+
+  if (order === null) {
+    if (error === null) {
+      return (
+        <div className="page-stack">
+          <Skeleton height={28} />
+          <Skeleton height={120} />
+          <Skeleton height={96} />
+          <Skeleton height={260} />
+        </div>
+      );
+    }
+
+    return (
+      <div className="page-stack">
+        <Link href="/purchase-orders" className="request-back-link">
+          <ArrowLeft size={16} />
+          Purchase orders
+        </Link>
+
+        <div className="error-banner">
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button
+            type="button"
+            className="kit-banner-action"
+            onClick={() => setReloadKey((key) => key + 1)}
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const hasUnsaved = unsavedId === String(order.id);
+  const delivery = deliveryState(order.status, order.expectedDeliveryDate, today);
+  const overdueNote = delivery !== null && delivery.late;
+  const note = guidance(order.status);
+  const lineCount = order.lines.length;
+
+  const draftDatePassed =
+    order.status === "DRAFT" &&
+    today !== null &&
+    order.expectedDeliveryDate < today;
+
+  const showDeliveries =
+    order.status === "ISSUED" ||
+    order.status === "PARTIALLY_RECEIVED" ||
+    order.status === "RECEIVED";
+
+  const kpis: KpiItem[] = [
+    {
+      label: "Supplier",
+      icon: Building2,
+      value: order.supplierName,
+      note: order.supplierCode,
+    },
+    {
+      label: "Awarded quotation",
+      icon: ReceiptText,
+      value: order.quotationNumber,
+      note: order.rfqNumber,
+    },
+    {
+      label: "Expected delivery",
+      icon: CalendarDays,
+      value: formatDate(order.expectedDeliveryDate),
+      note: delivery ? `${order.paymentTerms} · ${delivery.text}` : order.paymentTerms,
+      tone: overdueNote || draftDatePassed ? "warning" : "default",
+    },
+    {
+      label: "Order value",
+      icon: FileText,
+      value: money(order.totalAmount, order.currency),
+      note: `${lineCount} ${lineCount === 1 ? "line" : "lines"}`,
+    },
+  ];
+
+  return (
+    <div className="page-stack">
+      <Link href="/purchase-orders" className="request-back-link">
+        <ArrowLeft size={16} />
         Purchase orders
       </Link>
 
-      <section
-        className={
-          "po-detail-heading"
-        }
-      >
+      <section className="po-detail-heading">
         <div>
-          <div
-            className={
-              "request-detail-heading__meta"
-            }
-          >
-            <span>
-              {order.poNumber}
-            </span>
+          <div className="request-detail-heading__meta">
+            <span>{order.poNumber}</span>
 
-            <span
-              className={
-                `po-status po-status--${
-                  order.status
-                    .toLowerCase()
-                }`
-              }
-            >
-              {order.status}
-            </span>
+            <StatusBadge value={order.status} />
           </div>
 
-          <h1>
-            {
-              order
-                .supplierName
-            }
-          </h1>
+          <h1>{order.supplierName}</h1>
 
           <p>
-            Purchase commitment generated
-            from awarded sourcing event
-            {` ${order.rfqNumber}.`}
+            Purchase commitment generated from awarded sourcing event {order.rfqNumber}.
           </p>
         </div>
 
-        <div
-          className={
-            "po-detail-actions"
-          }
-        >
-          {(
-            order.status ===
-              "DRAFT" ||
-            order.status ===
-              "ISSUED"
-          ) ? (
+        <div className="po-detail-actions">
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={() => setReloadKey((key) => key + 1)}
+            disabled={fetching}
+          >
+            <RefreshCw size={15} className={fetching ? "kit-spin" : undefined} />
+            Refresh
+          </button>
+
+          {order.status === "DRAFT" || order.status === "ISSUED" ? (
             <button
               type="button"
-              className={
-                "button button--secondary request-cancel-button"
-              }
-              disabled={
-                actionRunning
-              }
-              onClick={
-                () =>
-                  void runAction(
-                    "CANCEL",
-                  )
-              }
+              className="button button--secondary request-cancel-button"
+              disabled={actionRunning}
+              onClick={() => setPendingAction("CANCEL")}
             >
               <Ban size={16} />
               Cancel PO
             </button>
           ) : null}
 
-          {order.status ===
-            "DRAFT" ? (
+          {order.status === "DRAFT" ? (
             <button
               type="button"
-              className={
-                "button button--primary"
-              }
-              disabled={
-                actionRunning
-              }
-              onClick={
-                () =>
-                  void runAction(
-                    "ISSUE",
-                  )
-              }
+              className="button button--primary"
+              disabled={actionRunning}
+              onClick={() => setPendingAction("ISSUE")}
             >
-              <PackageCheck
-                size={16}
-              />
-
-              {actionRunning
-                ? "Processing..."
-                : "Issue purchase order"}
+              <PackageCheck size={16} />
+              Issue purchase order
             </button>
           ) : null}
         </div>
       </section>
 
       {error ? (
-        <div
-          className={
-            "error-banner"
-          }
-        >
-          <CircleAlert
-            size={18}
-          />
-          {error}
+        <div className="error-banner">
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button
+            type="button"
+            className="kit-banner-action"
+            onClick={() => setReloadKey((key) => key + 1)}
+          >
+            Try again
+          </button>
         </div>
       ) : null}
 
-      <section
-        className={
-          "po-detail-summary-grid"
-        }
-      >
-        <article
-          className={
-            "request-detail-summary-card"
-          }
-        >
-          <Building2
-            size={18}
-          />
+      {overdueNote ? (
+        <div className="kit-callout kit-callout--warning" role="status">
+          <AlertTriangle size={17} />
 
           <div>
-            <span>
-              Supplier
-            </span>
-
-            <strong>
-              {
-                order
-                  .supplierName
-              }
-            </strong>
-
-            <small>
-              {
-                order
-                  .supplierCode
-              }
-            </small>
+            <strong>Delivery is overdue.</strong> The expected delivery date was{" "}
+            {formatDate(order.expectedDeliveryDate)}. Follow up with {order.supplierName}{" "}
+            or record the delivery below.
           </div>
-        </article>
-
-        <article
-          className={
-            "request-detail-summary-card"
-          }
-        >
-          <ReceiptText
-            size={18}
-          />
+        </div>
+      ) : draftDatePassed ? (
+        <div className="kit-callout kit-callout--warning" role="status">
+          <AlertTriangle size={17} />
 
           <div>
-            <span>
-              Awarded quotation
-            </span>
-
-            <strong>
-              {
-                order
-                  .quotationNumber
-              }
-            </strong>
-
-            <small>
-              {
-                order
-                  .rfqNumber
-              }
-            </small>
+            <strong>Expected delivery date has passed.</strong> Update it in the delivery
+            details before issuing this order.
           </div>
-        </article>
+        </div>
+      ) : note ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
 
-        <article
-          className={
-            "request-detail-summary-card"
-          }
-        >
-          <CalendarDays
-            size={18}
-          />
+          <div>{note}</div>
+        </div>
+      ) : null}
 
+      <KpiGrid items={kpis} ariaLabel="Purchase order summary" />
+
+      <section className="panel">
+        <div className="panel__header">
           <div>
-            <span>
-              Expected delivery
-            </span>
+            <span className="eyebrow">Commercial commitment</span>
 
-            <strong>
-              {
-                new Date(
-                  `${order.expectedDeliveryDate}T00:00:00`,
-                )
-                  .toLocaleDateString()
-              }
-            </strong>
-
-            <small>
-              {
-                order
-                  .paymentTerms
-              }
-            </small>
-          </div>
-        </article>
-
-        <article
-          className={
-            "request-detail-summary-card"
-          }
-        >
-          <FileText
-            size={18}
-          />
-
-          <div>
-            <span>
-              Order value
-            </span>
-
-            <strong>
-              {
-                new Intl
-                  .NumberFormat(
-                    "en-US",
-                    {
-                      style:
-                        "currency",
-                      currency:
-                        order
-                          .currency,
-                    },
-                  )
-                  .format(
-                    order
-                      .totalAmount,
-                  )
-              }
-            </strong>
-
-            <small>
-              {
-                order.lines
-                  .length
-              }
-              {" lines"}
-            </small>
-          </div>
-        </article>
-      </section>
-
-      <section
-        className={
-          "panel"
-        }
-      >
-        <div
-          className={
-            "panel__header"
-          }
-        >
-          <div>
-            <span
-              className={
-                "eyebrow"
-              }
-            >
-              Commercial commitment
-            </span>
-
-            <h2>
-              Purchase order lines
-            </h2>
+            <h2>Purchase order lines</h2>
           </div>
 
-          <strong
-            className={
-              "po-total-highlight"
-            }
-          >
-            {
-              new Intl
-                .NumberFormat(
-                  "en-US",
-                  {
-                    style:
-                      "currency",
-                    currency:
-                      order.currency,
-                  },
-                )
-                .format(
-                  order
-                    .totalAmount,
-                )
-            }
+          <strong className="po-total-highlight">
+            {money(order.totalAmount, order.currency)}
           </strong>
         </div>
 
-        <div
-          className={
-            "table-scroll"
+        <DataTable
+          columns={buildLineColumns(order.currency)}
+          rows={order.lines}
+          getRowId={(line) => String(line.id ?? line.lineNumber)}
+          ariaLabel="Purchase order lines"
+          empty={
+            <EmptyState
+              compact
+              icon={FileText}
+              title="No order lines"
+              description="This purchase order has no lines."
+            />
           }
-        >
-          <table
-            className={
-              "data-table"
-            }
-          >
-            <thead>
-              <tr>
-                <th>
-                  Line
-                </th>
+        />
 
-                <th>
-                  Item
-                </th>
-
-                <th>
-                  Category
-                </th>
-
-                <th>
-                  Qty
-                </th>
-
-                <th>
-                  Unit price
-                </th>
-
-                <th>
-                  Total
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {order.lines.map(
-                line => (
-                  <tr
-                    key={
-                      line.id ??
-                      line.lineNumber
-                    }
-                  >
-                    <td>
-                      {
-                        line
-                          .lineNumber
-                      }
-                    </td>
-
-                    <td>
-                      <div
-                        className={
-                          "request-primary-cell"
-                        }
-                      >
-                        <strong>
-                          {
-                            line
-                              .itemName
-                          }
-                        </strong>
-
-                        <span>
-                          {
-                            line
-                              .description ??
-                            "No description"
-                          }
-                        </span>
-                      </div>
-                    </td>
-
-                    <td>
-                      {
-                        line.category
-                      }
-                    </td>
-
-                    <td>
-                      {
-                        line.quantity
-                      }
-                      {" "}
-                      {
-                        line.unit
-                      }
-                    </td>
-
-                    <td>
-                      {
-                        new Intl
-                          .NumberFormat(
-                            "en-US",
-                            {
-                              style:
-                                "currency",
-                              currency:
-                                order
-                                  .currency,
-                            },
-                          )
-                          .format(
-                            line
-                              .unitPrice,
-                          )
-                      }
-                    </td>
-
-                    <td>
-                      <strong>
-                        {
-                          new Intl
-                            .NumberFormat(
-                              "en-US",
-                              {
-                                style:
-                                  "currency",
-                                currency:
-                                  order
-                                    .currency,
-                              },
-                            )
-                            .format(
-                              line
-                                .lineTotal,
-                            )
-                        }
-                      </strong>
-                    </td>
-                  </tr>
-                ),
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div
-          className={
-            "po-commercial-summary"
-          }
-        >
+        <div className="po-commercial-summary">
           <div>
-            <span>
-              Subtotal
-            </span>
+            <span>Subtotal</span>
 
-            <strong>
-              {
-                new Intl
-                  .NumberFormat(
-                    "en-US",
-                    {
-                      style:
-                        "currency",
-                      currency:
-                        order.currency,
-                    },
-                  )
-                  .format(
-                    order.subtotal,
-                  )
-              }
-            </strong>
+            <strong>{money(order.subtotal, order.currency)}</strong>
           </div>
 
           <div>
-            <span>
-              Discount
-            </span>
+            <span>Discount</span>
 
-            <strong>
-              -
-              {
-                new Intl
-                  .NumberFormat(
-                    "en-US",
-                    {
-                      style:
-                        "currency",
-                      currency:
-                        order.currency,
-                    },
-                  )
-                  .format(
-                    order
-                      .discountAmount,
-                  )
-              }
-            </strong>
+            <strong>-{money(order.discountAmount, order.currency)}</strong>
           </div>
 
           <div>
-            <span>
-              Shipping
-            </span>
+            <span>Shipping</span>
 
-            <strong>
-              {
-                new Intl
-                  .NumberFormat(
-                    "en-US",
-                    {
-                      style:
-                        "currency",
-                      currency:
-                        order.currency,
-                    },
-                  )
-                  .format(
-                    order
-                      .shippingAmount,
-                  )
-              }
-            </strong>
+            <strong>{money(order.shippingAmount, order.currency)}</strong>
           </div>
 
           <div>
-            <span>
-              Tax
-            </span>
+            <span>Tax</span>
 
-            <strong>
-              {
-                new Intl
-                  .NumberFormat(
-                    "en-US",
-                    {
-                      style:
-                        "currency",
-                      currency:
-                        order.currency,
-                    },
-                  )
-                  .format(
-                    order
-                      .taxAmount,
-                  )
-              }
-            </strong>
+            <strong>{money(order.taxAmount, order.currency)}</strong>
           </div>
 
-          <div
-            className={
-              "po-commercial-summary__total"
-            }
-          >
-            <span>
-              Final total
-            </span>
+          <div className="po-commercial-summary__total">
+            <span>Final total</span>
 
-            <strong>
-              {
-                new Intl
-                  .NumberFormat(
-                    "en-US",
-                    {
-                      style:
-                        "currency",
-                      currency:
-                        order.currency,
-                    },
-                  )
-                  .format(
-                    order
-                      .totalAmount,
-                  )
-              }
-            </strong>
+            <strong>{money(order.totalAmount, order.currency)}</strong>
           </div>
         </div>
       </section>
 
-      {(
-        order.status ===
-          "ISSUED" ||
-        order.status ===
-          "PARTIALLY_RECEIVED" ||
-        order.status ===
-          "RECEIVED"
-      ) ? (
-        <DeliveryWorkspace
-          order={order}
-          onOrderUpdated={
-            setOrder
-          }
-        />
+      {showDeliveries ? (
+        <DeliveryWorkspace order={order} onOrderUpdated={handleOrderUpdated} />
       ) : null}
 
-      {order.status ===
-        "DRAFT" ? (
-        <form
-          className={
-            "panel"
-          }
-          onSubmit={
-            handleSave
-          }
-        >
-          <div
-            className={
-              "panel__header"
-            }
-          >
-            <div>
-              <span
-                className={
-                  "eyebrow"
-                }
-              >
-                Order logistics
-              </span>
-
-              <h2>
-                Delivery details
-              </h2>
-            </div>
-          </div>
-
-          <div
-            className={
-              "po-form-grid"
-            }
-          >
-            <label
-              className={
-                "request-field"
-              }
-            >
-              <span>
-                Expected delivery
-              </span>
-
-              <input
-                required
-                type="date"
-                value={
-                  expectedDeliveryDate
-                }
-                onChange={
-                  event =>
-                    setExpectedDeliveryDate(
-                      event
-                        .target
-                        .value,
-                    )
-                }
-              />
-            </label>
-
-            <label
-              className={
-                "request-field po-form-wide"
-              }
-            >
-              <span>
-                Delivery address
-              </span>
-
-              <textarea
-                required
-                rows={4}
-                maxLength={1000}
-                value={
-                  deliveryAddress
-                }
-                onChange={
-                  event =>
-                    setDeliveryAddress(
-                      event
-                        .target
-                        .value,
-                    )
-                }
-              />
-            </label>
-
-            <label
-              className={
-                "request-field po-form-wide"
-              }
-            >
-              <span>
-                Buyer notes
-              </span>
-
-              <textarea
-                rows={4}
-                maxLength={2000}
-                value={
-                  buyerNotes
-                }
-                onChange={
-                  event =>
-                    setBuyerNotes(
-                      event
-                        .target
-                        .value,
-                    )
-                }
-              />
-            </label>
-          </div>
-
-          <div
-            className={
-              "po-form-actions"
-            }
-          >
-            <button
-              type="submit"
-              className={
-                "button button--primary"
-              }
-              disabled={
-                saving
-              }
-            >
-              {saving
-                ? "Saving..."
-                : "Save PO draft"}
-            </button>
-          </div>
-        </form>
+      {order.status === "DRAFT" ? (
+        <DeliveryForm
+          key={String(order.id)}
+          order={order}
+          onSaved={handleSaved}
+          onDirtyChange={(dirty) => setUnsavedId(dirty ? String(order.id) : null)}
+        />
       ) : (
-        <section
-          className={
-            "panel"
-          }
-        >
-          <div
-            className={
-              "panel__header"
-            }
-          >
+        <section className="panel">
+          <div className="panel__header">
             <div>
-              <span
-                className={
-                  "eyebrow"
-                }
-              >
-                Delivery instructions
-              </span>
+              <span className="eyebrow">Delivery instructions</span>
 
-              <h2>
-                Receiving information
-              </h2>
+              <h2>Receiving information</h2>
             </div>
           </div>
 
-          <div
-            className={
-              "po-readonly-grid"
-            }
-          >
+          <div className="po-readonly-grid">
             <div>
-              <span>
-                Address
-              </span>
+              <span>Address</span>
 
-              <p>
-                {
-                  order
-                    .deliveryAddress
-                }
-              </p>
+              <p>{order.deliveryAddress}</p>
             </div>
 
             <div>
-              <span>
-                Buyer notes
-              </span>
+              <span>Buyer notes</span>
 
-              <p>
-                {
-                  order
-                    .buyerNotes ??
-                  "No buyer notes."
-                }
-              </p>
+              <p>{order.buyerNotes ?? "No buyer notes."}</p>
             </div>
 
             {order.issuedAt ? (
               <div>
-                <span>
-                  Issued
-                </span>
+                <span>Issued</span>
 
                 <p>
-                  {
-                    new Date(
-                      order.issuedAt,
-                    )
-                      .toLocaleString()
-                  }
+                  {formatDateTime(order.issuedAt)}
                   {" by "}
-                  {
-                    order
-                      .issuedByName
-                  }
+                  {order.issuedByName}
                 </p>
               </div>
             ) : null}
           </div>
         </section>
       )}
+
+      {pendingAction !== null ? (
+        <ActionDialog
+          eyebrow={ACTIONS[pendingAction].eyebrow}
+          title={ACTIONS[pendingAction].title}
+          description={actionDescription(pendingAction, order)}
+          confirmLabel={ACTIONS[pendingAction].confirm}
+          busyLabel={ACTIONS[pendingAction].busy}
+          cancelLabel={ACTIONS[pendingAction].keep}
+          tone={ACTIONS[pendingAction].tone}
+          busy={actionRunning}
+          onConfirm={() => void confirmAction()}
+          onCancel={() => setPendingAction(null)}
+        >
+          {pendingAction === "ISSUE" && hasUnsaved ? (
+            <p className="kit-dialog-note kit-dialog-note--warning">
+              You have unsaved delivery changes. They will not be part of the issued order
+              unless you save them first.
+            </p>
+          ) : null}
+
+          {pendingAction === "ISSUE" && draftDatePassed ? (
+            <p className="kit-dialog-note kit-dialog-note--warning">
+              The expected delivery date ({formatDate(order.expectedDeliveryDate)}) has
+              already passed.
+            </p>
+          ) : null}
+
+          {pendingAction === "ISSUE" && lineCount === 0 ? (
+            <p className="kit-dialog-note kit-dialog-note--warning">
+              This order has no lines.
+            </p>
+          ) : null}
+
+          {pendingAction === "CANCEL" && order.status === "ISSUED" ? (
+            <p className="kit-dialog-note">This order has already been issued.</p>
+          ) : null}
+        </ActionDialog>
+      ) : null}
     </div>
   );
 }

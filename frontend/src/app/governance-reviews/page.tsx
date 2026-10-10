@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {
   AlertTriangle,
   BadgeCheck,
@@ -474,7 +476,7 @@ export default function GovernanceReviewsPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Review</th>
@@ -608,7 +610,7 @@ export default function GovernanceReviewsPage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 

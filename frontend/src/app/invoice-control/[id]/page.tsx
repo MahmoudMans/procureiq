@@ -7,20 +7,41 @@ import {
   CircleAlert,
   Coins,
   FileCheck2,
+  Info,
   PauseCircle,
   PlayCircle,
   ReceiptText,
   RefreshCw,
   ShieldAlert,
+  ShieldCheck,
   XCircle,
 } from "lucide-react";
-
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import {
-  useAuth,
-} from "@/components/auth/auth-provider";
-
+  type Column,
+  DataTable,
+  EmptyState,
+  KpiGrid,
+  type KpiItem,
+  Meter,
+  SegmentedFilter,
+  type SegmentedOption,
+  Skeleton,
+  type StatItem,
+  StatStrip,
+  StatusBadge,
+  formatDate,
+  formatDateTime,
+  meterToneFor,
+  readable,
+  useToast,
+} from "@/components/kit";
+import { ActionDialog } from "@/components/kit/action-dialog";
+import { RationaleDialog } from "@/components/kit/rationale-dialog";
 import {
   approveProcurementInvoice,
   cancelProcurementInvoice,
@@ -33,574 +54,529 @@ import {
   resolveInvoiceException,
   runInvoiceMatch,
 } from "@/lib/api";
+import type { InvoiceMatchException, ProcurementInvoice } from "@/types/invoice-control";
 
-import type {
-  InvoiceMatchException,
-  ProcurementInvoice,
-} from "@/types/invoice-control";
+/* ------------------------------------------------------------------ */
+/* Constants & helpers                                                 */
+/* ------------------------------------------------------------------ */
 
-import {
-  useEffect,
-  useState,
-} from "react";
+type InvoiceLine = ProcurementInvoice["lines"][number];
+type InvoiceAction = "APPROVE" | "READY" | "PAID" | "RELEASE";
 
-import {
-  useParams,
-} from "next/navigation";
+type RationaleRequest =
+  | { kind: "HOLD" }
+  | { kind: "CANCEL" }
+  | { kind: "RESOLVE"; exception: InvoiceMatchException }
+  | { kind: "DISMISS"; exception: InvoiceMatchException };
 
-function readable(
-  value: string,
-): string {
-  return value
-    .replaceAll(
-      "_",
-      " ",
-    )
-    .toLowerCase()
-    .replace(
-      /\b\w/g,
-      letter =>
-        letter.toUpperCase(),
-    );
+const MANAGE_ROLES = ["ADMIN", "PROCUREMENT_MANAGER", "BUYER"];
+const APPROVE_ROLES = ["ADMIN", "PROCUREMENT_MANAGER", "APPROVER"];
+const PAY_ROLES = ["ADMIN", "PROCUREMENT_MANAGER"];
+
+const MATCHABLE_STATUSES = ["MATCH_PENDING", "MATCHED", "EXCEPTION"];
+const HOLDABLE_STATUSES = ["MATCHED", "APPROVED", "READY_FOR_PAYMENT"];
+const CLOSED_STATUSES = ["PAID", "CANCELLED"];
+
+const SEVERITY_RANK: Record<string, number> = { LOW: 0, MEDIUM: 1, HIGH: 2, CRITICAL: 3 };
+
+function money(value: number, currency: string): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 2,
+  }).format(value);
 }
 
-function money(
-  value: number,
-  currency: string,
-): string {
-  return new Intl.NumberFormat(
-    "en-US",
+interface ActionCopy {
+  eyebrow: string;
+  title: string;
+  confirm: string;
+  busy: string;
+  keep: string;
+  done: string;
+  failed: string;
+}
+
+const ACTIONS: Record<InvoiceAction, ActionCopy> = {
+  APPROVE: {
+    eyebrow: "Approve invoice",
+    title: "Approve this invoice?",
+    confirm: "Approve invoice",
+    busy: "Approving…",
+    keep: "Not yet",
+    done: "Invoice approved",
+    failed: "Could not approve the invoice",
+  },
+  READY: {
+    eyebrow: "Payment preparation",
+    title: "Mark ready for payment?",
+    confirm: "Ready for payment",
+    busy: "Updating…",
+    keep: "Not yet",
+    done: "Invoice ready for payment",
+    failed: "Could not mark the invoice ready",
+  },
+  PAID: {
+    eyebrow: "Record payment",
+    title: "Mark this invoice as paid?",
+    confirm: "Mark paid",
+    busy: "Recording…",
+    keep: "Not yet",
+    done: "Invoice marked as paid",
+    failed: "Could not mark the invoice paid",
+  },
+  RELEASE: {
+    eyebrow: "Payment hold",
+    title: "Release the payment hold?",
+    confirm: "Release hold",
+    busy: "Releasing…",
+    keep: "Keep hold",
+    done: "Payment hold released",
+    failed: "Could not release the payment hold",
+  },
+};
+
+function actionDescription(action: InvoiceAction, invoice: ProcurementInvoice): string {
+  const amount = money(invoice.totalAmount, invoice.currency);
+
+  switch (action) {
+    case "APPROVE":
+      return `${invoice.invoiceNumber} from ${invoice.supplierName} for ${amount} will be approved and can then be prepared for payment.`;
+
+    case "READY":
+      return `${invoice.invoiceNumber} for ${amount} will be released to payment execution.`;
+
+    case "PAID":
+      return `${invoice.invoiceNumber} for ${amount} will be recorded as paid and the invoice will be closed.`;
+
+    case "RELEASE":
+      return `The payment hold on ${invoice.invoiceNumber} will be lifted so processing can continue.`;
+  }
+}
+
+interface RationaleCopy {
+  eyebrow: string;
+  title: string;
+  description: string;
+  label: string;
+  placeholder: string;
+  confirm: string;
+  busy: string;
+  keep: string;
+  tone: "primary" | "danger";
+  done: string;
+  failed: string;
+}
+
+function rationaleCopy(request: RationaleRequest, invoice: ProcurementInvoice): RationaleCopy {
+  switch (request.kind) {
+    case "HOLD":
+      return {
+        eyebrow: "Payment control",
+        title: "Place payment hold",
+        description: `Payment of ${invoice.invoiceNumber} will be blocked until the hold is released.`,
+        label: "Hold rationale",
+        placeholder: "Why is payment being held?",
+        confirm: "Place hold",
+        busy: "Placing hold…",
+        keep: "Cancel",
+        tone: "primary",
+        done: "Payment hold placed",
+        failed: "Could not place the payment hold",
+      };
+
+    case "CANCEL":
+      return {
+        eyebrow: "Invoice governance",
+        title: "Cancel this invoice?",
+        description: `${invoice.invoiceNumber} will be cancelled and removed from payment processing.`,
+        label: "Cancellation rationale",
+        placeholder: "Why is this invoice being cancelled?",
+        confirm: "Cancel invoice",
+        busy: "Cancelling…",
+        keep: "Keep invoice",
+        tone: "danger",
+        done: "Invoice cancelled",
+        failed: "Could not cancel the invoice",
+      };
+
+    case "RESOLVE":
+      return {
+        eyebrow: "Match exception",
+        title: "Resolve exception",
+        description: `Record the evidence that clears: ${readable(request.exception.exceptionType)}.`,
+        label: "Resolution evidence",
+        placeholder: "Resolution evidence or correction made",
+        confirm: "Resolve exception",
+        busy: "Resolving…",
+        keep: "Cancel",
+        tone: "primary",
+        done: "Exception resolved",
+        failed: "Could not resolve the exception",
+      };
+
+    case "DISMISS":
+      return {
+        eyebrow: "Match exception",
+        title: "Dismiss exception",
+        description: `Dismissing accepts the variance without a correction: ${readable(request.exception.exceptionType)}.`,
+        label: "Approval rationale",
+        placeholder: "Why is this variance acceptable?",
+        confirm: "Dismiss exception",
+        busy: "Dismissing…",
+        keep: "Cancel",
+        tone: "danger",
+        done: "Exception dismissed",
+        failed: "Could not dismiss the exception",
+      };
+  }
+}
+
+function nextStep(invoice: ProcurementInvoice): string | null {
+  switch (invoice.status) {
+    case "MATCH_PENDING":
+      return "The three-way match has not completed yet. Re-run it once the receipt and purchase order data are in place.";
+
+    case "EXCEPTION":
+      return `${invoice.openExceptions} open ${
+        invoice.openExceptions === 1 ? "exception" : "exceptions"
+      } must be resolved or dismissed before this invoice can be approved.`;
+
+    case "MATCHED":
+      return "The invoice matches its purchase order and receipt. It is ready for approval.";
+
+    case "APPROVED":
+      return "Approved. Mark it ready for payment when the payment run is prepared.";
+
+    case "READY_FOR_PAYMENT":
+      return "Ready for payment. Record the payment once finance has executed it.";
+
+    default:
+      return null;
+  }
+}
+
+function buildLineColumns(currency: string): Column<InvoiceLine>[] {
+  return [
     {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 2,
+      id: "line",
+      header: "#",
+      width: 60,
+      sortValue: (line) => line.lineNumber,
+      cell: (line) => line.lineNumber,
     },
-  ).format(value);
+    {
+      id: "description",
+      header: "Description",
+      sortValue: (line) => line.description.toLowerCase(),
+      cell: (line) => line.description,
+    },
+    {
+      id: "quantity",
+      header: "Quantity",
+      align: "right",
+      sortValue: (line) => line.quantity,
+      cell: (line) => <span className="kit-num">{line.quantity}</span>,
+    },
+    {
+      id: "unitPrice",
+      header: "Unit price",
+      align: "right",
+      sortValue: (line) => line.unitPrice,
+      cell: (line) => <span className="kit-num">{money(line.unitPrice, currency)}</span>,
+    },
+    {
+      id: "lineTotal",
+      header: "Line total",
+      align: "right",
+      sortValue: (line) => line.lineTotal,
+      firstSort: "desc",
+      cell: (line) => <strong className="kit-num">{money(line.lineTotal, currency)}</strong>,
+    },
+  ];
 }
+
+interface InvoiceData {
+  id: string;
+  invoice: ProcurementInvoice;
+}
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
 
 export default function InvoiceDetailPage() {
-  const params =
-    useParams<{
-      id: string;
-    }>();
+  const params = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const toast = useToast();
 
-  const {
-    user,
-  } = useAuth();
+  const canManage = user !== null && MANAGE_ROLES.includes(user.role);
+  const canApprove = user !== null && APPROVE_ROLES.includes(user.role);
+  const canPay = user !== null && PAY_ROLES.includes(user.role);
 
-  const [
-    invoice,
-    setInvoice,
-  ] =
-    useState<
-      ProcurementInvoice |
-      null
-    >(null);
-
-  const [
-    exceptionNotes,
-    setExceptionNotes,
-  ] =
-    useState<
-      Record<
-        string,
-        string
-      >
-    >({});
-
-  const [
-    holdReason,
-    setHoldReason,
-  ] =
-    useState("");
-
-  const [
-    cancelReason,
-    setCancelReason,
-  ] =
-    useState("");
-
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
-
-  const [
-    running,
-    setRunning,
-  ] =
-    useState(false);
-
-  const [
-    error,
-    setError,
-  ] =
-    useState<
-      string |
-      null
-    >(null);
-
-  const canManage =
-    user?.role ===
-      "ADMIN"
-    ||
-    user?.role ===
-      "PROCUREMENT_MANAGER"
-    ||
-    user?.role ===
-      "BUYER";
-
-  const canApprove =
-    user?.role ===
-      "ADMIN"
-    ||
-    user?.role ===
-      "PROCUREMENT_MANAGER"
-    ||
-    user?.role ===
-      "APPROVER";
-
-  const canPay =
-    user?.role ===
-      "ADMIN"
-    ||
-    user?.role ===
-      "PROCUREMENT_MANAGER";
+  const [result, setResult] = useState<InvoiceData | null>(null);
+  const [pendingAction, setPendingAction] = useState<InvoiceAction | null>(null);
+  const [actionRunning, setActionRunning] = useState(false);
+  const [rationale, setRationale] = useState<RationaleRequest | null>(null);
+  const [rationaleRunning, setRationaleRunning] = useState(false);
+  const [rationaleError, setRationaleError] = useState<string | null>(null);
+  const [matching, setMatching] = useState(false);
+  const [exceptionView, setExceptionView] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let active = true;
+    const id = params.id;
 
-    getProcurementInvoice(
-      params.id,
-    )
-      .then(
-        response => {
-          if (!active) {
-            return;
-          }
+    const timer = window.setTimeout(async () => {
+      setError(null);
 
-          setInvoice(
-            response,
-          );
+      try {
+        const response = await getProcurementInvoice(id);
 
-          setError(null);
-        },
-      )
-      .catch(
-        caughtError => {
-          if (!active) {
-            return;
-          }
-
+        if (active) {
+          setResult({ id, invoice: response });
+        }
+      } catch (caught) {
+        if (active) {
           setError(
-            caughtError instanceof
-              Error
-              ? caughtError.message
-              : "Unable to load procurement invoice.",
+            caught instanceof Error ? caught.message : "Unable to load procurement invoice.",
           );
-        },
-      )
-      .finally(
-        () => {
-          if (active) {
-            setLoading(false);
-          }
-        },
-      );
+        }
+      }
+    }, 0);
 
     return () => {
       active = false;
+      window.clearTimeout(timer);
     };
-  }, [
-    params.id,
-  ]);
+  }, [params.id, reloadKey]);
 
-  async function reload() {
-    setInvoice(
-      await getProcurementInvoice(
-        params.id,
-      ),
-    );
-  }
+  const data = result !== null && result.id === params.id ? result : null;
+  const invoice = data?.invoice ?? null;
+
+  const busyAny = actionRunning || matching || rationaleRunning;
 
   async function rerunMatch() {
-    if (!invoice) {
+    if (!invoice || busyAny) {
       return;
     }
 
+    setMatching(true);
+
     try {
-      setRunning(true);
-      setError(null);
+      await runInvoiceMatch(invoice.id);
 
-      await runInvoiceMatch(
-        invoice.id,
-      );
-
-      await reload();
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to rerun three-way match.",
+      toast.success("Three-way match re-run", invoice.invoiceNumber);
+      setReloadKey((key) => key + 1);
+    } catch (caught) {
+      toast.error(
+        "Could not re-run the match",
+        caught instanceof Error ? caught.message : "Unable to rerun three-way match.",
       );
     } finally {
-      setRunning(false);
+      setMatching(false);
     }
   }
 
-  async function decideException(
-    exception:
-      InvoiceMatchException,
-    action:
-      "RESOLVE"
-      |
-      "DISMISS",
-  ) {
-    const note =
-      exceptionNotes[
-        exception.id
-      ]
-      ??
-      "";
-
-    if (!note.trim()) {
-      setError(
-        "An exception resolution note is required.",
-      );
-
+  async function confirmAction() {
+    if (!invoice || pendingAction === null) {
       return;
     }
 
-    try {
-      setRunning(true);
-      setError(null);
+    const action = pendingAction;
 
-      if (
-        action ===
-        "RESOLVE"
-      ) {
-        await resolveInvoiceException(
-          exception.id,
-          note,
-        );
+    setActionRunning(true);
+
+    try {
+      if (action === "APPROVE") {
+        await approveProcurementInvoice(invoice.id);
+      } else if (action === "READY") {
+        await markProcurementInvoiceReady(invoice.id);
+      } else if (action === "PAID") {
+        await markProcurementInvoicePaid(invoice.id);
       } else {
-        await dismissInvoiceException(
-          exception.id,
-          note,
-        );
+        await releaseProcurementInvoiceHold(invoice.id);
       }
 
-      setExceptionNotes(
-        current => ({
-          ...current,
-          [exception.id]:
-            "",
-        }),
-      );
+      setPendingAction(null);
 
-      await reload();
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to update invoice exception.",
+      toast.success(ACTIONS[action].done, invoice.invoiceNumber);
+      setReloadKey((key) => key + 1);
+    } catch (caught) {
+      setPendingAction(null);
+
+      toast.error(
+        ACTIONS[action].failed,
+        caught instanceof Error ? caught.message : "Unable to update the invoice.",
       );
     } finally {
-      setRunning(false);
+      setActionRunning(false);
     }
   }
 
-  async function approveInvoice() {
-    if (!invoice) {
+  async function confirmRationale(reason: string) {
+    if (!invoice || rationale === null) {
       return;
     }
+
+    const request = rationale;
+    const copy = rationaleCopy(request, invoice);
+
+    setRationaleRunning(true);
+    setRationaleError(null);
 
     try {
-      setRunning(true);
-      setError(null);
+      if (request.kind === "HOLD") {
+        await holdProcurementInvoice(invoice.id, reason);
+      } else if (request.kind === "CANCEL") {
+        await cancelProcurementInvoice(invoice.id, reason);
+      } else if (request.kind === "RESOLVE") {
+        await resolveInvoiceException(request.exception.id, reason);
+      } else {
+        await dismissInvoiceException(request.exception.id, reason);
+      }
 
-      await approveProcurementInvoice(
-        invoice.id,
-      );
+      setRationale(null);
 
-      await reload();
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to approve invoice.",
-      );
+      toast.success(copy.done, invoice.invoiceNumber);
+      setReloadKey((key) => key + 1);
+    } catch (caught) {
+      setRationaleError(caught instanceof Error ? caught.message : copy.failed);
     } finally {
-      setRunning(false);
+      setRationaleRunning(false);
     }
   }
 
-  async function holdInvoice() {
-    if (!invoice) {
-      return;
-    }
-
-    if (!holdReason.trim()) {
-      setError(
-        "A payment-hold rationale is required.",
-      );
-
-      return;
-    }
-
-    try {
-      setRunning(true);
-      setError(null);
-
-      await holdProcurementInvoice(
-        invoice.id,
-        holdReason,
-      );
-
-      setHoldReason("");
-
-      await reload();
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to place invoice on payment hold.",
-      );
-    } finally {
-      setRunning(false);
-    }
+  function openRationale(request: RationaleRequest) {
+    setRationaleError(null);
+    setRationale(request);
   }
 
-  async function releaseHold() {
-    if (!invoice) {
-      return;
+  if (invoice === null) {
+    if (error === null) {
+      return (
+        <div className="page-stack">
+          <Skeleton height={28} />
+          <Skeleton height={120} />
+          <Skeleton height={96} />
+          <Skeleton height={260} />
+        </div>
+      );
     }
 
-    try {
-      setRunning(true);
-      setError(null);
-
-      await releaseProcurementInvoiceHold(
-        invoice.id,
-      );
-
-      await reload();
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to release payment hold.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  async function markReady() {
-    if (!invoice) {
-      return;
-    }
-
-    try {
-      setRunning(true);
-      setError(null);
-
-      await markProcurementInvoiceReady(
-        invoice.id,
-      );
-
-      await reload();
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to mark invoice ready for payment.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  async function markPaid() {
-    if (!invoice) {
-      return;
-    }
-
-    try {
-      setRunning(true);
-      setError(null);
-
-      await markProcurementInvoicePaid(
-        invoice.id,
-      );
-
-      await reload();
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to mark invoice paid.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  async function cancelInvoice() {
-    if (!invoice) {
-      return;
-    }
-
-    if (!cancelReason.trim()) {
-      setError(
-        "A cancellation rationale is required.",
-      );
-
-      return;
-    }
-
-    try {
-      setRunning(true);
-      setError(null);
-
-      await cancelProcurementInvoice(
-        invoice.id,
-        cancelReason,
-      );
-
-      setCancelReason("");
-
-      await reload();
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to cancel invoice.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="request-detail-loading">
-        Loading invoice...
-      </div>
-    );
-  }
-
-  if (!invoice) {
     return (
       <div className="page-stack">
-        <Link
-          href="/invoice-control"
-          className="request-back-link"
-        >
-          <ArrowLeft
-            size={16}
-          />
+        <Link href="/invoice-control" className="request-back-link">
+          <ArrowLeft size={16} />
           Invoice control
         </Link>
 
         <div className="error-banner">
-          <CircleAlert
-            size={18}
-          />
-          {error ??
-            "Invoice not found."}
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button
+            type="button"
+            className="kit-banner-action"
+            onClick={() => setReloadKey((key) => key + 1)}
+          >
+            Try again
+          </button>
         </div>
       </div>
     );
   }
 
-  const canRerunMatch =
-    canManage
-    &&
-    (
-      invoice.status ===
-        "MATCH_PENDING"
-      ||
-      invoice.status ===
-        "MATCHED"
-      ||
-      invoice.status ===
-        "EXCEPTION"
-    );
+  const canRerunMatch = canManage && MATCHABLE_STATUSES.includes(invoice.status);
+  const canHold = canManage && HOLDABLE_STATUSES.includes(invoice.status);
+  const canCancel = canApprove && !CLOSED_STATUSES.includes(invoice.status);
+
+  const guidance = nextStep(invoice);
+
+  const sameCurrency = invoice.currency === invoice.purchaseOrderCurrency;
+  const invoicedPct =
+    sameCurrency && invoice.purchaseOrderTotal > 0
+      ? (invoice.cumulativeInvoicedValue / invoice.purchaseOrderTotal) * 100
+      : null;
+
+  const linesTotal = invoice.lines.reduce((sum, line) => sum + line.lineTotal, 0);
+  const lineColumns = buildLineColumns(invoice.currency);
+
+  const openExceptions = invoice.exceptions.filter((exception) => exception.status === "OPEN");
+  const view = exceptionView === "" ? (openExceptions.length > 0 ? "OPEN" : "ALL") : exceptionView;
+  const shownExceptions = [...(view === "OPEN" ? openExceptions : invoice.exceptions)].sort(
+    (a, b) =>
+      (a.status === "OPEN" ? 0 : 1) - (b.status === "OPEN" ? 0 : 1) ||
+      (SEVERITY_RANK[b.severity] ?? -1) - (SEVERITY_RANK[a.severity] ?? -1),
+  );
+
+  const exceptionOptions: SegmentedOption[] = [
+    { value: "OPEN", label: `Open · ${openExceptions.length}` },
+    { value: "ALL", label: `All · ${invoice.exceptions.length}` },
+  ];
+
+  const kpis: KpiItem[] = [
+    {
+      label: "Invoice total",
+      icon: Coins,
+      value: money(invoice.totalAmount, invoice.currency),
+      note: `Tax ${money(invoice.taxAmount, invoice.currency)}`,
+    },
+    {
+      label: "PO total",
+      icon: ReceiptText,
+      value: money(invoice.purchaseOrderTotal, invoice.purchaseOrderCurrency),
+      note: readable(invoice.purchaseOrderStatus),
+    },
+    {
+      label: "Open exceptions",
+      icon: ShieldAlert,
+      value: String(invoice.openExceptions),
+      note: "Three-way match controls",
+      tone: invoice.openExceptions > 0 ? "warning" : "default",
+    },
+    {
+      label: "AP aging",
+      icon: AlertTriangle,
+      value: invoice.overdue ? `${invoice.agingDays} days` : "Current",
+      note: `Due ${formatDate(invoice.dueDate)}`,
+      tone: invoice.overdue ? "warning" : "default",
+    },
+  ];
+
+  const lineStats: StatItem[] = [
+    { label: "Lines subtotal", value: money(linesTotal, invoice.currency) },
+    { label: "Tax", value: money(invoice.taxAmount, invoice.currency) },
+    { label: "Invoice total", value: money(invoice.totalAmount, invoice.currency) },
+  ];
 
   return (
     <div className="page-stack">
-      <Link
-        href="/invoice-control"
-        className="request-back-link"
-      >
-        <ArrowLeft
-          size={16}
-        />
+      <Link href="/invoice-control" className="request-back-link">
+        <ArrowLeft size={16} />
         Invoice control
       </Link>
 
       <section className="invoice-detail-heading">
         <div>
           <div className="request-detail-heading__meta">
-            <span>
-              {invoice.invoiceNumber}
-            </span>
+            <span>{invoice.invoiceNumber}</span>
 
-            <span
-              className={
-                `invoice-status invoice-status--${invoice.status.toLowerCase().replaceAll("_", "-")}`
-              }
-            >
-              {readable(
-                invoice.status,
-              )}
-            </span>
+            <StatusBadge value={invoice.status} />
 
-            <span
-              className={
-                `invoice-match invoice-match--${invoice.matchStatus.toLowerCase().replaceAll("_", "-")}`
-              }
-            >
-              {readable(
-                invoice.matchStatus,
-              )}
-            </span>
+            <StatusBadge
+              value={invoice.matchStatus}
+              label={`Match: ${readable(invoice.matchStatus)}`}
+            />
           </div>
 
-          <h1>
-            {invoice.supplierName}
-          </h1>
+          <h1>{invoice.supplierName}</h1>
 
           <p>
-            Supplier invoice
-            {" "}
-            {invoice.supplierInvoiceNumber}
+            Supplier invoice {invoice.supplierInvoiceNumber}
             {" · PO "}
             {invoice.purchaseOrderNumber}
             {" · Created by "}
@@ -613,72 +589,70 @@ export default function InvoiceDetailPage() {
             <button
               type="button"
               className="button button--secondary"
-              disabled={running}
-              onClick={
-                () =>
-                  void rerunMatch()
-              }
+              disabled={busyAny}
+              onClick={() => void rerunMatch()}
             >
-              <RefreshCw
-                size={16}
-              />
-              Rerun match
+              <RefreshCw size={16} className={matching ? "kit-spin" : undefined} />
+              {matching ? "Matching…" : "Rerun match"}
             </button>
           ) : null}
 
-          {canApprove &&
-          invoice.status ===
-            "MATCHED" ? (
+          {canHold ? (
+            <button
+              type="button"
+              className="button button--secondary"
+              disabled={busyAny}
+              onClick={() => openRationale({ kind: "HOLD" })}
+            >
+              <PauseCircle size={16} />
+              Hold payment
+            </button>
+          ) : null}
+
+          {canCancel ? (
+            <button
+              type="button"
+              className="button button--secondary request-cancel-button"
+              disabled={busyAny}
+              onClick={() => openRationale({ kind: "CANCEL" })}
+            >
+              <XCircle size={16} />
+              Cancel invoice
+            </button>
+          ) : null}
+
+          {canApprove && invoice.status === "MATCHED" ? (
             <button
               type="button"
               className="button button--primary"
-              disabled={running}
-              onClick={
-                () =>
-                  void approveInvoice()
-              }
+              disabled={busyAny}
+              onClick={() => setPendingAction("APPROVE")}
             >
-              <BadgeCheck
-                size={16}
-              />
+              <BadgeCheck size={16} />
               Approve invoice
             </button>
           ) : null}
 
-          {canManage &&
-          invoice.status ===
-            "APPROVED" ? (
+          {canManage && invoice.status === "APPROVED" ? (
             <button
               type="button"
               className="button button--primary"
-              disabled={running}
-              onClick={
-                () =>
-                  void markReady()
-              }
+              disabled={busyAny}
+              onClick={() => setPendingAction("READY")}
             >
-              <PlayCircle
-                size={16}
-              />
+              <PlayCircle size={16} />
               Ready for payment
             </button>
           ) : null}
 
-          {canPay &&
-          invoice.status ===
-            "READY_FOR_PAYMENT" ? (
+          {canPay && invoice.status === "READY_FOR_PAYMENT" ? (
             <button
               type="button"
               className="button button--primary"
-              disabled={running}
-              onClick={
-                () =>
-                  void markPaid()
-              }
+              disabled={busyAny}
+              onClick={() => setPendingAction("PAID")}
             >
-              <Coins
-                size={16}
-              />
+              <Coins size={16} />
               Mark paid
             </button>
           ) : null}
@@ -687,23 +661,26 @@ export default function InvoiceDetailPage() {
 
       {error ? (
         <div className="error-banner">
-          <CircleAlert
-            size={18}
-          />
-          {error}
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button
+            type="button"
+            className="kit-banner-action"
+            onClick={() => setReloadKey((key) => key + 1)}
+          >
+            Try again
+          </button>
         </div>
       ) : null}
 
       {invoice.paymentHold ? (
         <section className="invoice-hold-banner">
-          <PauseCircle
-            size={18}
-          />
+          <PauseCircle size={18} />
 
           <div>
-            <strong>
-              Payment hold active
-            </strong>
+            <strong>Payment hold active</strong>
 
             <span>
               {invoice.holdReason ??
@@ -711,19 +688,12 @@ export default function InvoiceDetailPage() {
             </span>
           </div>
 
-          {canApprove &&
-          invoice.status ===
-            "PAYMENT_HOLD" &&
-          invoice.openExceptions ===
-            0 ? (
+          {canApprove && invoice.status === "PAYMENT_HOLD" && invoice.openExceptions === 0 ? (
             <button
               type="button"
               className="button button--secondary"
-              disabled={running}
-              onClick={
-                () =>
-                  void releaseHold()
-              }
+              disabled={busyAny}
+              onClick={() => setPendingAction("RELEASE")}
             >
               Release hold
             </button>
@@ -731,196 +701,93 @@ export default function InvoiceDetailPage() {
         </section>
       ) : null}
 
-      <section className="invoice-detail-kpis">
-        <article className="request-detail-summary-card">
-          <Coins
-            size={18}
-          />
+      {guidance && !invoice.paymentHold ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
 
           <div>
-            <span>
-              Invoice total
-            </span>
-
-            <strong>
-              {money(
-                invoice.totalAmount,
-                invoice.currency,
-              )}
-            </strong>
-
-            <small>
-              Tax
-              {" "}
-              {money(
-                invoice.taxAmount,
-                invoice.currency,
-              )}
-            </small>
+            <strong>Next step.</strong> {guidance}
           </div>
-        </article>
+        </div>
+      ) : null}
 
-        <article className="request-detail-summary-card">
-          <ReceiptText
-            size={18}
-          />
-
-          <div>
-            <span>
-              PO total
-            </span>
-
-            <strong>
-              {money(
-                invoice.purchaseOrderTotal,
-                invoice.purchaseOrderCurrency,
-              )}
-            </strong>
-
-            <small>
-              {invoice.purchaseOrderStatus}
-            </small>
-          </div>
-        </article>
-
-        <article className="request-detail-summary-card">
-          <ShieldAlert
-            size={18}
-          />
-
-          <div>
-            <span>
-              Open exceptions
-            </span>
-
-            <strong>
-              {invoice.openExceptions}
-            </strong>
-
-            <small>
-              Three-way match controls
-            </small>
-          </div>
-        </article>
-
-        <article className="request-detail-summary-card">
-          <AlertTriangle
-            size={18}
-          />
-
-          <div>
-            <span>
-              AP aging
-            </span>
-
-            <strong>
-              {invoice.overdue
-                ? `${invoice.agingDays} days`
-                : "Current"}
-            </strong>
-
-            <small>
-              Due
-              {" "}
-              {new Date(
-                `${invoice.dueDate}T00:00:00`,
-              )
-                .toLocaleDateString()}
-            </small>
-          </div>
-        </article>
-      </section>
+      <KpiGrid items={kpis} ariaLabel="Invoice totals" />
 
       <section className="invoice-detail-grid">
         <section className="panel">
           <div className="panel__header">
             <div>
-              <span className="eyebrow">
-                Three-way match
-              </span>
+              <span className="eyebrow">Three-way match</span>
 
-              <h2>
-                PO & invoice exposure
-              </h2>
+              <h2>PO &amp; invoice exposure</h2>
             </div>
 
-            <FileCheck2
-              size={19}
-            />
+            <FileCheck2 size={19} />
           </div>
+
+          {invoicedPct !== null ? (
+            <div className="kit-meter-wrap">
+              <Meter
+                value={Math.min(invoicedPct, 100)}
+                max={100}
+                tone={invoicedPct > 100 ? meterToneFor("danger") : "primary"}
+                ariaLabel="Share of the purchase order invoiced"
+              />
+
+              <span
+                className={
+                  invoicedPct > 100
+                    ? "kit-meter-caption kit-meter-caption--late"
+                    : "kit-meter-caption"
+                }
+              >
+                {invoicedPct.toFixed(1)}% of the PO value invoiced to date
+              </span>
+            </div>
+          ) : null}
 
           <div className="invoice-match-grid">
             <div>
-              <span>
-                PO total
-              </span>
+              <span>PO total</span>
+
+              <strong>{money(invoice.purchaseOrderTotal, invoice.purchaseOrderCurrency)}</strong>
+            </div>
+
+            <div>
+              <span>Cumulative invoiced</span>
+
+              <strong>{money(invoice.cumulativeInvoicedValue, invoice.currency)}</strong>
+            </div>
+
+            <div>
+              <span>Remaining PO value</span>
 
               <strong>
-                {money(
-                  invoice.purchaseOrderTotal,
-                  invoice.purchaseOrderCurrency,
-                )}
+                {money(invoice.remainingPoValue, invoice.purchaseOrderCurrency)}
               </strong>
             </div>
 
             <div>
-              <span>
-                Cumulative invoiced
-              </span>
+              <span>Variance tolerance</span>
 
-              <strong>
-                {money(
-                  invoice.cumulativeInvoicedValue,
-                  invoice.currency,
-                )}
-              </strong>
+              <strong>{invoice.poVarianceTolerancePct.toFixed(1)}%</strong>
             </div>
 
             <div>
-              <span>
-                Remaining PO value
-              </span>
+              <span>Receipt state</span>
 
-              <strong>
-                {money(
-                  invoice.remainingPoValue,
-                  invoice.purchaseOrderCurrency,
-                )}
-              </strong>
+              <StatusBadge value={invoice.purchaseOrderStatus} />
             </div>
 
             <div>
-              <span>
-                Variance tolerance
-              </span>
+              <span>Currency match</span>
 
-              <strong>
-                {invoice.poVarianceTolerancePct.toFixed(1)}
-                %
-              </strong>
-            </div>
-
-            <div>
-              <span>
-                Receipt state
-              </span>
-
-              <strong>
-                {invoice.purchaseOrderStatus}
-              </strong>
-            </div>
-
-            <div>
-              <span>
-                Currency match
-              </span>
-
-              <strong>
-                {invoice.currency ===
-                invoice.purchaseOrderCurrency
-                  ? "Matched"
-                  : "Mismatch"}
-              </strong>
+              <StatusBadge
+                value={sameCurrency ? "MATCHED" : "MISMATCH"}
+                label={sameCurrency ? "Matched" : "Mismatch"}
+                tone={sameCurrency ? "success" : "danger"}
+                dot={false}
+              />
             </div>
           </div>
         </section>
@@ -928,500 +795,237 @@ export default function InvoiceDetailPage() {
         <section className="panel">
           <div className="panel__header">
             <div>
-              <span className="eyebrow">
-                Invoice lifecycle
-              </span>
+              <span className="eyebrow">Invoice lifecycle</span>
 
-              <h2>
-                Approval & payment
-              </h2>
+              <h2>Approval &amp; payment</h2>
             </div>
 
-            <Coins
-              size={19}
-            />
+            <Coins size={19} />
           </div>
 
           <div className="invoice-lifecycle-grid">
             <div>
-              <span>
-                Approved
-              </span>
+              <span>Approved</span>
 
-              <strong>
-                {invoice.approvedAt
-                  ? new Date(
-                      invoice.approvedAt,
-                    )
-                      .toLocaleString()
-                  : "—"}
-              </strong>
+              <strong>{invoice.approvedAt ? formatDateTime(invoice.approvedAt) : "—"}</strong>
 
-              <small>
-                {invoice.approvedByName ??
-                  ""}
-              </small>
+              <small>{invoice.approvedByName ?? ""}</small>
             </div>
 
             <div>
-              <span>
-                Ready for payment
-              </span>
+              <span>Ready for payment</span>
 
               <strong>
-                {invoice.readyForPaymentAt
-                  ? new Date(
-                      invoice.readyForPaymentAt,
-                    )
-                      .toLocaleString()
-                  : "—"}
+                {invoice.readyForPaymentAt ? formatDateTime(invoice.readyForPaymentAt) : "—"}
               </strong>
             </div>
 
             <div>
-              <span>
-                Paid
-              </span>
+              <span>Paid</span>
 
-              <strong>
-                {invoice.paidAt
-                  ? new Date(
-                      invoice.paidAt,
-                    )
-                      .toLocaleString()
-                  : "—"}
-              </strong>
+              <strong>{invoice.paidAt ? formatDateTime(invoice.paidAt) : "—"}</strong>
             </div>
           </div>
 
-          {invoice.notes ? (
-            <div className="invoice-notes">
-              {invoice.notes}
-            </div>
-          ) : null}
+          {invoice.notes ? <div className="invoice-notes">{invoice.notes}</div> : null}
         </section>
       </section>
 
       <section className="panel">
         <div className="panel__header">
           <div>
-            <span className="eyebrow">
-              Invoice content
-            </span>
+            <span className="eyebrow">Invoice content</span>
 
-            <h2>
-              Line items
-            </h2>
+            <h2>Line items</h2>
           </div>
 
-          <ReceiptText
-            size={19}
-          />
+          <ReceiptText size={19} />
         </div>
 
-        <div className="table-scroll">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Description</th>
-                <th>Quantity</th>
-                <th>Unit price</th>
-                <th>Line total</th>
-              </tr>
-            </thead>
+        <StatStrip items={lineStats} />
 
-            <tbody>
-              {invoice.lines.map(
-                line => (
-                  <tr
-                    key={line.id}
-                  >
-                    <td>
-                      {line.lineNumber}
-                    </td>
-
-                    <td>
-                      {line.description}
-                    </td>
-
-                    <td>
-                      {line.quantity}
-                    </td>
-
-                    <td>
-                      {money(
-                        line.unitPrice,
-                        invoice.currency,
-                      )}
-                    </td>
-
-                    <td>
-                      <strong>
-                        {money(
-                          line.lineTotal,
-                          invoice.currency,
-                        )}
-                      </strong>
-                    </td>
-                  </tr>
-                ),
-              )}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          columns={lineColumns}
+          rows={invoice.lines}
+          getRowId={(line) => String(line.id)}
+          ariaLabel="Invoice line items"
+          empty={
+            <EmptyState
+              compact
+              icon={ReceiptText}
+              title="No line items"
+              description="This invoice has no line items."
+            />
+          }
+        />
       </section>
 
       <section className="panel">
         <div className="panel__header">
           <div>
-            <span className="eyebrow">
-              Payment exceptions
-            </span>
+            <span className="eyebrow">Payment exceptions</span>
 
-            <h2>
-              Match exceptions
-            </h2>
+            <h2>Match exceptions</h2>
           </div>
 
-          <ShieldAlert
-            size={19}
-          />
+          <ShieldAlert size={19} />
         </div>
 
-        {invoice.exceptions.length ===
-        0 ? (
-          <div className="invoice-empty">
-            No matching exceptions have
-            been detected.
-          </div>
+        {invoice.exceptions.length === 0 ? (
+          <EmptyState
+            compact
+            icon={ShieldCheck}
+            title="No matching exceptions"
+            description="No matching exceptions have been detected for this invoice."
+          />
         ) : (
-          <div className="invoice-exception-list">
-            {invoice.exceptions.map(
-              exception => (
-                <article
-                  key={exception.id}
-                  className={
-                    `invoice-exception invoice-exception--${exception.severity.toLowerCase()}`
-                  }
-                >
-                  <div className="invoice-exception-heading">
-                    <div>
-                      <span
-                        className={
-                          `invoice-exception-severity invoice-exception-severity--${exception.severity.toLowerCase()}`
-                        }
-                      >
-                        {exception.severity}
-                      </span>
+          <>
+            <div className="kit-toolbar" style={{ marginBottom: 14 }}>
+              <SegmentedFilter
+                options={exceptionOptions}
+                value={view}
+                onChange={setExceptionView}
+                ariaLabel="Filter exceptions"
+              />
+            </div>
 
-                      <strong>
-                        {readable(
-                          exception.exceptionType,
-                        )}
-                      </strong>
+            {shownExceptions.length === 0 ? (
+              <EmptyState
+                compact
+                icon={ShieldCheck}
+                title="No open exceptions"
+                description="Every exception has been resolved or dismissed."
+              />
+            ) : (
+              <div className="invoice-exception-list">
+                {shownExceptions.map((exception) => (
+                  <article
+                    key={exception.id}
+                    className={`invoice-exception invoice-exception--${exception.severity.toLowerCase()}`}
+                  >
+                    <div className="invoice-exception-heading">
+                      <div>
+                        <StatusBadge value={exception.severity} />
 
-                      <small>
-                        {readable(
-                          exception.status,
-                        )}
-                      </small>
+                        <strong>{readable(exception.exceptionType)}</strong>
+
+                        <StatusBadge value={exception.status} />
+                      </div>
+
+                      {exception.varianceAmount !== null ? (
+                        <div>
+                          <span>Variance</span>
+
+                          <strong>{money(exception.varianceAmount, invoice.currency)}</strong>
+                        </div>
+                      ) : null}
                     </div>
 
-                    {exception.varianceAmount !==
-                    null ? (
-                      <div>
+                    <p>{exception.details}</p>
+
+                    {exception.expectedValue !== null || exception.actualValue !== null ? (
+                      <div className="invoice-exception-values">
                         <span>
-                          Variance
+                          Expected:{" "}
+                          {exception.expectedValue !== null
+                            ? money(exception.expectedValue, invoice.currency)
+                            : "—"}
                         </span>
 
-                        <strong>
-                          {money(
-                            exception.varianceAmount,
-                            invoice.currency,
-                          )}
-                        </strong>
+                        <span>
+                          Actual:{" "}
+                          {exception.actualValue !== null
+                            ? money(exception.actualValue, invoice.currency)
+                            : "—"}
+                        </span>
                       </div>
                     ) : null}
-                  </div>
 
-                  <p>
-                    {exception.details}
-                  </p>
+                    {exception.resolutionNote ? (
+                      <div className="invoice-resolution-note">
+                        {exception.resolutionNote}
+                        {exception.resolvedByName ? ` — ${exception.resolvedByName}` : ""}
+                      </div>
+                    ) : null}
 
-                  {exception.expectedValue !==
-                    null
-                  ||
-                  exception.actualValue !==
-                    null ? (
-                    <div className="invoice-exception-values">
-                      <span>
-                        Expected:
-                        {" "}
-                        {exception.expectedValue !==
-                        null
-                          ? money(
-                              exception.expectedValue,
-                              invoice.currency,
-                            )
-                          : "—"}
-                      </span>
+                    {exception.status === "OPEN" && (canManage || canApprove) ? (
+                      <div className="invoice-inline-controls">
+                        {canManage ? (
+                          <button
+                            type="button"
+                            className="invoice-inline-button"
+                            disabled={busyAny}
+                            onClick={() => openRationale({ kind: "RESOLVE", exception })}
+                          >
+                            <BadgeCheck size={14} />
+                            Resolve
+                          </button>
+                        ) : null}
 
-                      <span>
-                        Actual:
-                        {" "}
-                        {exception.actualValue !==
-                        null
-                          ? money(
-                              exception.actualValue,
-                              invoice.currency,
-                            )
-                          : "—"}
-                      </span>
-                    </div>
-                  ) : null}
-
-                  {exception.resolutionNote ? (
-                    <div className="invoice-resolution-note">
-                      {exception.resolutionNote}
-                      {exception.resolvedByName
-                        ? ` — ${exception.resolvedByName}`
-                        : ""}
-                    </div>
-                  ) : null}
-
-                  {exception.status ===
-                    "OPEN" &&
-                  (
-                    canManage
-                    ||
-                    canApprove
-                  ) ? (
-                    <div className="invoice-inline-controls">
-                      <input
-                        value={
-                          exceptionNotes[
-                            exception.id
-                          ]
-                          ??
-                          ""
-                        }
-                        placeholder={
-                          "Resolution evidence / approval rationale"
-                        }
-                        onChange={
-                          event =>
-                            setExceptionNotes(
-                              current => ({
-                                ...current,
-                                [exception.id]:
-                                  event.target.value,
-                              }),
-                            )
-                        }
-                      />
-
-                      {canManage ? (
-                        <button
-                          type="button"
-                          className="invoice-inline-button"
-                          disabled={
-                            running
-                            ||
-                            !(
-                              exceptionNotes[
-                                exception.id
-                              ]
-                              ??
-                              ""
-                            )
-                              .trim()
-                          }
-                          onClick={
-                            () =>
-                              void decideException(
-                                exception,
-                                "RESOLVE",
-                              )
-                          }
-                        >
-                          <BadgeCheck
-                            size={14}
-                          />
-                          Resolve
-                        </button>
-                      ) : null}
-
-                      {canApprove ? (
-                        <button
-                          type="button"
-                          className="invoice-inline-button invoice-inline-button--danger"
-                          disabled={
-                            running
-                            ||
-                            !(
-                              exceptionNotes[
-                                exception.id
-                              ]
-                              ??
-                              ""
-                            )
-                              .trim()
-                          }
-                          onClick={
-                            () =>
-                              void decideException(
-                                exception,
-                                "DISMISS",
-                              )
-                          }
-                        >
-                          <XCircle
-                            size={14}
-                          />
-                          Dismiss
-                        </button>
-                      ) : null}
-                    </div>
-                  ) : null}
-                </article>
-              ),
+                        {canApprove ? (
+                          <button
+                            type="button"
+                            className="invoice-inline-button invoice-inline-button--danger"
+                            disabled={busyAny}
+                            onClick={() => openRationale({ kind: "DISMISS", exception })}
+                          >
+                            <XCircle size={14} />
+                            Dismiss
+                          </button>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </article>
+                ))}
+              </div>
             )}
-          </div>
+          </>
         )}
       </section>
 
-      {canManage &&
-      (
-        invoice.status ===
-          "MATCHED"
-        ||
-        invoice.status ===
-          "APPROVED"
-        ||
-        invoice.status ===
-          "READY_FOR_PAYMENT"
-      ) ? (
-        <section className="panel">
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Payment control
-              </span>
-
-              <h2>
-                Manual payment hold
-              </h2>
-            </div>
-
-            <PauseCircle
-              size={19}
-            />
-          </div>
-
-          <label className="request-field">
-            <span>
-              Hold rationale
-            </span>
-
-            <textarea
-              rows={4}
-              maxLength={2000}
-              value={holdReason}
-              onChange={
-                event =>
-                  setHoldReason(
-                    event.target.value,
-                  )
-              }
-            />
-          </label>
-
-          <div className="invoice-form-actions">
-            <button
-              type="button"
-              className="button button--secondary"
-              disabled={
-                running
-                ||
-                !holdReason.trim()
-              }
-              onClick={
-                () =>
-                  void holdInvoice()
-              }
-            >
-              <PauseCircle
-                size={16}
-              />
-              Place payment hold
-            </button>
-          </div>
-        </section>
+      {pendingAction !== null ? (
+        <ActionDialog
+          eyebrow={ACTIONS[pendingAction].eyebrow}
+          title={ACTIONS[pendingAction].title}
+          description={actionDescription(pendingAction, invoice)}
+          confirmLabel={ACTIONS[pendingAction].confirm}
+          busyLabel={ACTIONS[pendingAction].busy}
+          cancelLabel={ACTIONS[pendingAction].keep}
+          busy={actionRunning}
+          onConfirm={() => void confirmAction()}
+          onCancel={() => setPendingAction(null)}
+        >
+          {pendingAction === "PAID" ? (
+            <p className="kit-dialog-note kit-dialog-note--warning">
+              Recording a payment cannot be undone from this screen.
+            </p>
+          ) : null}
+        </ActionDialog>
       ) : null}
 
-      {canApprove &&
-      invoice.status !==
-        "PAID" &&
-      invoice.status !==
-        "CANCELLED" ? (
-        <section className="panel">
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Invoice governance
-              </span>
+      {rationale !== null
+        ? (() => {
+            const copy = rationaleCopy(rationale, invoice);
 
-              <h2>
-                Cancel invoice
-              </h2>
-            </div>
-
-            <XCircle
-              size={19}
-            />
-          </div>
-
-          <label className="request-field">
-            <span>
-              Cancellation rationale
-            </span>
-
-            <textarea
-              rows={4}
-              maxLength={2000}
-              value={cancelReason}
-              onChange={
-                event =>
-                  setCancelReason(
-                    event.target.value,
-                  )
-              }
-            />
-          </label>
-
-          <div className="invoice-form-actions">
-            <button
-              type="button"
-              className="button button--secondary"
-              disabled={
-                running
-                ||
-                !cancelReason.trim()
-              }
-              onClick={
-                () =>
-                  void cancelInvoice()
-              }
-            >
-              <XCircle
-                size={16}
+            return (
+              <RationaleDialog
+                eyebrow={copy.eyebrow}
+                title={copy.title}
+                description={copy.description}
+                label={copy.label}
+                placeholder={copy.placeholder}
+                confirmLabel={copy.confirm}
+                busyLabel={copy.busy}
+                cancelLabel={copy.keep}
+                tone={copy.tone}
+                busy={rationaleRunning}
+                error={rationaleError}
+                onConfirm={(reason) => void confirmRationale(reason)}
+                onCancel={() => setRationale(null)}
               />
-              Cancel invoice
-            </button>
-          </div>
-        </section>
-      ) : null}
+            );
+          })()
+        : null}
     </div>
   );
 }

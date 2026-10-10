@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {CircleAlert,
   Plus,
   Target,
@@ -579,7 +581,7 @@ export default function ContinuousImprovementPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Initiative</th>
@@ -718,7 +720,7 @@ export default function ContinuousImprovementPage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 

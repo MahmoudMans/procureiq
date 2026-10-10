@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {
   Camera,
   CircleAlert,
@@ -502,7 +504,7 @@ export default function StrategicAlignmentPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Objective</th>
@@ -597,7 +599,7 @@ export default function StrategicAlignmentPage() {
                     ),
                   )}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
@@ -619,7 +621,7 @@ export default function StrategicAlignmentPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Work item</th>
@@ -723,7 +725,7 @@ export default function StrategicAlignmentPage() {
                     ),
                   )}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
@@ -745,7 +747,7 @@ export default function StrategicAlignmentPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Review</th>
@@ -838,7 +840,7 @@ export default function StrategicAlignmentPage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 

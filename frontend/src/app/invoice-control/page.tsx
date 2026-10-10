@@ -4,763 +4,553 @@ import {
   AlertTriangle,
   CircleAlert,
   Coins,
+  Download,
   FileCheck2,
   Plus,
   ReceiptText,
+  RefreshCw,
+  SearchX,
   ShieldAlert,
 } from "lucide-react";
-
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import {
-  useAuth,
-} from "@/components/auth/auth-provider";
+  type Column,
+  DataTable,
+  EmptyState,
+  type FilterChip,
+  FilterChips,
+  KpiGrid,
+  type KpiItem,
+  SearchField,
+  SelectField,
+  type SelectOption,
+  type StatItem,
+  StatStrip,
+  StatusBadge,
+  downloadCsv,
+  formatDate,
+  formatMoney,
+  readable,
+  useToast,
+} from "@/components/kit";
+import { getInvoiceSummary, getProcurementInvoices } from "@/lib/api";
+import type { InvoiceSummary, ProcurementInvoice } from "@/types/invoice-control";
 
-import {
-  getInvoiceSummary,
-  getProcurementInvoices,
-} from "@/lib/api";
+/* ------------------------------------------------------------------ */
+/* Constants                                                           */
+/* ------------------------------------------------------------------ */
 
-import type {
-  InvoiceSummary,
-  ProcurementInvoice,
-} from "@/types/invoice-control";
+const CREATOR_ROLES = ["ADMIN", "PROCUREMENT_MANAGER", "BUYER"];
+const CLOSED_STATUSES: string[] = ["PAID", "CANCELLED"];
 
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+const CURRENCY_OPTIONS: SelectOption[] = ["EUR", "USD", "GBP", "TND"].map(
+  (code) => ({ value: code, label: code }),
+);
 
-function readable(
-  value: string,
-): string {
-  return value
-    .replaceAll(
-      "_",
-      " ",
-    )
-    .toLowerCase()
-    .replace(
-      /\b\w/g,
-      letter =>
-        letter.toUpperCase(),
-    );
+const STATUS_OPTIONS: SelectOption[] = [
+  { value: "", label: "All" },
+  { value: "MATCH_PENDING", label: "Match pending" },
+  { value: "MATCHED", label: "Matched" },
+  { value: "EXCEPTION", label: "Exception" },
+  { value: "APPROVED", label: "Approved" },
+  { value: "PAYMENT_HOLD", label: "Payment hold" },
+  { value: "READY_FOR_PAYMENT", label: "Ready for payment" },
+  { value: "PAID", label: "Paid" },
+  { value: "CANCELLED", label: "Cancelled" },
+];
+
+const MATCH_OPTIONS: SelectOption[] = [
+  { value: "", label: "All" },
+  { value: "NOT_RUN", label: "Not run" },
+  { value: "MATCHED", label: "Matched" },
+  { value: "EXCEPTION", label: "Exception" },
+];
+
+const integer = new Intl.NumberFormat("en-US");
+
+/** Overdue first (most overdue on top), then upcoming by due date, paid/cancelled last. */
+function priority(invoice: ProcurementInvoice): number {
+  if (CLOSED_STATUSES.includes(invoice.status)) {
+    return 2;
+  }
+
+  return invoice.overdue ? 0 : 1;
 }
 
-function money(
-  value: number,
-  currency: string,
-): string {
-  return new Intl.NumberFormat(
-    "en-US",
-    {
-      style: "currency",
-      currency,
-      notation:
-        Math.abs(value) >=
-        100000
-          ? "compact"
-          : "standard",
-      maximumFractionDigits: 1,
-    },
-  ).format(value);
+function byPriority(a: ProcurementInvoice, b: ProcurementInvoice): number {
+  const difference = priority(a) - priority(b);
+
+  if (difference !== 0) {
+    return difference;
+  }
+
+  if (priority(a) === 0) {
+    return b.agingDays - a.agingDays;
+  }
+
+  return a.dueDate.localeCompare(b.dueDate);
 }
+
+const COLUMNS: Column<ProcurementInvoice>[] = [
+  {
+    id: "invoice",
+    header: "Invoice",
+    sortValue: (invoice) => invoice.invoiceNumber,
+    cell: (invoice) => (
+      <div className="request-primary-cell">
+        <strong>
+          <Link href={`/invoice-control/${invoice.id}`} className="supplier-360-link">
+            {invoice.invoiceNumber}
+          </Link>
+        </strong>
+
+        <span>{invoice.supplierInvoiceNumber}</span>
+      </div>
+    ),
+  },
+  {
+    id: "supplier",
+    header: "Supplier",
+    sortValue: (invoice) => invoice.supplierName.toLowerCase(),
+    cell: (invoice) => (
+      <div className="stacked-cell">
+        <strong>{invoice.supplierName}</strong>
+        <span>{invoice.supplierCode}</span>
+      </div>
+    ),
+  },
+  {
+    id: "po",
+    header: "PO",
+    sortValue: (invoice) => invoice.purchaseOrderNumber,
+    cell: (invoice) => invoice.purchaseOrderNumber,
+  },
+  {
+    id: "total",
+    header: "Total",
+    align: "right",
+    sortValue: (invoice) => invoice.totalAmount,
+    firstSort: "desc",
+    cell: (invoice) => (
+      <strong className="kit-num">
+        {formatMoney(invoice.totalAmount, invoice.currency)}
+      </strong>
+    ),
+  },
+  {
+    id: "match",
+    header: "Match",
+    sortValue: (invoice) => invoice.matchStatus,
+    cell: (invoice) => <StatusBadge value={invoice.matchStatus} />,
+  },
+  {
+    id: "status",
+    header: "Status",
+    sortValue: (invoice) => invoice.status,
+    cell: (invoice) => <StatusBadge value={invoice.status} />,
+  },
+  {
+    id: "due",
+    header: "Due",
+    sortValue: (invoice) => invoice.dueDate,
+    cell: (invoice) => formatDate(invoice.dueDate),
+  },
+  {
+    id: "aging",
+    header: "Aging",
+    sortValue: (invoice) => (invoice.overdue ? invoice.agingDays : 0),
+    firstSort: "desc",
+    cell: (invoice) =>
+      invoice.overdue ? (
+        <span className="kit-text-danger">{invoice.agingDays}d overdue</span>
+      ) : (
+        <span className="kit-text-muted">Current</span>
+      ),
+  },
+  {
+    id: "open",
+    header: <span className="kit-sr-only">Actions</span>,
+    align: "right",
+    width: 70,
+    cell: (invoice) => (
+      <Link href={`/invoice-control/${invoice.id}`} className="table-action">
+        Open
+      </Link>
+    ),
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
 
 export default function InvoiceControlPage() {
-  const {
-    user,
-  } = useAuth();
+  const { user } = useAuth();
+  const toast = useToast();
 
-  const [
-    invoices,
-    setInvoices,
-  ] =
-    useState<
-      ProcurementInvoice[]
-    >([]);
+  const canCreate = user !== null && CREATOR_ROLES.includes(user.role);
 
-  const [
-    summary,
-    setSummary,
-  ] =
-    useState<
-      InvoiceSummary |
-      null
-    >(null);
-
-  const [
-    currency,
-    setCurrency,
-  ] =
-    useState("EUR");
-
-  const [
-    query,
-    setQuery,
-  ] =
-    useState("");
-
-  const [
-    statusFilter,
-    setStatusFilter,
-  ] =
-    useState("");
-
-  const [
-    matchFilter,
-    setMatchFilter,
-  ] =
-    useState("");
-
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
-
-  const [
-    error,
-    setError,
-  ] =
-    useState<
-      string |
-      null
-    >(null);
-
-  const canCreate =
-    user?.role ===
-      "ADMIN"
-    ||
-    user?.role ===
-      "PROCUREMENT_MANAGER"
-    ||
-    user?.role ===
-      "BUYER";
+  const [invoices, setInvoices] = useState<ProcurementInvoice[] | null>(null);
+  const [summary, setSummary] = useState<InvoiceSummary | null>(null);
+  const [summaryCurrency, setSummaryCurrency] = useState("EUR");
+  const [summaryFailed, setSummaryFailed] = useState(false);
+  const [currency, setCurrency] = useState("EUR");
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [matchFilter, setMatchFilter] = useState("");
+  const [fetching, setFetching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let active = true;
 
-    Promise.all([
-      getProcurementInvoices(
-        currency,
-      ),
-      getInvoiceSummary(
-        currency,
-      ),
-    ])
-      .then(
-        ([
-          invoiceResponse,
-          summaryResponse,
-        ]) => {
-          if (!active) {
-            return;
-          }
+    const timer = window.setTimeout(async () => {
+      setFetching(true);
+      setError(null);
+      setSummaryFailed(false);
 
-          setInvoices(
-            invoiceResponse,
-          );
+      const [invoiceResult, summaryResult] = await Promise.allSettled([
+        getProcurementInvoices(currency),
+        getInvoiceSummary(currency),
+      ]);
 
-          setSummary(
-            summaryResponse,
-          );
+      if (!active) {
+        return;
+      }
 
-          setError(null);
-        },
-      )
-      .catch(
-        caughtError => {
-          if (!active) {
-            return;
-          }
+      if (invoiceResult.status === "fulfilled") {
+        setInvoices(invoiceResult.value);
+      } else {
+        setError(
+          invoiceResult.reason instanceof Error
+            ? invoiceResult.reason.message
+            : "Unable to load invoice control.",
+        );
+      }
 
-          setError(
-            caughtError instanceof
-              Error
-              ? caughtError.message
-              : "Unable to load invoice control.",
-          );
-        },
-      )
-      .finally(
-        () => {
-          if (active) {
-            setLoading(false);
-          }
-        },
-      );
+      if (summaryResult.status === "fulfilled") {
+        setSummary(summaryResult.value);
+        setSummaryCurrency(currency);
+      } else {
+        setSummaryFailed(true);
+      }
+
+      setFetching(false);
+    }, 0);
 
     return () => {
       active = false;
+      window.clearTimeout(timer);
     };
-  }, [
-    currency,
-  ]);
+  }, [currency, reloadKey]);
 
-  const filtered =
-    useMemo(
-      () => {
-        const normalized =
-          query
-            .trim()
-            .toLowerCase();
+  const rows = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
 
-        return invoices
-          .filter(
-            invoice =>
-              !statusFilter
-              ||
-              invoice.status ===
-                statusFilter,
-          )
-          .filter(
-            invoice =>
-              !matchFilter
-              ||
-              invoice.matchStatus ===
-                matchFilter,
-          )
-          .filter(
-            invoice => {
-              if (!normalized) {
-                return true;
-              }
+    return (invoices ?? [])
+      .filter((invoice) => !statusFilter || invoice.status === statusFilter)
+      .filter((invoice) => !matchFilter || invoice.matchStatus === matchFilter)
+      .filter((invoice) => {
+        if (!normalized) {
+          return true;
+        }
 
-              return [
-                invoice.invoiceNumber,
-                invoice.supplierInvoiceNumber,
-                invoice.supplierName,
-                invoice.supplierCode,
-                invoice.purchaseOrderNumber,
-              ]
-                .join(
-                  " ",
-                )
-                .toLowerCase()
-                .includes(
-                  normalized,
-                );
-            },
-          );
-      },
+        return [
+          invoice.invoiceNumber,
+          invoice.supplierInvoiceNumber,
+          invoice.supplierName,
+          invoice.supplierCode,
+          invoice.purchaseOrderNumber,
+        ]
+          .join(" ")
+          .toLowerCase()
+          .includes(normalized);
+      })
+      .sort(byPriority);
+  }, [invoices, query, statusFilter, matchFilter]);
+
+  const initialLoad = invoices === null && error === null;
+
+  // Figures are only shown once they belong to the selected currency.
+  const figures = summary !== null && summaryCurrency === currency ? summary : null;
+  const figuresLoading = figures === null && !summaryFailed;
+
+  const hasFilters = query.trim() !== "" || statusFilter !== "" || matchFilter !== "";
+
+  const chips: FilterChip[] = [];
+
+  if (query.trim()) {
+    chips.push({
+      key: "query",
+      label: `Search: “${query.trim()}”`,
+      onRemove: () => setQuery(""),
+    });
+  }
+
+  if (statusFilter) {
+    chips.push({
+      key: "status",
+      label: `Status: ${readable(statusFilter)}`,
+      onRemove: () => setStatusFilter(""),
+    });
+  }
+
+  if (matchFilter) {
+    chips.push({
+      key: "match",
+      label: `Match: ${readable(matchFilter)}`,
+      onRemove: () => setMatchFilter(""),
+    });
+  }
+
+  function clearFilters() {
+    setQuery("");
+    setStatusFilter("");
+    setMatchFilter("");
+  }
+
+  function exportCsv() {
+    downloadCsv(
+      `procureiq-invoices-${new Date().toISOString().slice(0, 10)}.csv`,
       [
-        invoices,
-        query,
-        statusFilter,
-        matchFilter,
+        "Invoice number",
+        "Supplier invoice number",
+        "Supplier",
+        "Supplier code",
+        "Purchase order",
+        "Currency",
+        "Total",
+        "Match",
+        "Status",
+        "Due date",
+        "Overdue",
+        "Days overdue",
       ],
+      rows.map((invoice) => [
+        invoice.invoiceNumber,
+        invoice.supplierInvoiceNumber,
+        invoice.supplierName,
+        invoice.supplierCode,
+        invoice.purchaseOrderNumber,
+        invoice.currency,
+        invoice.totalAmount,
+        invoice.matchStatus,
+        invoice.status,
+        invoice.dueDate,
+        invoice.overdue ? "Yes" : "No",
+        invoice.overdue ? invoice.agingDays : 0,
+      ]),
     );
+
+    toast.success(
+      "Invoices exported",
+      `${rows.length} ${rows.length === 1 ? "row" : "rows"} saved as CSV.`,
+    );
+  }
+
+  const openExceptions = figures?.openExceptions ?? 0;
+  const heldInvoices = figures?.heldInvoices ?? 0;
+
+  const kpis: KpiItem[] = [
+    {
+      label: "AP exposure",
+      icon: Coins,
+      value: figures ? formatMoney(figures.accountsPayableExposure, currency, true) : "—",
+      note: "Open unpaid invoice value.",
+    },
+    {
+      label: "Match exceptions",
+      icon: ShieldAlert,
+      value: figures ? integer.format(openExceptions) : "—",
+      note: `${integer.format(figures?.exceptionInvoices ?? 0)} invoices affected`,
+      tone: openExceptions > 0 ? "warning" : "default",
+    },
+    {
+      label: "Payment holds",
+      icon: AlertTriangle,
+      value: figures ? integer.format(heldInvoices) : "—",
+      note: `${formatMoney(figures?.paymentHoldExposure ?? 0, currency, true)} held`,
+      tone: heldInvoices > 0 ? "warning" : "default",
+    },
+    {
+      label: "Ready for payment",
+      icon: FileCheck2,
+      value: figures ? integer.format(figures.readyForPaymentInvoices) : "—",
+      note: `${integer.format(figures?.overdueInvoices ?? 0)} overdue invoices`,
+    },
+  ];
+
+  const duplicates = figures?.duplicateExceptions ?? 0;
+  const overdueExposure = figures?.overdueExposure ?? 0;
+
+  const stats: StatItem[] = [
+    {
+      label: "Total invoices",
+      value: figures ? integer.format(figures.totalInvoices) : "—",
+    },
+    {
+      label: "Matched",
+      value: figures ? integer.format(figures.matchedInvoices) : "—",
+    },
+    {
+      label: "Duplicate exceptions",
+      value: figures ? integer.format(duplicates) : "—",
+      tone: duplicates > 0 ? "danger" : "default",
+    },
+    {
+      label: "Overdue exposure",
+      value: figures ? formatMoney(overdueExposure, currency, true) : "—",
+      tone: overdueExposure > 0 ? "danger" : "default",
+    },
+  ];
+
+  const emptyNode = hasFilters ? (
+    <EmptyState
+      icon={SearchX}
+      title="No invoices match these filters"
+      description="Try a different search term, or clear the filters to see every invoice."
+      action={
+        <button
+          type="button"
+          className="button button--secondary"
+          onClick={clearFilters}
+        >
+          Clear filters
+        </button>
+      }
+    />
+  ) : (
+    <EmptyState
+      icon={ReceiptText}
+      title="No invoices yet"
+      description="Record a supplier invoice to run the PO, receipt and invoice match."
+      action={
+        canCreate ? (
+          <Link href="/invoice-control/new" className="button button--primary">
+            <Plus size={16} />
+            New invoice
+          </Link>
+        ) : undefined
+      }
+    />
+  );
 
   return (
     <div className="page-stack">
       <section className="page-heading">
         <div>
-          <span className="eyebrow">
-            Procure-to-pay control
-          </span>
+          <span className="eyebrow">Procure-to-pay control</span>
 
-          <h1>
-            Invoice control
-          </h1>
+          <h1>Invoice control</h1>
 
           <p>
-            Intake supplier invoices,
-            execute PO/receipt/invoice
-            matching, manage payment
-            exceptions and control
-            accounts-payable exposure.
+            Intake supplier invoices, execute PO/receipt/invoice matching, manage
+            payment exceptions and control accounts-payable exposure.
           </p>
         </div>
 
-        <div className="invoice-heading-actions">
-          <label className="invoice-currency-control">
-            <span>
-              Currency
-            </span>
+        <div className="page-heading__actions">
+          <SelectField
+            label="Currency"
+            value={currency}
+            onChange={setCurrency}
+            options={CURRENCY_OPTIONS}
+          />
 
-            <select
-              value={currency}
-              onChange={
-                event => {
-                  setLoading(true);
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={() => setReloadKey((key) => key + 1)}
+            disabled={fetching}
+          >
+            <RefreshCw size={15} className={fetching ? "kit-spin" : undefined} />
+            Refresh
+          </button>
 
-                  setCurrency(
-                    event.target.value,
-                  );
-                }
-              }
-            >
-              <option value="EUR">
-                EUR
-              </option>
-
-              <option value="USD">
-                USD
-              </option>
-
-              <option value="GBP">
-                GBP
-              </option>
-
-              <option value="TND">
-                TND
-              </option>
-            </select>
-          </label>
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={exportCsv}
+            disabled={rows.length === 0}
+          >
+            <Download size={15} />
+            Export CSV
+          </button>
 
           {canCreate ? (
-            <Link
-              href="/invoice-control/new"
-              className="button button--primary"
-            >
-              <Plus
-                size={16}
-              />
+            <Link href="/invoice-control/new" className="button button--primary">
+              <Plus size={16} />
               New invoice
             </Link>
           ) : null}
         </div>
       </section>
 
+      <KpiGrid items={kpis} loading={figuresLoading} ariaLabel="Invoice totals" />
+
+      <StatStrip items={stats} loading={figuresLoading} />
+
+      <div className="kit-filters">
+        <div className="kit-toolbar">
+          <SearchField
+            value={query}
+            onChange={setQuery}
+            placeholder="Search invoice, supplier or PO"
+            ariaLabel="Search invoices"
+            shortcut
+          />
+
+          <SelectField
+            label="Status"
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={STATUS_OPTIONS}
+          />
+
+          <SelectField
+            label="Match"
+            value={matchFilter}
+            onChange={setMatchFilter}
+            options={MATCH_OPTIONS}
+          />
+        </div>
+
+        <FilterChips chips={chips} onClearAll={clearFilters} />
+      </div>
+
       {error ? (
         <div className="error-banner">
-          <CircleAlert
-            size={18}
-          />
-          {error}
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button
+            type="button"
+            className="kit-banner-action"
+            onClick={() => setReloadKey((key) => key + 1)}
+          >
+            Try again
+          </button>
         </div>
       ) : null}
 
-      <section className="invoice-kpi-grid">
-        <article className="kpi-card">
-          <div className="kpi-card__topline">
-            <div className="kpi-card__icon">
-              <Coins
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span className="kpi-card__label">
-            AP exposure
-          </span>
-
-          <strong className="kpi-card__value invoice-money-kpi">
-            {money(
-              summary
-                ?.accountsPayableExposure ??
-                0,
-              currency,
-            )}
-          </strong>
-
-          <p>
-            Open unpaid invoice value.
-          </p>
-        </article>
-
-        <article className="kpi-card">
-          <div className="kpi-card__topline">
-            <div className="kpi-card__icon">
-              <ShieldAlert
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span className="kpi-card__label">
-            Match exceptions
-          </span>
-
-          <strong className="kpi-card__value">
-            {summary
-              ?.openExceptions ??
-              0}
-          </strong>
-
-          <p>
-            {summary
-              ?.exceptionInvoices ??
-              0}
-            {" invoices affected"}
-          </p>
-        </article>
-
-        <article className="kpi-card">
-          <div className="kpi-card__topline">
-            <div className="kpi-card__icon">
-              <AlertTriangle
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span className="kpi-card__label">
-            Payment holds
-          </span>
-
-          <strong className="kpi-card__value">
-            {summary
-              ?.heldInvoices ??
-              0}
-          </strong>
-
-          <p>
-            {money(
-              summary
-                ?.paymentHoldExposure ??
-                0,
-              currency,
-            )}
-            {" held"}
-          </p>
-        </article>
-
-        <article className="kpi-card">
-          <div className="kpi-card__topline">
-            <div className="kpi-card__icon">
-              <FileCheck2
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span className="kpi-card__label">
-            Ready for payment
-          </span>
-
-          <strong className="kpi-card__value">
-            {summary
-              ?.readyForPaymentInvoices ??
-              0}
-          </strong>
-
-          <p>
-            {summary
-              ?.overdueInvoices ??
-              0}
-            {" overdue invoices"}
-          </p>
-        </article>
-      </section>
-
-      <section className="invoice-signal-grid">
-        <article>
-          <ReceiptText
-            size={17}
-          />
-
-          <div>
-            <span>
-              Total invoices
-            </span>
-
-            <strong>
-              {summary
-                ?.totalInvoices ??
-                0}
-            </strong>
-          </div>
-        </article>
-
-        <article>
-          <FileCheck2
-            size={17}
-          />
-
-          <div>
-            <span>
-              Matched
-            </span>
-
-            <strong>
-              {summary
-                ?.matchedInvoices ??
-                0}
-            </strong>
-          </div>
-        </article>
-
-        <article>
-          <AlertTriangle
-            size={17}
-          />
-
-          <div>
-            <span>
-              Duplicate exceptions
-            </span>
-
-            <strong>
-              {summary
-                ?.duplicateExceptions ??
-                0}
-            </strong>
-          </div>
-        </article>
-
-        <article>
-          <Coins
-            size={17}
-          />
-
-          <div>
-            <span>
-              Overdue exposure
-            </span>
-
-            <strong>
-              {money(
-                summary
-                  ?.overdueExposure ??
-                  0,
-                currency,
-              )}
-            </strong>
-          </div>
-        </article>
-      </section>
-
-      <section className="panel">
-        <div className="panel__header">
-          <div>
-            <span className="eyebrow">
-              Accounts payable
-            </span>
-
-            <h2>
-              Invoice portfolio
-            </h2>
-          </div>
-
-          <span className="invoice-count">
-            {filtered.length}
-            {" invoices"}
-          </span>
-        </div>
-
-        <div className="invoice-toolbar">
-          <input
-            value={query}
-            placeholder={
-              "Search invoice, supplier or PO"
-            }
-            onChange={
-              event =>
-                setQuery(
-                  event.target.value,
-                )
-            }
-          />
-
-          <select
-            value={statusFilter}
-            onChange={
-              event =>
-                setStatusFilter(
-                  event.target.value,
-                )
-            }
-          >
-            <option value="">
-              All invoice statuses
-            </option>
-
-            <option value="MATCH_PENDING">
-              Match pending
-            </option>
-
-            <option value="MATCHED">
-              Matched
-            </option>
-
-            <option value="EXCEPTION">
-              Exception
-            </option>
-
-            <option value="APPROVED">
-              Approved
-            </option>
-
-            <option value="PAYMENT_HOLD">
-              Payment hold
-            </option>
-
-            <option value="READY_FOR_PAYMENT">
-              Ready for payment
-            </option>
-
-            <option value="PAID">
-              Paid
-            </option>
-
-            <option value="CANCELLED">
-              Cancelled
-            </option>
-          </select>
-
-          <select
-            value={matchFilter}
-            onChange={
-              event =>
-                setMatchFilter(
-                  event.target.value,
-                )
-            }
-          >
-            <option value="">
-              All match results
-            </option>
-
-            <option value="NOT_RUN">
-              Not run
-            </option>
-
-            <option value="MATCHED">
-              Matched
-            </option>
-
-            <option value="EXCEPTION">
-              Exception
-            </option>
-          </select>
-        </div>
-
-        <div className="table-scroll">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Invoice</th>
-                <th>Supplier</th>
-                <th>PO</th>
-                <th>Total</th>
-                <th>Match</th>
-                <th>Status</th>
-                <th>Due</th>
-                <th>Aging</th>
-                <th />
-              </tr>
-            </thead>
-
-            <tbody>
-              {!loading &&
-                filtered.map(
-                  invoice => (
-                    <tr
-                      key={invoice.id}
-                    >
-                      <td>
-                        <div className="request-primary-cell">
-                          <strong>
-                            {invoice.invoiceNumber}
-                          </strong>
-
-                          <span>
-                            {invoice.supplierInvoiceNumber}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div className="request-primary-cell">
-                          <strong>
-                            {invoice.supplierName}
-                          </strong>
-
-                          <span>
-                            {invoice.supplierCode}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td>
-                        {invoice.purchaseOrderNumber}
-                      </td>
-
-                      <td>
-                        {money(
-                          invoice.totalAmount,
-                          invoice.currency,
-                        )}
-                      </td>
-
-                      <td>
-                        <span
-                          className={
-                            `invoice-match invoice-match--${invoice.matchStatus.toLowerCase().replaceAll("_", "-")}`
-                          }
-                        >
-                          {readable(
-                            invoice.matchStatus,
-                          )}
-                        </span>
-                      </td>
-
-                      <td>
-                        <span
-                          className={
-                            `invoice-status invoice-status--${invoice.status.toLowerCase().replaceAll("_", "-")}`
-                          }
-                        >
-                          {readable(
-                            invoice.status,
-                          )}
-                        </span>
-                      </td>
-
-                      <td>
-                        {new Date(
-                          `${invoice.dueDate}T00:00:00`,
-                        )
-                          .toLocaleDateString()}
-                      </td>
-
-                      <td>
-                        <span
-                          className={
-                            invoice.overdue
-                              ? "invoice-aging invoice-aging--overdue"
-                              : "invoice-aging"
-                          }
-                        >
-                          {invoice.overdue
-                            ? `${invoice.agingDays}d overdue`
-                            : "Current"}
-                        </span>
-                      </td>
-
-                      <td>
-                        <Link
-                          href={
-                            `/invoice-control/${invoice.id}`
-                          }
-                          className="table-action"
-                        >
-                          Open
-                        </Link>
-                      </td>
-                    </tr>
-                  ),
-                )}
-
-              {!loading &&
-              filtered.length ===
-                0 ? (
-                <tr>
-                  <td
-                    colSpan={9}
-                    className="table-empty-state"
-                  >
-                    No invoices match the
-                    selected filters.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      {error && invoices === null ? null : (
+        <DataTable
+          columns={COLUMNS}
+          rows={rows}
+          getRowId={(invoice) => invoice.id}
+          ariaLabel="Invoices"
+          loading={initialLoad}
+          busy={fetching}
+          empty={emptyNode}
+          persistKey="invoices"
+          resetKey={`${query}|${statusFilter}|${matchFilter}`}
+        />
+      )}
     </div>
   );
 }

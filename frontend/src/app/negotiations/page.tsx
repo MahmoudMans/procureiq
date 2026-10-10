@@ -3,630 +3,505 @@
 import {
   CircleAlert,
   Coins,
+  Download,
   Handshake,
   Plus,
+  RefreshCw,
+  SearchX,
   Target,
   TrendingDown,
   Users,
 } from "lucide-react";
-
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
-import {
-  useAuth,
-} from "@/components/auth/auth-provider";
-
-import {
-  getNegotiationSummary,
-  getNegotiationWorkspaces,
-} from "@/lib/api";
-
+  type Column,
+  DataTable,
+  EmptyState,
+  KpiGrid,
+  type KpiItem,
+  SearchField,
+  SegmentedFilter,
+  type SegmentedOption,
+  StatusBadge,
+  downloadCsv,
+  formatMoney,
+  useToast,
+} from "@/components/kit";
+import { getNegotiationSummary, getNegotiationWorkspaces } from "@/lib/api";
 import type {
   NegotiationSummary,
   NegotiationWorkspace,
 } from "@/types/negotiation";
 
-function readable(
-  value: string,
-): string {
-  return value
-    .replaceAll(
-      "_",
-      " ",
-    )
-    .toLowerCase()
-    .replace(
-      /\b\w/g,
-      letter =>
-        letter.toUpperCase(),
-    );
+/* ------------------------------------------------------------------ */
+/* Constants & columns                                                 */
+/* ------------------------------------------------------------------ */
+
+const MANAGER_ROLES = ["ADMIN", "PROCUREMENT_MANAGER", "BUYER"];
+
+const STATUS_FILTERS: SegmentedOption[] = [
+  { value: "", label: "All" },
+  { value: "DRAFT", label: "Draft" },
+  { value: "ACTIVE", label: "Active" },
+  { value: "AGREED", label: "Agreed" },
+  { value: "CLOSED", label: "Closed" },
+  { value: "CANCELLED", label: "Cancelled" },
+];
+
+const EMPTY_WORKSPACES: NegotiationWorkspace[] = [];
+const integer = new Intl.NumberFormat("en-US");
+
+/** Summary figures carry no currency, so they are shown as plain numbers. */
+function plainNumber(value: number): string {
+  return new Intl.NumberFormat("en-US", {
+    notation: Math.abs(value) >= 100000 ? "compact" : "standard",
+    maximumFractionDigits: 1,
+  }).format(value);
 }
 
-function money(
-  value: number,
-  currency?: string,
-): string {
-  if (currency) {
-    return new Intl.NumberFormat(
-      "en-US",
-      {
-        style: "currency",
-        currency,
-        notation:
-          Math.abs(value) >=
-          100000
-            ? "compact"
-            : "standard",
-        maximumFractionDigits: 1,
-      },
-    ).format(value);
-  }
+function savingsPercent(workspace: NegotiationWorkspace): number | null {
+  return workspace.baselineValue > 0
+    ? (workspace.agreedSavings / workspace.baselineValue) * 100
+    : null;
+}
 
-  return new Intl.NumberFormat(
-    "en-US",
-    {
-      notation:
-        Math.abs(value) >=
-        100000
-          ? "compact"
-          : "standard",
-      maximumFractionDigits: 1,
+const COLUMNS: Column<NegotiationWorkspace>[] = [
+  {
+    id: "negotiation",
+    header: "Negotiation",
+    sortValue: (workspace) => workspace.negotiationNumber,
+    cell: (workspace) => (
+      <div className="request-primary-cell">
+        <strong>
+          <Link
+            href={`/negotiations/${workspace.id}`}
+            className="supplier-360-link"
+          >
+            {workspace.negotiationNumber}
+          </Link>
+        </strong>
+
+        <span>Owner: {workspace.ownerName}</span>
+      </div>
+    ),
+  },
+  {
+    id: "rfq",
+    header: "RFQ",
+    sortValue: (workspace) => workspace.rfqNumber,
+    cell: (workspace) => (
+      <div className="request-primary-cell">
+        <strong>{workspace.rfqNumber}</strong>
+        <span>{workspace.rfqTitle}</span>
+      </div>
+    ),
+  },
+  {
+    id: "supplier",
+    header: "Supplier",
+    sortValue: (workspace) => workspace.supplierName.toLowerCase(),
+    cell: (workspace) => workspace.supplierName,
+  },
+  {
+    id: "baseline",
+    header: "Baseline",
+    align: "right",
+    sortValue: (workspace) => workspace.baselineValue,
+    firstSort: "desc",
+    cell: (workspace) => (
+      <span className="kit-num">
+        {formatMoney(workspace.baselineValue, workspace.currency)}
+      </span>
+    ),
+  },
+  {
+    id: "target",
+    header: "Target",
+    align: "right",
+    sortValue: (workspace) => workspace.targetValue,
+    firstSort: "desc",
+    cell: (workspace) =>
+      workspace.targetValue !== null ? (
+        <span className="kit-num">
+          {formatMoney(workspace.targetValue, workspace.currency)}
+        </span>
+      ) : (
+        "—"
+      ),
+  },
+  {
+    id: "agreed",
+    header: "Agreed",
+    align: "right",
+    sortValue: (workspace) => workspace.agreedValue,
+    firstSort: "desc",
+    cell: (workspace) =>
+      workspace.agreedValue !== null ? (
+        <span className="kit-num">
+          {formatMoney(workspace.agreedValue, workspace.currency)}
+        </span>
+      ) : (
+        "—"
+      ),
+  },
+  {
+    id: "savings",
+    header: "Savings",
+    align: "right",
+    sortValue: (workspace) =>
+      workspace.agreedValue === null ? null : workspace.agreedSavings,
+    firstSort: "desc",
+    cell: (workspace) => {
+      if (workspace.agreedValue === null) {
+        return "—";
+      }
+
+      const percent = savingsPercent(workspace);
+
+      return (
+        <div className="kit-cell-stack">
+          <strong className="kit-num kit-text-success">
+            {formatMoney(workspace.agreedSavings, workspace.currency)}
+          </strong>
+
+          {percent !== null ? <small>{percent.toFixed(1)}% off baseline</small> : null}
+        </div>
+      );
     },
-  ).format(value);
-}
+  },
+  {
+    id: "status",
+    header: "Status",
+    sortValue: (workspace) => workspace.status,
+    cell: (workspace) => (
+      <StatusBadge
+        value={workspace.status}
+        tone={workspace.status === "ACTIVE" ? "info" : undefined}
+      />
+    ),
+  },
+  {
+    id: "open",
+    header: <span className="kit-sr-only">Actions</span>,
+    align: "right",
+    width: 70,
+    cell: (workspace) => (
+      <Link href={`/negotiations/${workspace.id}`} className="table-action">
+        Open
+      </Link>
+    ),
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
 
 export default function NegotiationsPage() {
-  const {
-    user,
-  } = useAuth();
+  const { user } = useAuth();
+  const toast = useToast();
 
-  const [
-    workspaces,
-    setWorkspaces,
-  ] =
-    useState<
-      NegotiationWorkspace[]
-    >([]);
+  const canManage = user !== null && MANAGER_ROLES.includes(user.role);
 
-  const [
-    summary,
-    setSummary,
-  ] =
-    useState<
-      NegotiationSummary |
-      null
-    >(null);
-
-  const [
-    query,
-    setQuery,
-  ] =
-    useState("");
-
-  const [
-    statusFilter,
-    setStatusFilter,
-  ] =
-    useState("");
-
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
-
-  const [
-    error,
-    setError,
-  ] =
-    useState<
-      string |
-      null
-    >(null);
-
-  const canManage =
-    user?.role ===
-      "ADMIN"
-    ||
-    user?.role ===
-      "PROCUREMENT_MANAGER"
-    ||
-    user?.role ===
-      "BUYER";
+  const [workspaces, setWorkspaces] = useState<NegotiationWorkspace[] | null>(null);
+  const [summary, setSummary] = useState<NegotiationSummary | null>(null);
+  const [summaryFailed, setSummaryFailed] = useState(false);
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState("");
+  const [fetching, setFetching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let active = true;
 
-    Promise.all([
-      getNegotiationWorkspaces(),
-      getNegotiationSummary(),
-    ])
-      .then(
-        ([
-          workspaceResponse,
-          summaryResponse,
-        ]) => {
-          if (!active) {
-            return;
-          }
+    const timer = window.setTimeout(async () => {
+      setFetching(true);
+      setError(null);
+      setSummaryFailed(false);
 
-          setWorkspaces(
-            workspaceResponse,
-          );
+      const [workspaceResult, summaryResult] = await Promise.allSettled([
+        getNegotiationWorkspaces(),
+        getNegotiationSummary(),
+      ]);
 
-          setSummary(
-            summaryResponse,
-          );
+      if (!active) {
+        return;
+      }
 
-          setError(null);
-        },
-      )
-      .catch(
-        caughtError => {
-          if (!active) {
-            return;
-          }
+      if (workspaceResult.status === "fulfilled") {
+        setWorkspaces(workspaceResult.value);
+      } else {
+        setError(
+          workspaceResult.reason instanceof Error
+            ? workspaceResult.reason.message
+            : "Unable to load negotiation intelligence.",
+        );
+      }
 
-          setError(
-            caughtError instanceof
-              Error
-              ? caughtError.message
-              : "Unable to load negotiation intelligence.",
-          );
-        },
-      )
-      .finally(
-        () => {
-          if (active) {
-            setLoading(false);
-          }
-        },
-      );
+      if (summaryResult.status === "fulfilled") {
+        setSummary(summaryResult.value);
+      } else {
+        setSummaryFailed(true);
+      }
+
+      setFetching(false);
+    }, 0);
 
     return () => {
       active = false;
+      window.clearTimeout(timer);
     };
-  }, []);
+  }, [reloadKey]);
 
-  const filtered =
-    useMemo(
-      () => {
-        const normalized =
-          query
-            .trim()
-            .toLowerCase();
+  const rows = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
 
-        return workspaces
-          .filter(
-            workspace =>
-              !statusFilter
-              ||
-              workspace.status ===
-                statusFilter,
-          )
-          .filter(
-            workspace => {
-              if (!normalized) {
-                return true;
-              }
+    return (workspaces ?? EMPTY_WORKSPACES)
+      .filter((workspace) => !status || workspace.status === status)
+      .filter(
+        (workspace) =>
+          !normalized ||
+          [
+            workspace.negotiationNumber,
+            workspace.rfqNumber,
+            workspace.rfqTitle,
+            workspace.supplierName,
+            workspace.ownerName,
+          ]
+            .join(" ")
+            .toLowerCase()
+            .includes(normalized),
+      );
+  }, [workspaces, query, status]);
 
-              return [
-                workspace.negotiationNumber,
-                workspace.rfqNumber,
-                workspace.rfqTitle,
-                workspace.supplierName,
-                workspace.ownerName,
-              ]
-                .join(
-                  " ",
-                )
-                .toLowerCase()
-                .includes(
-                  normalized,
-                );
-            },
-          );
-      },
+  const initialLoad = workspaces === null && error === null;
+  const hasFilters = query.trim() !== "" || status !== "";
+
+  function clearFilters() {
+    setQuery("");
+    setStatus("");
+  }
+
+  function exportCsv() {
+    downloadCsv(
+      `procureiq-negotiations-${new Date().toISOString().slice(0, 10)}.csv`,
       [
-        workspaces,
-        query,
-        statusFilter,
+        "Negotiation number",
+        "RFQ number",
+        "RFQ title",
+        "Supplier",
+        "Owner",
+        "Currency",
+        "Baseline",
+        "Target",
+        "Agreed",
+        "Agreed savings",
+        "Savings % of baseline",
+        "Status",
       ],
+      rows.map((workspace) => [
+        workspace.negotiationNumber,
+        workspace.rfqNumber,
+        workspace.rfqTitle,
+        workspace.supplierName,
+        workspace.ownerName,
+        workspace.currency,
+        workspace.baselineValue,
+        workspace.targetValue,
+        workspace.agreedValue,
+        workspace.agreedValue === null ? null : workspace.agreedSavings,
+        workspace.agreedValue === null
+          ? null
+          : (savingsPercent(workspace)?.toFixed(1) ?? null),
+        workspace.status,
+      ]),
     );
+
+    toast.success(
+      "Negotiations exported",
+      `${rows.length} ${rows.length === 1 ? "row" : "rows"} saved as CSV.`,
+    );
+  }
+
+  const kpis: KpiItem[] = [
+    {
+      label: "Active negotiations",
+      icon: Handshake,
+      value: summary ? integer.format(summary.activeWorkspaces) : "—",
+      note: `${integer.format(summary?.draftWorkspaces ?? 0)} draft · ${integer.format(
+        summary?.agreedWorkspaces ?? 0,
+      )} agreed`,
+    },
+    {
+      label: "Suppliers engaged",
+      icon: Users,
+      value: summary ? integer.format(summary.suppliersInNegotiation) : "—",
+      note: "Active supplier negotiation coverage.",
+    },
+    {
+      label: "Target opportunity",
+      icon: Target,
+      value: summary ? plainNumber(summary.targetSavingsOpportunity) : "—",
+      note: "Negotiation target savings across workspaces.",
+    },
+    {
+      label: "Agreed savings",
+      icon: Coins,
+      value: summary ? plainNumber(summary.agreedSavings) : "—",
+      note: `${(summary?.averageAgreedSavingsPct ?? 0).toFixed(1)}% average negotiated reduction`,
+    },
+  ];
+
+  const emptyNode = hasFilters ? (
+    <EmptyState
+      icon={SearchX}
+      title="No negotiations match these filters"
+      description="Try a different search term or status, or clear the filters."
+      action={
+        <button
+          type="button"
+          className="button button--secondary"
+          onClick={clearFilters}
+        >
+          Clear filters
+        </button>
+      }
+    />
+  ) : (
+    <EmptyState
+      icon={Handshake}
+      title="No negotiations yet"
+      description="Create a negotiation workspace to model targets, compare supplier scenarios and capture rounds before award."
+      action={
+        canManage ? (
+          <Link href="/negotiations/new" className="button button--primary">
+            <Plus size={16} />
+            New negotiation
+          </Link>
+        ) : undefined
+      }
+    />
+  );
 
   return (
     <div className="page-stack">
       <section className="page-heading">
         <div>
-          <span className="eyebrow">
-            Strategic sourcing
-          </span>
+          <span className="eyebrow">Strategic sourcing</span>
 
-          <h1>
-            Negotiations
-          </h1>
+          <h1>Negotiations</h1>
 
           <p>
-            Model commercial targets,
-            define walk-away positions,
-            compare supplier scenarios
-            and capture negotiation
-            rounds before final award.
+            Model commercial targets, define walk-away positions, compare supplier
+            scenarios and capture negotiation rounds before final award.
           </p>
         </div>
 
-        {canManage ? (
-          <Link
-            href="/negotiations/new"
-            className="button button--primary"
+        <div className="page-heading__actions">
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={() => setReloadKey((key) => key + 1)}
+            disabled={fetching}
           >
-            <Plus
-              size={16}
-            />
-            New negotiation
-          </Link>
-        ) : null}
+            <RefreshCw size={15} className={fetching ? "kit-spin" : undefined} />
+            Refresh
+          </button>
+
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={exportCsv}
+            disabled={rows.length === 0}
+          >
+            <Download size={15} />
+            Export CSV
+          </button>
+
+          {canManage ? (
+            <Link href="/negotiations/new" className="button button--primary">
+              <Plus size={16} />
+              New negotiation
+            </Link>
+          ) : null}
+        </div>
       </section>
+
+      <KpiGrid
+        items={kpis}
+        loading={summary === null && !summaryFailed}
+        ariaLabel="Negotiation totals"
+      />
+
+      {summary ? (
+        <section className="negotiation-pipeline-banner">
+          <div>
+            <TrendingDown size={18} />
+
+            <div>
+              <span>Negotiable baseline pipeline</span>
+
+              <strong>{plainNumber(summary.baselinePipelineValue)}</strong>
+            </div>
+          </div>
+
+          <p>
+            Submitted quotation value currently in draft or active negotiation
+            workspaces.
+          </p>
+        </section>
+      ) : null}
+
+      <div className="kit-toolbar">
+        <SearchField
+          value={query}
+          onChange={setQuery}
+          placeholder="Search negotiation, RFQ, supplier or owner"
+          ariaLabel="Search negotiations"
+          shortcut
+        />
+
+        <SegmentedFilter
+          options={STATUS_FILTERS}
+          value={status}
+          onChange={setStatus}
+          ariaLabel="Filter by status"
+        />
+      </div>
 
       {error ? (
         <div className="error-banner">
-          <CircleAlert
-            size={18}
-          />
-          {error}
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button
+            type="button"
+            className="kit-banner-action"
+            onClick={() => setReloadKey((key) => key + 1)}
+          >
+            Try again
+          </button>
         </div>
       ) : null}
 
-      <section className="negotiation-kpi-grid">
-        <article className="kpi-card">
-          <div className="kpi-card__topline">
-            <div className="kpi-card__icon">
-              <Handshake
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span className="kpi-card__label">
-            Active negotiations
-          </span>
-
-          <strong className="kpi-card__value">
-            {summary
-              ?.activeWorkspaces ??
-              0}
-          </strong>
-
-          <p>
-            {summary
-              ?.draftWorkspaces ??
-              0}
-            {" draft · "}
-            {summary
-              ?.agreedWorkspaces ??
-              0}
-            {" agreed"}
-          </p>
-        </article>
-
-        <article className="kpi-card">
-          <div className="kpi-card__topline">
-            <div className="kpi-card__icon">
-              <Users
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span className="kpi-card__label">
-            Suppliers engaged
-          </span>
-
-          <strong className="kpi-card__value">
-            {summary
-              ?.suppliersInNegotiation ??
-              0}
-          </strong>
-
-          <p>
-            Active supplier negotiation
-            coverage.
-          </p>
-        </article>
-
-        <article className="kpi-card">
-          <div className="kpi-card__topline">
-            <div className="kpi-card__icon">
-              <Target
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span className="kpi-card__label">
-            Target opportunity
-          </span>
-
-          <strong className="kpi-card__value negotiation-money-kpi">
-            {money(
-              summary
-                ?.targetSavingsOpportunity ??
-                0,
-            )}
-          </strong>
-
-          <p>
-            Negotiation target savings
-            across workspaces.
-          </p>
-        </article>
-
-        <article className="kpi-card">
-          <div className="kpi-card__topline">
-            <div className="kpi-card__icon">
-              <Coins
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span className="kpi-card__label">
-            Agreed savings
-          </span>
-
-          <strong className="kpi-card__value negotiation-money-kpi">
-            {money(
-              summary
-                ?.agreedSavings ??
-                0,
-            )}
-          </strong>
-
-          <p>
-            {summary
-              ?.averageAgreedSavingsPct
-              .toFixed(1) ??
-              "0.0"}
-            %
-            {" average negotiated reduction"}
-          </p>
-        </article>
-      </section>
-
-      <section className="negotiation-pipeline-banner">
-        <div>
-          <TrendingDown
-            size={18}
-          />
-
-          <div>
-            <span>
-              Negotiable baseline pipeline
-            </span>
-
-            <strong>
-              {money(
-                summary
-                  ?.baselinePipelineValue ??
-                  0,
-              )}
-            </strong>
-          </div>
-        </div>
-
-        <p>
-          Submitted quotation value
-          currently in draft or active
-          negotiation workspaces.
-        </p>
-      </section>
-
-      <section className="panel">
-        <div className="panel__header">
-          <div>
-            <span className="eyebrow">
-              Negotiation portfolio
-            </span>
-
-            <h2>
-              Supplier workspaces
-            </h2>
-          </div>
-
-          <span className="negotiation-count">
-            {filtered.length}
-            {" workspaces"}
-          </span>
-        </div>
-
-        <div className="negotiation-toolbar">
-          <input
-            value={query}
-            placeholder={
-              "Search negotiation, RFQ, supplier or owner"
-            }
-            onChange={
-              event =>
-                setQuery(
-                  event.target.value,
-                )
-            }
-          />
-
-          <select
-            value={statusFilter}
-            onChange={
-              event =>
-                setStatusFilter(
-                  event.target.value,
-                )
-            }
-          >
-            <option value="">
-              All statuses
-            </option>
-
-            <option value="DRAFT">
-              Draft
-            </option>
-
-            <option value="ACTIVE">
-              Active
-            </option>
-
-            <option value="AGREED">
-              Agreed
-            </option>
-
-            <option value="CLOSED">
-              Closed
-            </option>
-
-            <option value="CANCELLED">
-              Cancelled
-            </option>
-          </select>
-        </div>
-
-        <div className="table-scroll">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Negotiation</th>
-                <th>RFQ</th>
-                <th>Supplier</th>
-                <th>Baseline</th>
-                <th>Target</th>
-                <th>Agreed</th>
-                <th>Savings</th>
-                <th>Status</th>
-                <th />
-              </tr>
-            </thead>
-
-            <tbody>
-              {!loading &&
-                filtered.map(
-                  workspace => (
-                    <tr
-                      key={workspace.id}
-                    >
-                      <td>
-                        <div className="request-primary-cell">
-                          <strong>
-                            {workspace.negotiationNumber}
-                          </strong>
-
-                          <span>
-                            Owner:
-                            {" "}
-                            {workspace.ownerName}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div className="request-primary-cell">
-                          <strong>
-                            {workspace.rfqNumber}
-                          </strong>
-
-                          <span>
-                            {workspace.rfqTitle}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td>
-                        {workspace.supplierName}
-                      </td>
-
-                      <td>
-                        {money(
-                          workspace.baselineValue,
-                          workspace.currency,
-                        )}
-                      </td>
-
-                      <td>
-                        {workspace.targetValue !==
-                        null
-                          ? money(
-                              workspace.targetValue,
-                              workspace.currency,
-                            )
-                          : "—"}
-                      </td>
-
-                      <td>
-                        {workspace.agreedValue !==
-                        null
-                          ? money(
-                              workspace.agreedValue,
-                              workspace.currency,
-                            )
-                          : "—"}
-                      </td>
-
-                      <td>
-                        <strong className="negotiation-savings">
-                          {money(
-                            workspace.agreedSavings,
-                            workspace.currency,
-                          )}
-                        </strong>
-                      </td>
-
-                      <td>
-                        <span
-                          className={
-                            `negotiation-status negotiation-status--${workspace.status.toLowerCase()}`
-                          }
-                        >
-                          {readable(
-                            workspace.status,
-                          )}
-                        </span>
-                      </td>
-
-                      <td>
-                        <Link
-                          href={
-                            `/negotiations/${workspace.id}`
-                          }
-                          className="table-action"
-                        >
-                          Open
-                        </Link>
-                      </td>
-                    </tr>
-                  ),
-                )}
-
-              {!loading &&
-              filtered.length ===
-                0 ? (
-                <tr>
-                  <td
-                    colSpan={9}
-                    className="table-empty-state"
-                  >
-                    No negotiation
-                    workspaces match the
-                    selected filters.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      {error && workspaces === null ? null : (
+        <DataTable
+          columns={COLUMNS}
+          rows={rows}
+          getRowId={(workspace) => workspace.id}
+          ariaLabel="Negotiation workspaces"
+          loading={initialLoad}
+          busy={fetching}
+          empty={emptyNode}
+          persistKey="negotiations"
+          resetKey={`${query}|${status}`}
+        />
+      )}
     </div>
   );
 }

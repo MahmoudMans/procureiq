@@ -6,30 +6,34 @@ import {
   Award,
   CircleAlert,
   Gauge,
+  Info,
   Medal,
+  RefreshCw,
+  RotateCcw,
   Save,
-  ShieldCheck,
+  ShieldAlert,
   Star,
   Trophy,
 } from "lucide-react";
-
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { type FormEvent, useEffect, useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import {
-  type FormEvent,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
-import {
-  useParams,
-} from "next/navigation";
-
-import {
-  useAuth,
-} from "@/components/auth/auth-provider";
-
+  type Column,
+  DataTable,
+  EmptyState,
+  Field,
+  KpiGrid,
+  type KpiItem,
+  Meter,
+  Skeleton,
+  StatusBadge,
+  meterToneFor,
+  useToast,
+} from "@/components/kit";
+import { RationaleDialog } from "@/components/kit/rationale-dialog";
 import {
   calculateRfqEvaluation,
   createAwardDecision,
@@ -38,20 +42,19 @@ import {
   getRfqEvaluation,
   getRfqQuotations,
 } from "@/lib/api";
-
 import type {
   AwardDecision,
   RfqEvaluation,
   RfqEvaluationInput,
 } from "@/types/evaluation";
+import type { Quotation } from "@/types/quotation";
+import type { Rfq } from "@/types/rfq";
 
-import type {
-  Quotation,
-} from "@/types/quotation";
+/* ------------------------------------------------------------------ */
+/* Constants & helpers                                                 */
+/* ------------------------------------------------------------------ */
 
-import type {
-  Rfq,
-} from "@/types/rfq";
+type Scorecard = RfqEvaluation["scorecards"][number];
 
 interface WeightState {
   priceWeight: number;
@@ -61,8 +64,7 @@ interface WeightState {
   qualityWeight: number;
 }
 
-const DEFAULT_WEIGHTS:
-WeightState = {
+const DEFAULT_WEIGHTS: WeightState = {
   priceWeight: 40,
   deliveryWeight: 20,
   supplierRatingWeight: 15,
@@ -70,120 +72,812 @@ WeightState = {
   qualityWeight: 15,
 };
 
+const WEIGHT_FIELDS: { key: keyof WeightState; label: string }[] = [
+  { key: "priceWeight", label: "Commercial price" },
+  { key: "deliveryWeight", label: "Delivery" },
+  { key: "supplierRatingWeight", label: "Supplier rating" },
+  { key: "riskWeight", label: "Supplier risk" },
+  { key: "qualityWeight", label: "Quality / technical" },
+];
+
+const DEFAULT_QUALITY = 80;
+
+const ALLOWED_ROLES = ["ADMIN", "PROCUREMENT_MANAGER", "BUYER"];
+const AWARD_ROLES = ["ADMIN", "PROCUREMENT_MANAGER"];
+
+function money(value: number, currency: string): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+function weightsOf(evaluation: RfqEvaluation): WeightState {
+  return {
+    priceWeight: evaluation.priceWeight,
+    deliveryWeight: evaluation.deliveryWeight,
+    supplierRatingWeight: evaluation.supplierRatingWeight,
+    riskWeight: evaluation.riskWeight,
+    qualityWeight: evaluation.qualityWeight,
+  };
+}
+
+function qualityOf(quotations: Quotation[], evaluation: RfqEvaluation): Record<string, string> {
+  return Object.fromEntries(
+    quotations.map((quotation) => [
+      quotation.id,
+      String(
+        evaluation.scorecards.find((card) => card.quotationId === quotation.id)
+          ?.qualityScore ?? DEFAULT_QUALITY,
+      ),
+    ]),
+  );
+}
+
+/** True when the inputs on screen no longer match the last calculated evaluation. */
+function isStale(
+  weights: WeightState,
+  quality: Record<string, string>,
+  quotations: Quotation[],
+  evaluation: RfqEvaluation,
+): boolean {
+  if (evaluation.scorecards.length === 0) {
+    return false;
+  }
+
+  const base = weightsOf(evaluation);
+
+  if (WEIGHT_FIELDS.some((field) => weights[field.key] !== base[field.key])) {
+    return true;
+  }
+
+  return quotations.some((quotation) => {
+    const card = evaluation.scorecards.find((item) => item.quotationId === quotation.id);
+
+    return card === undefined || Number(quality[quotation.id]) !== card.qualityScore;
+  });
+}
+
+const SCORECARD_COLUMNS: Column<Scorecard>[] = [
+  {
+    id: "rank",
+    header: "Rank",
+    width: 90,
+    sortValue: (score) => score.rankPosition,
+    cell: (score) =>
+      score.recommended ? (
+        <span className="kit-inline-icon">
+          <Trophy size={15} />#{score.rankPosition}
+        </span>
+      ) : (
+        `#${score.rankPosition}`
+      ),
+  },
+  {
+    id: "supplier",
+    header: "Supplier",
+    sortValue: (score) => score.supplierName.toLowerCase(),
+    cell: (score) => (
+      <div className="request-primary-cell">
+        <strong>{score.supplierName}</strong>
+
+        <span>{score.quotationNumber}</span>
+
+        {score.recommended ? (
+          <StatusBadge value="RECOMMENDED" label="Recommended" tone="success" dot={false} />
+        ) : null}
+      </div>
+    ),
+  },
+  {
+    id: "price",
+    header: "Price",
+    align: "right",
+    sortValue: (score) => score.priceScore,
+    firstSort: "desc",
+    cell: (score) => <span className="kit-num">{score.priceScore.toFixed(1)}</span>,
+  },
+  {
+    id: "delivery",
+    header: "Delivery",
+    align: "right",
+    sortValue: (score) => score.deliveryScore,
+    firstSort: "desc",
+    cell: (score) => <span className="kit-num">{score.deliveryScore.toFixed(1)}</span>,
+  },
+  {
+    id: "rating",
+    header: "Rating",
+    align: "right",
+    sortValue: (score) => score.supplierRatingScore,
+    firstSort: "desc",
+    cell: (score) => <span className="kit-num">{score.supplierRatingScore.toFixed(1)}</span>,
+  },
+  {
+    id: "risk",
+    header: "Risk",
+    align: "right",
+    sortValue: (score) => score.riskScore,
+    firstSort: "desc",
+    cell: (score) => <span className="kit-num">{score.riskScore.toFixed(1)}</span>,
+  },
+  {
+    id: "quality",
+    header: "Quality",
+    align: "right",
+    sortValue: (score) => score.qualityScore,
+    firstSort: "desc",
+    cell: (score) => <span className="kit-num">{score.qualityScore.toFixed(1)}</span>,
+  },
+  {
+    id: "weighted",
+    header: "Weighted score",
+    sortValue: (score) => score.weightedTotalScore,
+    firstSort: "desc",
+    cell: (score) => (
+      <div style={{ minWidth: 130 }}>
+        <strong className="kit-num">{score.weightedTotalScore.toFixed(2)}</strong>
+
+        <Meter
+          value={score.weightedTotalScore}
+          max={100}
+          tone={score.recommended ? meterToneFor("success") : "primary"}
+          ariaLabel={`Weighted score for ${score.supplierName}`}
+        />
+      </div>
+    ),
+  },
+];
+
+interface EvalData {
+  id: string;
+  rfq: Rfq;
+  quotations: Quotation[];
+  evaluation: RfqEvaluation;
+  award: AwardDecision | undefined;
+}
+
+/* ------------------------------------------------------------------ */
+/* Workspace                                                           */
+/* ------------------------------------------------------------------ */
+
+interface WorkspaceProps {
+  data: EvalData;
+  canAward: boolean;
+  fetching: boolean;
+  error: string | null;
+  onRefresh: () => void;
+  onEvaluated: (evaluation: RfqEvaluation) => void;
+  onAwarded: (award: AwardDecision) => void;
+}
+
+function EvaluationWorkspace({
+  data,
+  canAward,
+  fetching,
+  error,
+  onRefresh,
+  onEvaluated,
+  onAwarded,
+}: WorkspaceProps) {
+  const { id, rfq, quotations, evaluation, award } = data;
+  const toast = useToast();
+
+  const [weights, setWeights] = useState<WeightState>(() => weightsOf(evaluation));
+  const [quality, setQuality] = useState<Record<string, string>>(() =>
+    qualityOf(quotations, evaluation),
+  );
+  const [qualityErrors, setQualityErrors] = useState<Record<string, string>>({});
+  const [calculating, setCalculating] = useState(false);
+  const [calcError, setCalcError] = useState<string | null>(null);
+  const [choice, setChoice] = useState("");
+  const [awardOpen, setAwardOpen] = useState(false);
+  const [awardRunning, setAwardRunning] = useState(false);
+  const [awardError, setAwardError] = useState<string | null>(null);
+
+  const weightTotal =
+    weights.priceWeight +
+    weights.deliveryWeight +
+    weights.supplierRatingWeight +
+    weights.riskWeight +
+    weights.qualityWeight;
+
+  const weightMessage =
+    weightTotal === 100
+      ? "Weights add up to 100%."
+      : weightTotal < 100
+        ? `${100 - weightTotal} points still to allocate.`
+        : `${weightTotal - 100} points over. Reduce a weight.`;
+
+  const scorecards = evaluation.scorecards;
+  const hasScores = scorecards.length > 0;
+  const stale = isStale(weights, quality, quotations, evaluation);
+  const tooFewQuotations = quotations.length < 2;
+
+  const recommendedId = evaluation.recommendedQuotationId ?? "";
+  const selectedId = choice || recommendedId || (hasScores ? scorecards[0].quotationId : "");
+  const override = selectedId !== "" && selectedId !== recommendedId;
+  const recommendedCard = scorecards.find((card) => card.quotationId === recommendedId);
+
+  const topScore = hasScores
+    ? Math.max(...scorecards.map((card) => card.weightedTotalScore))
+    : null;
+
+  const showCalculator = !award && rfq.status !== "AWARDED";
+  const canRecordAward = canAward && !award && rfq.status === "CLOSED" && hasScores;
+
+  function discard() {
+    setWeights(weightsOf(evaluation));
+    setQuality(qualityOf(quotations, evaluation));
+    setQualityErrors({});
+    setCalcError(null);
+  }
+
+  async function handleCalculate(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (calculating) {
+      return;
+    }
+
+    const nextErrors: Record<string, string> = {};
+
+    for (const quotation of quotations) {
+      const raw = (quality[quotation.id] ?? "").trim();
+      const value = Number(raw);
+
+      if (raw === "" || !Number.isFinite(value) || value < 0 || value > 100) {
+        nextErrors[quotation.id] = "Enter a score from 0 to 100.";
+      }
+    }
+
+    setQualityErrors(nextErrors);
+
+    if (Object.keys(nextErrors).length > 0 || weightTotal !== 100) {
+      return;
+    }
+
+    setCalculating(true);
+    setCalcError(null);
+
+    try {
+      const input: RfqEvaluationInput = {
+        ...weights,
+        qualityScores: quotations.map((quotation) => ({
+          quotationId: quotation.id,
+          qualityScore: Number(quality[quotation.id]),
+        })),
+      };
+
+      const response = await calculateRfqEvaluation(id, input);
+
+      onEvaluated(response);
+      setChoice("");
+
+      toast.success(
+        "Evaluation calculated",
+        response.recommendedSupplierName
+          ? `Recommended: ${response.recommendedSupplierName}`
+          : "Scorecards updated.",
+      );
+    } catch (caught) {
+      const message =
+        caught instanceof Error ? caught.message : "Unable to calculate supplier evaluation.";
+
+      setCalcError(message);
+      toast.error("Could not calculate the evaluation", message);
+    } finally {
+      setCalculating(false);
+    }
+  }
+
+  async function confirmAward(rationale: string) {
+    if (awardRunning || selectedId === "") {
+      return;
+    }
+
+    setAwardRunning(true);
+    setAwardError(null);
+
+    try {
+      const response = await createAwardDecision(id, selectedId, rationale);
+
+      onAwarded(response);
+      setAwardOpen(false);
+
+      toast.success("Award recorded", response.selectedSupplierName);
+    } catch (caught) {
+      setAwardError(
+        caught instanceof Error ? caught.message : "Unable to record award decision.",
+      );
+    } finally {
+      setAwardRunning(false);
+    }
+  }
+
+  const kpis: KpiItem[] = [
+    {
+      label: "Suppliers evaluated",
+      icon: Gauge,
+      value: String(evaluation.evaluatedSupplierCount ?? 0),
+      note: "Submitted quotations included in scoring.",
+    },
+    {
+      label: "Recommended supplier",
+      icon: Trophy,
+      value: evaluation.recommendedSupplierName ?? "Not calculated",
+      note: "Highest weighted evaluation result.",
+    },
+    {
+      label: "Top score",
+      icon: Star,
+      value: topScore !== null ? topScore.toFixed(1) : "—",
+      note: "Weighted score out of 100.",
+    },
+    {
+      label: "Award status",
+      icon: Award,
+      value: award ? "Decision recorded" : "Pending",
+      note: "Final sourcing decision status.",
+    },
+  ];
+
+  const weightSummary = WEIGHT_FIELDS.map(
+    (field) => `${field.label} ${weightsOf(evaluation)[field.key]}%`,
+  ).join(" · ");
+
+  return (
+    <div className="page-stack">
+      <Link href={`/rfqs/${rfq.id}`} className="request-back-link">
+        <ArrowLeft size={16} />
+        {rfq.rfqNumber}
+      </Link>
+
+      <section className="page-heading">
+        <div>
+          <span className="eyebrow">Supplier selection</span>
+
+          <h1>Evaluation &amp; award</h1>
+
+          <p>
+            Score submitted suppliers using commercial, delivery, performance, risk and
+            quality criteria.
+          </p>
+        </div>
+
+        <div className="page-heading__actions">
+          <StatusBadge value={rfq.status} />
+
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={onRefresh}
+            disabled={fetching}
+          >
+            <RefreshCw size={15} className={fetching ? "kit-spin" : undefined} />
+            Refresh
+          </button>
+        </div>
+      </section>
+
+      {error ? (
+        <div className="error-banner">
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button type="button" className="kit-banner-action" onClick={onRefresh}>
+            Try again
+          </button>
+        </div>
+      ) : null}
+
+      {!award && rfq.status === "PUBLISHED" ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
+
+          <div>
+            <strong>Sourcing is still open.</strong> Evaluation can be calculated now, but
+            the RFQ must be closed before a final award can be recorded.
+          </div>
+        </div>
+      ) : null}
+
+      {!award && rfq.status === "CLOSED" && !canAward ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
+
+          <div>
+            <strong>Awarding needs a higher role.</strong> Only an Admin or Procurement
+            Manager can record the award decision.
+          </div>
+        </div>
+      ) : null}
+
+      <KpiGrid items={kpis} ariaLabel="Evaluation summary" />
+
+      {showCalculator ? (
+        <form className="page-stack" onSubmit={handleCalculate} noValidate>
+          {tooFewQuotations ? (
+            <div className="kit-callout kit-callout--warning" role="status">
+              <AlertTriangle size={17} />
+
+              <div>
+                <strong>Not enough quotations.</strong> At least two submitted quotations are
+                needed to compare suppliers. {quotations.length} submitted so far.
+              </div>
+            </div>
+          ) : null}
+
+          {stale ? (
+            <div className="kit-callout kit-callout--warning" role="status">
+              <AlertTriangle size={17} />
+
+              <div>
+                <strong>The ranking below is out of date.</strong> The weights or quality
+                scores were changed after the last calculation. Recalculate, or discard
+                the changes.
+              </div>
+            </div>
+          ) : null}
+
+          <section className="panel">
+            <div className="panel__header">
+              <div>
+                <span className="eyebrow">Evaluation model</span>
+
+                <h2>Criteria weights</h2>
+              </div>
+
+              <button
+                type="button"
+                className="button button--secondary"
+                onClick={() => setWeights(DEFAULT_WEIGHTS)}
+                disabled={calculating}
+              >
+                <RotateCcw size={15} />
+                Default weights
+              </button>
+            </div>
+
+            <div className="evaluation-weight-grid">
+              {WEIGHT_FIELDS.map((field) => (
+                <Field key={field.key} label={field.label} htmlFor={`weight-${field.key}`}>
+                  <input
+                    id={`weight-${field.key}`}
+                    className="kit-field-input"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={weights[field.key]}
+                    onChange={(event) =>
+                      setWeights((current) => ({
+                        ...current,
+                        [field.key]: Number(event.target.value),
+                      }))
+                    }
+                  />
+                </Field>
+              ))}
+            </div>
+
+            <div className="kit-meter-wrap">
+              <Meter
+                value={Math.max(0, Math.min(weightTotal, 100))}
+                max={100}
+                tone={meterToneFor(
+                  weightTotal === 100 ? "success" : weightTotal < 100 ? "warning" : "danger",
+                )}
+                ariaLabel="Total of the criteria weights"
+              />
+
+              <span
+                className={
+                  weightTotal === 100
+                    ? "kit-meter-caption"
+                    : "kit-meter-caption kit-meter-caption--late"
+                }
+              >
+                {weightTotal}% allocated · {weightMessage}
+              </span>
+            </div>
+          </section>
+
+          <section className="panel">
+            <div className="panel__header">
+              <div>
+                <span className="eyebrow">Technical assessment</span>
+
+                <h2>Quality scores</h2>
+              </div>
+            </div>
+
+            {quotations.length === 0 ? (
+              <EmptyState
+                compact
+                icon={Gauge}
+                title="No submitted quotations"
+                description="Quality scores can be entered once suppliers submit quotations."
+              />
+            ) : (
+              <div className="evaluation-quality-grid">
+                {quotations.map((quotation) => (
+                  <article key={quotation.id} className="evaluation-quality-card">
+                    <div>
+                      <strong>{quotation.supplierName}</strong>
+
+                      <span>{quotation.quotationNumber}</span>
+                    </div>
+
+                    <Field
+                      label="Quality score / 100"
+                      htmlFor={`quality-${quotation.id}`}
+                      error={qualityErrors[quotation.id]}
+                    >
+                      <input
+                        id={`quality-${quotation.id}`}
+                        className="kit-field-input"
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="1"
+                        value={quality[quotation.id] ?? ""}
+                        aria-invalid={qualityErrors[quotation.id] ? true : undefined}
+                        onChange={(event) => {
+                          setQuality((current) => ({
+                            ...current,
+                            [quotation.id]: event.target.value,
+                          }));
+                          setQualityErrors((current) => {
+                            const next = { ...current };
+
+                            delete next[quotation.id];
+
+                            return next;
+                          });
+                        }}
+                      />
+                    </Field>
+                  </article>
+                ))}
+              </div>
+            )}
+
+            {calcError ? (
+              <div className="error-banner" role="alert" style={{ marginTop: 16 }}>
+                <CircleAlert size={18} />
+                <span>{calcError}</span>
+              </div>
+            ) : null}
+
+            <div className="kit-form-footer">
+              {stale ? (
+                <button
+                  type="button"
+                  className="button button--secondary"
+                  onClick={discard}
+                  disabled={calculating}
+                >
+                  Discard changes
+                </button>
+              ) : null}
+
+              <button
+                type="submit"
+                className="button button--primary"
+                disabled={calculating || tooFewQuotations || weightTotal !== 100}
+              >
+                <Save size={16} />
+                {calculating ? "Calculating…" : "Calculate evaluation"}
+              </button>
+            </div>
+          </section>
+        </form>
+      ) : null}
+
+      {hasScores ? (
+        <section className="panel">
+          <div className="panel__header">
+            <div>
+              <span className="eyebrow">Supplier scorecards</span>
+
+              <h2>Weighted ranking</h2>
+            </div>
+          </div>
+
+          <p className="kit-month-summary">
+            <span>Weights used: {weightSummary}</span>
+          </p>
+
+          <DataTable
+            columns={SCORECARD_COLUMNS}
+            rows={scorecards}
+            getRowId={(score) => String(score.quotationId)}
+            ariaLabel="Weighted supplier ranking"
+            defaultSort={{ id: "rank", dir: "asc" }}
+          />
+        </section>
+      ) : showCalculator && !tooFewQuotations ? (
+        <section className="panel">
+          <EmptyState
+            icon={Gauge}
+            title="No evaluation yet"
+            description="Set the weights and quality scores above, then calculate the evaluation to rank the suppliers."
+          />
+        </section>
+      ) : null}
+
+      {award ? (
+        <section className="panel award-result">
+          <div className="award-result__icon">
+            <Medal size={26} />
+          </div>
+
+          <div className="award-result__content">
+            <span className="eyebrow">Award decision</span>
+
+            <h2>{award.selectedSupplierName}</h2>
+
+            <p>{award.rationale}</p>
+
+            <div className="award-result__meta">
+              <span>{award.selectedQuotationNumber}</span>
+
+              <span>{money(award.selectedTotalAmount, rfq.currency)}</span>
+
+              <span>Decided by {award.decidedByName}</span>
+
+              {award.manualOverride ? (
+                <StatusBadge
+                  value="OVERRIDE"
+                  label="Manual override"
+                  tone="warning"
+                  dot={false}
+                />
+              ) : (
+                <StatusBadge
+                  value="RECOMMENDED"
+                  label="Recommended supplier selected"
+                  tone="success"
+                  dot={false}
+                />
+              )}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {!award && rfq.status === "CLOSED" && canAward && !hasScores ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
+
+          <div>
+            <strong>Calculate the evaluation first.</strong> Awarding becomes available once
+            the suppliers have been scored.
+          </div>
+        </div>
+      ) : null}
+
+      {canRecordAward ? (
+        <section className="panel">
+          <div className="panel__header">
+            <div>
+              <span className="eyebrow">Sourcing decision</span>
+
+              <h2>Award supplier</h2>
+            </div>
+
+            <Award size={19} />
+          </div>
+
+          <p className="kit-month-summary">
+            {recommendedCard ? (
+              <span>
+                Recommended: <strong>{recommendedCard.supplierName}</strong> with a weighted
+                score of <strong>{recommendedCard.weightedTotalScore.toFixed(2)}</strong>
+              </span>
+            ) : (
+              <span>No supplier is currently recommended.</span>
+            )}
+          </p>
+
+          <div className="kit-form-footer">
+            <button
+              type="button"
+              className="button button--primary"
+              onClick={() => {
+                setAwardError(null);
+                setAwardOpen(true);
+              }}
+            >
+              <Award size={16} />
+              Award supplier
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      {awardOpen ? (
+        <RationaleDialog
+          eyebrow="Sourcing decision"
+          title="Record award decision"
+          description={`Choose the winning quotation for ${rfq.rfqNumber} and record the reason.`}
+          label="Award rationale"
+          placeholder={
+            override
+              ? "A different supplier is selected. Explain the business justification for overriding the recommendation."
+              : "Explain the sourcing decision and why this supplier is being awarded."
+          }
+          confirmLabel="Record award"
+          busyLabel="Recording…"
+          maxLength={3000}
+          busy={awardRunning}
+          error={awardError}
+          onConfirm={(reason) => void confirmAward(reason)}
+          onCancel={() => setAwardOpen(false)}
+        >
+          <div style={{ display: "grid", gap: 12, marginBottom: 14 }}>
+            <Field label="Selected quotation" htmlFor="award-quotation">
+              <select
+                id="award-quotation"
+                className="kit-field-input"
+                value={selectedId}
+                disabled={awardRunning}
+                onChange={(event) => setChoice(event.target.value)}
+              >
+                {scorecards.map((score) => (
+                  <option key={score.quotationId} value={score.quotationId}>
+                    {score.supplierName} — {score.weightedTotalScore.toFixed(2)}
+                  </option>
+                ))}
+              </select>
+            </Field>
+
+            {override ? (
+              <div className="kit-callout kit-callout--warning" role="status">
+                <AlertTriangle size={17} />
+
+                <div>
+                  <strong>Manual override.</strong> You are selecting a supplier other than
+                  the system recommendation. This will be recorded as an override.
+                </div>
+              </div>
+            ) : null}
+
+            {stale ? (
+              <div className="kit-callout kit-callout--info" role="status">
+                <Info size={17} />
+
+                <div>
+                  The weights or quality scores on screen differ from the last calculation.
+                  The award is based on the calculated ranking shown above.
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </RationaleDialog>
+      ) : null}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
+
 export default function EvaluationPage() {
-  const params =
-    useParams<{
-      id: string;
-    }>();
+  const params = useParams<{ id: string }>();
+  const { user } = useAuth();
 
-  const {
-    user,
-  } = useAuth();
+  const allowed = user !== null && ALLOWED_ROLES.includes(user.role);
+  const canAward = user !== null && AWARD_ROLES.includes(user.role);
 
-  const [
-    rfq,
-    setRfq,
-  ] =
-    useState<Rfq | null>(
-      null,
-    );
-
-  const [
-    quotations,
-    setQuotations,
-  ] =
-    useState<Quotation[]>(
-      [],
-    );
-
-  const [
-    evaluation,
-    setEvaluation,
-  ] =
-    useState<
-      RfqEvaluation |
-      null
-    >(null);
-
-  const [
-    award,
-    setAward,
-  ] =
-    useState<
-      AwardDecision |
-      undefined
-    >(undefined);
-
-  const [
-    weights,
-    setWeights,
-  ] =
-    useState<WeightState>(
-      DEFAULT_WEIGHTS,
-    );
-
-  const [
-    qualityScores,
-    setQualityScores,
-  ] =
-    useState<
-      Record<
-        string,
-        number
-      >
-    >({});
-
-  const [
-    selectedQuotationId,
-    setSelectedQuotationId,
-  ] =
-    useState("");
-
-  const [
-    rationale,
-    setRationale,
-  ] =
-    useState("");
-
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
-
-  const [
-    saving,
-    setSaving,
-  ] =
-    useState(false);
-
-  const [
-    awarding,
-    setAwarding,
-  ] =
-    useState(false);
-
-  const [
-    error,
-    setError,
-  ] =
-    useState<string | null>(
-      null,
-    );
-
-  const allowed =
-    user?.role ===
-      "ADMIN" ||
-    user?.role ===
-      "PROCUREMENT_MANAGER" ||
-    user?.role ===
-      "BUYER";
-
-  const canAward =
-    user?.role ===
-      "ADMIN" ||
-    user?.role ===
-      "PROCUREMENT_MANAGER";
+  const [result, setResult] = useState<EvalData | null>(null);
+  const [fetching, setFetching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!allowed) {
@@ -191,1372 +885,125 @@ export default function EvaluationPage() {
     }
 
     let active = true;
+    const id = params.id;
 
-    Promise.all([
-      getRfq(
-        params.id,
-      ),
-      getRfqQuotations(
-        params.id,
-      ),
-      getRfqEvaluation(
-        params.id,
-      ),
-      getAwardDecision(
-        params.id,
-      ),
-    ])
-      .then(
-        ([
-          rfqResponse,
-          quotationResponse,
-          evaluationResponse,
-          awardResponse,
-        ]) => {
-          if (!active) {
-            return;
-          }
+    const timer = window.setTimeout(async () => {
+      setFetching(true);
+      setError(null);
 
-          const submitted =
-            quotationResponse.filter(
-              quotation =>
-                quotation.status ===
-                "SUBMITTED",
-            );
+      try {
+        const [rfqResponse, quotationResponse, evaluationResponse, awardResponse] =
+          await Promise.all([
+            getRfq(id),
+            getRfqQuotations(id),
+            getRfqEvaluation(id),
+            getAwardDecision(id),
+          ]);
 
-          setRfq(
-            rfqResponse,
-          );
-
-          setQuotations(
-            submitted,
-          );
-
-          setEvaluation(
-            evaluationResponse,
-          );
-
-          setAward(
-            awardResponse,
-          );
-
-          setWeights({
-            priceWeight:
-              evaluationResponse
-                .priceWeight,
-
-            deliveryWeight:
-              evaluationResponse
-                .deliveryWeight,
-
-            supplierRatingWeight:
-              evaluationResponse
-                .supplierRatingWeight,
-
-            riskWeight:
-              evaluationResponse
-                .riskWeight,
-
-            qualityWeight:
-              evaluationResponse
-                .qualityWeight,
+        if (active) {
+          setResult({
+            id,
+            rfq: rfqResponse,
+            quotations: quotationResponse.filter(
+              (quotation) => quotation.status === "SUBMITTED",
+            ),
+            evaluation: evaluationResponse,
+            award: awardResponse,
           });
-
-          const existingScores =
-            Object.fromEntries(
-              submitted.map(
-                quotation => {
-                  const score =
-                    evaluationResponse
-                      .scorecards
-                      .find(
-                        item =>
-                          item.quotationId ===
-                          quotation.id,
-                      )
-                      ?.qualityScore ??
-                    80;
-
-                  return [
-                    quotation.id,
-                    score,
-                  ];
-                },
-              ),
-            );
-
-          setQualityScores(
-            existingScores,
-          );
-
-          if (
-            evaluationResponse
-              .recommendedQuotationId
-          ) {
-            setSelectedQuotationId(
-              evaluationResponse
-                .recommendedQuotationId,
-            );
-          } else if (
-            submitted.length > 0
-          ) {
-            setSelectedQuotationId(
-              submitted[0].id,
-            );
-          }
-
+        }
+      } catch (caught) {
+        if (active) {
           setError(
-            null,
+            caught instanceof Error ? caught.message : "Unable to load supplier evaluation.",
           );
-        },
-      )
-      .catch(
-        caughtError => {
-          if (!active) {
-            return;
-          }
-
-          setError(
-            caughtError instanceof
-              Error
-              ? caughtError
-                  .message
-              : "Unable to load supplier evaluation.",
-          );
-        },
-      )
-      .finally(
-        () => {
-          if (active) {
-            setLoading(
-              false,
-            );
-          }
-        },
-      );
+        }
+      } finally {
+        if (active) {
+          setFetching(false);
+        }
+      }
+    }, 0);
 
     return () => {
       active = false;
+      window.clearTimeout(timer);
     };
-  }, [
-    allowed,
-    params.id,
-  ]);
+  }, [allowed, params.id, reloadKey]);
 
-  const weightTotal =
-    useMemo(
-      () =>
-        weights.priceWeight +
-        weights.deliveryWeight +
-        weights.supplierRatingWeight +
-        weights.riskWeight +
-        weights.qualityWeight,
-      [weights],
-    );
+  const data = result !== null && result.id === params.id ? result : null;
 
-  async function handleCalculate(
-    event:
-      FormEvent<HTMLFormElement>,
-  ) {
-    event.preventDefault();
-
-    try {
-      setSaving(
-        true,
-      );
-
-      setError(
-        null,
-      );
-
-      const input:
-        RfqEvaluationInput = {
-          ...weights,
-
-          qualityScores:
-            quotations.map(
-              quotation => ({
-                quotationId:
-                  quotation.id,
-
-                qualityScore:
-                  Number(
-                    qualityScores[
-                      quotation.id
-                    ] ??
-                    80,
-                  ),
-              }),
-            ),
-        };
-
-      const response =
-        await calculateRfqEvaluation(
-          params.id,
-          input,
-        );
-
-      setEvaluation(
-        response,
-      );
-
-      if (
-        response
-          .recommendedQuotationId
-      ) {
-        setSelectedQuotationId(
-          response
-            .recommendedQuotationId,
-        );
-      }
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError
-              .message
-          : "Unable to calculate supplier evaluation.",
-      );
-    } finally {
-      setSaving(
-        false,
-      );
-    }
+  function handleEvaluated(evaluation: RfqEvaluation) {
+    setResult((current) => (current ? { ...current, evaluation } : current));
   }
 
-  async function handleAward(
-    event:
-      FormEvent<HTMLFormElement>,
-  ) {
-    event.preventDefault();
-
-    try {
-      setAwarding(
-        true,
-      );
-
-      setError(
-        null,
-      );
-
-      const response =
-        await createAwardDecision(
-          params.id,
-          selectedQuotationId,
-          rationale,
-        );
-
-      setAward(
-        response,
-      );
-
-      if (rfq) {
-        setRfq({
-          ...rfq,
-          status:
-            "AWARDED",
-        });
-      }
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError
-              .message
-          : "Unable to record award decision.",
-      );
-    } finally {
-      setAwarding(
-        false,
-      );
-    }
+  function handleAwarded(award: AwardDecision) {
+    setResult((current) =>
+      current
+        ? { ...current, award, rfq: { ...current.rfq, status: "AWARDED" } }
+        : current,
+    );
   }
 
   if (!allowed) {
     return (
-      <div
-        className={
-          "page-stack"
-        }
-      >
-        <div
-          className={
-            "error-banner"
-          }
-        >
-          <CircleAlert
-            size={18}
+      <div className="page-stack">
+        <section className="panel">
+          <EmptyState
+            icon={ShieldAlert}
+            title="Access restricted"
+            description="Your role cannot access supplier evaluation."
           />
+        </section>
+      </div>
+    );
+  }
 
-          Your role cannot access
-          supplier evaluation.
+  if (data === null) {
+    if (error === null) {
+      return (
+        <div className="page-stack">
+          <Skeleton height={28} />
+          <Skeleton height={110} />
+          <Skeleton height={96} />
+          <Skeleton height={260} />
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  if (loading) {
     return (
-      <div
-        className={
-          "request-detail-loading"
-        }
-      >
-        Loading supplier
-        evaluation...
-      </div>
-    );
-  }
+      <div className="page-stack">
+        <Link href="/rfqs" className="request-back-link">
+          <ArrowLeft size={16} />
+          RFQs &amp; sourcing
+        </Link>
 
-  if (!rfq) {
-    return (
-      <div
-        className={
-          "page-stack"
-        }
-      >
-        <div
-          className={
-            "error-banner"
-          }
-        >
-          <CircleAlert
-            size={18}
-          />
+        <div className="error-banner">
+          <CircleAlert size={18} />
 
-          {error ??
-            "RFQ not found."}
+          <span>{error}</span>
+
+          <button
+            type="button"
+            className="kit-banner-action"
+            onClick={() => setReloadKey((key) => key + 1)}
+          >
+            Try again
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      className={
-        "page-stack"
-      }
-    >
-      <Link
-        href={
-          `/rfqs/${rfq.id}`
-        }
-        className={
-          "request-back-link"
-        }
-      >
-        <ArrowLeft
-          size={16}
-        />
-
-        {rfq.rfqNumber}
-      </Link>
-
-      <section
-        className={
-          "page-heading"
-        }
-      >
-        <div>
-          <span
-            className={
-              "eyebrow"
-            }
-          >
-            Supplier selection
-          </span>
-
-          <h1>
-            Evaluation & award
-          </h1>
-
-          <p>
-            Score submitted suppliers
-            using commercial, delivery,
-            performance, risk and
-            quality criteria.
-          </p>
-        </div>
-
-        <span
-          className={
-            `rfq-status rfq-status--${
-              rfq.status
-                .toLowerCase()
-            }`
-          }
-        >
-          {rfq.status}
-        </span>
-      </section>
-
-      {error ? (
-        <div
-          className={
-            "error-banner"
-          }
-        >
-          <CircleAlert
-            size={18}
-          />
-          {error}
-        </div>
-      ) : null}
-
-      <section
-        className={
-          "evaluation-summary-grid"
-        }
-      >
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <Gauge
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Suppliers evaluated
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value"
-            }
-          >
-            {
-              evaluation
-                ?.evaluatedSupplierCount ??
-              0
-            }
-          </strong>
-
-          <p>
-            Submitted quotations
-            included in scoring.
-          </p>
-        </article>
-
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <Trophy
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Recommended supplier
-          </span>
-
-          <strong
-            className={
-              "evaluation-kpi-name"
-            }
-          >
-            {
-              evaluation
-                ?.recommendedSupplierName ??
-              "Not calculated"
-            }
-          </strong>
-
-          <p>
-            Highest weighted
-            evaluation result.
-          </p>
-        </article>
-
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <Star
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Top score
-          </span>
-
-          <strong
-            className={
-              "kpi-card__value"
-            }
-          >
-            {
-              evaluation
-                ?.scorecards[0]
-                ?.weightedTotalScore
-                ?.toFixed(1) ??
-              "—"
-            }
-          </strong>
-
-          <p>
-            Weighted score out
-            of 100.
-          </p>
-        </article>
-
-        <article
-          className={
-            "kpi-card"
-          }
-        >
-          <div
-            className={
-              "kpi-card__topline"
-            }
-          >
-            <div
-              className={
-                "kpi-card__icon"
-              }
-            >
-              <Award
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span
-            className={
-              "kpi-card__label"
-            }
-          >
-            Award status
-          </span>
-
-          <strong
-            className={
-              "evaluation-kpi-name"
-            }
-          >
-            {award
-              ? "Decision recorded"
-              : "Pending"}
-          </strong>
-
-          <p>
-            Final sourcing
-            decision status.
-          </p>
-        </article>
-      </section>
-
-      {!award &&
-      rfq.status !==
-        "AWARDED" ? (
-        <form
-          className={
-            "page-stack"
-          }
-          onSubmit={
-            handleCalculate
-          }
-        >
-          <section
-            className={
-              "panel"
-            }
-          >
-            <div
-              className={
-                "panel__header"
-              }
-            >
-              <div>
-                <span
-                  className={
-                    "eyebrow"
-                  }
-                >
-                  Evaluation model
-                </span>
-
-                <h2>
-                  Criteria weights
-                </h2>
-              </div>
-
-              <span
-                className={
-                  `evaluation-weight-total ${
-                    weightTotal ===
-                    100
-                      ? "evaluation-weight-total--valid"
-                      : "evaluation-weight-total--invalid"
-                  }`
-                }
-              >
-                Total:
-                {" "}
-                {weightTotal}%
-              </span>
-            </div>
-
-            <div
-              className={
-                "evaluation-weight-grid"
-              }
-            >
-              {[
-                [
-                  "priceWeight",
-                  "Commercial price",
-                ],
-                [
-                  "deliveryWeight",
-                  "Delivery",
-                ],
-                [
-                  "supplierRatingWeight",
-                  "Supplier rating",
-                ],
-                [
-                  "riskWeight",
-                  "Supplier risk",
-                ],
-                [
-                  "qualityWeight",
-                  "Quality / technical",
-                ],
-              ].map(
-                ([
-                  key,
-                  label,
-                ]) => (
-                  <label
-                    key={key}
-                    className={
-                      "request-field"
-                    }
-                  >
-                    <span>
-                      {label}
-                    </span>
-
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="1"
-                      value={
-                        weights[
-                          key as keyof WeightState
-                        ]
-                      }
-                      onChange={
-                        event =>
-                          setWeights(
-                            current => ({
-                              ...current,
-                              [key]:
-                                Number(
-                                  event
-                                    .target
-                                    .value,
-                                ),
-                            }),
-                          )
-                      }
-                    />
-                  </label>
-                ),
-              )}
-            </div>
-          </section>
-
-          <section
-            className={
-              "panel"
-            }
-          >
-            <div
-              className={
-                "panel__header"
-              }
-            >
-              <div>
-                <span
-                  className={
-                    "eyebrow"
-                  }
-                >
-                  Technical assessment
-                </span>
-
-                <h2>
-                  Quality scores
-                </h2>
-              </div>
-            </div>
-
-            <div
-              className={
-                "evaluation-quality-grid"
-              }
-            >
-              {quotations.map(
-                quotation => (
-                  <article
-                    key={
-                      quotation.id
-                    }
-                    className={
-                      "evaluation-quality-card"
-                    }
-                  >
-                    <div>
-                      <strong>
-                        {
-                          quotation
-                            .supplierName
-                        }
-                      </strong>
-
-                      <span>
-                        {
-                          quotation
-                            .quotationNumber
-                        }
-                      </span>
-                    </div>
-
-                    <label>
-                      <span>
-                        Quality
-                        score / 100
-                      </span>
-
-                      <input
-                        required
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="1"
-                        value={
-                          qualityScores[
-                            quotation.id
-                          ] ??
-                          80
-                        }
-                        onChange={
-                          event =>
-                            setQualityScores(
-                              current => ({
-                                ...current,
-                                [quotation.id]:
-                                  Number(
-                                    event
-                                      .target
-                                      .value,
-                                  ),
-                              }),
-                            )
-                        }
-                      />
-                    </label>
-                  </article>
-                ),
-              )}
-            </div>
-
-            <div
-              className={
-                "evaluation-form-actions"
-              }
-            >
-              <button
-                type="submit"
-                className={
-                  "button button--primary"
-                }
-                disabled={
-                  saving ||
-                  quotations.length <
-                    2 ||
-                  weightTotal !==
-                    100
-                }
-              >
-                <Save
-                  size={16}
-                />
-
-                {saving
-                  ? "Calculating..."
-                  : "Calculate evaluation"}
-              </button>
-            </div>
-          </section>
-        </form>
-      ) : null}
-
-      {evaluation &&
-      evaluation.scorecards.length >
-        0 ? (
-        <section
-          className={
-            "panel"
-          }
-        >
-          <div
-            className={
-              "panel__header"
-            }
-          >
-            <div>
-              <span
-                className={
-                  "eyebrow"
-                }
-              >
-                Supplier scorecards
-              </span>
-
-              <h2>
-                Weighted ranking
-              </h2>
-            </div>
-          </div>
-
-          <div
-            className={
-              "evaluation-ranking-list"
-            }
-          >
-            {evaluation
-              .scorecards
-              .map(
-                score => (
-                  <article
-                    key={
-                      score
-                        .quotationId
-                    }
-                    className={
-                      `evaluation-ranking-card ${
-                        score.recommended
-                          ? "evaluation-ranking-card--recommended"
-                          : ""
-                      }`
-                    }
-                  >
-                    <div
-                      className={
-                        "evaluation-rank"
-                      }
-                    >
-                      {score.recommended ? (
-                        <Trophy
-                          size={18}
-                        />
-                      ) : (
-                        `#${score.rankPosition}`
-                      )}
-                    </div>
-
-                    <div
-                      className={
-                        "evaluation-supplier"
-                      }
-                    >
-                      <strong>
-                        {
-                          score
-                            .supplierName
-                        }
-                      </strong>
-
-                      <span>
-                        {
-                          score
-                            .quotationNumber
-                        }
-                      </span>
-
-                      {score.recommended ? (
-                        <small>
-                          Recommended
-                          supplier
-                        </small>
-                      ) : null}
-                    </div>
-
-                    <div
-                      className={
-                        "evaluation-component"
-                      }
-                    >
-                      <span>
-                        Price
-                      </span>
-                      <strong>
-                        {
-                          score
-                            .priceScore
-                            .toFixed(1)
-                        }
-                      </strong>
-                    </div>
-
-                    <div
-                      className={
-                        "evaluation-component"
-                      }
-                    >
-                      <span>
-                        Delivery
-                      </span>
-                      <strong>
-                        {
-                          score
-                            .deliveryScore
-                            .toFixed(1)
-                        }
-                      </strong>
-                    </div>
-
-                    <div
-                      className={
-                        "evaluation-component"
-                      }
-                    >
-                      <span>
-                        Rating
-                      </span>
-                      <strong>
-                        {
-                          score
-                            .supplierRatingScore
-                            .toFixed(1)
-                        }
-                      </strong>
-                    </div>
-
-                    <div
-                      className={
-                        "evaluation-component"
-                      }
-                    >
-                      <span>
-                        Risk
-                      </span>
-                      <strong>
-                        {
-                          score
-                            .riskScore
-                            .toFixed(1)
-                        }
-                      </strong>
-                    </div>
-
-                    <div
-                      className={
-                        "evaluation-component"
-                      }
-                    >
-                      <span>
-                        Quality
-                      </span>
-                      <strong>
-                        {
-                          score
-                            .qualityScore
-                            .toFixed(1)
-                        }
-                      </strong>
-                    </div>
-
-                    <div
-                      className={
-                        "evaluation-total-score"
-                      }
-                    >
-                      <span>
-                        Weighted
-                        score
-                      </span>
-
-                      <strong>
-                        {
-                          score
-                            .weightedTotalScore
-                            .toFixed(2)
-                        }
-                      </strong>
-                    </div>
-                  </article>
-                ),
-              )}
-          </div>
-        </section>
-      ) : null}
-
-      {award ? (
-        <section
-          className={
-            "panel award-result"
-          }
-        >
-          <div
-            className={
-              "award-result__icon"
-            }
-          >
-            <Medal
-              size={26}
-            />
-          </div>
-
-          <div
-            className={
-              "award-result__content"
-            }
-          >
-            <span
-              className={
-                "eyebrow"
-              }
-            >
-              Award decision
-            </span>
-
-            <h2>
-              {
-                award
-                  .selectedSupplierName
-              }
-            </h2>
-
-            <p>
-              {
-                award.rationale
-              }
-            </p>
-
-            <div
-              className={
-                "award-result__meta"
-              }
-            >
-              <span>
-                {
-                  award
-                    .selectedQuotationNumber
-                }
-              </span>
-
-              <span>
-                {
-                  new Intl
-                    .NumberFormat(
-                      "en-US",
-                      {
-                        style:
-                          "currency",
-                        currency:
-                          rfq.currency,
-                      },
-                    )
-                    .format(
-                      award
-                        .selectedTotalAmount,
-                    )
-                }
-              </span>
-
-              <span>
-                Decided by
-                {" "}
-                {
-                  award
-                    .decidedByName
-                }
-              </span>
-
-              {award.manualOverride ? (
-                <span
-                  className={
-                    "award-override-badge"
-                  }
-                >
-                  <AlertTriangle
-                    size={13}
-                  />
-                  Manual override
-                </span>
-              ) : (
-                <span
-                  className={
-                    "award-recommended-badge"
-                  }
-                >
-                  <ShieldCheck
-                    size={13}
-                  />
-                  Recommended
-                  supplier selected
-                </span>
-              )}
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      {!award &&
-      rfq.status ===
-        "CLOSED" &&
-      evaluation &&
-      evaluation.scorecards.length >
-        0 &&
-      canAward ? (
-        <form
-          className={
-            "panel award-form"
-          }
-          onSubmit={
-            handleAward
-          }
-        >
-          <div
-            className={
-              "panel__header"
-            }
-          >
-            <div>
-              <span
-                className={
-                  "eyebrow"
-                }
-              >
-                Sourcing decision
-              </span>
-
-              <h2>
-                Award supplier
-              </h2>
-            </div>
-          </div>
-
-          <div
-            className={
-              "award-form-grid"
-            }
-          >
-            <label
-              className={
-                "request-field"
-              }
-            >
-              <span>
-                Selected quotation
-              </span>
-
-              <select
-                required
-                value={
-                  selectedQuotationId
-                }
-                onChange={
-                  event =>
-                    setSelectedQuotationId(
-                      event
-                        .target
-                        .value,
-                    )
-                }
-              >
-                {evaluation
-                  .scorecards
-                  .map(
-                    score => (
-                      <option
-                        key={
-                          score
-                            .quotationId
-                        }
-                        value={
-                          score
-                            .quotationId
-                        }
-                      >
-                        {
-                          score
-                            .supplierName
-                        }
-                        {" — "}
-                        {
-                          score
-                            .weightedTotalScore
-                            .toFixed(2)
-                        }
-                      </option>
-                    ),
-                  )}
-              </select>
-            </label>
-
-            <label
-              className={
-                "request-field award-rationale"
-              }
-            >
-              <span>
-                Award rationale
-              </span>
-
-              <textarea
-                required
-                rows={5}
-                maxLength={3000}
-                value={
-                  rationale
-                }
-                placeholder={
-                  selectedQuotationId ===
-                  evaluation
-                    .recommendedQuotationId
-                    ? "Explain the sourcing decision and why the recommended supplier is being awarded."
-                    : "A different supplier is selected. Explain the business justification for overriding the recommendation."
-                }
-                onChange={
-                  event =>
-                    setRationale(
-                      event
-                        .target
-                        .value,
-                    )
-                }
-              />
-            </label>
-          </div>
-
-          {selectedQuotationId &&
-          selectedQuotationId !==
-            evaluation
-              .recommendedQuotationId ? (
-            <div
-              className={
-                "award-override-warning"
-              }
-            >
-              <AlertTriangle
-                size={18}
-              />
-
-              You are selecting a
-              supplier other than the
-              system recommendation.
-              This will be recorded
-              as a manual override.
-            </div>
-          ) : null}
-
-          <div
-            className={
-              "evaluation-form-actions"
-            }
-          >
-            <button
-              type="submit"
-              className={
-                "button button--primary"
-              }
-              disabled={
-                awarding ||
-                !selectedQuotationId ||
-                !rationale.trim()
-              }
-            >
-              <Award
-                size={16}
-              />
-
-              {awarding
-                ? "Recording award..."
-                : "Record award decision"}
-            </button>
-          </div>
-        </form>
-      ) : null}
-
-      {!award &&
-      rfq.status ===
-        "PUBLISHED" ? (
-        <div
-          className={
-            "evaluation-info-banner"
-          }
-        >
-          <CircleAlert
-            size={18}
-          />
-
-          Evaluation can be calculated
-          while sourcing is open, but
-          the RFQ must be closed before
-          a final award can be recorded.
-        </div>
-      ) : null}
-    </div>
+    <EvaluationWorkspace
+      key={data.id}
+      data={data}
+      canAward={canAward}
+      fetching={fetching}
+      error={error}
+      onRefresh={() => setReloadKey((key) => key + 1)}
+      onEvaluated={handleEvaluated}
+      onAwarded={handleAwarded}
+    />
   );
 }

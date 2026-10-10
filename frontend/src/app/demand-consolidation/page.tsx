@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {
   Building2,
   CircleAlert,
@@ -634,7 +636,7 @@ export default function DemandConsolidationPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Bundle</th>
@@ -744,7 +746,7 @@ export default function DemandConsolidationPage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
     </div>

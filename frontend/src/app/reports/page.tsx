@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {
   Archive,
   Banknote,
@@ -868,7 +870,7 @@ export default function ReportsPage() {
                 "table-scroll"
               }
             >
-              <table
+              <SmartTable
                 className={
                   "data-table"
                 }
@@ -978,7 +980,7 @@ export default function ReportsPage() {
                     </tr>
                   ) : null}
                 </tbody>
-              </table>
+              </SmartTable>
             </div>
           </section>
 
@@ -1016,7 +1018,7 @@ export default function ReportsPage() {
                 "table-scroll"
               }
             >
-              <table
+              <SmartTable
                 className={
                   "data-table"
                 }
@@ -1099,7 +1101,7 @@ export default function ReportsPage() {
                       ),
                     )}
                 </tbody>
-              </table>
+              </SmartTable>
             </div>
           </section>
 
@@ -1135,7 +1137,7 @@ export default function ReportsPage() {
                 "table-scroll"
               }
             >
-              <table
+              <SmartTable
                 className={
                   "data-table"
                 }
@@ -1232,7 +1234,7 @@ export default function ReportsPage() {
                       ),
                     )}
                 </tbody>
-              </table>
+              </SmartTable>
             </div>
           </section>
 

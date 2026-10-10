@@ -1,17 +1,46 @@
 "use client";
 
 import {
+  AlertTriangle,
   ArrowLeft,
+  BadgeCheck,
   CircleAlert,
+  Coins,
+  FileCheck2,
+  Gauge,
   Goal,
+  Info,
+  Plus,
+  RefreshCw,
+  ShieldCheck,
+  XCircle,
 } from "lucide-react";
-
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { type FormEvent, useEffect, useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import {
-  useAuth,
-} from "@/components/auth/auth-provider";
-
+  type Column,
+  DataTable,
+  EmptyState,
+  Field,
+  KpiGrid,
+  type KpiItem,
+  Meter,
+  type MeterTone,
+  Modal,
+  Skeleton,
+  StatusBadge,
+  formatDate,
+  formatDateTime,
+  meterToneFor,
+  readable,
+  useToast,
+} from "@/components/kit";
+import { ActionDialog } from "@/components/kit/action-dialog";
+import { NumberField, numberError } from "@/components/kit/number-field";
+import { RationaleDialog } from "@/components/kit/rationale-dialog";
 import {
   activateCapitalRedeployment,
   authorizeCapitalRedeployment,
@@ -24,1691 +53,1762 @@ import {
   submitCapitalRedeploymentForVerification,
   verifyCapitalRedeployment,
 } from "@/lib/api";
-
 import type {
-  CapitalRedeploymentAuthorizationDecision,
   CapitalRedeploymentCaseDetail,
   CapitalRedeploymentGateStatus,
-  CapitalRedeploymentVerificationDecision,
 } from "@/types/capital-redeployment";
 
-import {
-  type FormEvent,
-  useEffect,
-  useState,
-} from "react";
+/* ------------------------------------------------------------------ */
+/* Constants & helpers                                                 */
+/* ------------------------------------------------------------------ */
 
-import {
-  useParams,
-} from "next/navigation";
+type RedeploymentCase = CapitalRedeploymentCaseDetail["redeploymentCase"];
+type Gate = CapitalRedeploymentCaseDetail["gates"][number];
+type Authorization = CapitalRedeploymentCaseDetail["authorizations"][number];
+type Release = CapitalRedeploymentCaseDetail["releases"][number];
+type Verification = CapitalRedeploymentCaseDetail["verifications"][number];
+type Workflow = "SUBMIT_AUTH" | "ACTIVATE" | "SUBMIT_VERIFY";
+type GateField = "title" | "requirement";
+type DecisionField = "evidence" | "note";
+type ReleaseField = "date" | "amount" | "evidence" | "reference";
 
-function readable(
-  value: string,
-): string {
-  return value
-    .replaceAll(
-      "_",
-      " ",
-    )
-    .toLowerCase()
-    .replace(
-      /\b\w/g,
-      letter =>
-        letter.toUpperCase(),
-    );
+type RationaleRequest =
+  | { kind: "AUTHORIZE" }
+  | { kind: "REJECT" }
+  | { kind: "VERIFY" }
+  | { kind: "REMEDIATE" }
+  | { kind: "CLOSE" };
+
+const MANAGE_ROLES = ["ADMIN", "PROCUREMENT_MANAGER", "BUYER"];
+const FINALIZE_ROLES = ["ADMIN", "PROCUREMENT_MANAGER"];
+
+function money(value: number, currency: string): string {
+  return `${new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value)} ${currency}`;
 }
 
-function money(
-  value: number,
-  currency: string,
-): string {
-  return `${value.toLocaleString(
-    undefined,
+function clampPercent(value: number): number {
+  return Math.min(100, Math.max(0, value));
+}
+
+/** Local calendar date as YYYY-MM-DD, offset by a number of days. */
+function isoDate(offsetDays: number): string {
+  const date = new Date();
+
+  date.setDate(date.getDate() + offsetDays);
+
+  const pad = (value: number) => String(value).padStart(2, "0");
+
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function CaseBadge({ status }: { status: string }) {
+  switch (status) {
+    case "READY_FOR_AUTHORIZATION":
+      return <StatusBadge value="READY" label="Ready for authorization" />;
+
+    case "AUTHORIZED":
+      return <StatusBadge value="APPROVED" label="Authorized" />;
+
+    case "REMEDIATION_REQUIRED":
+      return <StatusBadge value="AT_RISK" label="Remediation required" />;
+
+    case "READY_FOR_VERIFICATION":
+      return <StatusBadge value="READY" label="Ready for verification" />;
+
+    case "VERIFIED":
+      return <StatusBadge value="ACHIEVED" label="Verified" />;
+
+    default:
+      return <StatusBadge value={status} />;
+  }
+}
+
+function GateBadge({ status }: { status: string }) {
+  if (status === "SATISFIED") {
+    return <StatusBadge value="ACHIEVED" label="Satisfied" />;
+  }
+
+  if (status === "WAIVED") {
+    return <StatusBadge value="ACCEPTED" label="Waived" />;
+  }
+
+  return <StatusBadge value={status} />;
+}
+
+function VerificationBadge({ decision }: { decision: string }) {
+  if (decision === "VERIFIED") {
+    return <StatusBadge value="ACHIEVED" label="Verified" />;
+  }
+
+  if (decision === "REMEDIATION_REQUIRED") {
+    return <StatusBadge value="AT_RISK" label="Remediation required" />;
+  }
+
+  return <StatusBadge value={decision} />;
+}
+
+function ProgressLine({
+  pct,
+  tone,
+  caption,
+  label,
+}: {
+  pct: number;
+  tone: MeterTone;
+  caption: string;
+  label: string;
+}) {
+  return (
+    <div className="kit-meter-wrap">
+      <Meter value={clampPercent(pct)} max={100} tone={tone} ariaLabel={label} />
+
+      <span className="kit-meter-caption">{caption}</span>
+    </div>
+  );
+}
+
+interface WorkflowCopy {
+  eyebrow: string;
+  title: string;
+  confirm: string;
+  busy: string;
+  keep: string;
+  done: string;
+  failed: string;
+}
+
+const WORKFLOWS: Record<Workflow, WorkflowCopy> = {
+  SUBMIT_AUTH: {
+    eyebrow: "Authorization gate",
+    title: "Submit for funding authorization?",
+    confirm: "Submit for authorization",
+    busy: "Submitting…",
+    keep: "Not yet",
+    done: "Submitted for authorization",
+    failed: "Could not submit for authorization",
+  },
+  ACTIVATE: {
+    eyebrow: "Release activation",
+    title: "Activate this redeployment?",
+    confirm: "Activate redeployment",
+    busy: "Activating…",
+    keep: "Not yet",
+    done: "Redeployment activated",
+    failed: "Could not activate the redeployment",
+  },
+  SUBMIT_VERIFY: {
+    eyebrow: "Verification gate",
+    title: "Submit for verification?",
+    confirm: "Submit for verification",
+    busy: "Submitting…",
+    keep: "Not yet",
+    done: "Submitted for verification",
+    failed: "Could not submit for verification",
+  },
+};
+
+function workflowDescription(workflow: Workflow, rc: RedeploymentCase): string {
+  switch (workflow) {
+    case "SUBMIT_AUTH":
+      return `${rc.redeploymentNumber} will be sent to a manager for funding authorization.`;
+
+    case "ACTIVATE":
+      return `${rc.redeploymentNumber} will be activated, and capital releases can then be recorded.`;
+
+    case "SUBMIT_VERIFY":
+      return `${rc.redeploymentNumber} will be submitted for independent verification.`;
+  }
+}
+
+interface RationaleCopy {
+  eyebrow: string;
+  title: string;
+  description: string;
+  label: string;
+  placeholder: string;
+  confirm: string;
+  busy: string;
+  tone: "primary" | "danger";
+  done: string;
+}
+
+function rationaleCopy(request: RationaleRequest, rc: RedeploymentCase): RationaleCopy {
+  switch (request.kind) {
+    case "AUTHORIZE":
+      return {
+        eyebrow: "Manager authorization",
+        title: "Authorize this redeployment",
+        description: `${money(rc.approvedRedeploymentAmount, rc.currency)} of recycled capital will be authorized for ${rc.targetInitiativeTitle}.`,
+        label: "Authorization rationale",
+        placeholder: "Why is this capital being authorized?",
+        confirm: "Authorize capital",
+        busy: "Authorizing…",
+        tone: "primary",
+        done: "Capital authorized",
+      };
+
+    case "REJECT":
+      return {
+        eyebrow: "Manager authorization",
+        title: "Reject this redeployment",
+        description: `${rc.redeploymentNumber} will be rejected and no capital will be authorized.`,
+        label: "Rejection rationale",
+        placeholder: "Why is this redeployment being rejected?",
+        confirm: "Reject redeployment",
+        busy: "Rejecting…",
+        tone: "danger",
+        done: "Redeployment rejected",
+      };
+
+    case "VERIFY":
+      return {
+        eyebrow: "Independent verification",
+        title: "Verify the full redeployment",
+        description: `${money(rc.releasedRedeploymentAmount, rc.currency)} was released toward ${rc.targetInitiativeTitle}.`,
+        label: "Verification rationale",
+        placeholder: "What confirms the capital reached its target?",
+        confirm: "Verify redeployment",
+        busy: "Verifying…",
+        tone: "primary",
+        done: "Redeployment verified",
+      };
+
+    case "REMEDIATE":
+      return {
+        eyebrow: "Independent verification",
+        title: "Require remediation",
+        description: `${rc.redeploymentNumber} goes back for remediation so further releases can be recorded.`,
+        label: "Verification rationale",
+        placeholder: "What needs to be remediated?",
+        confirm: "Require remediation",
+        busy: "Updating…",
+        tone: "danger",
+        done: "Remediation required",
+      };
+
+    case "CLOSE":
+      return {
+        eyebrow: "Governance closure",
+        title: "Close this redeployment case",
+        description: `${rc.redeploymentNumber} was verified. Closing it finishes redeployment governance.`,
+        label: "Closure note",
+        placeholder: "Summarise why this case can be closed.",
+        confirm: "Close redeployment case",
+        busy: "Closing…",
+        tone: "primary",
+        done: "Redeployment case closed",
+      };
+  }
+}
+
+function performRationale(
+  request: RationaleRequest,
+  id: string,
+  note: string,
+): Promise<CapitalRedeploymentCaseDetail> {
+  switch (request.kind) {
+    case "AUTHORIZE":
+      return authorizeCapitalRedeployment(id, { decision: "APPROVED", authorizationNote: note });
+
+    case "REJECT":
+      return authorizeCapitalRedeployment(id, { decision: "REJECTED", authorizationNote: note });
+
+    case "VERIFY":
+      return verifyCapitalRedeployment(id, { decision: "VERIFIED", verificationNote: note });
+
+    case "REMEDIATE":
+      return verifyCapitalRedeployment(id, {
+        decision: "REMEDIATION_REQUIRED",
+        verificationNote: note,
+      });
+
+    case "CLOSE":
+      return closeCapitalRedeploymentCase(id, note);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Table columns                                                       */
+/* ------------------------------------------------------------------ */
+
+interface GateColumnOptions {
+  canDecide: boolean;
+  busy: boolean;
+  onDecide: (gate: Gate) => void;
+}
+
+function buildGateColumns(options: GateColumnOptions): Column<Gate>[] {
+  return [
     {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      id: "gate",
+      header: "Gate",
+      sortValue: (gate) => gate.title.toLowerCase(),
+      cell: (gate) => (
+        <div className="request-primary-cell">
+          <strong>{gate.title}</strong>
+
+          <span>{gate.gateNumber}</span>
+
+          <span>{gate.requirement}</span>
+        </div>
+      ),
     },
-  )} ${currency}`;
+    {
+      id: "status",
+      header: "Status",
+      sortValue: (gate) => String(gate.status),
+      cell: (gate) => <GateBadge status={String(gate.status)} />,
+    },
+    {
+      id: "evidence",
+      header: "Evidence",
+      cell: (gate) =>
+        gate.evidenceNote ? (
+          <span>{gate.evidenceNote}</span>
+        ) : (
+          <span className="kit-text-muted">—</span>
+        ),
+    },
+    {
+      id: "controls",
+      header: <span className="kit-sr-only">Actions</span>,
+      align: "right",
+      width: 130,
+      cell: (gate) =>
+        options.canDecide && gate.status === "PENDING" ? (
+          <button
+            type="button"
+            className="kit-row-button"
+            disabled={options.busy}
+            onClick={() => options.onDecide(gate)}
+          >
+            <ShieldCheck size={14} />
+            Decide
+          </button>
+        ) : null,
+    },
+  ];
 }
 
-function today(): string {
-  return new Date()
-    .toISOString()
-    .slice(
-      0,
-      10,
-    );
+function buildAuthorizationColumns(currency: string): Column<Authorization>[] {
+  return [
+    {
+      id: "decision",
+      header: "Decision",
+      sortValue: (item) => String(item.decision),
+      cell: (item) => <StatusBadge value={String(item.decision)} />,
+    },
+    {
+      id: "amount",
+      header: "Authorized amount",
+      align: "right",
+      sortValue: (item) => item.authorizedAmount,
+      cell: (item) => money(item.authorizedAmount, currency),
+    },
+    {
+      id: "note",
+      header: "Authorization note",
+      cell: (item) => <span>{item.authorizationNote}</span>,
+    },
+    {
+      id: "by",
+      header: "Authorized",
+      sortValue: (item) => item.authorizedAt,
+      cell: (item) => (
+        <div className="kit-cell-stack">
+          <span>{formatDateTime(item.authorizedAt)}</span>
+
+          <small>{item.authorizedByName}</small>
+        </div>
+      ),
+    },
+  ];
+}
+
+function buildReleaseColumns(currency: string): Column<Release>[] {
+  return [
+    {
+      id: "amount",
+      header: "Released",
+      align: "right",
+      sortValue: (item) => item.releasedAmount,
+      cell: (item) => <strong>{money(item.releasedAmount, currency)}</strong>,
+    },
+    {
+      id: "date",
+      header: "Released on",
+      sortValue: (item) => item.releasedOn,
+      cell: (item) => formatDate(item.releasedOn),
+    },
+    {
+      id: "reference",
+      header: "Reference",
+      sortValue: (item) => item.referenceText.toLowerCase(),
+      cell: (item) => item.referenceText,
+    },
+    {
+      id: "evidence",
+      header: "Evidence",
+      cell: (item) => <span>{item.evidenceNote}</span>,
+    },
+    {
+      id: "by",
+      header: "Recorded",
+      sortValue: (item) => item.releasedAt,
+      cell: (item) => (
+        <div className="kit-cell-stack">
+          <span>{formatDateTime(item.releasedAt)}</span>
+
+          <small>{item.releasedByName}</small>
+        </div>
+      ),
+    },
+  ];
+}
+
+function buildVerificationColumns(currency: string): Column<Verification>[] {
+  return [
+    {
+      id: "decision",
+      header: "Decision",
+      sortValue: (item) => String(item.decision),
+      cell: (item) => <VerificationBadge decision={String(item.decision)} />,
+    },
+    {
+      id: "pct",
+      header: "Redeployed",
+      align: "right",
+      sortValue: (item) => item.redeploymentPct,
+      cell: (item) => `${item.redeploymentPct.toFixed(1)}%`,
+    },
+    {
+      id: "released",
+      header: "Released",
+      align: "right",
+      sortValue: (item) => item.releasedRedeploymentAmount,
+      cell: (item) => money(item.releasedRedeploymentAmount, currency),
+    },
+    {
+      id: "remaining",
+      header: "Remaining",
+      align: "right",
+      sortValue: (item) => item.remainingRedeploymentAmount,
+      cell: (item) => money(item.remainingRedeploymentAmount, currency),
+    },
+    {
+      id: "note",
+      header: "Verification note",
+      cell: (item) => <span>{item.verificationNote}</span>,
+    },
+    {
+      id: "by",
+      header: "Verified by",
+      sortValue: (item) => item.verifiedByName.toLowerCase(),
+      cell: (item) => item.verifiedByName,
+    },
+  ];
+}
+
+/* ------------------------------------------------------------------ */
+/* Add gate modal                                                      */
+/* ------------------------------------------------------------------ */
+
+interface AddGateModalProps {
+  caseId: string;
+  onClose: () => void;
+  onSaved: (updated: CapitalRedeploymentCaseDetail, title: string) => void;
+}
+
+function AddGateModal({ caseId, onClose, onSaved }: AddGateModalProps) {
+  const [title, setTitle] = useState("");
+  const [requirement, setRequirement] = useState("");
+  const [errors, setErrors] = useState<Partial<Record<GateField, string>>>({});
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  function clearError(field: GateField) {
+    setErrors((current) => {
+      const next = { ...current };
+
+      delete next[field];
+
+      return next;
+    });
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (saving) {
+      return;
+    }
+
+    const next: Partial<Record<GateField, string>> = {};
+
+    if (!title.trim()) {
+      next.title = "Enter a gate title.";
+    }
+
+    if (!requirement.trim()) {
+      next.requirement = "Describe the evidence this gate requires.";
+    }
+
+    setErrors(next);
+
+    if (Object.keys(next).length > 0) {
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const updated = await createCapitalRedeploymentGate(caseId, {
+        title: title.trim(),
+        requirement: requirement.trim(),
+      });
+
+      onSaved(updated, title.trim());
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : "Unable to create redeployment gate.",
+      );
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Modal
+      eyebrow="Release controls"
+      title="Add redeployment gate"
+      description="Evidence that must be satisfied or waived before the redeployment can be authorized."
+      size="md"
+      dismissible={!saving}
+      onClose={onClose}
+      footer={
+        <>
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={onClose}
+            disabled={saving}
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            form="redeployment-gate-form"
+            className="button button--primary"
+            disabled={saving}
+          >
+            {saving ? "Adding…" : "Add evidence gate"}
+          </button>
+        </>
+      }
+    >
+      <form id="redeployment-gate-form" onSubmit={handleSubmit} noValidate>
+        <div className="kit-pair-grid">
+          <div className="kit-pair-wide">
+            <Field label="Gate title" htmlFor="gate-title" error={errors.title}>
+              <input
+                id="gate-title"
+                className="kit-field-input"
+                maxLength={220}
+                value={title}
+                aria-invalid={errors.title ? true : undefined}
+                onChange={(event) => {
+                  setTitle(event.target.value);
+                  clearError("title");
+                }}
+              />
+            </Field>
+          </div>
+
+          <div className="kit-pair-wide">
+            <Field
+              label="Evidence requirement"
+              htmlFor="gate-requirement"
+              error={errors.requirement}
+            >
+              <textarea
+                id="gate-requirement"
+                className="kit-field-input"
+                rows={4}
+                value={requirement}
+                aria-invalid={errors.requirement ? true : undefined}
+                onChange={(event) => {
+                  setRequirement(event.target.value);
+                  clearError("requirement");
+                }}
+              />
+            </Field>
+          </div>
+        </div>
+
+        {error ? (
+          <div className="error-banner" role="alert" style={{ marginTop: 16 }}>
+            <CircleAlert size={18} />
+            <span>{error}</span>
+          </div>
+        ) : null}
+      </form>
+    </Modal>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Decide gate modal                                                   */
+/* ------------------------------------------------------------------ */
+
+interface DecisionModalProps {
+  gate: Gate;
+  onClose: () => void;
+  onSaved: (updated: CapitalRedeploymentCaseDetail, message: string, title: string) => void;
+}
+
+function DecisionModal({ gate, onClose, onSaved }: DecisionModalProps) {
+  const [decision, setDecision] = useState<CapitalRedeploymentGateStatus>("SATISFIED");
+  const [evidence, setEvidence] = useState("");
+  const [note, setNote] = useState("");
+  const [errors, setErrors] = useState<Partial<Record<DecisionField, string>>>({});
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const waiving = String(decision) === "WAIVED";
+
+  function clearError(field: DecisionField) {
+    setErrors((current) => {
+      const next = { ...current };
+
+      delete next[field];
+
+      return next;
+    });
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (saving) {
+      return;
+    }
+
+    const next: Partial<Record<DecisionField, string>> = {};
+
+    if (!evidence.trim()) {
+      next.evidence = "Gate evidence is required.";
+    }
+
+    if (!note.trim()) {
+      next.note = "A decision note is required.";
+    }
+
+    setErrors(next);
+
+    if (Object.keys(next).length > 0) {
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const updated = await decideCapitalRedeploymentGate(gate.id, {
+        decision,
+        evidenceNote: evidence.trim(),
+        decisionNote: note.trim(),
+      });
+
+      onSaved(updated, waiving ? "Gate waived" : "Gate satisfied", gate.title);
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : "Unable to decide redeployment gate.",
+      );
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Modal
+      eyebrow="Evidence gate"
+      title="Decide gate"
+      description={`${gate.gateNumber} — ${gate.title}. Requirement: ${gate.requirement}`}
+      size="md"
+      dismissible={!saving}
+      onClose={onClose}
+      footer={
+        <>
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={onClose}
+            disabled={saving}
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            form="redeployment-decision-form"
+            className="button button--primary"
+            disabled={saving}
+          >
+            {saving ? "Saving…" : waiving ? "Waive gate" : "Satisfy gate"}
+          </button>
+        </>
+      }
+    >
+      <form id="redeployment-decision-form" onSubmit={handleSubmit} noValidate>
+        <div className="kit-pair-grid">
+          <div className="kit-pair-wide">
+            <Field label="Outcome" htmlFor="decision-outcome">
+              <select
+                id="decision-outcome"
+                className="kit-field-input"
+                value={decision}
+                onChange={(event) =>
+                  setDecision(event.target.value as CapitalRedeploymentGateStatus)
+                }
+              >
+                <option value="SATISFIED">Satisfy</option>
+
+                <option value="WAIVED">Waive</option>
+              </select>
+            </Field>
+          </div>
+
+          <div className="kit-pair-wide">
+            <Field label="Evidence" htmlFor="decision-evidence" error={errors.evidence}>
+              <textarea
+                id="decision-evidence"
+                className="kit-field-input"
+                rows={3}
+                value={evidence}
+                aria-invalid={errors.evidence ? true : undefined}
+                onChange={(event) => {
+                  setEvidence(event.target.value);
+                  clearError("evidence");
+                }}
+              />
+            </Field>
+          </div>
+
+          <div className="kit-pair-wide">
+            <Field label="Decision note" htmlFor="decision-note" error={errors.note}>
+              <textarea
+                id="decision-note"
+                className="kit-field-input"
+                rows={3}
+                maxLength={2000}
+                value={note}
+                aria-invalid={errors.note ? true : undefined}
+                onChange={(event) => {
+                  setNote(event.target.value);
+                  clearError("note");
+                }}
+              />
+            </Field>
+          </div>
+        </div>
+
+        {waiving ? (
+          <p className="kit-dialog-note kit-dialog-note--warning" style={{ marginTop: 14 }}>
+            Waiving accepts the gate without the required evidence being met. Explain why in the
+            decision note.
+          </p>
+        ) : null}
+
+        {error ? (
+          <div className="error-banner" role="alert" style={{ marginTop: 16 }}>
+            <CircleAlert size={18} />
+            <span>{error}</span>
+          </div>
+        ) : null}
+      </form>
+    </Modal>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Record release modal                                                */
+/* ------------------------------------------------------------------ */
+
+interface ReleaseModalProps {
+  caseId: string;
+  redeployment: RedeploymentCase;
+  onClose: () => void;
+  onSaved: (updated: CapitalRedeploymentCaseDetail) => void;
+}
+
+function ReleaseModal({ caseId, redeployment, onClose, onSaved }: ReleaseModalProps) {
+  const remaining = redeployment.remainingRedeploymentAmount;
+
+  const [releasedOn, setReleasedOn] = useState(() => isoDate(0));
+  const [amount, setAmount] = useState(() => String(remaining));
+  const [evidence, setEvidence] = useState("");
+  const [reference, setReference] = useState("");
+  const [errors, setErrors] = useState<Partial<Record<ReleaseField, string>>>({});
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const validAmount = numberError(amount, { min: 0.01, max: remaining }) === undefined;
+  const partial = validAmount && Number(amount) < remaining;
+
+  function clearError(field: ReleaseField) {
+    setErrors((current) => {
+      const next = { ...current };
+
+      delete next[field];
+
+      return next;
+    });
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (saving) {
+      return;
+    }
+
+    const next: Partial<Record<ReleaseField, string>> = {};
+
+    if (!releasedOn) {
+      next.date = "Choose the release date.";
+    } else if (releasedOn > isoDate(0)) {
+      next.date = "A release cannot be dated in the future.";
+    }
+
+    const amountProblem = numberError(amount, { min: 0.01, max: remaining });
+
+    if (amountProblem) {
+      next.amount = amountProblem;
+    }
+
+    if (!evidence.trim()) {
+      next.evidence = "Describe the evidence for this release.";
+    }
+
+    if (!reference.trim()) {
+      next.reference = "Enter a release reference.";
+    }
+
+    setErrors(next);
+
+    if (Object.keys(next).length > 0) {
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const updated = await recordCapitalRedeploymentRelease(caseId, {
+        releasedOn,
+        releasedAmount: Number(amount),
+        evidenceNote: evidence.trim(),
+        referenceText: reference.trim(),
+      });
+
+      onSaved(updated);
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : "Unable to record redeployment release.",
+      );
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Modal
+      eyebrow="Immutable release evidence"
+      title="Record capital redeployment"
+      description={`${money(remaining, redeployment.currency)} remains to be redeployed. A release cannot be changed once recorded.`}
+      size="md"
+      dismissible={!saving}
+      onClose={onClose}
+      footer={
+        <>
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={onClose}
+            disabled={saving}
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            form="redeployment-release-form"
+            className="button button--primary"
+            disabled={saving}
+          >
+            {saving ? "Recording…" : "Record release"}
+          </button>
+        </>
+      }
+    >
+      <form id="redeployment-release-form" onSubmit={handleSubmit} noValidate>
+        <div className="kit-pair-grid">
+          <Field label="Released on" htmlFor="release-date" error={errors.date}>
+            <input
+              id="release-date"
+              className="kit-field-input"
+              type="date"
+              value={releasedOn}
+              aria-invalid={errors.date ? true : undefined}
+              onChange={(event) => {
+                setReleasedOn(event.target.value);
+                clearError("date");
+              }}
+            />
+          </Field>
+
+          <NumberField
+            id="release-amount"
+            label={`Released amount (${redeployment.currency})`}
+            min={0.01}
+            max={remaining}
+            step="0.01"
+            value={amount}
+            error={errors.amount}
+            onChange={(value) => {
+              setAmount(value);
+              clearError("amount");
+            }}
+          />
+
+          <div className="kit-pair-wide">
+            <Field label="Release reference" htmlFor="release-reference" error={errors.reference}>
+              <input
+                id="release-reference"
+                className="kit-field-input"
+                maxLength={220}
+                value={reference}
+                aria-invalid={errors.reference ? true : undefined}
+                onChange={(event) => {
+                  setReference(event.target.value);
+                  clearError("reference");
+                }}
+              />
+            </Field>
+          </div>
+
+          <div className="kit-pair-wide">
+            <Field label="Release evidence" htmlFor="release-evidence" error={errors.evidence}>
+              <textarea
+                id="release-evidence"
+                className="kit-field-input"
+                rows={5}
+                value={evidence}
+                aria-invalid={errors.evidence ? true : undefined}
+                onChange={(event) => {
+                  setEvidence(event.target.value);
+                  clearError("evidence");
+                }}
+              />
+            </Field>
+          </div>
+        </div>
+
+        {partial ? (
+          <p className="kit-dialog-note kit-dialog-note--warning" style={{ marginTop: 14 }}>
+            This is a partial release. Full verification needs 100% of the approved amount to be
+            redeployed.
+          </p>
+        ) : null}
+
+        {error ? (
+          <div className="error-banner" role="alert" style={{ marginTop: 16 }}>
+            <CircleAlert size={18} />
+            <span>{error}</span>
+          </div>
+        ) : null}
+      </form>
+    </Modal>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
+
+interface CaseData {
+  id: string;
+  detail: CapitalRedeploymentCaseDetail;
 }
 
 export default function CapitalRedeploymentCasePage() {
-  const params =
-    useParams<{
-      id: string;
-    }>();
+  const params = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const toast = useToast();
 
-  const {
-    user,
-  } = useAuth();
+  const canManage = user !== null && MANAGE_ROLES.includes(user.role);
+  const canFinalize = user !== null && FINALIZE_ROLES.includes(user.role);
 
-  const [
-    detail,
-    setDetail,
-  ] =
-    useState<
-      CapitalRedeploymentCaseDetail |
-      null
-    >(null);
-
-  const [
-    gateTitle,
-    setGateTitle,
-  ] =
-    useState("");
-
-  const [
-    gateRequirement,
-    setGateRequirement,
-  ] =
-    useState("");
-
-  const [
-    gateEvidence,
-    setGateEvidence,
-  ] =
-    useState<
-      Record<
-        string,
-        string
-      >
-    >({});
-
-  const [
-    gateNotes,
-    setGateNotes,
-  ] =
-    useState<
-      Record<
-        string,
-        string
-      >
-    >({});
-
-  const [
-    authorizationNote,
-    setAuthorizationNote,
-  ] =
-    useState("");
-
-  const [
-    releasedOn,
-    setReleasedOn,
-  ] =
-    useState(
-      today(),
-    );
-
-  const [
-    releasedAmount,
-    setReleasedAmount,
-  ] =
-    useState(0);
-
-  const [
-    releaseEvidence,
-    setReleaseEvidence,
-  ] =
-    useState("");
-
-  const [
-    releaseReference,
-    setReleaseReference,
-  ] =
-    useState("");
-
-  const [
-    verificationNote,
-    setVerificationNote,
-  ] =
-    useState("");
-
-  const [
-    closeNote,
-    setCloseNote,
-  ] =
-    useState("");
-
-  const [
-    running,
-    setRunning,
-  ] =
-    useState(false);
-
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
-
-  const [
-    error,
-    setError,
-  ] =
-    useState<
-      string |
-      null
-    >(null);
-
-  const canManage =
-    user?.role ===
-      "ADMIN"
-    ||
-    user?.role ===
-      "PROCUREMENT_MANAGER"
-    ||
-    user?.role ===
-      "BUYER";
-
-  const canFinalize =
-    user?.role ===
-      "ADMIN"
-    ||
-    user?.role ===
-      "PROCUREMENT_MANAGER";
+  const [result, setResult] = useState<CaseData | null>(null);
+  const [workflow, setWorkflow] = useState<Workflow | null>(null);
+  const [workflowRunning, setWorkflowRunning] = useState(false);
+  const [rationale, setRationale] = useState<RationaleRequest | null>(null);
+  const [rationaleRunning, setRationaleRunning] = useState(false);
+  const [rationaleError, setRationaleError] = useState<string | null>(null);
+  const [addingGate, setAddingGate] = useState(false);
+  const [deciding, setDeciding] = useState<Gate | null>(null);
+  const [releasing, setReleasing] = useState(false);
+  const [fetching, setFetching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let active = true;
+    const id = params.id;
 
-    getCapitalRedeploymentCase(
-      params.id,
-    )
-      .then(
-        response => {
-          if (!active) {
-            return;
-          }
+    const timer = window.setTimeout(async () => {
+      setFetching(true);
+      setError(null);
 
-          setDetail(
-            response,
+      try {
+        const response = await getCapitalRedeploymentCase(id);
+
+        if (active) {
+          setResult({ id, detail: response });
+        }
+      } catch (caught) {
+        if (active) {
+          setError(
+            caught instanceof Error
+              ? caught.message
+              : "Unable to load capital-redeployment case.",
           );
-
-          setReleasedAmount(
-            response.redeploymentCase.remainingRedeploymentAmount,
-          );
-        },
-      )
-      .catch(
-        caughtError => {
-          if (active) {
-            setError(
-              caughtError instanceof
-                Error
-                ? caughtError.message
-                : "Unable to load capital-redeployment case.",
-            );
-          }
-        },
-      )
-      .finally(
-        () => {
-          if (active) {
-            setLoading(false);
-          }
-        },
-      );
+        }
+      } finally {
+        if (active) {
+          setFetching(false);
+        }
+      }
+    }, 0);
 
     return () => {
       active = false;
+      window.clearTimeout(timer);
     };
-  }, [
-    params.id,
-  ]);
+  }, [params.id, reloadKey]);
 
-  async function apply(
-    promise:
-      Promise<CapitalRedeploymentCaseDetail>,
-  ) {
-    const response =
-      await promise;
+  const data = result !== null && result.id === params.id ? result : null;
+  const detail = data?.detail ?? null;
 
-    setDetail(
-      response,
-    );
-
-    setReleasedAmount(
-      response.redeploymentCase.remainingRedeploymentAmount,
-    );
+  function reload() {
+    setReloadKey((key) => key + 1);
   }
 
-  async function createGate(
-    event:
-      FormEvent<HTMLFormElement>,
-  ) {
-    event.preventDefault();
-
-    try {
-      setRunning(true);
-      setError(null);
-
-      await apply(
-        createCapitalRedeploymentGate(
-          params.id,
-          {
-            title:
-              gateTitle.trim(),
-            requirement:
-              gateRequirement.trim(),
-          },
-        ),
-      );
-
-      setGateTitle("");
-      setGateRequirement("");
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to create redeployment gate.",
-      );
-    } finally {
-      setRunning(false);
-    }
+  function applyDetail(updated: CapitalRedeploymentCaseDetail) {
+    setResult((current) => (current ? { ...current, detail: updated } : current));
   }
 
-  async function decideGate(
-    gateId: string,
-    decision:
-      CapitalRedeploymentGateStatus,
-  ) {
-    const evidence =
-      gateEvidence[
-        gateId
-      ]
-      ??
-      "";
-
-    const note =
-      gateNotes[
-        gateId
-      ]
-      ??
-      "";
-
-    if (
-      !evidence.trim()
-      ||
-      !note.trim()
-    ) {
-      setError(
-        "Gate evidence and decision note are required.",
+  if (detail === null) {
+    if (error === null) {
+      return (
+        <div className="page-stack">
+          <Skeleton height={28} />
+          <Skeleton height={120} />
+          <Skeleton height={96} />
+          <Skeleton height={260} />
+        </div>
       );
-
-      return;
     }
 
-    try {
-      setRunning(true);
-      setError(null);
-
-      await apply(
-        decideCapitalRedeploymentGate(
-          gateId,
-          {
-            decision,
-            evidenceNote:
-              evidence.trim(),
-            decisionNote:
-              note.trim(),
-          },
-        ),
-      );
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to decide redeployment gate.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  async function submitAuthorization() {
-    try {
-      setRunning(true);
-      setError(null);
-
-      await apply(
-        submitCapitalRedeploymentForAuthorization(
-          params.id,
-        ),
-      );
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to submit redeployment for authorization.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  async function authorize(
-    decision:
-      CapitalRedeploymentAuthorizationDecision,
-  ) {
-    if (!authorizationNote.trim()) {
-      return;
-    }
-
-    try {
-      setRunning(true);
-      setError(null);
-
-      await apply(
-        authorizeCapitalRedeployment(
-          params.id,
-          {
-            decision,
-            authorizationNote:
-              authorizationNote.trim(),
-          },
-        ),
-      );
-
-      setAuthorizationNote("");
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to authorize redeployment.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  async function activate() {
-    try {
-      setRunning(true);
-      setError(null);
-
-      await apply(
-        activateCapitalRedeployment(
-          params.id,
-        ),
-      );
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to activate redeployment.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  async function recordRelease(
-    event:
-      FormEvent<HTMLFormElement>,
-  ) {
-    event.preventDefault();
-
-    try {
-      setRunning(true);
-      setError(null);
-
-      await apply(
-        recordCapitalRedeploymentRelease(
-          params.id,
-          {
-            releasedOn,
-            releasedAmount,
-            evidenceNote:
-              releaseEvidence.trim(),
-            referenceText:
-              releaseReference.trim(),
-          },
-        ),
-      );
-
-      setReleaseEvidence("");
-      setReleaseReference("");
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to record redeployment release.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  async function submitVerification() {
-    try {
-      setRunning(true);
-      setError(null);
-
-      await apply(
-        submitCapitalRedeploymentForVerification(
-          params.id,
-        ),
-      );
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to submit redeployment for verification.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  async function verify(
-    decision:
-      CapitalRedeploymentVerificationDecision,
-  ) {
-    if (!verificationNote.trim()) {
-      return;
-    }
-
-    try {
-      setRunning(true);
-      setError(null);
-
-      await apply(
-        verifyCapitalRedeployment(
-          params.id,
-          {
-            decision,
-            verificationNote:
-              verificationNote.trim(),
-          },
-        ),
-      );
-
-      setVerificationNote("");
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to verify redeployment.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  async function closeCase() {
-    if (!closeNote.trim()) {
-      return;
-    }
-
-    try {
-      setRunning(true);
-      setError(null);
-
-      await apply(
-        closeCapitalRedeploymentCase(
-          params.id,
-          closeNote.trim(),
-        ),
-      );
-
-      setCloseNote("");
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to close redeployment case.",
-      );
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="request-detail-loading">
-        Loading capital redeployment...
-      </div>
-    );
-  }
-
-  if (!detail) {
     return (
       <div className="page-stack">
-        <Link
-          href="/capital-redeployment"
-          className="request-back-link"
-        >
-          <ArrowLeft
-            size={16}
-          />
+        <Link href="/capital-redeployment" className="request-back-link">
+          <ArrowLeft size={16} />
           Capital redeployment
         </Link>
 
         <div className="error-banner">
-          <CircleAlert
-            size={18}
-          />
-          {error ??
-            "Capital-redeployment case not found."}
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button type="button" className="kit-banner-action" onClick={reload}>
+            Try again
+          </button>
         </div>
       </div>
     );
   }
 
-  const redeploymentCase =
-    detail.redeploymentCase;
+  const { redeploymentCase: rc, gates, authorizations, releases, verifications } = detail;
+  const currency = rc.currency;
+  const status = String(rc.status);
+  const planned = status === "PLANNED";
+  const canRelease = status === "ACTIVE" || status === "REMEDIATION_REQUIRED";
+  const remaining = rc.remainingRedeploymentAmount;
+  const fullyRedeployed = Math.abs(rc.redeploymentPct - 100) < 0.005;
+  const gatesResolved = rc.gateCount - rc.pendingGateCount;
+  const busyAny = workflowRunning || rationaleRunning;
 
-  const canRelease =
-    redeploymentCase.status ===
-      "ACTIVE"
-    ||
-    redeploymentCase.status ===
-      "REMEDIATION_REQUIRED";
+  const canSubmitAuth = canManage && planned && rc.gateCount > 0 && rc.pendingGateCount === 0;
+  const canSubmitVerify = canManage && canRelease && releases.length > 0;
+
+  async function confirmWorkflow() {
+    if (workflow === null) {
+      return;
+    }
+
+    const action = workflow;
+
+    setWorkflowRunning(true);
+
+    try {
+      if (action === "SUBMIT_AUTH") {
+        applyDetail(await submitCapitalRedeploymentForAuthorization(params.id));
+      } else if (action === "ACTIVATE") {
+        applyDetail(await activateCapitalRedeployment(params.id));
+      } else {
+        applyDetail(await submitCapitalRedeploymentForVerification(params.id));
+      }
+
+      setWorkflow(null);
+
+      toast.success(WORKFLOWS[action].done, rc.redeploymentNumber);
+    } catch (caught) {
+      setWorkflow(null);
+
+      toast.error(
+        WORKFLOWS[action].failed,
+        caught instanceof Error ? caught.message : "Unable to update the redeployment.",
+      );
+    } finally {
+      setWorkflowRunning(false);
+    }
+  }
+
+  async function confirmRationale(note: string) {
+    if (rationale === null) {
+      return;
+    }
+
+    const request = rationale;
+    const copy = rationaleCopy(request, rc);
+
+    setRationaleRunning(true);
+    setRationaleError(null);
+
+    try {
+      applyDetail(await performRationale(request, params.id, note.trim()));
+
+      setRationale(null);
+
+      toast.success(copy.done, rc.redeploymentNumber);
+    } catch (caught) {
+      setRationaleError(
+        caught instanceof Error ? caught.message : "Unable to record the decision.",
+      );
+    } finally {
+      setRationaleRunning(false);
+    }
+  }
+
+  function openRationale(request: RationaleRequest) {
+    setRationaleError(null);
+    setRationale(request);
+  }
+
+  function handleGateAdded(updated: CapitalRedeploymentCaseDetail, title: string) {
+    applyDetail(updated);
+    setAddingGate(false);
+    toast.success("Gate added", title);
+  }
+
+  function handleDecided(
+    updated: CapitalRedeploymentCaseDetail,
+    message: string,
+    title: string,
+  ) {
+    applyDetail(updated);
+    setDeciding(null);
+    toast.success(message, title);
+  }
+
+  function handleReleased(updated: CapitalRedeploymentCaseDetail) {
+    applyDetail(updated);
+    setReleasing(false);
+    toast.success("Release recorded", rc.redeploymentNumber);
+  }
+
+  const orderedGates = [...gates].sort((a, b) => {
+    const left = a.status === "PENDING" ? 0 : 1;
+    const right = b.status === "PENDING" ? 0 : 1;
+
+    return left - right;
+  });
+
+  const orderedAuthorizations = [...authorizations].sort((a, b) =>
+    b.authorizedAt.localeCompare(a.authorizedAt),
+  );
+
+  const orderedReleases = [...releases].sort((a, b) => b.releasedAt.localeCompare(a.releasedAt));
+
+  const rationaleInfo = rationale !== null ? rationaleCopy(rationale, rc) : null;
+
+  const kpis: KpiItem[] = [
+    {
+      label: "Approved",
+      icon: Coins,
+      value: money(rc.approvedRedeploymentAmount, currency),
+      note: "Approved redeployment amount",
+    },
+    {
+      label: "Released",
+      icon: BadgeCheck,
+      value: money(rc.releasedRedeploymentAmount, currency),
+      note: `${rc.redeploymentPct.toFixed(1)}% redeployed`,
+    },
+    {
+      label: "Remaining",
+      icon: Gauge,
+      value: money(remaining, currency),
+      note: "Still to be redeployed",
+    },
+    {
+      label: "Completion",
+      icon: Gauge,
+      value: `${rc.redeploymentPct.toFixed(1)}%`,
+      note: "Of the approved amount",
+    },
+    {
+      label: "Health",
+      icon: ShieldCheck,
+      value: readable(String(rc.redeploymentHealth)),
+      note: "Redeployment health",
+    },
+    {
+      label: "Current source capital",
+      icon: Coins,
+      value: money(rc.currentSourceFundingRemainingAmount, currency),
+      note: "Remaining in the source funding",
+    },
+  ];
+
+  const gateColumns = buildGateColumns({
+    canDecide: canFinalize && planned,
+    busy: busyAny,
+    onDecide: (gate) => setDeciding(gate),
+  });
+
+  const authorizationColumns = buildAuthorizationColumns(currency);
+  const releaseColumns = buildReleaseColumns(currency);
+  const verificationColumns = buildVerificationColumns(currency);
 
   return (
     <div className="page-stack">
-      <Link
-        href="/capital-redeployment"
-        className="request-back-link"
-      >
-        <ArrowLeft
-          size={16}
-        />
+      <Link href="/capital-redeployment" className="request-back-link">
+        <ArrowLeft size={16} />
         Capital redeployment
       </Link>
 
       <section className="redeployment-detail-heading">
         <div>
-          <span className="eyebrow">
-            Governed recycled-capital release
-          </span>
+          <div className="request-detail-heading__meta">
+            <span>{rc.redeploymentNumber}</span>
 
-          <h1>
-            {redeploymentCase.targetInitiativeTitle}
-          </h1>
+            <CaseBadge status={status} />
+          </div>
+
+          <span className="eyebrow">Governed recycled-capital release</span>
+
+          <h1>{rc.targetInitiativeTitle}</h1>
 
           <p>
-            {redeploymentCase.redeploymentNumber}
+            {rc.recyclingSourceNumber}
             {" · "}
-            {redeploymentCase.recyclingSourceNumber}
-            {" · "}
-            {redeploymentCase.targetValueCaseNumber}
+            {rc.targetValueCaseNumber}
           </p>
         </div>
 
-        <span
-          className={
-            `redeployment-status redeployment-status--${redeploymentCase.status.toLowerCase().replaceAll("_", "-")}`
-          }
-        >
-          {readable(
-            redeploymentCase.status,
-          )}
-        </span>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={reload}
+            disabled={fetching}
+          >
+            <RefreshCw size={15} className={fetching ? "kit-spin" : undefined} />
+            Refresh
+          </button>
+
+          {canManage && planned ? (
+            <button
+              type="button"
+              className="button button--secondary"
+              disabled={busyAny}
+              onClick={() => setAddingGate(true)}
+            >
+              <Plus size={15} />
+              Add gate
+            </button>
+          ) : null}
+
+          {canSubmitAuth ? (
+            <button
+              type="button"
+              className="button button--primary"
+              disabled={busyAny}
+              onClick={() => setWorkflow("SUBMIT_AUTH")}
+            >
+              <FileCheck2 size={16} />
+              Submit for authorization
+            </button>
+          ) : null}
+
+          {canFinalize && status === "READY_FOR_AUTHORIZATION" ? (
+            <button
+              type="button"
+              className="button button--secondary request-cancel-button"
+              disabled={busyAny}
+              onClick={() => openRationale({ kind: "REJECT" })}
+            >
+              <XCircle size={16} />
+              Reject
+            </button>
+          ) : null}
+
+          {canFinalize && status === "READY_FOR_AUTHORIZATION" ? (
+            <button
+              type="button"
+              className="button button--primary"
+              disabled={busyAny}
+              onClick={() => openRationale({ kind: "AUTHORIZE" })}
+            >
+              <BadgeCheck size={16} />
+              Authorize capital
+            </button>
+          ) : null}
+
+          {canFinalize && status === "AUTHORIZED" ? (
+            <button
+              type="button"
+              className="button button--primary"
+              disabled={busyAny}
+              onClick={() => setWorkflow("ACTIVATE")}
+            >
+              Activate
+            </button>
+          ) : null}
+
+          {canFinalize && canRelease ? (
+            <button
+              type="button"
+              className="button button--secondary"
+              disabled={busyAny || remaining <= 0}
+              title={remaining <= 0 ? "The full amount is already released" : undefined}
+              onClick={() => setReleasing(true)}
+            >
+              <Plus size={15} />
+              Record release
+            </button>
+          ) : null}
+
+          {canSubmitVerify ? (
+            <button
+              type="button"
+              className="button button--primary"
+              disabled={busyAny}
+              onClick={() => setWorkflow("SUBMIT_VERIFY")}
+            >
+              <FileCheck2 size={16} />
+              Submit for verification
+            </button>
+          ) : null}
+
+          {canFinalize && status === "READY_FOR_VERIFICATION" ? (
+            <button
+              type="button"
+              className="button button--secondary request-cancel-button"
+              disabled={busyAny}
+              onClick={() => openRationale({ kind: "REMEDIATE" })}
+            >
+              <XCircle size={16} />
+              Require remediation
+            </button>
+          ) : null}
+
+          {canFinalize && status === "READY_FOR_VERIFICATION" ? (
+            <button
+              type="button"
+              className="button button--primary"
+              disabled={busyAny || !fullyRedeployed}
+              title={fullyRedeployed ? undefined : "Verification needs 100% redeployment"}
+              onClick={() => openRationale({ kind: "VERIFY" })}
+            >
+              <BadgeCheck size={16} />
+              Verify redeployment
+            </button>
+          ) : null}
+
+          {canFinalize && status === "VERIFIED" ? (
+            <button
+              type="button"
+              className="button button--primary"
+              disabled={busyAny}
+              onClick={() => openRationale({ kind: "CLOSE" })}
+            >
+              Close case
+            </button>
+          ) : null}
+        </div>
       </section>
 
       {error ? (
         <div className="error-banner">
-          <CircleAlert
-            size={18}
-          />
-          {error}
+          <CircleAlert size={18} />
+
+          <span>{error}</span>
+
+          <button type="button" className="kit-banner-action" onClick={reload}>
+            Try again
+          </button>
         </div>
       ) : null}
 
-      <section className="redeployment-detail-grid">
-        <article>
-          <span>
-            Approved
-          </span>
+      {planned && canManage ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
 
-          <strong>
-            {money(
-              redeploymentCase.approvedRedeploymentAmount,
-              redeploymentCase.currency,
+          <div>
+            {rc.gateCount === 0 ? (
+              <>
+                <strong>Next step: add an evidence gate.</strong> Every redeployment needs at least
+                one gate before it can be authorized.
+              </>
+            ) : rc.pendingGateCount > 0 ? (
+              <>
+                <strong>
+                  {rc.pendingGateCount} {rc.pendingGateCount === 1 ? "gate is" : "gates are"} still
+                  pending.
+                </strong>{" "}
+                A manager needs to satisfy or waive {rc.pendingGateCount === 1 ? "it" : "them"}{" "}
+                before the case can be submitted.
+              </>
+            ) : (
+              <>
+                <strong>All gates are resolved.</strong> Submit the case for funding authorization.
+              </>
             )}
-          </strong>
-        </article>
+          </div>
+        </div>
+      ) : null}
 
-        <article className="redeployment-score-card">
-          <span>
-            Released
-          </span>
+      {status === "READY_FOR_AUTHORIZATION" ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
 
-          <strong>
-            {money(
-              redeploymentCase.releasedRedeploymentAmount,
-              redeploymentCase.currency,
-            )}
-          </strong>
-        </article>
+          <div>
+            <strong>Awaiting the authorization decision.</strong>{" "}
+            {canFinalize
+              ? "Use Authorize capital or Reject above."
+              : "A procurement manager or administrator needs to decide."}
+          </div>
+        </div>
+      ) : null}
 
-        <article>
-          <span>
-            Remaining
-          </span>
+      {status === "AUTHORIZED" && canFinalize ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
 
-          <strong>
-            {money(
-              redeploymentCase.remainingRedeploymentAmount,
-              redeploymentCase.currency,
-            )}
-          </strong>
-        </article>
+          <div>
+            <strong>The capital is authorized.</strong> Activate the redeployment so releases can
+            be recorded.
+          </div>
+        </div>
+      ) : null}
 
-        <article>
-          <span>
-            Completion
-          </span>
+      {status === "REMEDIATION_REQUIRED" ? (
+        <div className="kit-callout kit-callout--warning" role="status">
+          <AlertTriangle size={17} />
 
-          <strong>
-            {redeploymentCase.redeploymentPct.toFixed(
-              1,
-            )}
-            %
-          </strong>
-        </article>
+          <div>
+            <strong>Remediation is required.</strong> Record further releases, then submit for
+            verification again.
+          </div>
+        </div>
+      ) : null}
 
-        <article>
-          <span>
-            Health
-          </span>
+      {canFinalize && canRelease && remaining > 0 ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
 
-          <strong>
-            {readable(
-              redeploymentCase.redeploymentHealth,
-            )}
-          </strong>
-        </article>
+          <div>
+            <strong>{money(remaining, currency)} remains to be redeployed.</strong> Record each
+            release with its evidence.
+          </div>
+        </div>
+      ) : null}
 
-        <article>
-          <span>
-            Current source capital
-          </span>
+      {status === "READY_FOR_VERIFICATION" && !fullyRedeployed ? (
+        <div className="kit-callout kit-callout--warning" role="status">
+          <AlertTriangle size={17} />
 
-          <strong>
-            {money(
-              redeploymentCase.currentSourceFundingRemainingAmount,
-              redeploymentCase.currency,
-            )}
-          </strong>
-        </article>
+          <div>
+            <strong>Full verification is blocked.</strong> Only {rc.redeploymentPct.toFixed(1)}% is
+            redeployed, with {money(remaining, currency)} remaining. Require remediation to record
+            more releases.
+          </div>
+        </div>
+      ) : null}
+
+      {status === "VERIFIED" && canFinalize ? (
+        <div className="kit-callout kit-callout--info" role="status">
+          <Info size={17} />
+
+          <div>
+            <strong>The redeployment is verified.</strong> Close the case to finish governance.
+          </div>
+        </div>
+      ) : null}
+
+      <KpiGrid items={kpis} ariaLabel="Redeployment summary" />
+
+      <section className="panel">
+        <div className="panel__header">
+          <div>
+            <span className="eyebrow">Progress</span>
+
+            <h2>Redeployment against the approved amount</h2>
+          </div>
+
+          <Gauge size={19} />
+        </div>
+
+        <ProgressLine
+          pct={rc.redeploymentPct}
+          tone={fullyRedeployed ? meterToneFor("success") : "primary"}
+          caption={`${money(rc.releasedRedeploymentAmount, currency)} of ${money(rc.approvedRedeploymentAmount, currency)} redeployed (${rc.redeploymentPct.toFixed(1)}%)`}
+          label="Capital redeployed against the approved amount"
+        />
+
+        {rc.gateCount > 0 ? (
+          <ProgressLine
+            pct={(gatesResolved / rc.gateCount) * 100}
+            tone={rc.pendingGateCount === 0 ? meterToneFor("success") : "primary"}
+            caption={`${gatesResolved} of ${rc.gateCount} evidence gates resolved`}
+            label="Evidence gates resolved"
+          />
+        ) : null}
       </section>
 
       <section className="panel">
         <div className="panel__header">
           <div>
-            <span className="eyebrow">
-              Frozen Step 62 authority
-            </span>
+            <span className="eyebrow">Frozen Step 62 authority</span>
 
-            <h2>
-              Target investment context
-            </h2>
+            <h2>Target investment context</h2>
           </div>
 
-          <Goal
-            size={19}
-          />
+          <Goal size={19} />
         </div>
 
-        <p className="redeployment-objective">
-          {redeploymentCase.redeploymentObjective}
-        </p>
+        <p className="redeployment-objective">{rc.redeploymentObjective}</p>
 
         <div className="redeployment-context-grid">
           <div>
-            <span>
-              Owner
-            </span>
+            <span>Owner</span>
 
-            <strong>
-              {redeploymentCase.redeploymentOwnerName}
-            </strong>
+            <strong>{rc.redeploymentOwnerName}</strong>
           </div>
 
           <div>
-            <span>
-              Target ROI
-            </span>
+            <span>Target ROI</span>
 
-            <strong>
-              {redeploymentCase.targetRoiPctSnapshot.toFixed(
-                1,
-              )}
-              %
-            </strong>
+            <strong>{rc.targetRoiPctSnapshot.toFixed(1)}%</strong>
           </div>
 
           <div>
-            <span>
-              Persistence
-            </span>
+            <span>Persistence</span>
 
-            <strong>
-              {redeploymentCase.targetPersistencePctSnapshot.toFixed(
-                1,
-              )}
-              %
-            </strong>
+            <strong>{rc.targetPersistencePctSnapshot.toFixed(1)}%</strong>
           </div>
 
           <div>
-            <span>
-              Target health
-            </span>
+            <span>Target health</span>
 
-            <strong>
-              {readable(
-                redeploymentCase.targetValueHealthSnapshot,
-              )}
-            </strong>
+            <strong>{readable(String(rc.targetValueHealthSnapshot))}</strong>
           </div>
 
           <div>
-            <span>
-              Target net value
-            </span>
+            <span>Target net value</span>
 
-            <strong>
-              {money(
-                redeploymentCase.targetNetValueSnapshot,
-                redeploymentCase.currency,
-              )}
-            </strong>
+            <strong>{money(rc.targetNetValueSnapshot, currency)}</strong>
           </div>
 
           <div>
-            <span>
-              Source recyclable snapshot
-            </span>
+            <span>Source recyclable snapshot</span>
 
-            <strong>
-              {money(
-                redeploymentCase.sourceRecyclableCapitalSnapshot,
-                redeploymentCase.currency,
-              )}
-            </strong>
+            <strong>{money(rc.sourceRecyclableCapitalSnapshot, currency)}</strong>
           </div>
         </div>
       </section>
 
       <div className="redeployment-source-links">
-        <Link
-          href={
-            `/capital-recycling/${redeploymentCase.recyclingSourceId}`
-          }
-          className="table-action"
-        >
+        <Link href={`/capital-recycling/${rc.recyclingSourceId}`} className="table-action">
           Step 62 reinvestment authority
         </Link>
 
-        <Link
-          href={
-            `/funding-execution/${redeploymentCase.sourceFundingCommitmentId}`
-          }
-          className="table-action"
-        >
+        <Link href={`/funding-execution/${rc.sourceFundingCommitmentId}`} className="table-action">
           Step 58 source funding
         </Link>
 
-        <Link
-          href={
-            `/strategic-value/${redeploymentCase.targetValueCaseId}`
-          }
-          className="table-action"
-        >
+        <Link href={`/strategic-value/${rc.targetValueCaseId}`} className="table-action">
           Step 56 target value case
         </Link>
       </div>
 
-      {canManage &&
-      redeploymentCase.status ===
-        "PLANNED" ? (
-        <form
-          className="panel"
-          onSubmit={createGate}
-        >
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Release controls
-              </span>
-
-              <h2>
-                Add redeployment gate
-              </h2>
-            </div>
-          </div>
-
-          <div className="redeployment-gate-form">
-            <label className="request-field">
-              <span>
-                Gate title
-              </span>
-
-              <input
-                required
-                value={gateTitle}
-                onChange={
-                  event =>
-                    setGateTitle(
-                      event.target.value,
-                    )
-                }
-              />
-            </label>
-
-            <label className="request-field redeployment-form-wide">
-              <span>
-                Evidence requirement
-              </span>
-
-              <textarea
-                required
-                rows={4}
-                value={gateRequirement}
-                onChange={
-                  event =>
-                    setGateRequirement(
-                      event.target.value,
-                    )
-                }
-              />
-            </label>
-          </div>
-
-          <div className="redeployment-form-actions">
-            <button
-              type="submit"
-              className="button button--primary"
-              disabled={
-                running
-                ||
-                !gateTitle.trim()
-                ||
-                !gateRequirement.trim()
-              }
-            >
-              Add evidence gate
-            </button>
-          </div>
-        </form>
-      ) : null}
-
       <section className="panel">
         <div className="panel__header">
           <div>
-            <span className="eyebrow">
-              Evidence gates
-            </span>
+            <span className="eyebrow">Evidence gates</span>
 
-            <h2>
-              Release readiness
-            </h2>
-          </div>
-        </div>
-
-        <div className="redeployment-gate-list">
-          {detail.gates.map(
-            gate => (
-              <article
-                key={gate.id}
-              >
-                <div>
-                  <strong>
-                    {gate.title}
-                  </strong>
-
-                  <span>
-                    {gate.gateNumber}
-                    {" · "}
-                    {readable(
-                      gate.status,
-                    )}
-                  </span>
-
-                  <p>
-                    {gate.requirement}
-                  </p>
-
-                  {gate.evidenceNote ? (
-                    <small>
-                      Evidence:
-                      {" "}
-                      {gate.evidenceNote}
-                    </small>
-                  ) : null}
-                </div>
-
-                {canFinalize &&
-                redeploymentCase.status ===
-                  "PLANNED"
-                &&
-                gate.status ===
-                  "PENDING" ? (
-                  <div className="redeployment-gate-decision">
-                    <input
-                      placeholder="Evidence"
-                      value={
-                        gateEvidence[
-                          gate.id
-                        ]
-                        ??
-                        ""
-                      }
-                      onChange={
-                        event =>
-                          setGateEvidence(
-                            current => ({
-                              ...current,
-                              [gate.id]:
-                                event.target.value,
-                            }),
-                          )
-                      }
-                    />
-
-                    <input
-                      placeholder="Decision note"
-                      value={
-                        gateNotes[
-                          gate.id
-                        ]
-                        ??
-                        ""
-                      }
-                      onChange={
-                        event =>
-                          setGateNotes(
-                            current => ({
-                              ...current,
-                              [gate.id]:
-                                event.target.value,
-                            }),
-                          )
-                      }
-                    />
-
-                    <button
-                      type="button"
-                      disabled={running}
-                      onClick={
-                        () =>
-                          void decideGate(
-                            gate.id,
-                            "SATISFIED",
-                          )
-                      }
-                    >
-                      Satisfy
-                    </button>
-
-                    <button
-                      type="button"
-                      className="redeployment-warning-button"
-                      disabled={running}
-                      onClick={
-                        () =>
-                          void decideGate(
-                            gate.id,
-                            "WAIVED",
-                          )
-                      }
-                    >
-                      Waive
-                    </button>
-                  </div>
-                ) : null}
-              </article>
-            ),
-          )}
-
-          {detail.gates.length ===
-          0 ? (
-            <div className="redeployment-empty">
-              No redeployment gate has
-              been created.
-            </div>
-          ) : null}
-        </div>
-      </section>
-
-      {canManage &&
-      redeploymentCase.status ===
-        "PLANNED"
-      &&
-      redeploymentCase.gateCount >
-        0
-      &&
-      redeploymentCase.pendingGateCount ===
-        0 ? (
-        <section className="panel">
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Authorization gate
-              </span>
-
-              <h2>
-                Submit for authorization
-              </h2>
-            </div>
+            <h2>Release readiness</h2>
           </div>
 
-          <div className="redeployment-form-actions">
+          {canManage && planned ? (
             <button
               type="button"
-              className="button button--primary"
-              disabled={running}
-              onClick={
-                () =>
-                  void submitAuthorization()
-              }
+              className="button button--secondary"
+              disabled={busyAny}
+              onClick={() => setAddingGate(true)}
             >
-              Submit for funding authorization
+              <Plus size={15} />
+              Add gate
             </button>
-          </div>
-        </section>
-      ) : null}
+          ) : (
+            <ShieldCheck size={19} />
+          )}
+        </div>
 
-      {canFinalize &&
-      redeploymentCase.status ===
-        "READY_FOR_AUTHORIZATION" ? (
-        <section className="panel">
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Manager authorization
-              </span>
-
-              <h2>
-                Authorize redeployment
-              </h2>
-            </div>
-          </div>
-
-          <label className="request-field">
-            <span>
-              Authorization rationale
-            </span>
-
-            <textarea
-              rows={5}
-              value={authorizationNote}
-              onChange={
-                event =>
-                  setAuthorizationNote(
-                    event.target.value,
-                  )
+        <DataTable
+          columns={gateColumns}
+          rows={orderedGates}
+          getRowId={(gate) => String(gate.id)}
+          ariaLabel="Redeployment gates"
+          busy={fetching}
+          empty={
+            <EmptyState
+              icon={ShieldCheck}
+              title="No gates"
+              description="No redeployment gate has been created."
+              action={
+                canManage && planned ? (
+                  <button
+                    type="button"
+                    className="button button--secondary"
+                    onClick={() => setAddingGate(true)}
+                  >
+                    <Plus size={15} />
+                    Add gate
+                  </button>
+                ) : undefined
               }
             />
-          </label>
-
-          <div className="redeployment-decision-actions">
-            <button
-              type="button"
-              disabled={
-                running
-                ||
-                !authorizationNote.trim()
-              }
-              onClick={
-                () =>
-                  void authorize(
-                    "APPROVED",
-                  )
-              }
-            >
-              Authorize capital
-            </button>
-
-            <button
-              type="button"
-              className="redeployment-danger-button"
-              disabled={
-                running
-                ||
-                !authorizationNote.trim()
-              }
-              onClick={
-                () =>
-                  void authorize(
-                    "REJECTED",
-                  )
-              }
-            >
-              Reject
-            </button>
-          </div>
-        </section>
-      ) : null}
-
-      {redeploymentCase.authorizationCount >
-      0 ? (
-        <section className="panel">
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Immutable authorization evidence
-              </span>
-
-              <h2>
-                Authorization history
-              </h2>
-            </div>
-          </div>
-
-          <div className="redeployment-history-list">
-            {detail.authorizations.map(
-              authorization => (
-                <article
-                  key={authorization.id}
-                >
-                  <strong>
-                    {readable(
-                      authorization.decision,
-                    )}
-                  </strong>
-
-                  <span>
-                    {money(
-                      authorization.authorizedAmount,
-                      redeploymentCase.currency,
-                    )}
-                  </span>
-
-                  <p>
-                    {authorization.authorizationNote}
-                  </p>
-
-                  <small>
-                    {authorization.authorizedByName}
-                    {" · "}
-                    {new Date(
-                      authorization.authorizedAt,
-                    )
-                      .toLocaleString()}
-                  </small>
-                </article>
-              ),
-            )}
-          </div>
-        </section>
-      ) : null}
-
-      {canFinalize &&
-      redeploymentCase.status ===
-        "AUTHORIZED" ? (
-        <section className="panel">
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Release activation
-              </span>
-
-              <h2>
-                Activate redeployment
-              </h2>
-            </div>
-          </div>
-
-          <div className="redeployment-form-actions">
-            <button
-              type="button"
-              className="button button--primary"
-              disabled={running}
-              onClick={
-                () =>
-                  void activate()
-              }
-            >
-              Activate authorized redeployment
-            </button>
-          </div>
-        </section>
-      ) : null}
-
-      {canFinalize &&
-      canRelease ? (
-        <form
-          className="panel"
-          onSubmit={recordRelease}
-        >
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Immutable release evidence
-              </span>
-
-              <h2>
-                Record capital redeployment
-              </h2>
-            </div>
-          </div>
-
-          <div className="redeployment-release-form">
-            <label className="request-field">
-              <span>
-                Released on
-              </span>
-
-              <input
-                type="date"
-                value={releasedOn}
-                onChange={
-                  event =>
-                    setReleasedOn(
-                      event.target.value,
-                    )
-                }
-              />
-            </label>
-
-            <label className="request-field">
-              <span>
-                Released amount
-              </span>
-
-              <input
-                type="number"
-                min="0.01"
-                max={redeploymentCase.remainingRedeploymentAmount}
-                step="0.01"
-                value={releasedAmount}
-                onChange={
-                  event =>
-                    setReleasedAmount(
-                      Number(
-                        event.target.value,
-                      ),
-                    )
-                }
-              />
-            </label>
-
-            <label className="request-field redeployment-form-wide">
-              <span>
-                Release evidence
-              </span>
-
-              <textarea
-                required
-                rows={5}
-                value={releaseEvidence}
-                onChange={
-                  event =>
-                    setReleaseEvidence(
-                      event.target.value,
-                    )
-                }
-              />
-            </label>
-
-            <label className="request-field redeployment-form-wide">
-              <span>
-                Release reference
-              </span>
-
-              <input
-                required
-                value={releaseReference}
-                onChange={
-                  event =>
-                    setReleaseReference(
-                      event.target.value,
-                    )
-                }
-              />
-            </label>
-          </div>
-
-          <div className="redeployment-form-actions">
-            <button
-              type="submit"
-              className="button button--primary"
-              disabled={
-                running
-                ||
-                releasedAmount <=
-                  0
-                ||
-                releasedAmount >
-                  redeploymentCase.remainingRedeploymentAmount
-                ||
-                !releaseEvidence.trim()
-                ||
-                !releaseReference.trim()
-              }
-            >
-              Record immutable release
-            </button>
-          </div>
-        </form>
-      ) : null}
-
-      <section className="panel">
-        <div className="panel__header">
-          <div>
-            <span className="eyebrow">
-              Redeployment ledger
-            </span>
-
-            <h2>
-              Release history
-            </h2>
-          </div>
-        </div>
-
-        <div className="redeployment-history-list">
-          {detail.releases.map(
-            release => (
-              <article
-                key={release.id}
-              >
-                <strong>
-                  {money(
-                    release.releasedAmount,
-                    redeploymentCase.currency,
-                  )}
-                </strong>
-
-                <span>
-                  {release.releasedOn}
-                  {" · "}
-                  {release.referenceText}
-                </span>
-
-                <p>
-                  {release.evidenceNote}
-                </p>
-
-                <small>
-                  {release.releasedByName}
-                  {" · "}
-                  {new Date(
-                    release.releasedAt,
-                  )
-                    .toLocaleString()}
-                </small>
-              </article>
-            ),
-          )}
-
-          {detail.releases.length ===
-          0 ? (
-            <div className="redeployment-empty">
-              No redeployment release has
-              been recorded.
-            </div>
-          ) : null}
-        </div>
+          }
+        />
       </section>
 
-      {canManage &&
-      canRelease &&
-      detail.releases.length >
-        0 ? (
+      {authorizations.length > 0 ? (
         <section className="panel">
           <div className="panel__header">
             <div>
-              <span className="eyebrow">
-                Verification gate
-              </span>
+              <span className="eyebrow">Immutable authorization evidence</span>
 
-              <h2>
-                Submit redeployment
-              </h2>
+              <h2>Authorization history</h2>
             </div>
+
+            <BadgeCheck size={19} />
           </div>
 
-          <div className="redeployment-form-actions">
-            <button
-              type="button"
-              className="button button--primary"
-              disabled={running}
-              onClick={
-                () =>
-                  void submitVerification()
-              }
-            >
-              Submit for verification
-            </button>
-          </div>
-        </section>
-      ) : null}
-
-      {canFinalize &&
-      redeploymentCase.status ===
-        "READY_FOR_VERIFICATION" ? (
-        <section className="panel">
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Independent verification
-              </span>
-
-              <h2>
-                Verify redeployment
-              </h2>
-            </div>
-          </div>
-
-          <label className="request-field">
-            <span>
-              Verification rationale
-            </span>
-
-            <textarea
-              rows={5}
-              value={verificationNote}
-              onChange={
-                event =>
-                  setVerificationNote(
-                    event.target.value,
-                  )
-              }
-            />
-          </label>
-
-          <div className="redeployment-decision-actions">
-            <button
-              type="button"
-              disabled={
-                running
-                ||
-                !verificationNote.trim()
-                ||
-                redeploymentCase.redeploymentPct !==
-                  100
-              }
-              onClick={
-                () =>
-                  void verify(
-                    "VERIFIED",
-                  )
-              }
-            >
-              Verify full redeployment
-            </button>
-
-            <button
-              type="button"
-              className="redeployment-danger-button"
-              disabled={
-                running
-                ||
-                !verificationNote.trim()
-              }
-              onClick={
-                () =>
-                  void verify(
-                    "REMEDIATION_REQUIRED",
-                  )
-              }
-            >
-              Require remediation
-            </button>
-          </div>
+          <DataTable
+            columns={authorizationColumns}
+            rows={orderedAuthorizations}
+            getRowId={(item) => String(item.id)}
+            ariaLabel="Authorization history"
+            busy={fetching}
+          />
         </section>
       ) : null}
 
       <section className="panel">
         <div className="panel__header">
           <div>
-            <span className="eyebrow">
-              Immutable verification history
-            </span>
+            <span className="eyebrow">Redeployment ledger</span>
 
-            <h2>
-              Redeployment verification
-            </h2>
-          </div>
-        </div>
-
-        <div className="redeployment-history-list">
-          {detail.verifications.map(
-            verification => (
-              <article
-                key={verification.id}
-              >
-                <strong>
-                  {readable(
-                    verification.decision,
-                  )}
-                </strong>
-
-                <span>
-                  {verification.redeploymentPct.toFixed(
-                    1,
-                  )}
-                  {"% · "}
-                  {money(
-                    verification.releasedRedeploymentAmount,
-                    redeploymentCase.currency,
-                  )}
-                  {" released"}
-                </span>
-
-                <p>
-                  {verification.verificationNote}
-                </p>
-
-                <small>
-                  Remaining:
-                  {" "}
-                  {money(
-                    verification.remainingRedeploymentAmount,
-                    redeploymentCase.currency,
-                  )}
-                  {" · "}
-                  {verification.verifiedByName}
-                </small>
-              </article>
-            ),
-          )}
-
-          {detail.verifications.length ===
-          0 ? (
-            <div className="redeployment-empty">
-              No verification decision has
-              been recorded.
-            </div>
-          ) : null}
-        </div>
-      </section>
-
-      {canFinalize &&
-      redeploymentCase.status ===
-        "VERIFIED" ? (
-        <section className="panel">
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Governance closure
-              </span>
-
-              <h2>
-                Close redeployment case
-              </h2>
-            </div>
+            <h2>Release history</h2>
           </div>
 
-          <label className="request-field">
-            <span>
-              Closure note
-            </span>
-
-            <textarea
-              rows={5}
-              value={closeNote}
-              onChange={
-                event =>
-                  setCloseNote(
-                    event.target.value,
-                  )
-              }
-            />
-          </label>
-
-          <div className="redeployment-form-actions">
+          {canFinalize && canRelease && remaining > 0 ? (
             <button
               type="button"
-              className="button button--primary"
-              disabled={
-                running
-                ||
-                !closeNote.trim()
-              }
-              onClick={
-                () =>
-                  void closeCase()
-              }
+              className="button button--secondary"
+              disabled={busyAny}
+              onClick={() => setReleasing(true)}
             >
-              Close redeployment case
+              <Plus size={15} />
+              Record release
             </button>
+          ) : (
+            <Coins size={19} />
+          )}
+        </div>
+
+        <DataTable
+          columns={releaseColumns}
+          rows={orderedReleases}
+          getRowId={(item) => String(item.id)}
+          ariaLabel="Release history"
+          busy={fetching}
+          empty={
+            <EmptyState
+              icon={Coins}
+              title="No releases"
+              description="No redeployment release has been recorded."
+            />
+          }
+        />
+      </section>
+
+      <section className="panel">
+        <div className="panel__header">
+          <div>
+            <span className="eyebrow">Immutable verification history</span>
+
+            <h2>Redeployment verification</h2>
           </div>
-        </section>
-      ) : null}
+
+          <FileCheck2 size={19} />
+        </div>
+
+        <DataTable
+          columns={verificationColumns}
+          rows={verifications}
+          getRowId={(item) => String(item.id)}
+          ariaLabel="Redeployment verification"
+          busy={fetching}
+          empty={
+            <EmptyState
+              icon={FileCheck2}
+              title="No verification yet"
+              description="No verification decision has been recorded."
+            />
+          }
+        />
+      </section>
 
       <section className="redeployment-method-note">
-        <Goal
-          size={18}
-        />
+        <Goal size={18} />
 
         <div>
           <strong>
@@ -1716,16 +1816,76 @@ export default function CapitalRedeploymentCasePage() {
           </strong>
 
           <p>
-            Step 63 proves that recycled
-            capital was authorized and
-            redeployed toward the approved
-            Step 62 target. It never
-            rewrites the original Step 58
-            releases or Step 57 allocation
+            Step 63 proves that recycled capital was authorized and redeployed toward the approved
+            Step 62 target. It never rewrites the original Step 58 releases or Step 57 allocation
             decisions.
           </p>
         </div>
       </section>
+
+      {addingGate ? (
+        <AddGateModal
+          caseId={params.id}
+          onClose={() => setAddingGate(false)}
+          onSaved={handleGateAdded}
+        />
+      ) : null}
+
+      {deciding !== null ? (
+        <DecisionModal
+          gate={deciding}
+          onClose={() => setDeciding(null)}
+          onSaved={handleDecided}
+        />
+      ) : null}
+
+      {releasing ? (
+        <ReleaseModal
+          caseId={params.id}
+          redeployment={rc}
+          onClose={() => setReleasing(false)}
+          onSaved={handleReleased}
+        />
+      ) : null}
+
+      {workflow !== null ? (
+        <ActionDialog
+          eyebrow={WORKFLOWS[workflow].eyebrow}
+          title={WORKFLOWS[workflow].title}
+          description={workflowDescription(workflow, rc)}
+          confirmLabel={WORKFLOWS[workflow].confirm}
+          busyLabel={WORKFLOWS[workflow].busy}
+          cancelLabel={WORKFLOWS[workflow].keep}
+          busy={workflowRunning}
+          onConfirm={() => void confirmWorkflow()}
+          onCancel={() => setWorkflow(null)}
+        >
+          {workflow === "SUBMIT_VERIFY" && remaining > 0 ? (
+            <p className="kit-dialog-note kit-dialog-note--warning">
+              {money(remaining, currency)} is still unreleased. Full verification needs 100% of the
+              approved amount to be redeployed.
+            </p>
+          ) : null}
+        </ActionDialog>
+      ) : null}
+
+      {rationale !== null && rationaleInfo !== null ? (
+        <RationaleDialog
+          eyebrow={rationaleInfo.eyebrow}
+          title={rationaleInfo.title}
+          description={rationaleInfo.description}
+          label={rationaleInfo.label}
+          placeholder={rationaleInfo.placeholder}
+          confirmLabel={rationaleInfo.confirm}
+          busyLabel={rationaleInfo.busy}
+          tone={rationaleInfo.tone}
+          maxLength={2000}
+          busy={rationaleRunning}
+          error={rationaleError}
+          onConfirm={(note) => void confirmRationale(note)}
+          onCancel={() => setRationale(null)}
+        />
+      ) : null}
     </div>
   );
 }

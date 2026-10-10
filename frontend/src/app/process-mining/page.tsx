@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {
   Activity,
   AlertTriangle,
@@ -668,7 +670,7 @@ export default function ProcessMiningPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Entity</th>
@@ -765,7 +767,7 @@ export default function ProcessMiningPage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
@@ -1173,7 +1175,7 @@ export default function ProcessMiningPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Time</th>
@@ -1250,7 +1252,7 @@ export default function ProcessMiningPage() {
                   ),
                 )}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
     </div>

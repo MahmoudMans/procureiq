@@ -1,264 +1,132 @@
 "use client";
 
-import {
-  ArrowLeft,
-  CircleAlert,
-} from "lucide-react";
-
+import { ArrowLeft, ShieldAlert } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-import {
-  useState,
-} from "react";
+import { useAuth } from "@/components/auth/auth-provider";
+import { EmptyState, useToast } from "@/components/kit";
+import { PurchaseRequestForm } from "@/components/purchase-requests/purchase-request-form";
+import { createPurchaseRequest } from "@/lib/api";
+import type { PurchaseRequestInput } from "@/types/purchase-request";
 
-import {
-  useRouter,
-} from "next/navigation";
+const CREATE_ROLES = ["ADMIN", "PROCUREMENT_MANAGER", "BUYER", "REQUESTER"];
 
-import {
-  useAuth,
-} from "@/components/auth/auth-provider";
+/** Built when the page opens, so "14 days from today" is never stale. */
+function buildInitialValue(): PurchaseRequestInput {
+  const date = new Date();
 
-import {
-  PurchaseRequestForm,
-} from "@/components/purchase-requests/purchase-request-form";
+  date.setDate(date.getDate() + 14);
 
-import {
-  createPurchaseRequest,
-} from "@/lib/api";
-
-import type {
-  PurchaseRequestInput,
-} from "@/types/purchase-request";
-
-function defaultDeliveryDate():
-string {
-  const date =
-    new Date();
-
-  date.setDate(
-    date.getDate() + 14,
-  );
-
-  return date
-    .toISOString()
-    .slice(
-      0,
-      10,
-    );
+  return {
+    title: "",
+    description: "",
+    businessJustification: "",
+    costCenter: "",
+    currency: "EUR",
+    desiredDeliveryDate: date.toISOString().slice(0, 10),
+    items: [
+      {
+        itemName: "",
+        description: "",
+        category: "",
+        quantity: 1,
+        unit: "EA",
+        estimatedUnitPrice: 0,
+      },
+    ],
+  };
 }
 
-const initialValue:
-PurchaseRequestInput = {
-  title: "",
-  description: "",
-  businessJustification: "",
-  costCenter: "",
-  currency: "EUR",
-  desiredDeliveryDate:
-    defaultDeliveryDate(),
-  items: [
-    {
-      itemName: "",
-      description: "",
-      category: "",
-      quantity: 1,
-      unit: "EA",
-      estimatedUnitPrice: 0,
-    },
-  ],
-};
-
 export default function NewPurchaseRequestPage() {
-  const router =
-    useRouter();
+  const router = useRouter();
+  const { user } = useAuth();
+  const toast = useToast();
 
-  const {
-    user,
-  } = useAuth();
+  const [initialValue] = useState(buildInitialValue);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const [
-    submitting,
-    setSubmitting,
-  ] =
-    useState(false);
+  const canCreate = user !== null && CREATE_ROLES.includes(user.role);
 
-  const [
-    error,
-    setError,
-  ] =
-    useState<string | null>(
-      null,
-    );
+  async function handleSubmit(value: PurchaseRequestInput) {
+    setSubmitting(true);
+    setError(null);
 
-  const canCreate =
-    user !== null &&
-    [
-      "ADMIN",
-      "PROCUREMENT_MANAGER",
-      "BUYER",
-      "REQUESTER",
-    ].includes(
-      user.role,
-    );
-
-  async function handleSubmit(
-    value:
-      PurchaseRequestInput,
-  ) {
     try {
-      setSubmitting(
-        true,
+      const created = await createPurchaseRequest(value);
+
+      toast.success(
+        "Draft created",
+        "Review it, then submit it into procurement governance.",
       );
 
-      setError(
-        null,
-      );
+      router.push(`/purchase-requests/${created.id}`);
+    } catch (caught) {
+      const message =
+        caught instanceof Error ? caught.message : "Unable to create purchase request.";
 
-      const created =
-        await createPurchaseRequest(
-          value,
-        );
-
-      router.push(
-        `/purchase-requests/${created.id}`,
-      );
-    } catch (
-      caughtError
-    ) {
-      setError(
-        caughtError instanceof
-          Error
-          ? caughtError.message
-          : "Unable to create purchase request.",
-      );
+      setError(message);
+      toast.error("Could not create the draft", message);
     } finally {
-      setSubmitting(
-        false,
-      );
+      setSubmitting(false);
     }
   }
 
   if (!canCreate) {
     return (
-      <div
-        className={
-          "page-stack"
-        }
-      >
-        <Link
-          href={
-            "/purchase-requests"
-          }
-          className={
-            "request-back-link"
-          }
-        >
-          <ArrowLeft
-            size={16}
-          />
+      <div className="page-stack">
+        <Link href="/purchase-requests" className="request-back-link">
+          <ArrowLeft size={16} />
           Purchase requests
         </Link>
 
-        <div
-          className={
-            "error-banner"
-          }
-        >
-          <CircleAlert
-            size={18}
+        <section className="panel">
+          <EmptyState
+            icon={ShieldAlert}
+            title="Access restricted"
+            description="Your ProcureIQ role cannot create purchase requests."
           />
-
-          Your ProcureIQ role
-          cannot create purchase
-          requests.
-        </div>
+        </section>
       </div>
     );
   }
 
   return (
-    <div
-      className={
-        "page-stack"
-      }
-    >
-      <Link
-        href={
-          "/purchase-requests"
-        }
-        className={
-          "request-back-link"
-        }
-      >
-        <ArrowLeft
-          size={16}
-        />
+    <div className="page-stack">
+      <Link href="/purchase-requests" className="request-back-link">
+        <ArrowLeft size={16} />
         Purchase requests
       </Link>
 
-      <section
-        className={
-          "page-heading"
-        }
-      >
+      <section className="page-heading">
         <div>
-          <span
-            className={
-              "eyebrow"
-            }
-          >
-            New procurement demand
-          </span>
+          <span className="eyebrow">New procurement demand</span>
 
-          <h1>
-            Create purchase request
-          </h1>
+          <h1>Create purchase request</h1>
 
           <p>
-            Build the requirement as a
-            draft. You can review it
-            before submitting it into
+            Build the requirement as a draft. You can review it before submitting it into
             procurement governance.
           </p>
         </div>
 
-        <div
-          className={
-            "request-owner-summary"
-          }
-        >
-          <span>
-            REQUESTER
-          </span>
+        <div className="request-owner-summary">
+          <span>REQUESTER</span>
 
-          <strong>
-            {user?.fullName}
-          </strong>
+          <strong>{user?.fullName}</strong>
 
-          <small>
-            {
-              user
-                ?.departmentName
-            }
-          </small>
+          <small>{user?.departmentName}</small>
         </div>
       </section>
 
       <PurchaseRequestForm
-        initialValue={
-          initialValue
-        }
-        submitLabel={
-          "Create draft"
-        }
-        submitting={
-          submitting
-        }
+        initialValue={initialValue}
+        submitLabel="Create draft"
+        submitting={submitting}
         error={error}
-        onSubmit={
-          handleSubmit
-        }
+        onSubmit={handleSubmit}
       />
     </div>
   );

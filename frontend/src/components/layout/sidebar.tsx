@@ -1,840 +1,220 @@
 "use client";
 
-import {
-  BarChart3,
-  Bell,
-  Building2,
-  ClipboardCheck,
-  FileSpreadsheet,
-  FileText,
-  LayoutDashboard,
-  LogOut,
-  PackageCheck,
-  PackageOpen,
-  Settings,
-  ShoppingCart,
-  Truck,
-  Users,
-  FileCheck2,
-  ShieldAlert,
-  WalletCards,
-  CalendarRange,
-  BadgeDollarSign,
-  PanelsTopLeft,
-  ShieldCheck,
-  Route,
-  Layers3,
-  Handshake,
-  ScrollText,
-  ReceiptText,
-  Workflow,
-  Radar,
-  Database,
-  UserCheck,
-  Leaf,
-  ScanSearch,
-  MessageSquareText,
-  KeyRound,
-  Files,
-  Activity,
-  SlidersHorizontal,
-  Landmark,
-  GaugeCircle,
-  Wrench,
-  Goal,
-  UsersRound,
-  BrainCircuit,
-} from "lucide-react";
-
+/**
+ * Sidebar
+ * - 9 collapsible groups instead of one 90-item list (menu comes from navigation.ts).
+ * - The group that contains the current page opens automatically.
+ * - Open/closed state is remembered in localStorage.
+ * - On small screens it becomes a slide-in drawer (controlled by AppShell).
+ */
+import { ChevronDown, LogOut, PackageCheck } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import {
-  usePathname,
-} from "next/navigation";
+  findGroupIdForPath,
+  isActivePath,
+  navigationGroups,
+} from "@/components/layout/navigation";
 
-import {
-  useAuth,
-} from "@/components/auth/auth-provider";
+const STORAGE_KEY = "procureiq.sidebar.groups";
+const DEFAULT_OPEN_GROUPS = ["workspace"];
 
-const coreNavigation = [
-  {
-    href: "/",
-    label: "Overview",
-    icon: LayoutDashboard,
-  },
-  {
-    href: "/suppliers",
-    label: "Suppliers",
-    icon: Building2,
-  },  {
-    href: "/supplier-onboarding",
-    label: "Supplier onboarding",
-    icon: UserCheck,
-  },  {
-    href: "/supplier-collaboration",
-    label: "Supplier collaboration",
-    icon: MessageSquareText,
-  },  {
-    href: "/supplier-portal-admin",
-    label: "Supplier portal access",
-    icon: KeyRound,
-  },  {
-    href: "/supplier-document-vault",
-    label: "Document vault",
-    icon: Files,
-  },
-
-
-  {
-    href: "/sustainability",
-    label: "Sustainability",
-    icon: Leaf,
-  },
-
-  {
-    href: "/supplier-performance",
-    label: "Supplier performance",
-    icon: ClipboardCheck,
-  },  {
-    href: "/supplier-resilience",
-    label: "Supplier resilience",
-    icon: ShieldCheck,
-  },  {
-    href: "/supplier-risk-monitoring",
-    label: "Continuous supplier risk",
-    icon: Activity,
-  },
-
-  {
-    href: "/compliance",
-    label: "Policy & compliance",
-    icon: ShieldCheck,
-  },  {
-    href: "/guided-buying",
-    label: "Guided buying",
-    icon: Route,
-  },  {
-    href: "/demand-consolidation",
-    label: "Demand consolidation",
-    icon: Layers3,
-  },  {
-    href: "/category-management",
-    label: "Category management",
-    icon: Layers3,
-  },  {
-    href: "/portfolio-optimization",
-    label: "Portfolio optimization",
-    icon: SlidersHorizontal,
-  },  {
-    href: "/benefits-governance",
-    label: "Benefits governance",
-    icon: BadgeDollarSign,
-  },  {
-    href: "/governance-reviews",
-    label: "Executive reviews",
-    icon: Landmark,
-  },  {
-    href: "/control-tower",
-    label: "Control tower",
-    icon: Activity,
-  },  {
-    href: "/operating-rhythm",
-    label: "Operating rhythm",
-    icon: GaugeCircle,
-  },  {
-    href: "/continuous-improvement",
-    label: "Continuous improvement",
-    icon: Wrench,
-  },  {
-    href: "/strategic-objectives",
-    label: "Strategic objectives",
-    icon: Goal,
-  },  {
-    href: "/strategic-alignment",
-    label: "Strategic alignment",
-    icon: Goal,
-  },  {
-    href: "/capacity-planning",
-    label: "Capacity planning",
-    icon: UsersRound,
-  },  {
-    href: "/capability-planning",
-    label: "Capability planning",
-    icon: BrainCircuit,
-  },  {
-    href: "/succession-planning",
-    label: "Succession planning",
-    icon: UsersRound,
-  },  {
-    href: "/strategy-cockpit",
-    label: "Strategy cockpit",
-    icon: Goal,
-  },  {
-    href: "/strategy-scenarios",
-    label: "Strategy scenarios",
-    icon: Goal,
-  },  {
-    href: "/strategy-roadmaps",
-    label: "Strategy roadmaps",
-    icon: Goal,
-  },  {
-    href: "/strategy-execution",
-    label: "Strategy execution",
-    icon: Goal,
-  },  {
-    href: "/strategy-recovery",
-    label: "Execution recovery",
-    icon: Goal,
-  },  {
-    href: "/outcome-persistence",
-    label: "Outcome persistence",
-    icon: Goal,
-  },  {
-    href: "/strategic-value",
-    label: "Strategic value",
-    icon: Goal,
-  },  {
-    href: "/capital-allocation",
-    label: "Capital allocation",
-    icon: Goal,
-  },  {
-    href: "/funding-execution",
-    label: "Funding execution",
-    icon: Goal,
-  },  {
-    href: "/investment-performance",
-    label: "Investment performance",
-    icon: Goal,
-  },  {
-    href: "/investment-interventions",
-    label: "Investment intervention",
-    icon: Goal,
-  },  {
-    href: "/intervention-execution",
-    label: "Intervention execution",
-    icon: Goal,
-  },  {
-    href: "/capital-recycling",
-    label: "Capital recycling",
-    icon: Goal,
-  },  {
-    href: "/capital-redeployment",
-    label: "Capital redeployment",
-    icon: Goal,
-  },  {
-    href: "/reinvestment-performance",
-    label: "Reinvestment performance",
-    icon: Goal,
-  },  {
-    href: "/reinvestment-persistence",
-    label: "Reinvestment persistence",
-    icon: Goal,
-  },  {
-    href: "/capital-flywheel",
-    label: "Capital flywheel",
-    icon: Goal,
-  },{
-    href: "/flywheel-strategy",
-    label: "Flywheel strategy",
-    icon: Goal,
-  },{
-    href: "/flywheel-allocation",
-    label: "Capital mandates",
-    icon: Goal,
-  },{
-    href: "/flywheel-release",
-    label: "Capital release",
-    icon: Goal,
-  },{
-    href: "/flywheel-settlement",
-    label: "Settlement evidence",
-    icon: Goal,
-  },{
-    href: "/flywheel-variance",
-    label: "Variance resolution",
-    icon: Goal,
-  },{
-    href: "/flywheel-variance-execution",
-    label: "Treatment execution",
-    icon: Goal,
-  },
-{
-    href: "/flywheel-remediation",
-    label: "Residual remediation",
-    icon: Goal,
-  },
-{
-    href: "/flywheel-remediation-outcomes",
-    label: "Remediation outcomes",
-    icon: Goal,
-  },
-{
-    href: "/flywheel-remediation-continuations",
-    label: "Residual continuations",
-    icon: Goal,
-  },
-{
-    href: "/flywheel-continuation-outcomes",
-    label: "Continuation outcomes",
-    icon: Goal,
-  },
-{
-    href: "/flywheel-continuation-rollovers",
-    label: "Residual cycle rollovers",
-    icon: Goal,
-  },
-  {
-    href: "/flywheel-rollover-outcomes",
-    label: "Rollover outcomes",
-    icon: Goal,
-  },
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  {
-    href: "/contracts",
-    label: "Contracts & compliance",
-    icon: FileCheck2,
-  },  {
-    href: "/commercial-governance",
-    label: "Commercial governance",
-    icon: ScrollText,
-  },
-  {
-    href: "/risks",
-    label: "Risk register",
-    icon: ShieldAlert,
-  },  {
-    href: "/budgets",
-    label: "Budget control",
-    icon: WalletCards,
-  },  {
-    href: "/planning",
-    label: "Procurement planning",
-    icon: CalendarRange,
-  },  {
-    href: "/savings",
-    label: "Savings & value",
-    icon: BadgeDollarSign,
-  },
-
-
-
-
-
-  {
-    href: "/purchase-requests",
-    label: "Purchase requests",
-    icon: ShoppingCart,
-  },
-  {
-    href: "/rfqs",
-    label: "RFQs & sourcing",
-    icon: FileText,
-  },  {
-    href: "/negotiations",
-    label: "Negotiations",
-    icon: Handshake,
-  },
-
-  {
-    href: "/purchase-orders",
-    label: "Purchase orders",
-    icon: PackageOpen,
-  },  {
-    href: "/invoice-control",
-    label: "Invoice control",
-    icon: ReceiptText,
-  },
-
-  {
-    href: "/deliveries",
-    label: "Deliveries",
-    icon: Truck,
-  },
-  {
-    href: "/approvals",
-    label: "Approvals",
-    icon: ClipboardCheck,
-  },
-    {
-    href: "/command-center",
-    label: "Command center",
-    icon: PanelsTopLeft,
-  },  {
-    href: "/executive-cockpit",
-    label: "Executive cockpit",
-    icon: Radar,
-  },  {
-    href: "/anomaly-control",
-    label: "Anomaly control",
-    icon: ScanSearch,
-  },
-  {
-    href: "/data-quality",
-    label: "Data quality",
-    icon: Database,
-  },
-
-  {
-    href: "/process-mining",
-    label: "Process mining",
-    icon: Workflow,
-  },
-
-{
-    href: "/analytics",
-    label: "Analytics",
-    icon: BarChart3,
-  },
-  {
-    href: "/reports",
-    label: "Reports",
-    icon: FileSpreadsheet,
-  },
-  {
-    href: "/activity",
-    label: "Activity & alerts",
-    icon: Bell,
-  },
-];
-
-function roleLabel(
-  role: string,
-): string {
-  switch (role) {
-    case "ADMIN":
-      return "Administrator";
-
-    case "PROCUREMENT_MANAGER":
-      return "Procurement Manager";
-
-    case "BUYER":
-      return "Buyer";
-
-    case "REQUESTER":
-      return "Requester";
-
-    case "APPROVER":
-      return "Approver";
-
-    default:
-      return role;
-  }
+interface SidebarProps {
+  /** Mobile drawer state (ignored on desktop). */
+  open: boolean;
+  /** Called after any navigation click so the mobile drawer can close. */
+  onNavigate: () => void;
 }
 
-function initials(
-  fullName: string,
-): string {
-  return fullName
+function initials(name: string): string {
+  return name
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
-    .map(
-      part => part[0],
-    )
+    .map((part) => part[0])
     .join("")
     .toUpperCase();
 }
 
-export function Sidebar() {
-  const pathname =
-    usePathname();
+function readableRole(role: string): string {
+  return role
+    .replaceAll("_", " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
 
-  const {
-    user,
-    logout,
-  } = useAuth();
+function readInitialGroups(pathname: string): string[] {
+  let groups = DEFAULT_OPEN_GROUPS;
 
-  const canViewTeam =
-    user?.role === "ADMIN" ||
-    user?.role ===
-      "PROCUREMENT_MANAGER";
+  try {
+    const saved: unknown = JSON.parse(
+      window.localStorage.getItem(STORAGE_KEY) ?? "null",
+    );
 
-  const canViewApprovals =
-    user?.role === "ADMIN" ||
-    user?.role ===
-      "PROCUREMENT_MANAGER" ||
-    user?.role ===
-      "APPROVER";
+    if (Array.isArray(saved)) {
+      groups = saved.filter(
+        (value): value is string => typeof value === "string",
+      );
+    }
+  } catch {
+    // Ignore unreadable storage and use the defaults.
+  }
 
-  const canViewSourcing =
-    user?.role === "ADMIN" ||
-    user?.role ===
-      "PROCUREMENT_MANAGER" ||
-    user?.role ===
-      "BUYER";
+  const activeGroup = findGroupIdForPath(pathname);
 
-  const canViewAnalytics =
-    user?.role === "ADMIN" ||
-    user?.role ===
-      "PROCUREMENT_MANAGER" ||
-    user?.role ===
-      "BUYER" ||
-    user?.role ===
-      "APPROVER";
+  return activeGroup && !groups.includes(activeGroup)
+    ? [...groups, activeGroup]
+    : groups;
+}
 
-  const navigation = [
-    ...coreNavigation.filter(
-      item => {
-        if (
-          item.href ===
-            "/approvals"
-        ) {
-          return canViewApprovals;
-        }
+export function Sidebar({ open, onNavigate }: SidebarProps) {
+  const pathname = usePathname();
+  const { user, logout } = useAuth();
 
-        if (
-          item.href ===
-            "/rfqs" ||
-          item.href ===
-            "/purchase-orders" ||
-          item.href ===
-            "/deliveries"
-        ) {
-          return canViewSourcing;
-        }
+  // Safe lazy init: Sidebar only renders client-side, after the auth gate.
+  const [openGroups, setOpenGroups] = useState<string[]>(() =>
+    readInitialGroups(pathname),
+  );
 
-        if (
-          item.href ===
-            "/analytics" ||
-          item.href ===
-            "/reports" ||
-          item.href ===
-            "/risks" ||
-          item.href ===
-            "/budgets"
-          ||
-          item.href ===
-            "/planning"
-          ||
-          item.href ===
-            "/savings"
-          ||
-          item.href ===
-            "/command-center"
-          ||
-          item.href ===
-            "/supplier-performance"
-          ||
-          item.href ===
-            "/compliance"
-          ||
-          item.href ===
-            "/demand-consolidation"
-          ||
-          item.href ===
-            "/negotiations"
-          ||
-          item.href ===
-            "/supplier-resilience"
-          ||
-          item.href ===
-            "/commercial-governance"
-          ||
-          item.href ===
-            "/invoice-control"
-          ||
-          item.href ===
-            "/process-mining"
-          ||
-          item.href ===
-            "/executive-cockpit"
-          ||
-          item.href ===
-            "/data-quality"
-          ||
-          item.href ===
-            "/supplier-onboarding"
-          ||
-          item.href ===
-            "/sustainability"
-          ||
-          item.href ===
-            "/anomaly-control"
-          ||
-          item.href ===
-            "/supplier-collaboration"
-          ||
-          item.href ===
-            "/supplier-portal-admin"
-          ||
-          item.href ===
-            "/supplier-document-vault"
-          ||
-          item.href ===
-            "/supplier-risk-monitoring"
-          ||
-          item.href ===
-            "/category-management"
-          ||
-          item.href ===
-            "/portfolio-optimization"
-          ||
-          item.href ===
-            "/benefits-governance"
-          ||
-          item.href ===
-            "/governance-reviews"
-          ||
-          item.href ===
-            "/control-tower"
-          ||
-          item.href ===
-            "/operating-rhythm"
-          ||
-          item.href ===
-            "/continuous-improvement"
-          ||
-          item.href ===
-            "/strategic-objectives"
-          ||
-          item.href ===
-            "/strategic-alignment"
-          ||
-          item.href ===
-            "/capacity-planning"
-          ||
-          item.href ===
-            "/capability-planning"
-          ||
-          item.href ===
-            "/succession-planning"
-          ||
-          item.href ===
-            "/strategy-cockpit"
-          ||
-          item.href ===
-            "/strategy-scenarios"
-          ||
-          item.href ===
-            "/strategy-roadmaps"
-          ||
-          item.href ===
-            "/strategy-execution"
-          ||
-          item.href ===
-            "/strategy-recovery"
-          ||
-          item.href ===
-            "/outcome-persistence"
-          ||
-          item.href ===
-            "/strategic-value"
-          ||
-          item.href ===
-            "/capital-allocation"
-          ||
-          item.href ===
-            "/funding-execution"
-          ||
-          item.href ===
-            "/investment-performance"
-          ||
-          item.href ===
-            "/investment-interventions"
-          ||
-          item.href ===
-            "/intervention-execution"
-          ||
-          item.href ===
-            "/capital-recycling"
-          ||
-          item.href ===
-            "/capital-redeployment"
-          ||
-          item.href ===
-            "/reinvestment-performance"
-          ||
-          item.href ===
-            "/reinvestment-persistence"
-          ||
-          item.href ===
-            "/capital-flywheel"
-) {
-          return canViewAnalytics;
-        }
+  // Navigating (palette, links elsewhere) always reveals the current group.
+  // This is React's "adjust state while rendering" pattern: it only fires when
+  // the pathname actually changed, so it settles after one extra render and
+  // needs no effect.
+  const [seenPathname, setSeenPathname] = useState(pathname);
 
-        return true;
-      },
-    ),
+  if (seenPathname !== pathname) {
+    setSeenPathname(pathname);
 
-    ...(canViewTeam
-      ? [
-          {
-            href: "/team",
-            label: "Team & access",
-            icon: Users,
-          },
-        ]
-      : []),
-  ];
+    const activeGroup = findGroupIdForPath(pathname);
+
+    if (activeGroup && !openGroups.includes(activeGroup)) {
+      setOpenGroups([...openGroups, activeGroup]);
+    }
+  }
+
+  function toggleGroup(id: string) {
+    const next = openGroups.includes(id)
+      ? openGroups.filter((groupId) => groupId !== id)
+      : [...openGroups, id];
+
+    setOpenGroups(next);
+
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      // State still works for this session.
+    }
+  }
 
   return (
-    <aside className="sidebar">
-
-      <div className="sidebar__brand">
-
-        <div
-          className={
-            "sidebar__brand-mark"
-          }
-        >
-          <PackageCheck
-            size={22}
-            strokeWidth={2.3}
-          />
+    <aside
+      className={`sidebar${open ? " sidebar--open" : ""}`}
+      aria-label="Primary"
+    >
+      <Link href="/" className="sidebar__brand" onClick={onNavigate}>
+        <div className="sidebar__brand-mark">
+          <PackageCheck size={21} />
         </div>
 
         <div>
-          <strong>
-            ProcureIQ
-          </strong>
-
-          <span>
-            Procurement intelligence
-          </span>
+          <strong>ProcureIQ</strong>
+          <span>Procurement Intelligence</span>
         </div>
+      </Link>
 
-      </div>
+      <nav className="nav-scroll" aria-label="Modules">
+        {navigationGroups.map((group) => {
+          const expanded = openGroups.includes(group.id);
+          const GroupIcon = group.icon;
+          const containsActive = group.items.some((item) =>
+            isActivePath(pathname, item.href),
+          );
 
-      <div
-        className={
-          "sidebar__section-label"
-        }
-      >
-        Workspace
-      </div>
-
-      <nav
-        className={
-          "sidebar__navigation"
-        }
-      >
-        {navigation.map(
-          item => {
-            const Icon =
-              item.icon;
-
-            const active =
-              pathname ===
-                item.href ||
-              (
-                item.href !== "/" &&
-                pathname.startsWith(
-                  `${item.href}/`,
-                )
-              );
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={
-                  `sidebar__link ${
-                    active
-                      ? "sidebar__link--active"
-                      : ""
-                  }`
-                }
+          return (
+            <section
+              key={group.id}
+              className={`nav-group${expanded ? " nav-group--open" : ""}${
+                containsActive ? " nav-group--current" : ""
+              }`}
+            >
+              <button
+                type="button"
+                className="nav-group__header"
+                aria-expanded={expanded}
+                aria-controls={`nav-group-${group.id}`}
+                onClick={() => toggleGroup(group.id)}
               >
-                <Icon size={19} />
+                <GroupIcon size={15} />
 
-                <span>
-                  {item.label}
-                </span>
-              </Link>
-            );
-          },
-        )}
+                <span className="nav-group__label">{group.label}</span>
+
+                {containsActive && !expanded ? (
+                  <i className="nav-group__dot" aria-hidden="true" />
+                ) : null}
+
+                <small className="nav-group__count">
+                  {group.items.length}
+                </small>
+
+                <ChevronDown size={14} className="nav-group__chevron" />
+              </button>
+
+              {expanded ? (
+                <div
+                  className="nav-group__items"
+                  id={`nav-group-${group.id}`}
+                >
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    const active = isActivePath(pathname, item.href);
+
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`nav-item${
+                          active ? " nav-item--active" : ""
+                        }`}
+                        aria-current={active ? "page" : undefined}
+                        onClick={onNavigate}
+                      >
+                        <Icon size={16} />
+                        <span>{item.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </section>
+          );
+        })}
       </nav>
 
-      <div
-        className={
-          "sidebar__footer"
-        }
-      >
-        <button
-          type="button"
-          className={
-            "sidebar__link sidebar__link--button"
-          }
-        >
-          <Settings size={19} />
-          <span>Settings</span>
-        </button>
-
-        <button
-          type="button"
-          className={
-            "sidebar__link sidebar__link--button sidebar__logout"
-          }
-          onClick={logout}
-        >
-          <LogOut size={19} />
-          <span>Sign out</span>
-        </button>
-
-        {user ? (
-          <div className="workspace-card">
-
-            <div
-              className={
-                "workspace-card__avatar"
-              }
-            >
-              {initials(
-                user.fullName,
-              )}
-            </div>
-
-            <div>
-              <strong>
-                {user.fullName}
-              </strong>
-
-              <span>
-                {
-                  roleLabel(
-                    user.role,
-                  )
-                }
-              </span>
-            </div>
-
+      <div className="sidebar__footer">
+        <div className="nav-user">
+          <div className="nav-user__avatar">
+            {user ? initials(user.fullName) : "PI"}
           </div>
-        ) : null}
-      </div>
 
+          <div className="nav-user__meta">
+            <strong>{user?.fullName ?? "ProcureIQ"}</strong>
+            <span>{user ? readableRole(user.role) : ""}</span>
+          </div>
+
+          <button
+            type="button"
+            className="nav-user__logout"
+            onClick={logout}
+            aria-label="Sign out"
+            title="Sign out"
+          >
+            <LogOut size={16} />
+          </button>
+        </div>
+      </div>
     </aside>
   );
 }

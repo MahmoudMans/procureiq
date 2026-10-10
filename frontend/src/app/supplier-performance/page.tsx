@@ -2,709 +2,515 @@
 
 import {
   AlertTriangle,
-  BadgeCheck,
   CircleAlert,
   ClipboardCheck,
+  Download,
   Gauge,
   Plus,
+  RefreshCw,
+  SearchX,
   TrendingUp,
   Users,
 } from "lucide-react";
-
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
 import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
+  type Column,
+  DataTable,
+  EmptyState,
+  KpiGrid,
+  type KpiItem,
+  SearchField,
+  SegmentedFilter,
+  type SegmentedOption,
+  SelectField,
+  type SelectOption,
+  StatusBadge,
+  downloadCsv,
+  formatDate,
+  readable,
+  useToast,
+} from "@/components/kit";
 import {
   getSupplierPerformanceReviews,
   getSupplierPerformanceSummary,
 } from "@/lib/api";
-
 import type {
   SupplierPerformanceReview,
   SupplierPerformanceSummary,
 } from "@/types/supplier-performance";
 
-function readable(
-  value: string,
-): string {
-  return value
-    .replaceAll(
-      "_",
-      " ",
-    )
-    .toLowerCase()
-    .replace(
-      /\b\w/g,
-      letter =>
-        letter.toUpperCase(),
-    );
-}
+/* ------------------------------------------------------------------ */
+/* Constants & columns                                                 */
+/* ------------------------------------------------------------------ */
+
+const BANDS = ["EXCELLENT", "GOOD", "NEEDS_IMPROVEMENT", "CRITICAL"];
+
+const BAND_OPTIONS: SelectOption[] = [
+  { value: "", label: "All" },
+  { value: "EXCELLENT", label: "Excellent" },
+  { value: "GOOD", label: "Good" },
+  { value: "NEEDS_IMPROVEMENT", label: "Needs improvement" },
+  { value: "CRITICAL", label: "Critical" },
+];
+
+const EMPTY_REVIEWS: SupplierPerformanceReview[] = [];
+const integer = new Intl.NumberFormat("en-US");
+
+const COLUMNS: Column<SupplierPerformanceReview>[] = [
+  {
+    id: "review",
+    header: "Review",
+    sortValue: (review) => review.reviewNumber,
+    cell: (review) => (
+      <strong>
+        <Link href={`/supplier-performance/${review.id}`} className="supplier-360-link">
+          {review.reviewNumber}
+        </Link>
+      </strong>
+    ),
+  },
+  {
+    id: "supplier",
+    header: "Supplier",
+    sortValue: (review) => review.supplierName.toLowerCase(),
+    cell: (review) => (
+      <div className="stacked-cell">
+        <strong>{review.supplierName}</strong>
+
+        <span>
+          {review.supplierCode}
+          {review.supplierCategory ? ` · ${review.supplierCategory}` : ""}
+        </span>
+      </div>
+    ),
+  },
+  {
+    id: "period",
+    header: "Period",
+    sortValue: (review) => review.periodEnd,
+    firstSort: "desc",
+    cell: (review) => (
+      <span className="kit-num">
+        {formatDate(review.periodStart)} – {formatDate(review.periodEnd)}
+      </span>
+    ),
+  },
+  {
+    id: "score",
+    header: "Score",
+    align: "right",
+    sortValue: (review) => review.weightedScore,
+    firstSort: "desc",
+    cell: (review) => (
+      <strong className="kit-num">{review.weightedScore.toFixed(1)}</strong>
+    ),
+  },
+  {
+    id: "band",
+    header: "Band",
+    sortValue: (review) => BANDS.indexOf(review.performanceBand),
+    cell: (review) => <StatusBadge value={review.performanceBand} />,
+  },
+  {
+    id: "status",
+    header: "Status",
+    sortValue: (review) => review.status,
+    cell: (review) => <StatusBadge value={review.status} />,
+  },
+  {
+    id: "capa",
+    header: "CAPA",
+    sortValue: (review) =>
+      review.overdueCorrectiveActions * 1000 + review.openCorrectiveActions,
+    firstSort: "desc",
+    cell: (review) => (
+      <div className="kit-cell-stack">
+        <span>{review.openCorrectiveActions} open</span>
+
+        {review.overdueCorrectiveActions > 0 ? (
+          <small className="kit-cell-flag">
+            {review.overdueCorrectiveActions} overdue
+          </small>
+        ) : null}
+      </div>
+    ),
+  },
+  {
+    id: "owner",
+    header: "Owner",
+    sortValue: (review) => review.ownerName.toLowerCase(),
+    cell: (review) => review.ownerName,
+  },
+  {
+    id: "open",
+    header: <span className="kit-sr-only">Actions</span>,
+    align: "right",
+    width: 70,
+    cell: (review) => (
+      <Link href={`/supplier-performance/${review.id}`} className="table-action">
+        Open
+      </Link>
+    ),
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
 
 export default function SupplierPerformancePage() {
-  const [
-    reviews,
-    setReviews,
-  ] =
-    useState<
-      SupplierPerformanceReview[]
-    >([]);
+  const toast = useToast();
 
-  const [
-    summary,
-    setSummary,
-  ] =
-    useState<
-      SupplierPerformanceSummary |
-      null
-    >(null);
-
-  const [
-    statusFilter,
-    setStatusFilter,
-  ] =
-    useState("");
-
-  const [
-    bandFilter,
-    setBandFilter,
-  ] =
-    useState("");
-
-  const [
-    query,
-    setQuery,
-  ] =
-    useState("");
-
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
-
-  const [
-    error,
-    setError,
-  ] =
-    useState<
-      string |
-      null
-    >(null);
+  const [reviews, setReviews] = useState<SupplierPerformanceReview[] | null>(null);
+  const [summary, setSummary] = useState<SupplierPerformanceSummary | null>(null);
+  const [summaryFailed, setSummaryFailed] = useState(false);
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState("");
+  const [band, setBand] = useState("");
+  const [fetching, setFetching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let active = true;
 
-    Promise.all([
-      getSupplierPerformanceReviews(),
-      getSupplierPerformanceSummary(),
-    ])
-      .then(
-        ([
-          reviewsResponse,
-          summaryResponse,
-        ]) => {
-          if (!active) {
-            return;
-          }
+    const timer = window.setTimeout(async () => {
+      setFetching(true);
+      setError(null);
+      setSummaryFailed(false);
 
-          setReviews(
-            reviewsResponse,
-          );
+      const [reviewResult, summaryResult] = await Promise.allSettled([
+        getSupplierPerformanceReviews(),
+        getSupplierPerformanceSummary(),
+      ]);
 
-          setSummary(
-            summaryResponse,
-          );
+      if (!active) {
+        return;
+      }
 
-          setError(null);
-        },
-      )
-      .catch(
-        caughtError => {
-          if (!active) {
-            return;
-          }
+      if (reviewResult.status === "fulfilled") {
+        setReviews(reviewResult.value);
+      } else {
+        setError(
+          reviewResult.reason instanceof Error
+            ? reviewResult.reason.message
+            : "Unable to load supplier performance governance.",
+        );
+      }
 
-          setError(
-            caughtError instanceof
-              Error
-              ? caughtError.message
-              : "Unable to load supplier performance governance.",
-          );
-        },
-      )
-      .finally(
-        () => {
-          if (active) {
-            setLoading(false);
-          }
-        },
-      );
+      if (summaryResult.status === "fulfilled") {
+        setSummary(summaryResult.value);
+      } else {
+        setSummaryFailed(true);
+      }
+
+      setFetching(false);
+    }, 0);
 
     return () => {
       active = false;
+      window.clearTimeout(timer);
     };
-  }, []);
+  }, [reloadKey]);
 
-  const filteredReviews =
-    useMemo(
-      () => {
-        const normalizedQuery =
-          query
-            .trim()
-            .toLowerCase();
+  const all = reviews ?? EMPTY_REVIEWS;
 
-        return reviews
-          .filter(
-            review =>
-              !statusFilter ||
-              review.status ===
-                statusFilter,
-          )
-          .filter(
-            review =>
-              !bandFilter ||
-              review.performanceBand ===
-                bandFilter,
-          )
-          .filter(
-            review => {
-              if (
-                !normalizedQuery
-              ) {
-                return true;
-              }
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
 
-              return [
-                review.reviewNumber,
-                review.supplierCode,
-                review.supplierName,
-                review.supplierCategory ??
-                  "",
-                review.ownerName,
-              ]
-                .join(
-                  " ",
-                )
-                .toLowerCase()
-                .includes(
-                  normalizedQuery,
-                );
-            },
-          );
-      },
+    for (const review of all) {
+      counts[review.status] = (counts[review.status] ?? 0) + 1;
+    }
+
+    return counts;
+  }, [all]);
+
+  // Only approved reviews count towards the band distribution.
+  const bandCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    for (const review of all) {
+      if (review.status === "APPROVED") {
+        counts[review.performanceBand] = (counts[review.performanceBand] ?? 0) + 1;
+      }
+    }
+
+    return counts;
+  }, [all]);
+
+  const rows = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+
+    return all
+      .filter((review) => !status || review.status === status)
+      .filter((review) => !band || review.performanceBand === band)
+      .filter(
+        (review) =>
+          !normalized ||
+          [
+            review.reviewNumber,
+            review.supplierCode,
+            review.supplierName,
+            review.supplierCategory ?? "",
+            review.ownerName,
+          ]
+            .join(" ")
+            .toLowerCase()
+            .includes(normalized),
+      );
+  }, [all, query, status, band]);
+
+  const initialLoad = reviews === null && error === null;
+  const hasFilters = query.trim() !== "" || status !== "" || band !== "";
+
+  function countLabel(label: string, key: string): string {
+    return reviews ? `${label} · ${statusCounts[key] ?? 0}` : label;
+  }
+
+  const statusFilters: SegmentedOption[] = [
+    { value: "", label: reviews ? `All · ${all.length}` : "All" },
+    { value: "DRAFT", label: countLabel("Draft", "DRAFT") },
+    { value: "SUBMITTED", label: countLabel("Submitted", "SUBMITTED") },
+    { value: "APPROVED", label: countLabel("Approved", "APPROVED") },
+    { value: "REJECTED", label: countLabel("Rejected", "REJECTED") },
+  ];
+
+  function clearFilters() {
+    setQuery("");
+    setStatus("");
+    setBand("");
+  }
+
+  function exportCsv() {
+    downloadCsv(
+      `procureiq-supplier-reviews-${new Date().toISOString().slice(0, 10)}.csv`,
       [
-        reviews,
-        statusFilter,
-        bandFilter,
-        query,
+        "Review number",
+        "Supplier",
+        "Supplier code",
+        "Category",
+        "Period start",
+        "Period end",
+        "Weighted score",
+        "Performance band",
+        "Status",
+        "Open corrective actions",
+        "Overdue corrective actions",
+        "Owner",
       ],
+      rows.map((review) => [
+        review.reviewNumber,
+        review.supplierName,
+        review.supplierCode,
+        review.supplierCategory ?? "",
+        review.periodStart,
+        review.periodEnd,
+        review.weightedScore,
+        review.performanceBand,
+        review.status,
+        review.openCorrectiveActions,
+        review.overdueCorrectiveActions,
+        review.ownerName,
+      ]),
     );
+
+    toast.success(
+      "Reviews exported",
+      `${rows.length} ${rows.length === 1 ? "row" : "rows"} saved as CSV.`,
+    );
+  }
+
+  const improvementRequired =
+    (summary?.needsImprovement ?? 0) + (summary?.criticalReviews ?? 0);
+
+  const kpis: KpiItem[] = [
+    {
+      label: "Average approved score",
+      icon: Gauge,
+      value: summary ? summary.averageApprovedScore.toFixed(1) : "—",
+      note: "Weighted supplier performance score.",
+    },
+    {
+      label: "Reviewed suppliers",
+      icon: Users,
+      value: summary ? integer.format(summary.reviewedSuppliers) : "—",
+      note: `${integer.format(summary?.totalReviews ?? 0)} total reviews`,
+    },
+    {
+      label: "Improvement required",
+      icon: AlertTriangle,
+      value: summary ? integer.format(improvementRequired) : "—",
+      note: `${integer.format(summary?.criticalReviews ?? 0)} critical reviews`,
+      tone: improvementRequired > 0 ? "warning" : "default",
+    },
+    {
+      label: "Corrective actions",
+      icon: ClipboardCheck,
+      value: summary ? integer.format(summary.openCorrectiveActions) : "—",
+      note: `${integer.format(summary?.overdueCorrectiveActions ?? 0)} overdue · ${integer.format(
+        summary?.pendingApproval ?? 0,
+      )} reviews awaiting approval`,
+      tone: (summary?.overdueCorrectiveActions ?? 0) > 0 ? "warning" : "default",
+    },
+  ];
+
+  const emptyNode = hasFilters ? (
+    <EmptyState
+      icon={SearchX}
+      title="No reviews match these filters"
+      description="Try a different search term, status or band, or clear the filters."
+      action={
+        <button
+          type="button"
+          className="button button--secondary"
+          onClick={clearFilters}
+        >
+          Clear filters
+        </button>
+      }
+    />
+  ) : (
+    <EmptyState
+      icon={ClipboardCheck}
+      title="No supplier reviews yet"
+      description="Run a periodic scorecard to start tracking supplier performance."
+      action={
+        <Link href="/supplier-performance/new" className="button button--primary">
+          <Plus size={16} />
+          New review
+        </Link>
+      }
+    />
+  );
 
   return (
     <div className="page-stack">
       <section className="page-heading">
         <div>
-          <span className="eyebrow">
-            Supplier governance
-          </span>
+          <span className="eyebrow">Supplier governance</span>
 
-          <h1>
-            Supplier performance
-          </h1>
+          <h1>Supplier performance</h1>
 
           <p>
-            Run periodic supplier
-            scorecards, approve
-            performance reviews and
-            manage corrective actions
-            through measurable
-            improvement plans.
+            Run periodic supplier scorecards, approve performance reviews and manage
+            corrective actions through measurable improvement plans.
           </p>
         </div>
 
-        <Link
-          href="/supplier-performance/new"
-          className="button button--primary"
-        >
-          <Plus
-            size={16}
-          />
-          New review
-        </Link>
-      </section>
+        <div className="page-heading__actions">
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={() => setReloadKey((key) => key + 1)}
+            disabled={fetching}
+          >
+            <RefreshCw size={15} className={fetching ? "kit-spin" : undefined} />
+            Refresh
+          </button>
 
-      {error ? (
-        <div className="error-banner">
-          <CircleAlert
-            size={18}
-          />
-          {error}
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={exportCsv}
+            disabled={rows.length === 0}
+          >
+            <Download size={15} />
+            Export CSV
+          </button>
+
+          <Link href="/supplier-performance/new" className="button button--primary">
+            <Plus size={16} />
+            New review
+          </Link>
         </div>
-      ) : null}
-
-      <section className="supplier-performance-kpis">
-        <article className="kpi-card">
-          <div className="kpi-card__topline">
-            <div className="kpi-card__icon">
-              <Gauge
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span className="kpi-card__label">
-            Average approved score
-          </span>
-
-          <strong className="kpi-card__value">
-            {summary
-              ?.averageApprovedScore
-              .toFixed(1) ??
-              "—"}
-          </strong>
-
-          <p>
-            Weighted supplier
-            performance score.
-          </p>
-        </article>
-
-        <article className="kpi-card">
-          <div className="kpi-card__topline">
-            <div className="kpi-card__icon">
-              <Users
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span className="kpi-card__label">
-            Reviewed suppliers
-          </span>
-
-          <strong className="kpi-card__value">
-            {summary
-              ?.reviewedSuppliers ??
-              0}
-          </strong>
-
-          <p>
-            {summary
-              ?.totalReviews ??
-              0}
-            {" total reviews"}
-          </p>
-        </article>
-
-        <article className="kpi-card">
-          <div className="kpi-card__topline">
-            <div className="kpi-card__icon">
-              <AlertTriangle
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span className="kpi-card__label">
-            Improvement required
-          </span>
-
-          <strong className="kpi-card__value">
-            {(summary
-              ?.needsImprovement ??
-              0)
-              +
-              (summary
-                ?.criticalReviews ??
-                0)}
-          </strong>
-
-          <p>
-            {summary
-              ?.criticalReviews ??
-              0}
-            {" critical reviews"}
-          </p>
-        </article>
-
-        <article className="kpi-card">
-          <div className="kpi-card__topline">
-            <div className="kpi-card__icon">
-              <ClipboardCheck
-                size={20}
-              />
-            </div>
-          </div>
-
-          <span className="kpi-card__label">
-            Corrective actions
-          </span>
-
-          <strong className="kpi-card__value">
-            {summary
-              ?.openCorrectiveActions ??
-              0}
-          </strong>
-
-          <p>
-            {summary
-              ?.overdueCorrectiveActions ??
-              0}
-            {" overdue · "}
-            {summary
-              ?.pendingApproval ??
-              0}
-            {" reviews awaiting approval"}
-          </p>
-        </article>
       </section>
 
-      <section className="supplier-performance-pulse-grid">
+      <KpiGrid
+        items={kpis}
+        loading={summary === null && !summaryFailed}
+        ariaLabel="Supplier performance totals"
+      />
+
+      {reviews ? (
         <section className="panel">
           <div className="panel__header">
             <div>
-              <span className="eyebrow">
-                Performance pulse
-              </span>
+              <span className="eyebrow">Performance pulse</span>
 
-              <h2>
-                Supplier performance bands
-              </h2>
+              <h2>Approved reviews by band</h2>
             </div>
 
-            <TrendingUp
-              size={19}
-            />
+            <TrendingUp size={19} />
           </div>
 
           <div className="supplier-band-grid">
-            {[
-              "EXCELLENT",
-              "GOOD",
-              "NEEDS_IMPROVEMENT",
-              "CRITICAL",
-            ].map(
-              band => {
-                const count =
-                  reviews.filter(
-                    review =>
-                      review.status ===
-                        "APPROVED"
-                      &&
-                      review.performanceBand ===
-                        band,
-                  )
-                    .length;
+            {BANDS.map((key) => (
+              <article
+                key={key}
+                className={`supplier-band-card supplier-band-card--${key
+                  .toLowerCase()
+                  .replaceAll("_", "-")}`}
+              >
+                <span>{readable(key)}</span>
 
-                return (
-                  <article
-                    key={band}
-                    className={
-                      `supplier-band-card supplier-band-card--${band.toLowerCase().replaceAll("_", "-")}`
-                    }
-                  >
-                    <span>
-                      {readable(
-                        band,
-                      )}
-                    </span>
-
-                    <strong>
-                      {count}
-                    </strong>
-                  </article>
-                );
-              },
-            )}
+                <strong>{bandCounts[key] ?? 0}</strong>
+              </article>
+            ))}
           </div>
         </section>
+      ) : null}
 
-        <section className="panel">
-          <div className="panel__header">
-            <div>
-              <span className="eyebrow">
-                Governance
-              </span>
+      <div className="kit-toolbar">
+        <SearchField
+          value={query}
+          onChange={setQuery}
+          placeholder="Search supplier, review or owner"
+          ariaLabel="Search supplier reviews"
+          shortcut
+        />
 
-              <h2>
-                Review workflow
-              </h2>
-            </div>
+        <SelectField label="Band" value={band} onChange={setBand} options={BAND_OPTIONS} />
 
-            <BadgeCheck
-              size={19}
-            />
-          </div>
+        <SegmentedFilter
+          options={statusFilters}
+          value={status}
+          onChange={setStatus}
+          ariaLabel="Filter by review status"
+        />
+      </div>
 
-          <div className="supplier-workflow-grid">
-            {[
-              "DRAFT",
-              "SUBMITTED",
-              "APPROVED",
-              "REJECTED",
-            ].map(
-              status => (
-                <article
-                  key={status}
-                >
-                  <span>
-                    {readable(
-                      status,
-                    )}
-                  </span>
+      {error ? (
+        <div className="error-banner">
+          <CircleAlert size={18} />
 
-                  <strong>
-                    {
-                      reviews.filter(
-                        review =>
-                          review.status ===
-                            status,
-                      )
-                        .length
-                    }
-                  </strong>
-                </article>
-              ),
-            )}
-          </div>
-        </section>
-      </section>
+          <span>{error}</span>
 
-      <section className="panel">
-        <div className="panel__header">
-          <div>
-            <span className="eyebrow">
-              Performance portfolio
-            </span>
-
-            <h2>
-              Supplier reviews
-            </h2>
-          </div>
-
-          <span className="supplier-review-count">
-            {filteredReviews.length}
-            {" reviews"}
-          </span>
-        </div>
-
-        <div className="supplier-performance-toolbar">
-          <input
-            value={query}
-            placeholder={
-              "Search supplier, review or owner"
-            }
-            onChange={
-              event =>
-                setQuery(
-                  event.target.value,
-                )
-            }
-          />
-
-          <select
-            value={statusFilter}
-            onChange={
-              event =>
-                setStatusFilter(
-                  event.target.value,
-                )
-            }
+          <button
+            type="button"
+            className="kit-banner-action"
+            onClick={() => setReloadKey((key) => key + 1)}
           >
-            <option value="">
-              All statuses
-            </option>
-
-            <option value="DRAFT">
-              Draft
-            </option>
-
-            <option value="SUBMITTED">
-              Submitted
-            </option>
-
-            <option value="APPROVED">
-              Approved
-            </option>
-
-            <option value="REJECTED">
-              Rejected
-            </option>
-          </select>
-
-          <select
-            value={bandFilter}
-            onChange={
-              event =>
-                setBandFilter(
-                  event.target.value,
-                )
-            }
-          >
-            <option value="">
-              All performance bands
-            </option>
-
-            <option value="EXCELLENT">
-              Excellent
-            </option>
-
-            <option value="GOOD">
-              Good
-            </option>
-
-            <option value="NEEDS_IMPROVEMENT">
-              Needs improvement
-            </option>
-
-            <option value="CRITICAL">
-              Critical
-            </option>
-          </select>
+            Try again
+          </button>
         </div>
+      ) : null}
 
-        <div className="table-scroll">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Review</th>
-                <th>Supplier</th>
-                <th>Period</th>
-                <th>Score</th>
-                <th>Band</th>
-                <th>Status</th>
-                <th>CAPA</th>
-                <th>Owner</th>
-                <th />
-              </tr>
-            </thead>
-
-            <tbody>
-              {!loading &&
-                filteredReviews.map(
-                  review => (
-                    <tr
-                      key={review.id}
-                    >
-                      <td>
-                        <strong>
-                          {review.reviewNumber}
-                        </strong>
-                      </td>
-
-                      <td>
-                        <div className="request-primary-cell">
-                          <strong>
-                            {review.supplierName}
-                          </strong>
-
-                          <span>
-                            {review.supplierCode}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td>
-                        {new Date(
-                          `${review.periodStart}T00:00:00`,
-                        )
-                          .toLocaleDateString()}
-                        {" — "}
-                        {new Date(
-                          `${review.periodEnd}T00:00:00`,
-                        )
-                          .toLocaleDateString()}
-                      </td>
-
-                      <td>
-                        <strong>
-                          {review.weightedScore.toFixed(1)}
-                        </strong>
-                      </td>
-
-                      <td>
-                        <span
-                          className={
-                            `performance-band performance-band--${review.performanceBand.toLowerCase().replaceAll("_", "-")}`
-                          }
-                        >
-                          {readable(
-                            review.performanceBand,
-                          )}
-                        </span>
-                      </td>
-
-                      <td>
-                        <span
-                          className={
-                            `performance-review-status performance-review-status--${review.status.toLowerCase()}`
-                          }
-                        >
-                          {readable(
-                            review.status,
-                          )}
-                        </span>
-                      </td>
-
-                      <td>
-                        <span
-                          className={
-                            review.overdueCorrectiveActions >
-                            0
-                              ? "supplier-capa-overdue"
-                              : ""
-                          }
-                        >
-                          {review.openCorrectiveActions}
-                          {" open"}
-                          {review.overdueCorrectiveActions >
-                          0
-                            ? ` · ${review.overdueCorrectiveActions} overdue`
-                            : ""}
-                        </span>
-                      </td>
-
-                      <td>
-                        {review.ownerName}
-                      </td>
-
-                      <td>
-                        <Link
-                          href={
-                            `/supplier-performance/${review.id}`
-                          }
-                          className="table-action"
-                        >
-                          Open
-                        </Link>
-                      </td>
-                    </tr>
-                  ),
-                )}
-
-              {!loading &&
-              filteredReviews.length ===
-                0 ? (
-                <tr>
-                  <td
-                    colSpan={9}
-                    className="table-empty-state"
-                  >
-                    No supplier performance
-                    reviews match the
-                    selected filters.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      {error && reviews === null ? null : (
+        <DataTable
+          columns={COLUMNS}
+          rows={rows}
+          getRowId={(review) => review.id}
+          ariaLabel="Supplier performance reviews"
+          loading={initialLoad}
+          busy={fetching}
+          empty={emptyNode}
+          defaultSort={{ id: "period", dir: "desc" }}
+          persistKey="supplier-performance"
+          resetKey={`${query}|${status}|${band}`}
+        />
+      )}
     </div>
   );
 }

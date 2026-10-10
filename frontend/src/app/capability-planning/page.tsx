@@ -1,5 +1,7 @@
 "use client";
 
+import { SmartTable } from "@/components/kit/smart-table";
+
 import {
   BrainCircuit,
   Camera,
@@ -857,7 +859,7 @@ export default function CapabilityPlanningPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Work item</th>
@@ -957,7 +959,7 @@ export default function CapabilityPlanningPage() {
                     ),
                   )}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
@@ -975,7 +977,7 @@ export default function CapabilityPlanningPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Member</th>
@@ -1045,7 +1047,7 @@ export default function CapabilityPlanningPage() {
                     ),
                   )}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
@@ -1705,7 +1707,7 @@ export default function CapabilityPlanningPage() {
         </div>
 
         <div className="table-scroll">
-          <table className="data-table">
+          <SmartTable className="data-table">
             <thead>
               <tr>
                 <th>Snapshot</th>
@@ -1774,7 +1776,7 @@ export default function CapabilityPlanningPage() {
                     ),
                   )}
             </tbody>
-          </table>
+          </SmartTable>
         </div>
       </section>
 
