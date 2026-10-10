@@ -851,6 +851,249 @@ async function main() {
       !(finalA.quotation.quotationNumber && bText.includes(finalA.quotation.quotationNumber)),
   );
 
+  /* ---------------- Purchase order ---------------- */
+
+  try {
+    heading('Purchase order');
+
+    const portalOrders = async (portal) => {
+      const list = await call('GET', '/supplier-portal/purchase-orders', { token: portal.token });
+
+      return Array.isArray(list) ? list : [];
+    };
+    const portalOrder = (portal, id) =>
+      http('GET', `/supplier-portal/purchase-orders/${id}`, { token: portal.token });
+    const portalPath = (id, action) => `/supplier-portal/purchase-orders/${id}/${action}`;
+    const buyerOrder = (id) => call('GET', `/purchase-orders/${id}`, { token: buyer.token });
+    const refused = (response) => !response.ok && response.status < 500;
+    const outcome = (response) =>
+      response.ok ? 'the server accepted it' : `HTTP ${response.status}: ${problem(response)}`;
+
+    const internalNote = `SMOKE internal note ${STAMP}`;
+    const rejectionReason = 'Unit prices do not match the agreed quotation.';
+    const acknowledgementNote = 'Will ship on the expected date.';
+    const correctedAddress = 'SMOKE Warehouse B, 2 Revised Street';
+
+    const po = await step('Buyer creates a purchase order from the awarded RFQ', async () =>
+      call('POST', '/purchase-orders', {
+        token: buyer.token,
+        body: {
+          rfqId: rfq1.id,
+          expectedDeliveryDate: isoDate(inDays(14)),
+          deliveryAddress: 'SMOKE Warehouse, 1 Test Street',
+          buyerNotes: internalNote,
+        },
+      }),
+    );
+
+    created.push(`Purchase order ${po.poNumber ?? po.id}`);
+
+    check(
+      'The new order is a draft that no supplier has answered',
+      po.status === 'DRAFT' && po.supplierResponse === 'PENDING',
+      `${po.status} / ${po.supplierResponse}`,
+    );
+
+    check(
+      'A draft order is not in supplier A’s list',
+      !(await portalOrders(A)).some((order) => order.id === po.id),
+    );
+
+    const draftView = await portalOrder(A, po.id);
+
+    check('Supplier A cannot open a draft order by id (404)', draftView.status === 404, `HTTP ${draftView.status}`);
+
+    const issued = await step('Buyer issues the purchase order', async () =>
+      call('POST', `/purchase-orders/${po.id}/issue`, { token: buyer.token }),
+    );
+
+    check(
+      'The issued order is waiting for the supplier',
+      issued.status === 'ISSUED' && issued.supplierResponse === 'PENDING',
+      `${issued.status} / ${issued.supplierResponse}`,
+    );
+
+    const rowA = (await portalOrders(A)).find((order) => order.id === po.id);
+
+    check(
+      'Supplier A sees the issued order as waiting for a response',
+      rowA?.status === 'ISSUED' && rowA?.supplierResponse === 'PENDING',
+      rowA ? `${rowA.status} / ${rowA.supplierResponse}` : 'not in the list',
+    );
+
+    const detailA = await portalOrder(A, po.id);
+
+    check(
+      'Supplier A can open the order and sees all its lines',
+      detailA.ok &&
+        Array.isArray(detailA.json?.lines) &&
+        detailA.json.lines.length > 0 &&
+        detailA.json.lines.length === (issued.lines ?? []).length,
+      detailA.ok ? `${detailA.json?.lines?.length} lines` : outcome(detailA),
+    );
+
+    const textA = JSON.stringify(detailA.json ?? {});
+
+    check(
+      'The order shown to A leaves out the buyer’s notes, the purchase request and supplier B',
+      detailA.ok &&
+        !textA.includes(internalNote) &&
+        !(rfq1.requestNumber && textA.includes(rfq1.requestNumber)) &&
+        !textA.includes(B.supplierId) &&
+        !textA.includes(B.name),
+    );
+
+    check(
+      'Supplier B does not see A’s order in its list',
+      !(await portalOrders(B)).some((order) => order.id === po.id),
+    );
+
+    const viewB = await portalOrder(B, po.id);
+
+    check('Supplier B cannot open A’s order (404)', viewB.status === 404, `HTTP ${viewB.status}`);
+
+    const ackByB = await http('POST', portalPath(po.id, 'acknowledge'), { token: B.token, body: {} });
+
+    check('Supplier B cannot acknowledge A’s order (404)', ackByB.status === 404, outcome(ackByB));
+
+    check(
+      'A’s order is still waiting after B’s attempt',
+      (await buyerOrder(po.id)).supplierResponse === 'PENDING',
+    );
+
+    const noReason = await http('POST', portalPath(po.id, 'reject'), {
+      token: A.token,
+      body: { note: '   ' },
+    });
+
+    check('A rejection without a reason is refused', refused(noReason), outcome(noReason));
+
+    await expectBells('No notification for the refused rejection', 'SUPPLIER_PO_REJECTED', rfq1.id, 0, 0, 0);
+
+    const rejected = await step('Supplier A rejects the order with a reason', async () =>
+      call('POST', portalPath(po.id, 'reject'), { token: A.token, body: { note: rejectionReason } }),
+    );
+
+    check(
+      'The order shows as rejected while its own status stays ISSUED',
+      rejected.supplierResponse === 'REJECTED' &&
+        rejected.status === 'ISSUED' &&
+        rejected.supplierResponseNote === rejectionReason,
+      `${rejected.status} / ${rejected.supplierResponse}`,
+    );
+
+    await expectBells('Rejection notification', 'SUPPLIER_PO_REJECTED', rfq1.id, 1, 1, 0);
+
+    const answeredTwice = await http('POST', portalPath(po.id, 'acknowledge'), { token: A.token, body: {} });
+
+    check('A cannot answer the same order twice', refused(answeredTwice), outcome(answeredTwice));
+
+    const seenRejected = await buyerOrder(po.id);
+
+    check(
+      'The buyer sees the rejection, the reason and when it happened',
+      seenRejected.supplierResponse === 'REJECTED' &&
+        seenRejected.supplierResponseNote === rejectionReason &&
+        Boolean(seenRejected.supplierRespondedAt),
+      `${seenRejected.supplierResponse}`,
+    );
+
+    const reopened = await step('Buyer reopens the rejected order for revision', async () =>
+      call('POST', `/purchase-orders/${po.id}/reopen`, { token: buyer.token }),
+    );
+
+    check(
+      'The reopened order is a draft with the same PO number and a cleared response',
+      reopened.status === 'DRAFT' &&
+        reopened.supplierResponse === 'PENDING' &&
+        !reopened.supplierResponseNote &&
+        !reopened.issuedAt &&
+        reopened.poNumber === po.poNumber,
+      `${reopened.status} / ${reopened.supplierResponse} / ${reopened.poNumber}`,
+    );
+
+    check(
+      'Supplier A no longer sees the reopened draft',
+      !(await portalOrders(A)).some((order) => order.id === po.id),
+    );
+
+    const reopenedAgain = await http('POST', `/purchase-orders/${po.id}/reopen`, { token: buyer.token });
+
+    check('A draft cannot be reopened again', refused(reopenedAgain), outcome(reopenedAgain));
+
+    const edited = await step('Buyer corrects the delivery details on the draft', async () =>
+      call('PUT', `/purchase-orders/${po.id}`, {
+        token: buyer.token,
+        body: {
+          expectedDeliveryDate: isoDate(inDays(21)),
+          deliveryAddress: correctedAddress,
+          buyerNotes: internalNote,
+        },
+      }),
+    );
+
+    check(
+      'The correction is saved',
+      edited.status === 'DRAFT' && edited.deliveryAddress === correctedAddress,
+      `${edited.status} / ${edited.deliveryAddress}`,
+    );
+
+    const reissued = await step('Buyer issues the corrected order again', async () =>
+      call('POST', `/purchase-orders/${po.id}/issue`, { token: buyer.token }),
+    );
+
+    check(
+      'The re-issued order is waiting for the supplier again',
+      reissued.status === 'ISSUED' && reissued.supplierResponse === 'PENDING',
+      `${reissued.status} / ${reissued.supplierResponse}`,
+    );
+
+    const detailAgain = await portalOrder(A, po.id);
+
+    check(
+      'Supplier A sees the corrected address and can answer again',
+      detailAgain.ok &&
+        detailAgain.json?.deliveryAddress === correctedAddress &&
+        detailAgain.json?.supplierResponse === 'PENDING',
+      detailAgain.ok ? `${detailAgain.json?.supplierResponse}` : outcome(detailAgain),
+    );
+
+    const acknowledged = await step('Supplier A acknowledges the corrected order', async () =>
+      call('POST', portalPath(po.id, 'acknowledge'), { token: A.token, body: { note: acknowledgementNote } }),
+    );
+
+    check(
+      'The order shows as acknowledged',
+      acknowledged.supplierResponse === 'ACKNOWLEDGED' &&
+        acknowledged.supplierResponseNote === acknowledgementNote,
+      `${acknowledged.supplierResponse}`,
+    );
+
+    await expectBells('Acknowledgement notification', 'SUPPLIER_PO_ACKNOWLEDGED', rfq1.id, 1, 1, 0);
+    await expectBells('The earlier rejection notification is not repeated', 'SUPPLIER_PO_REJECTED', rfq1.id, 1, 1, 0);
+
+    const seenAcknowledged = await buyerOrder(po.id);
+
+    check(
+      'The buyer sees the acknowledgement on an order that is still ISSUED',
+      seenAcknowledged.supplierResponse === 'ACKNOWLEDGED' && seenAcknowledged.status === 'ISSUED',
+      `${seenAcknowledged.status} / ${seenAcknowledged.supplierResponse}`,
+    );
+
+    const lateReopen = await http('POST', `/purchase-orders/${po.id}/reopen`, { token: buyer.token });
+
+    check('An acknowledged order cannot be reopened', refused(lateReopen), outcome(lateReopen));
+
+    const lateReject = await http('POST', portalPath(po.id, 'reject'), {
+      token: A.token,
+      body: { note: 'Changed my mind.' },
+    });
+
+    check('An acknowledged order cannot be rejected afterwards', refused(lateReject), outcome(lateReject));
+  } catch (error) {
+    if (!(error instanceof Abort)) throw error;
+  }
+
   /* ---------------- Cancelled RFQ ---------------- */
 
   heading('Cancelled RFQ');
