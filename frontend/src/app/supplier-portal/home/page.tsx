@@ -199,6 +199,12 @@ export default function SupplierPortalHomePage() {
 
         <div className="supplier-portal-header-actions">
           <Link
+            href="/supplier-portal/rfqs"
+          >
+            RFQs and quotations
+          </Link>
+
+          <Link
             href="/supplier-portal/documents"
           >
             Compliance documents
