@@ -29,15 +29,15 @@ public interface SupplierRepository
               and (
                     :query is null
                     or lower(supplier.supplierCode)
-                        like lower(concat('%', :query, '%'))
+                        like lower(concat('%', cast(:query as string), '%'))
                     or lower(supplier.legalName)
-                        like lower(concat('%', :query, '%'))
+                        like lower(concat('%', cast(:query as string), '%'))
                     or lower(coalesce(supplier.tradingName, ''))
-                        like lower(concat('%', :query, '%'))
+                        like lower(concat('%', cast(:query as string), '%'))
                     or lower(supplier.category)
-                        like lower(concat('%', :query, '%'))
+                        like lower(concat('%', cast(:query as string), '%'))
                     or lower(supplier.country)
-                        like lower(concat('%', :query, '%'))
+                        like lower(concat('%', cast(:query as string), '%'))
               )
               and (
                     :status is null

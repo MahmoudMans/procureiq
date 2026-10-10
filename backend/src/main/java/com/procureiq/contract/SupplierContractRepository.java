@@ -29,31 +29,19 @@ public interface SupplierContractRepository
                         contract.contractNumber
                     )
                         like lower(
-                            concat(
-                                '%',
-                                :query,
-                                '%'
-                            )
+                            concat('%', cast(:query as string), '%')
                         )
                     or lower(
                         contract.title
                     )
                         like lower(
-                            concat(
-                                '%',
-                                :query,
-                                '%'
-                            )
+                            concat('%', cast(:query as string), '%')
                         )
                     or lower(
                         contract.supplier.legalName
                     )
                         like lower(
-                            concat(
-                                '%',
-                                :query,
-                                '%'
-                            )
+                            concat('%', cast(:query as string), '%')
                         )
             )
             and (

@@ -29,13 +29,13 @@ public interface RfqRepository
             where (
                     :query is null
                     or lower(rfq.rfqNumber)
-                        like lower(concat('%', :query, '%'))
+                        like lower(concat('%', cast(:query as string), '%'))
                     or lower(rfq.title)
-                        like lower(concat('%', :query, '%'))
+                        like lower(concat('%', cast(:query as string), '%'))
                     or lower(
                         rfq.sourcePurchaseRequest.requestNumber
                     )
-                        like lower(concat('%', :query, '%'))
+                        like lower(concat('%', cast(:query as string), '%'))
             )
             and (
                     :status is null

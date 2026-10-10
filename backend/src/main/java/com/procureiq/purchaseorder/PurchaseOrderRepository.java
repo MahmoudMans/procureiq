@@ -33,15 +33,15 @@ public interface PurchaseOrderRepository
             where (
                     :query is null
                     or lower(purchaseOrder.poNumber)
-                        like lower(concat('%', :query, '%'))
+                        like lower(concat('%', cast(:query as string), '%'))
                     or lower(
                         purchaseOrder.supplier.legalName
                     )
-                        like lower(concat('%', :query, '%'))
+                        like lower(concat('%', cast(:query as string), '%'))
                     or lower(
                         purchaseOrder.rfq.rfqNumber
                     )
-                        like lower(concat('%', :query, '%'))
+                        like lower(concat('%', cast(:query as string), '%'))
             )
             and (
                     :status is null

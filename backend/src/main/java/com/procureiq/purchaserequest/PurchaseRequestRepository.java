@@ -37,13 +37,13 @@ public interface PurchaseRequestRepository
             and (
                     :query is null
                     or lower(request.requestNumber)
-                        like lower(concat('%', :query, '%'))
+                        like lower(concat('%', cast(:query as string), '%'))
                     or lower(request.title)
-                        like lower(concat('%', :query, '%'))
+                        like lower(concat('%', cast(:query as string), '%'))
                     or lower(coalesce(request.description, ''))
-                        like lower(concat('%', :query, '%'))
+                        like lower(concat('%', cast(:query as string), '%'))
                     or lower(request.costCenter)
-                        like lower(concat('%', :query, '%'))
+                        like lower(concat('%', cast(:query as string), '%'))
             )
             and (
                     :status is null
