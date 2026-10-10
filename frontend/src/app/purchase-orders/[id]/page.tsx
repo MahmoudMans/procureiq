@@ -628,6 +628,10 @@ export default function PurchaseOrderDetailPage() {
   const showSupplierResponse =
     order.issuedAt !== null && (order.status !== "CANCELLED" || supplierAnswered);
 
+  const unansweredAfterDelivery =
+    order.supplierResponse === "PENDING" &&
+    (order.status === "PARTIALLY_RECEIVED" || order.status === "RECEIVED");
+
   if (showSupplierResponse) {
     kpis.push({
       label: "Supplier response",
@@ -637,10 +641,12 @@ export default function PurchaseOrderDetailPage() {
           ? "Acknowledged"
           : order.supplierResponse === "REJECTED"
             ? "Rejected"
-            : "Awaiting response",
+            : unansweredAfterDelivery ? "No response recorded" : "Awaiting response",
       note: order.supplierRespondedAt
         ? formatDateTime(order.supplierRespondedAt)
-        : `${order.supplierName} has not answered yet`,
+        : unansweredAfterDelivery
+          ? `Delivery was recorded before ${order.supplierName} answered`
+          : `${order.supplierName} has not answered yet`,
       tone: order.supplierResponse === "REJECTED" ? "warning" : "default",
     });
   }
