@@ -150,6 +150,16 @@ public class DeliveryService {
             );
         }
 
+        if (
+                "REJECTED".equals(
+                        order.getSupplierResponse()
+                )
+        ) {
+            throw new IllegalArgumentException(
+                    "The supplier rejected this purchase order. Reopen it for revision and issue it again, or cancel it, before recording a delivery."
+            );
+        }
+
         Map<UUID, PurchaseOrderLineEntity>
                 orderLines =
                 new HashMap<>();

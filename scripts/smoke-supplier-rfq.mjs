@@ -998,6 +998,35 @@ async function main() {
       `${seenRejected.supplierResponse}`,
     );
 
+    const receiptBody = (order) => ({
+      receivedDate: isoDate(new Date()),
+      deliveryReference: `SMOKE-DN-${STAMP}`,
+      notes: 'Recorded by the smoke test.',
+      lines: [{ purchaseOrderLineId: order.lines[0].id, quantityReceived: 1 }],
+    });
+    const receiptsOf = (id) => call('GET', `/purchase-orders/${id}/receipts`, { token: buyer.token });
+
+    const receiptOnRejected = await http('POST', `/purchase-orders/${po.id}/receipts`, {
+      token: buyer.token,
+      body: receiptBody(seenRejected),
+    });
+
+    check(
+      'Goods cannot be received against an order the supplier rejected',
+      refused(receiptOnRejected) && /rejected/i.test(problem(receiptOnRejected)),
+      outcome(receiptOnRejected),
+    );
+
+    const afterRefusedReceipt = await buyerOrder(po.id);
+
+    check(
+      'The refused receipt changed nothing: still issued, still rejected, no receipt recorded',
+      afterRefusedReceipt.status === 'ISSUED' &&
+        afterRefusedReceipt.supplierResponse === 'REJECTED' &&
+        (await receiptsOf(po.id)).length === 0,
+      `${afterRefusedReceipt.status} / ${afterRefusedReceipt.supplierResponse}`,
+    );
+
     const reopened = await step('Buyer reopens the rejected order for revision', async () =>
       call('POST', `/purchase-orders/${po.id}/reopen`, { token: buyer.token }),
     );
@@ -1090,6 +1119,41 @@ async function main() {
     });
 
     check('An acknowledged order cannot be rejected afterwards', refused(lateReject), outcome(lateReject));
+
+    const received = await step('Buyer records a delivery against the acknowledged order', async () =>
+      call('POST', `/purchase-orders/${po.id}/receipts`, {
+        token: buyer.token,
+        body: receiptBody(seenAcknowledged),
+      }),
+    );
+
+    check(
+      'The receipt is stored with the quantity received',
+      received.purchaseOrderId === po.id && Number(received.lines?.[0]?.quantityReceived) === 1,
+      `${received.purchaseOrderId} / ${received.lines?.[0]?.quantityReceived}`,
+    );
+
+    const afterReceipt = await buyerOrder(po.id);
+
+    check(
+      'The order moved on to partially received and keeps the supplier’s answer',
+      afterReceipt.status === 'PARTIALLY_RECEIVED' && afterReceipt.supplierResponse === 'ACKNOWLEDGED',
+      `${afterReceipt.status} / ${afterReceipt.supplierResponse}`,
+    );
+
+    const portalAfterReceipt = await portalOrder(A, po.id);
+
+    check(
+      'Supplier A sees the order as partly received',
+      portalAfterReceipt.ok && portalAfterReceipt.json?.status === 'PARTIALLY_RECEIVED',
+      portalAfterReceipt.ok ? portalAfterReceipt.json?.status : outcome(portalAfterReceipt),
+    );
+
+    const reopenAfterReceipt = await http('POST', `/purchase-orders/${po.id}/reopen`, {
+      token: buyer.token,
+    });
+
+    check('An order with a delivery cannot be reopened', refused(reopenAfterReceipt), outcome(reopenAfterReceipt));
   } catch (error) {
     if (!(error instanceof Abort)) throw error;
   }
