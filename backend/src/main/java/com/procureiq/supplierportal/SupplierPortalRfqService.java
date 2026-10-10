@@ -440,7 +440,7 @@ public class SupplierPortalRfqService {
                 );
 
         if (submitted != null) {
-            notifier.notifyRfqOwner(
+            notifier.notifyRfqTeam(
                     context.actorUserId(),
                     rfqId,
                     "SUPPLIER_QUOTATION_SUBMITTED",
@@ -535,7 +535,7 @@ public class SupplierPortalRfqService {
                 );
 
         if (withdrawn != null) {
-            notifier.notifyRfqOwner(
+            notifier.notifyRfqTeam(
                     context.actorUserId(),
                     rfqId,
                     "SUPPLIER_QUOTATION_WITHDRAWN",
@@ -649,7 +649,7 @@ public class SupplierPortalRfqService {
                 }
         );
 
-        notifier.notifyRfqOwner(
+        notifier.notifyRfqTeam(
                 context.actorUserId(),
                 rfqId,
                 "SUPPLIER_INVITATION_DECLINED",
@@ -738,7 +738,7 @@ public class SupplierPortalRfqService {
                 }
         );
 
-        notifier.notifyRfqOwner(
+        notifier.notifyRfqTeam(
                 context.actorUserId(),
                 rfqId,
                 "SUPPLIER_INVITATION_RECONSIDERED",

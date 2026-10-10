@@ -1,5 +1,11 @@
 package com.procureiq.supplierportal;
 
+import com.procureiq.user.AppUserEntity;
+import com.procureiq.user.AppUserRepository;
+import com.procureiq.user.ProcurementRole;
+import java.util.EnumSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,12 +13,17 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 /**
- * Writes a bell notification for an internal user when something happens on an RFQ in the
+ * Writes bell notifications for internal users when something happens on an RFQ in the
  * supplier portal.
  *
+ * Recipients are the primary user (normally the RFQ owner) plus every active user holding one
+ * of the team roles below, each notified once. To widen or narrow who is told, change
+ * TEAM_ROLES.
+ *
  * It is best-effort on purpose: a failed notification is logged and never undoes or blocks
- * the supplier's action. Each event gets its own unique key, so repeated actions (submit,
- * withdraw, submit again) each produce a notification.
+ * the supplier's action, and a failure for one recipient does not stop the others. Each event
+ * gets its own unique key, so repeated actions (submit, withdraw, submit again) each produce
+ * a notification.
  */
 @Component
 public class SupplierPortalNotifier {
@@ -22,16 +33,89 @@ public class SupplierPortalNotifier {
                     SupplierPortalNotifier.class
             );
 
+    /** Roles notified in addition to the RFQ owner. */
+    private static final Set<ProcurementRole> TEAM_ROLES =
+            EnumSet.of(
+                    ProcurementRole.PROCUREMENT_MANAGER
+            );
+
     private final JdbcTemplate jdbcTemplate;
 
+    private final AppUserRepository appUserRepository;
+
     public SupplierPortalNotifier(
-            JdbcTemplate jdbcTemplate
+            JdbcTemplate jdbcTemplate,
+            AppUserRepository appUserRepository
     ) {
         this.jdbcTemplate =
                 jdbcTemplate;
+
+        this.appUserRepository =
+                appUserRepository;
     }
 
-    public void notifyRfqOwner(
+    public void notifyRfqTeam(
+            UUID primaryRecipientId,
+            UUID rfqId,
+            String type,
+            String severity,
+            String title,
+            String message
+    ) {
+        Set<UUID> recipients =
+                new LinkedHashSet<>();
+
+        if (primaryRecipientId != null) {
+            recipients.add(
+                    primaryRecipientId
+            );
+        }
+
+        try {
+            appUserRepository
+                    .findAllByOrderByFullNameAsc()
+                    .stream()
+                    .filter(
+                            AppUserEntity::isActive
+                    )
+                    .filter(
+                            user ->
+                                    TEAM_ROLES.contains(
+                                            user.getRole()
+                                    )
+                    )
+                    .map(
+                            AppUserEntity::getId
+                    )
+                    .forEach(
+                            recipients::add
+                    );
+        } catch (
+                RuntimeException exception
+        ) {
+            log.warn(
+                    "Could not look up the sourcing team for RFQ {}; notifying the RFQ owner only: {}",
+                    rfqId,
+                    exception.toString()
+            );
+        }
+
+        for (
+                UUID recipient
+                : recipients
+        ) {
+            insert(
+                    recipient,
+                    rfqId,
+                    type,
+                    severity,
+                    title,
+                    message
+            );
+        }
+    }
+
+    private void insert(
             UUID recipientUserId,
             UUID rfqId,
             String type,
