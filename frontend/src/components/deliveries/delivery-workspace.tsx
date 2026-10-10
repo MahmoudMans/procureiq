@@ -306,10 +306,9 @@ export function DeliveryWorkspace({
           </div>
 
           {(
-            order.status ===
-              "ISSUED" ||
-            order.status ===
-              "PARTIALLY_RECEIVED"
+            (order.status === "ISSUED" ||
+              order.status === "PARTIALLY_RECEIVED") &&
+            order.supplierResponse !== "REJECTED"
           ) ? (
             <button
               type="button"

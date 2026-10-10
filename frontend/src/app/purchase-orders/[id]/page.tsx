@@ -581,7 +581,9 @@ export default function PurchaseOrderDetailPage() {
   const hasUnsaved = unsavedId === String(order.id);
   const delivery = deliveryState(order.status, order.expectedDeliveryDate, today);
   const overdueNote = delivery !== null && delivery.late;
-  const note = guidance(order.status);
+  const awaitingRevision =
+    order.status === "ISSUED" && order.supplierResponse === "REJECTED";
+  const note = awaitingRevision ? null : guidance(order.status);
   const lineCount = order.lines.length;
 
   const draftDatePassed =
