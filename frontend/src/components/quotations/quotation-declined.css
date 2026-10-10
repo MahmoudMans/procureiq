@@ -1,0 +1,26 @@
+/* Declined supplier invitations on the buyer's quotation workspace */
+
+.quotation-declined-badge {
+  display: inline-block;
+  width: fit-content;
+  align-self: flex-start;
+  justify-self: start;
+  margin-top: 4px;
+  padding: 1px 8px;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 9%, transparent);
+  color: var(--warning, #b45309);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+}
+
+.quotation-declined-count {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}

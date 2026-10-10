@@ -43,6 +43,8 @@ import type {
   RfqSupplierInvitation,
 } from "@/types/rfq";
 
+import "@/components/quotations/quotation-declined.css";
+
 interface QuotationWorkspaceProps {
   rfq: Rfq;
 }
@@ -68,6 +70,29 @@ function futureDate(
       0,
       10,
     );
+}
+
+function declinedNote(
+  invitation: RfqSupplierInvitation,
+  rfqStatus: string,
+): string {
+  const when = invitation.respondedAt
+    ? new Date(invitation.respondedAt)
+    : null;
+
+  const date =
+    when && !Number.isNaN(when.getTime())
+      ? when.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+        })
+      : null;
+
+  const base = date ? `Declined on ${date}` : "Declined";
+
+  return rfqStatus === "PUBLISHED"
+    ? `${base}. May reconsider before the deadline.`
+    : `${base}.`;
 }
 
 export function QuotationWorkspace({
@@ -252,6 +277,13 @@ export function QuotationWorkspace({
       [quotations],
     );
 
+  const declinedCount = rfq.invitations.filter(
+    invitation => invitation.status === "DECLINED",
+  ).length;
+
+  const respondingCount =
+    rfq.invitations.length - declinedCount;
+
   async function runAction(
     quotation:
       Quotation,
@@ -365,10 +397,15 @@ export function QuotationWorkspace({
             }
             {" / "}
             {
-              rfq.invitations
-                .length
+              respondingCount
             }
           </strong>
+
+          {declinedCount > 0 ? (
+            <small className="quotation-declined-count">
+              {declinedCount} declined
+            </small>
+          ) : null}
         </div>
 
         <div>
@@ -431,6 +468,10 @@ export function QuotationWorkspace({
                       .supplierId,
                   );
 
+              const declined =
+                invitation.status ===
+                "DECLINED";
+
               return (
                 <article
                   key={
@@ -475,6 +516,12 @@ export function QuotationWorkspace({
                             .country
                         }
                       </span>
+
+                      {declined ? (
+                        <em className="quotation-declined-badge">
+                          Declined
+                        </em>
+                      ) : null}
                     </div>
                   </div>
 
@@ -541,7 +588,8 @@ export function QuotationWorkspace({
                         {quotation.status ===
                           "DRAFT" &&
                         rfq.status ===
-                          "PUBLISHED" ? (
+                          "PUBLISHED" &&
+                        !declined ? (
                           <>
                             <button
                               type="button"
@@ -634,17 +682,24 @@ export function QuotationWorkspace({
                         </span>
 
                         <strong>
-                          Not recorded
+                          {declined
+                            ? "Declined"
+                            : "Not recorded"}
                         </strong>
 
                         <small>
-                          Awaiting commercial
-                          data
+                          {declined
+                            ? declinedNote(
+                                invitation,
+                                rfq.status,
+                              )
+                            : "Awaiting commercial data"}
                         </small>
                       </div>
 
                       {rfq.status ===
-                        "PUBLISHED" ? (
+                        "PUBLISHED" &&
+                      !declined ? (
                         <button
                           type="button"
                           className={
