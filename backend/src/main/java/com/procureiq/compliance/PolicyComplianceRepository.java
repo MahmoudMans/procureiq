@@ -183,7 +183,7 @@ public class PolicyComplianceRepository {
                 )
                 AND request.estimated_total_amount >= ?
                 AND (
-                    ? IS NULL
+                    CAST(? AS VARCHAR) IS NULL
                     OR request.currency = ?
                 )
                 AND NOT EXISTS (
@@ -248,7 +248,7 @@ public class PolicyComplianceRepository {
                     'APPROVED'
                 AND request.estimated_total_amount >= ?
                 AND (
-                    ? IS NULL
+                    CAST(? AS VARCHAR) IS NULL
                     OR request.currency = ?
                 )
                 AND NOT EXISTS (
@@ -320,7 +320,7 @@ public class PolicyComplianceRepository {
                     <> 'CANCELLED'
                 AND purchase_order.total_amount >= ?
                 AND (
-                    ? IS NULL
+                    CAST(? AS VARCHAR) IS NULL
                     OR purchase_order.currency = ?
                 )
                 AND NOT EXISTS (
@@ -398,7 +398,7 @@ public class PolicyComplianceRepository {
                     'CRITICAL'
                 )
                 AND (
-                    ? IS NULL
+                    CAST(? AS VARCHAR) IS NULL
                     OR purchase_order.currency = ?
                 )
                 ORDER BY
