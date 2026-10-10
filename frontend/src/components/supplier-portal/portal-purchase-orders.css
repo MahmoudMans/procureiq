@@ -164,3 +164,13 @@
   border-radius: 10px;
   background: color-mix(in srgb, #ef4444 10%, transparent);
 }
+
+.portal-po-more a {
+  color: color-mix(in srgb, #2563eb 80%, currentColor);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.portal-po-more a:hover {
+  text-decoration: underline;
+}

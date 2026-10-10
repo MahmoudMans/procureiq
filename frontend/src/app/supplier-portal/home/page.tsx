@@ -5,9 +5,7 @@ import {
   CheckCircle2,
   CircleAlert,
   Clock3,
-  LogOut,
   MessageSquareText,
-  ShieldCheck,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -23,7 +21,6 @@ import {
 
 import {
   getSupplierPortalDashboard,
-  supplierPortalLogout,
 } from "@/lib/api";
 
 import {
@@ -36,6 +33,7 @@ import type {
 } from "@/types/supplier-portal";
 
 import { PortalRfqUpdates } from "@/components/supplier-portal/portal-rfq-updates";
+import { PortalHeader } from "@/components/supplier-portal/portal-header";
 import { PortalPurchaseOrders } from "@/components/supplier-portal/portal-purchase-orders";
 
 function readable(
@@ -147,26 +145,6 @@ export default function SupplierPortalHomePage() {
     router,
   ]);
 
-  async function logout() {
-    const token =
-      getSupplierPortalToken();
-
-    clearSupplierPortalToken();
-
-    if (token) {
-      await supplierPortalLogout(
-        token,
-      )
-        .catch(
-          () => undefined,
-        );
-    }
-
-    router.replace(
-      "/supplier-portal/login",
-    );
-  }
-
   if (
     loading
     &&
@@ -183,50 +161,7 @@ export default function SupplierPortalHomePage() {
 
   return (
     <main className="supplier-portal-shell">
-      <header className="supplier-portal-header">
-        <div className="supplier-portal-brand">
-          <ShieldCheck
-            size={25}
-          />
-
-          <div>
-            <span>
-              ProcureIQ
-            </span>
-
-            <strong>
-              Supplier Portal
-            </strong>
-          </div>
-        </div>
-
-        <div className="supplier-portal-header-actions">
-          <Link
-            href="/supplier-portal/rfqs"
-          >
-            RFQs and quotations
-          </Link>
-
-          <Link
-            href="/supplier-portal/documents"
-          >
-            Compliance documents
-          </Link>
-
-          <button
-            type="button"
-            onClick={
-              () =>
-                void logout()
-            }
-          >
-            <LogOut
-              size={15}
-            />
-            Sign out
-          </button>
-        </div>
-      </header>
+      <PortalHeader />
 
       <div className="supplier-portal-content">
         {error ? (
@@ -368,9 +303,9 @@ export default function SupplierPortalHomePage() {
           </article>
         </section>
 
-        <PortalRfqUpdates />
-
         <PortalPurchaseOrders />
+
+        <PortalRfqUpdates />
 
         <section className="supplier-portal-panel">
           <div className="supplier-portal-panel-heading">
