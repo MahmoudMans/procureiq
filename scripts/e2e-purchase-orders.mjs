@@ -537,6 +537,13 @@ async function main() {
     await shot(sp, 'portal-order-rejected');
   });
 
+  await check('The documents page header links to purchase orders and home', sp, async () => {
+    await open(sp, `${FRONTEND}/supplier-portal/documents`);
+    await see(sp.locator('header').getByRole('link', { name: 'Purchase orders', exact: true }));
+    await see(sp.locator('header').getByRole('link', { name: 'Home', exact: true }));
+    await shot(sp, 'portal-documents');
+  });
+
   /* ---------------- Buyer app ---------------- */
 
   heading('Buyer app');
@@ -711,33 +718,85 @@ async function main() {
   await sp.setViewportSize(PHONE);
 
   const phonePages = [
-    [
-      'portal purchase orders list',
-      '/supplier-portal/purchase-orders',
-      () => see(sp.getByRole('heading', { name: 'Purchase orders', level: 1 })),
-    ],
-    [
-      'portal purchase order page',
-      portalOrder(rejected.id),
-      () => see(sp.getByRole('heading', { name: 'Order lines' })),
-    ],
+    ['portal home', '/supplier-portal/home'],
+    ['portal RFQs list', '/supplier-portal/rfqs'],
+    ['portal purchase orders list', '/supplier-portal/purchase-orders'],
+    ['portal purchase order page', portalOrder(rejected.id)],
+    ['portal documents page', '/supplier-portal/documents'],
   ];
 
-  for (const [label, route, ready] of phonePages) {
+  for (const [label, route] of phonePages) {
     try {
       await open(sp, `${FRONTEND}${route}`);
-      await ready();
-      await sp.waitForTimeout(500);
+      await see(sp.locator('h1'));
+      await sp.waitForTimeout(700);
 
-      const extra = await sp.evaluate(
-        () => document.documentElement.scrollWidth - window.innerWidth,
-      );
+      const found = await sp.evaluate(() => {
+        const viewport = window.innerWidth;
+        const extra = document.documentElement.scrollWidth - viewport;
+
+        const clipped = (element) => {
+          for (
+            let parent = element.parentElement;
+            parent && parent !== document.body;
+            parent = parent.parentElement
+          ) {
+            const overflow = getComputedStyle(parent).overflowX;
+
+            if (overflow === 'auto' || overflow === 'scroll' || overflow === 'hidden') {
+              return true;
+            }
+          }
+
+          return false;
+        };
+
+        const describe = (element) => {
+          const classes =
+            typeof element.className === 'string'
+              ? element.className.trim().split(/\s+/).filter(Boolean).slice(0, 2).join('.')
+              : '';
+          const text = (element.textContent ?? '').trim().replace(/\s+/g, ' ').slice(0, 28);
+
+          return `${element.tagName.toLowerCase()}${classes ? `.${classes}` : ''} "${text}"`;
+        };
+
+        const offending = new Set();
+
+        for (const element of document.querySelectorAll('body *')) {
+          const box = element.getBoundingClientRect();
+
+          if (box.width > 0 && box.height > 0 && box.right > viewport + 1 && !clipped(element)) {
+            offending.add(element);
+          }
+        }
+
+        const offenders = [...offending]
+          .filter((element) => !element.parentElement || !offending.has(element.parentElement))
+          .slice(0, 5)
+          .map(
+            (element) =>
+              `${describe(element)} reaches ${Math.round(element.getBoundingClientRect().right - viewport)}px past the edge`,
+          );
+
+        return { extra, offenders };
+      });
 
       observe(
         `The ${label} does not scroll sideways at 390px`,
-        extra <= 1,
-        `the page is ${extra}px wider than the screen`,
+        found.extra <= 1,
+        `the page is ${found.extra}px wider than the screen`,
       );
+
+      if (found.extra > 1) {
+        if (found.offenders.length === 0) {
+          console.log('      no single element sticks out (the overflow may come from padding or a pseudo-element)');
+        }
+
+        for (const item of found.offenders) {
+          console.log(`      ${item}`);
+        }
+      }
 
       await shot(sp, `phone-${slug(label)}`);
     } catch (error) {
