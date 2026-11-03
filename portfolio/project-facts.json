@@ -1,0 +1,83 @@
+{
+  "project": "ProcureIQ",
+  "generatedAt": "2026-10-10T19:18:38.684Z",
+  "git": {
+    "commits": 132,
+    "firstCommit": "2026-09-14",
+    "lastCommit": "2026-10-10",
+    "branch": "ui/kit-migration"
+  },
+  "stack": {
+    "springBoot": "4.1.1",
+    "java": "21",
+    "next": "16.3.3",
+    "react": "19.2.8",
+    "typescript": "^5",
+    "frontendDependencies": {
+      "lucide-react": "^1.46.0",
+      "next": "16.3.3",
+      "react": "19.2.8",
+      "react-dom": "19.2.8"
+    },
+    "containerImages": [
+      "postgres:17-alpine"
+    ]
+  },
+  "counts": {
+    "backendMainFiles": 1620,
+    "backendTestFiles": 101,
+    "backendTestMethods": 526,
+    "restControllers": 85,
+    "migrations": 85,
+    "databaseTables": 278,
+    "appliedMigrations": 85,
+    "frontendScreens": 215,
+    "frontendDynamicScreens": 102,
+    "frontendComponents": 36
+  },
+  "linesOfCode": {
+    "java": 299566,
+    "typescript": 220784,
+    "sql": 48008,
+    "css": 41708,
+    "scripts": 4820
+  },
+  "scripts": [
+    {
+      "file": "scripts/check-reopen-sql.mjs",
+      "summary": "Checks the purchase order reopen statement against the real database, inside a"
+    },
+    {
+      "file": "scripts/check-sql-prepare.mjs",
+      "summary": "ProcureIQ SQL check: prepares every SQL string the repositories send through JdbcTemplate"
+    },
+    {
+      "file": "scripts/e2e-purchase-orders.mjs",
+      "summary": "ProcureIQ browser test: the purchase order screens, as supplier and as buyer."
+    },
+    {
+      "file": "scripts/make-portfolio.mjs",
+      "summary": "ProcureIQ portfolio generator: screenshots every screen, describes each one from its own content"
+    },
+    {
+      "file": "scripts/run-postgres-tests.sh",
+      "summary": "Runs the backend tests that need a real PostgreSQL, against a throwaway container."
+    },
+    {
+      "file": "scripts/seed-supplier-po-demo.mjs",
+      "summary": "ProcureIQ demo seed: a supplier portal login and two issued purchase orders to click through."
+    },
+    {
+      "file": "scripts/smoke-compliance-anomaly.mjs",
+      "summary": "ProcureIQ smoke test: policy compliance evaluation and the anomaly scan."
+    },
+    {
+      "file": "scripts/smoke-read-sweep.mjs",
+      "summary": "ProcureIQ read sweep: calls every GET endpoint declared in the backend controllers."
+    },
+    {
+      "file": "scripts/smoke-supplier-rfq.mjs",
+      "summary": "ProcureIQ end-to-end smoke test: the supplier RFQ flow."
+    }
+  ]
+}

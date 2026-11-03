@@ -1,0 +1,5416 @@
+{
+  "generatedAt": "2026-10-10T19:18:38.684Z",
+  "pages": [
+    {
+      "route": "/login",
+      "target": "/login",
+      "area": "public",
+      "file": "screenshots/public/01-login.png",
+      "title": "Control spend.Strengthen suppliers.Make better decisions.",
+      "eyebrow": "Enterprise procurement",
+      "intro": "A unified procurement workspace for sourcing, supplier risk, purchasing governance and performance intelligence.",
+      "sections": [
+        "Sign in to ProcureIQ"
+      ],
+      "tables": [],
+      "actions": [
+        "Sign in",
+        "Administratoradmin@procureiq.local",
+        "Buyerbuyer@procureiq.local"
+      ],
+      "description": "Control spend.Strengthen suppliers.Make better decisions. A unified procurement workspace for sourcing, supplier risk, purchasing governance and performance intelligence. Sections: Sign in to ProcureIQ. Actions: Sign in, Administratoradmin@procureiq.local, Buyerbuyer@procureiq.local.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/supplier-portal/activate",
+      "target": "/supplier-portal/activate",
+      "area": "public",
+      "file": "screenshots/public/02-supplier-portal-activate.png",
+      "title": "Activate invitation",
+      "eyebrow": "",
+      "intro": "Use the one-time invitation token provided by your procurement contact and create a password of at least 12 characters.",
+      "sections": [],
+      "tables": [],
+      "actions": [
+        "Activate account"
+      ],
+      "description": "Activate invitation. Use the one-time invitation token provided by your procurement contact and create a password of at least 12 characters. Actions: Activate account.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/supplier-portal/login",
+      "target": "/supplier-portal/login",
+      "area": "public",
+      "file": "screenshots/public/03-supplier-portal-login.png",
+      "title": "Supplier sign in",
+      "eyebrow": "",
+      "intro": "Access only the collaboration workspaces, messages and actions assigned to your supplier organization.",
+      "sections": [],
+      "tables": [],
+      "actions": [
+        "Sign in"
+      ],
+      "description": "Supplier sign in. Access only the collaboration workspaces, messages and actions assigned to your supplier organization. Actions: Sign in.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/",
+      "target": "/",
+      "area": "staff",
+      "file": "screenshots/staff/01-home.png",
+      "title": "Good evening, ProcureIQ",
+      "eyebrow": "Saturday 10 October",
+      "intro": "A live view of spend, supplier risk and the actions that need you today.",
+      "sections": [
+        "Committed spend trend",
+        "Needs attention",
+        "Where the money goes",
+        "Supplier risk mix",
+        "Purchase order pipeline",
+        "Supplier watchlist",
+        "Top suppliers by spend"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Supplier",
+            "Category",
+            "Risk",
+            "Rating",
+            "Delivery",
+            "Spend"
+          ],
+          "rows": 6
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export suppliers",
+        "New purchase request",
+        "View analytics",
+        "Open command center",
+        "Category",
+        "Supplier",
+        "Department"
+      ],
+      "description": "Good evening, ProcureIQ. A live view of spend, supplier risk and the actions that need you today. Sections: Committed spend trend, Needs attention, Where the money goes, Supplier risk mix, Purchase order pipeline, Supplier watchlist. Data table with columns Supplier, Category, Risk, Rating, Delivery, Spend (6 rows shown). Actions: Refresh, Export suppliers, New purchase request, View analytics, Open command center.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": null,
+      "pageHeight": 2122,
+      "cropped": false
+    },
+    {
+      "route": "/activity",
+      "target": "/activity",
+      "area": "staff",
+      "file": "screenshots/staff/02-activity.png",
+      "title": "Activity & alerts",
+      "eyebrow": "Operational awareness",
+      "intro": "Follow the ProcureIQ business-event timeline and actionable procurement notifications across the complete sourcing lifecycle.",
+      "sections": [
+        "Business-event timeline"
+      ],
+      "tables": [],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "Activity timeline",
+        "Notifications · 10",
+        "Show more (80 remaining)"
+      ],
+      "description": "Activity & alerts. Follow the ProcureIQ business-event timeline and actionable procurement notifications across the complete sourcing lifecycle. Sections: Business-event timeline. Actions: Refresh, Export CSV, Activity timeline, Notifications · 10, Show more (80 remaining).",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 3668,
+      "cropped": true
+    },
+    {
+      "route": "/analytics",
+      "target": "/analytics",
+      "area": "staff",
+      "file": "screenshots/staff/03-analytics.png",
+      "title": "Spend analytics",
+      "eyebrow": "Procurement intelligence",
+      "intro": "Executive visibility into committed spend, sourcing savings, supplier concentration, risk, procurement cycle time and order execution.",
+      "sections": [
+        "Monthly committed spend",
+        "Supplier concentration",
+        "Spend by category",
+        "Spend by department",
+        "Supplier risk exposure",
+        "Purchase order pipeline"
+      ],
+      "tables": [],
+      "actions": [
+        "Refresh",
+        "Export CSV"
+      ],
+      "description": "Spend analytics. Executive visibility into committed spend, sourcing savings, supplier concentration, risk, procurement cycle time and order execution. Sections: Monthly committed spend, Supplier concentration, Spend by category, Spend by department, Supplier risk exposure, Purchase order pipeline. Actions: Refresh, Export CSV.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1259,
+      "cropped": false
+    },
+    {
+      "route": "/anomaly-control",
+      "target": "/anomaly-control",
+      "area": "staff",
+      "file": "screenshots/staff/04-anomaly-control.png",
+      "title": "Anomaly control",
+      "eyebrow": "Procurement controls",
+      "intro": "Detect explainable procurement-control indicators, prioritize material anomalies and manage investigation evidence and disposition.",
+      "sections": [
+        "Signal distribution",
+        "Anomaly findings",
+        "Anomaly rules"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Signal",
+            "Reference",
+            "Type",
+            "Severity",
+            "Score",
+            "Exposure",
+            "Status",
+            "Investigation"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Run anomaly scan",
+        "Save rule"
+      ],
+      "description": "Anomaly control. Detect explainable procurement-control indicators, prioritize material anomalies and manage investigation evidence and disposition. Sections: Signal distribution, Anomaly findings, Anomaly rules. Data table with columns Signal, Reference, Type, Severity, Score, Exposure (1 rows shown). Actions: Run anomaly scan, Save rule.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1610,
+      "cropped": false
+    },
+    {
+      "route": "/approvals",
+      "target": "/approvals",
+      "area": "staff",
+      "file": "screenshots/staff/05-approvals.png",
+      "title": "Approval center",
+      "eyebrow": "Procurement governance",
+      "intro": "Review submitted purchase requests, enforce approval policies and maintain a complete decision history.",
+      "sections": [],
+      "tables": [
+        {
+          "columns": [
+            "Request",
+            "Requester",
+            "Policy",
+            "Required role",
+            "Value",
+            "Status",
+            "Requested",
+            "Actions"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "Pending · 0",
+        "Approved",
+        "Rejected",
+        "Cancelled",
+        "All",
+        "Request"
+      ],
+      "description": "Approval center. Review submitted purchase requests, enforce approval policies and maintain a complete decision history. Data table with columns Request, Requester, Policy, Required role, Value, Status (1 rows shown). Actions: Refresh, Export CSV, Pending · 0, Approved, Rejected.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/benefits-governance",
+      "target": "/benefits-governance",
+      "area": "staff",
+      "file": "screenshots/staff/06-benefits-governance.png",
+      "title": "Benefits governance",
+      "eyebrow": "Value realization",
+      "intro": "Preserve the approved procurement decision baseline, govern execution ownership and separate target, forecast, operationally reported and formally validated value.",
+      "sections": [
+        "Benefits realization portfolios"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Portfolio",
+            "Status",
+            "Target",
+            "Forecast",
+            "Operational",
+            "Validated",
+            "At risk",
+            "Governance"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [],
+      "description": "Benefits governance. Preserve the approved procurement decision baseline, govern execution ownership and separate target, forecast, operationally reported and formally validated value. Sections: Benefits realization portfolios. Data table with columns Portfolio, Status, Target, Forecast, Operational, Validated (1 rows shown).",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 903,
+      "cropped": false
+    },
+    {
+      "route": "/budgets",
+      "target": "/budgets",
+      "area": "staff",
+      "file": "screenshots/staff/07-budgets.png",
+      "title": "Budget control",
+      "eyebrow": "Procurement planning",
+      "intro": "Track approved budgets, committed spend, open procurement exposure, forecast utilization and request-level budget impact.",
+      "sections": [
+        "Budget impact check"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Allocation",
+            "Budget",
+            "Committed",
+            "Pipeline",
+            "Forecast utilization",
+            "Remaining",
+            "Status"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "New allocation",
+        "All",
+        "Department",
+        "Category",
+        "Allocation",
+        "Budget"
+      ],
+      "description": "Budget control. Track approved budgets, committed spend, open procurement exposure, forecast utilization and request-level budget impact. Sections: Budget impact check. Data table with columns Allocation, Budget, Committed, Pipeline, Forecast utilization, Remaining (1 rows shown). Actions: Refresh, Export CSV, New allocation, All, Department.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": null,
+      "pageHeight": 1064,
+      "cropped": false
+    },
+    {
+      "route": "/budgets/new",
+      "target": "/budgets/new",
+      "area": "staff",
+      "file": "screenshots/staff/08-budgets-new.png",
+      "title": "New budget allocation",
+      "eyebrow": "Procurement planning",
+      "intro": "Allocate annual procurement capacity to a department or spend category and configure warning and hard-limit controls.",
+      "sections": [
+        "Budget authority"
+      ],
+      "tables": [],
+      "actions": [
+        "Create allocation"
+      ],
+      "description": "New budget allocation. Allocate annual procurement capacity to a department or spend category and configure warning and hard-limit controls. Sections: Budget authority. Actions: Create allocation.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 974,
+      "cropped": false
+    },
+    {
+      "route": "/capability-planning",
+      "target": "/capability-planning",
+      "area": "staff",
+      "file": "screenshots/staff/09-capability-planning.png",
+      "title": "Capability planning",
+      "eyebrow": "Strategic workforce capability",
+      "intro": "Add suitability evidence to Step 47 capacity planning with governed skills, proficiency assessments, work requirements, bench depth and development actions.",
+      "sections": [
+        "Strategic work readiness",
+        "Team skills coverage",
+        "Add skill",
+        "Assess proficiency",
+        "Add development action",
+        "Skills development actions",
+        "Immutable capability snapshots"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Work item",
+            "Type",
+            "Assigned",
+            "Requirements",
+            "Assigned fit",
+            "Bench fit",
+            "Bench depth",
+            "Readiness"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Member",
+            "Assessed skills",
+            "Avg proficiency",
+            "Assigned work",
+            "Capability gaps",
+            "Open development"
+          ],
+          "rows": 4
+        },
+        {
+          "columns": [
+            "Snapshot",
+            "Score",
+            "Health",
+            "Critical gaps",
+            "Development actions",
+            "Captured"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "Capture snapshot",
+        "Add skill",
+        "Save assessment",
+        "Add development action"
+      ],
+      "description": "Capability planning. Add suitability evidence to Step 47 capacity planning with governed skills, proficiency assessments, work requirements, bench depth and development actions. Sections: Strategic work readiness, Team skills coverage, Add skill, Assess proficiency, Add development action, Skills development actions. Data table with columns Work item, Type, Assigned, Requirements, Assigned fit, Bench fit. Actions: Capture snapshot, Add skill, Save assessment, Add development action.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 2241,
+      "cropped": false
+    },
+    {
+      "route": "/capacity-planning",
+      "target": "/capacity-planning",
+      "area": "staff",
+      "file": "screenshots/staff/10-capacity-planning.png",
+      "title": "Capacity planning",
+      "eyebrow": "Strategic resource planning",
+      "intro": "Compare procurement-team capacity with aligned strategic demand, expose overload, assignment gaps and deadline pressure, and preserve executive capacity snapshots.",
+      "sections": [
+        "Capacity by owner",
+        "Work capacity plan",
+        "Capacity profile",
+        "Estimate strategic work",
+        "Rebalancing opportunities",
+        "Immutable capacity snapshots"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Team member",
+            "Effective capacity",
+            "Assigned",
+            "Remaining",
+            "Overload",
+            "Utilization",
+            "Health"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Work item",
+            "Type",
+            "Effort",
+            "Allocation",
+            "Unassigned",
+            "Status",
+            "Due",
+            "Risk"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Snapshot",
+            "Score",
+            "Health",
+            "Capacity",
+            "Demand",
+            "Gap",
+            "Overloaded",
+            "Captured"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "Capture snapshot",
+        "Save profile",
+        "Create estimate"
+      ],
+      "description": "Capacity planning. Compare procurement-team capacity with aligned strategic demand, expose overload, assignment gaps and deadline pressure, and preserve executive capacity snapshots. Sections: Capacity by owner, Work capacity plan, Capacity profile, Estimate strategic work, Rebalancing opportunities, Immutable capacity snapshots. Data table with columns Team member, Effective capacity, Assigned, Remaining, Overload, Utilization (1 rows shown). Actions: Capture snapshot, Save profile, Create estimate.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1786,
+      "cropped": false
+    },
+    {
+      "route": "/capital-allocation",
+      "target": "/capital-allocation",
+      "area": "staff",
+      "file": "screenshots/staff/11-capital-allocation.png",
+      "title": "Capital allocation",
+      "eyebrow": "Investment committee governance",
+      "intro": "Rank verified strategic value cases under explicit budget constraints, separate advisory recommendations from manual funding decisions, and expose the opportunity cost of deferring valuable work.",
+      "sections": [
+        "Strategic capital portfolio",
+        "Investment candidates",
+        "Allocation snapshots"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Cycle",
+            "Status",
+            "Budget",
+            "Funded",
+            "Remaining",
+            "Utilization",
+            "Opportunity cost",
+            "Items",
+            "Pending"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Candidate",
+            "Currency",
+            "FY",
+            "Priority",
+            "Recommendation",
+            "ROI",
+            "Persistence",
+            "Net value",
+            "Payback"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Snapshot",
+            "Cycle",
+            "Status",
+            "Budget",
+            "Funded",
+            "Utilization",
+            "Opportunity cost",
+            "Pending",
+            "Captured"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "New allocation cycle"
+      ],
+      "description": "Capital allocation. Rank verified strategic value cases under explicit budget constraints, separate advisory recommendations from manual funding decisions, and expose the opportunity cost of deferring valuable work. Sections: Strategic capital portfolio, Investment candidates, Allocation snapshots. Data table with columns Cycle, Status, Budget, Funded, Remaining, Utilization (1 rows shown). Actions: New allocation cycle.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1061,
+      "cropped": false
+    },
+    {
+      "route": "/capital-allocation/new",
+      "target": "/capital-allocation/new",
+      "area": "staff",
+      "file": "screenshots/staff/12-capital-allocation-new.png",
+      "title": "New allocation cycle",
+      "eyebrow": "Investment committee planning",
+      "intro": "Define a currency-specific investment budget before importing verified Step 56 value cases.",
+      "sections": [],
+      "tables": [],
+      "actions": [
+        "Create allocation cycle"
+      ],
+      "description": "New allocation cycle. Define a currency-specific investment budget before importing verified Step 56 value cases. Actions: Create allocation cycle.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/capital-flywheel",
+      "target": "/capital-flywheel",
+      "area": "staff",
+      "file": "screenshots/staff/13-capital-flywheel.png",
+      "title": "Capital flywheel",
+      "eyebrow": "Multi-cycle capital compounding",
+      "intro": "Link sustained recycling cycles into immutable capital lineages, measure cumulative value per original capital unit, detect diminishing returns and govern whether the enterprise should recycle capital again.",
+      "sections": [
+        "Flywheel candidates",
+        "Multi-cycle flywheel",
+        "Portfolio snapshots"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Initiative",
+            "Health",
+            "Capital",
+            "Projected net value",
+            "Projected ROI",
+            "Persistence",
+            "Efficiency",
+            "Compounding"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Lineage",
+            "Status",
+            "Health",
+            "Cycles",
+            "Original capital",
+            "Cumulative net value",
+            "Value multiple",
+            "Marginal multiple",
+            "Marginal retention",
+            "Recommendation"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Snapshot",
+            "Lineages",
+            "Cycles",
+            "Review queue",
+            "Next-cycle approvals",
+            "Stopped",
+            "Diminishing",
+            "Value multiple",
+            "Marginal multiple"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "Capture snapshot"
+      ],
+      "description": "Capital flywheel. Link sustained recycling cycles into immutable capital lineages, measure cumulative value per original capital unit, detect diminishing returns and govern whether the enterprise should recycle capital again. Sections: Flywheel candidates, Multi-cycle flywheel, Portfolio snapshots. Data table with columns Initiative, Health, Capital, Projected net value, Projected ROI, Persistence (1 rows shown). Actions: Capture snapshot.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1126,
+      "cropped": false
+    },
+    {
+      "route": "/capital-recycling",
+      "target": "/capital-recycling",
+      "area": "staff",
+      "file": "screenshots/staff/14-capital-recycling.png",
+      "title": "Capital recycling",
+      "eyebrow": "Verified capital reuse",
+      "intro": "Convert verified Step 61 reductions and reallocations into governed recyclable capital, then approve new Step 56 reinvestment targets without rewriting historical allocation or funding records.",
+      "sections": [
+        "Recycling candidates",
+        "Recycling sources",
+        "Recycling snapshots"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Source",
+            "Action",
+            "Verified implemented",
+            "Step 58 remaining",
+            "Recyclable",
+            "Preferred target"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Source",
+            "Status",
+            "Action",
+            "Recyclable",
+            "Approved",
+            "Pending",
+            "Available",
+            "Utilization",
+            "Current funding remaining"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Snapshot",
+            "Sources",
+            "Open",
+            "Allocated",
+            "Recyclable",
+            "Approved",
+            "Available",
+            "Utilization"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "Capture snapshot"
+      ],
+      "description": "Capital recycling. Convert verified Step 61 reductions and reallocations into governed recyclable capital, then approve new Step 56 reinvestment targets without rewriting historical allocation or funding records. Sections: Recycling candidates, Recycling sources, Recycling snapshots. Data table with columns Source, Action, Verified implemented, Step 58 remaining, Recyclable, Preferred target (1 rows shown). Actions: Capture snapshot.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1126,
+      "cropped": false
+    },
+    {
+      "route": "/capital-redeployment",
+      "target": "/capital-redeployment",
+      "area": "staff",
+      "file": "screenshots/staff/15-capital-redeployment.png",
+      "title": "Capital redeployment",
+      "eyebrow": "Recycled-capital execution",
+      "intro": "Convert approved Step 62 reinvestment decisions into evidence-gated, explicitly authorized capital redeployment while preserving every historical upstream authority.",
+      "sections": [
+        "Redeployment candidates",
+        "Execution cases",
+        "Redeployment snapshots"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Target",
+            "Source",
+            "Approved",
+            "Source recyclable",
+            "Funding remaining",
+            "ROI",
+            "Persistence",
+            "Health"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Case",
+            "Status",
+            "Health",
+            "Approved",
+            "Released",
+            "Remaining",
+            "%",
+            "Pending gates",
+            "Target"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Snapshot",
+            "Cases",
+            "Authorization queue",
+            "Active",
+            "Ready",
+            "Verified",
+            "Remediation",
+            "Approved",
+            "Released",
+            "Remaining"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "Capture snapshot"
+      ],
+      "description": "Capital redeployment. Convert approved Step 62 reinvestment decisions into evidence-gated, explicitly authorized capital redeployment while preserving every historical upstream authority. Sections: Redeployment candidates, Execution cases, Redeployment snapshots. Data table with columns Target, Source, Approved, Source recyclable, Funding remaining, ROI (1 rows shown). Actions: Capture snapshot.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1126,
+      "cropped": false
+    },
+    {
+      "route": "/category-management",
+      "target": "/category-management",
+      "area": "staff",
+      "file": "screenshots/staff/16-category-management.png",
+      "title": "Category management",
+      "eyebrow": "Strategic procurement",
+      "intro": "Prioritize categories using live spend and supplier risk, size transparent opportunities, establish category strategies and govern sourcing initiatives.",
+      "sections": [
+        "Category intelligence",
+        "Category strategies"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Strategy",
+            "FY",
+            "Status",
+            "Baseline",
+            "Target",
+            "Realized",
+            "Pipeline",
+            "Matrix"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "New strategy"
+      ],
+      "description": "Category management. Prioritize categories using live spend and supplier risk, size transparent opportunities, establish category strategies and govern sourcing initiatives. Sections: Category intelligence, Category strategies. Data table with columns Strategy, FY, Status, Baseline, Target, Realized (1 rows shown). Actions: New strategy.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1918,
+      "cropped": false
+    },
+    {
+      "route": "/category-management/new",
+      "target": "/category-management/new",
+      "area": "staff",
+      "file": "screenshots/staff/17-category-management-new.png",
+      "title": "New category strategy",
+      "eyebrow": "Strategic procurement",
+      "intro": "Snapshot the category baseline, define savings ambition and create a governed strategy for sourcing and supplier-market actions.",
+      "sections": [
+        "Planning scope"
+      ],
+      "tables": [],
+      "actions": [
+        "Create category strategy"
+      ],
+      "description": "New category strategy. Snapshot the category baseline, define savings ambition and create a governed strategy for sourcing and supplier-market actions. Sections: Planning scope. Actions: Create category strategy.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/command-center",
+      "target": "/command-center",
+      "area": "staff",
+      "file": "screenshots/staff/18-command-center.png",
+      "title": "Command center",
+      "eyebrow": "Procurement operations",
+      "intro": "One prioritized operational cockpit for approvals, sourcing deadlines, deliveries, contracts, compliance, risk, budgets, planned demand and savings.",
+      "sections": [
+        "Action distribution",
+        "Immediate attention",
+        "Operational action queue"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Priority",
+            "Action",
+            "Workstream",
+            "Reference",
+            "Due",
+            "Amount",
+            "Owner",
+            "Actions"
+          ],
+          "rows": 2
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "All",
+        "Overdue",
+        "Priority",
+        "Action",
+        "Workstream",
+        "Reference"
+      ],
+      "description": "Command center. One prioritized operational cockpit for approvals, sourcing deadlines, deliveries, contracts, compliance, risk, budgets, planned demand and savings. Sections: Action distribution, Immediate attention, Operational action queue. Data table with columns Priority, Action, Workstream, Reference, Due, Amount (2 rows shown). Actions: Refresh, Export CSV, All, Overdue, Priority.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": null,
+      "pageHeight": 1229,
+      "cropped": false
+    },
+    {
+      "route": "/commercial-governance",
+      "target": "/commercial-governance",
+      "area": "staff",
+      "file": "screenshots/staff/19-commercial-governance.png",
+      "title": "Commercial governance",
+      "eyebrow": "Contract economics",
+      "intro": "Govern contract renewals, notice deadlines, obligations and commercial leakage across contracts, negotiations and purchase orders.",
+      "sections": [
+        "Contract governance",
+        "Leakage findings"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Supplier",
+            "Contract end",
+            "Notice deadline",
+            "Baseline",
+            "Renewal",
+            "Obligations",
+            "Leakage",
+            "Owner"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Run leakage checks",
+        "Govern contract"
+      ],
+      "description": "Commercial governance. Govern contract renewals, notice deadlines, obligations and commercial leakage across contracts, negotiations and purchase orders. Sections: Contract governance, Leakage findings. Data table with columns Supplier, Contract end, Notice deadline, Baseline, Renewal, Obligations (1 rows shown). Actions: Run leakage checks, Govern contract.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1138,
+      "cropped": false
+    },
+    {
+      "route": "/commercial-governance/new",
+      "target": "/commercial-governance/new",
+      "area": "staff",
+      "file": "screenshots/staff/20-commercial-governance-new.png",
+      "title": "Govern contract",
+      "eyebrow": "Contract economics",
+      "intro": "Configure renewal controls, commercial baselines, escalation allowances and purchase-order leakage thresholds.",
+      "sections": [],
+      "tables": [],
+      "actions": [],
+      "description": "Govern contract. Configure renewal controls, commercial baselines, escalation allowances and purchase-order leakage thresholds.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/compliance",
+      "target": "/compliance",
+      "area": "staff",
+      "file": "screenshots/staff/21-compliance.png",
+      "title": "Policy & compliance",
+      "eyebrow": "Procurement governance",
+      "intro": "Configure procurement controls, detect policy violations automatically, govern waivers and maintain remediation evidence.",
+      "sections": [
+        "Procurement controls",
+        "Policy violations"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Policy",
+            "Source",
+            "Amount",
+            "Severity",
+            "Status",
+            "Owner",
+            "Detected"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Run policy checks",
+        "New policy",
+        "Activate"
+      ],
+      "description": "Policy & compliance. Configure procurement controls, detect policy violations automatically, govern waivers and maintain remediation evidence. Sections: Procurement controls, Policy violations. Data table with columns Policy, Source, Amount, Severity, Status, Owner (1 rows shown). Actions: Run policy checks, New policy, Activate.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": null,
+      "pageHeight": 1311,
+      "cropped": false
+    },
+    {
+      "route": "/compliance/policies/new",
+      "target": "/compliance/policies/new",
+      "area": "staff",
+      "file": "screenshots/staff/22-compliance-policies-new.png",
+      "title": "New procurement policy",
+      "eyebrow": "Procurement governance",
+      "intro": "Configure a reusable procurement control and let ProcureIQ automatically identify transactions that breach it.",
+      "sections": [
+        "Compliance authority"
+      ],
+      "tables": [],
+      "actions": [
+        "Create active policy"
+      ],
+      "description": "New procurement policy. Configure a reusable procurement control and let ProcureIQ automatically identify transactions that breach it. Sections: Compliance authority. Actions: Create active policy.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1022,
+      "cropped": false
+    },
+    {
+      "route": "/continuous-improvement",
+      "target": "/continuous-improvement",
+      "area": "staff",
+      "file": "screenshots/staff/23-continuous-improvement.png",
+      "title": "Root-cause intelligence",
+      "eyebrow": "Continuous improvement",
+      "intro": "Convert operating-rhythm bottlenecks into measurable improvement initiatives with immutable baselines, explicit targets and objective before/after checkpoints.",
+      "sections": [
+        "Root-cause opportunities",
+        "Governed initiatives"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Initiative",
+            "Scope",
+            "Priority",
+            "Status",
+            "Target date",
+            "Actions",
+            "Checkpoints",
+            "Latest outcome"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [],
+      "description": "Root-cause intelligence. Convert operating-rhythm bottlenecks into measurable improvement initiatives with immutable baselines, explicit targets and objective before/after checkpoints. Sections: Root-cause opportunities, Governed initiatives. Data table with columns Initiative, Scope, Priority, Status, Target date, Actions (1 rows shown).",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1022,
+      "cropped": false
+    },
+    {
+      "route": "/continuous-improvement/new",
+      "target": "/continuous-improvement/new",
+      "area": "staff",
+      "file": "screenshots/staff/24-continuous-improvement-new.png",
+      "title": "New improvement initiative",
+      "eyebrow": "Governed improvement",
+      "intro": "Freeze an immutable operating baseline and define measurable targets before corrective work begins.",
+      "sections": [
+        "Initiative definition"
+      ],
+      "tables": [],
+      "actions": [
+        "Create initiative"
+      ],
+      "description": "New improvement initiative. Freeze an immutable operating baseline and define measurable targets before corrective work begins. Sections: Initiative definition. Actions: Create initiative.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1157,
+      "cropped": false
+    },
+    {
+      "route": "/contracts",
+      "target": "/contracts",
+      "area": "staff",
+      "file": "screenshots/staff/25-contracts.png",
+      "title": "Contracts & compliance",
+      "eyebrow": "Supplier governance",
+      "intro": "Control supplier contracts, renewals, expiry exposure, compliance documentation and governance risk.",
+      "sections": [],
+      "tables": [
+        {
+          "columns": [
+            "Contract",
+            "Supplier",
+            "Type",
+            "End date",
+            "Status",
+            "Value",
+            "Owner",
+            "Actions"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "New contract",
+        "All",
+        "Draft",
+        "Active",
+        "Expired",
+        "Terminated"
+      ],
+      "description": "Contracts & compliance. Control supplier contracts, renewals, expiry exposure, compliance documentation and governance risk. Data table with columns Contract, Supplier, Type, End date, Status, Value (1 rows shown). Actions: Refresh, Export CSV, New contract, All, Draft.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/contracts/new",
+      "target": "/contracts/new",
+      "area": "staff",
+      "file": "screenshots/staff/26-contracts-new.png",
+      "title": "New supplier contract",
+      "eyebrow": "Supplier governance",
+      "intro": "Register the commercial term, ownership and renewal parameters for a supplier agreement.",
+      "sections": [
+        "Agreement details"
+      ],
+      "tables": [],
+      "actions": [
+        "Create contract draft"
+      ],
+      "description": "New supplier contract. Register the commercial term, ownership and renewal parameters for a supplier agreement. Sections: Agreement details. Actions: Create contract draft.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1029,
+      "cropped": false
+    },
+    {
+      "route": "/control-tower",
+      "target": "/control-tower",
+      "area": "staff",
+      "file": "screenshots/staff/27-control-tower.png",
+      "title": "Procurement control tower",
+      "eyebrow": "Management by exception",
+      "intro": "Consolidate material procurement exceptions into one explainable operating queue with priority, ownership, SLA and resolution governance.",
+      "sections": [],
+      "tables": [
+        {
+          "columns": [
+            "Priority",
+            "Exception",
+            "Severity",
+            "Type",
+            "Exposure",
+            "SLA due",
+            "Owner",
+            "Status",
+            "Actions"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Reload",
+        "Export CSV",
+        "Run scan",
+        "All",
+        "SLA overdue",
+        "Priority",
+        "Exception",
+        "Severity"
+      ],
+      "description": "Procurement control tower. Consolidate material procurement exceptions into one explainable operating queue with priority, ownership, SLA and resolution governance. Data table with columns Priority, Exception, Severity, Type, Exposure, SLA due (1 rows shown). Actions: Reload, Export CSV, Run scan, All, SLA overdue.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1003,
+      "cropped": false
+    },
+    {
+      "route": "/data-quality",
+      "target": "/data-quality",
+      "area": "staff",
+      "file": "screenshots/staff/28-data-quality.png",
+      "title": "Data quality",
+      "eyebrow": "Master-data governance",
+      "intro": "Detect duplicate suppliers, incomplete master data and cross-transaction inconsistencies without automatically rewriting authoritative business data.",
+      "sections": [
+        "Governance findings",
+        "Quality rules"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Rule",
+            "Entity",
+            "Reference",
+            "Domain",
+            "Severity",
+            "Status",
+            "Remediation",
+            "Last detected"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Run quality scan",
+        "Save rule"
+      ],
+      "description": "Data quality. Detect duplicate suppliers, incomplete master data and cross-transaction inconsistencies without automatically rewriting authoritative business data. Sections: Governance findings, Quality rules. Data table with columns Rule, Entity, Reference, Domain, Severity, Status (1 rows shown). Actions: Run quality scan, Save rule.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1509,
+      "cropped": false
+    },
+    {
+      "route": "/deliveries",
+      "target": "/deliveries",
+      "area": "staff",
+      "file": "screenshots/staff/29-deliveries.png",
+      "title": "Deliveries",
+      "eyebrow": "Order fulfillment",
+      "intro": "Track supplier fulfillment, partial receipts, overdue orders and completed deliveries.",
+      "sections": [],
+      "tables": [
+        {
+          "columns": [
+            "Purchase order",
+            "Supplier",
+            "Expected delivery",
+            "Status",
+            "Value",
+            "Actions"
+          ],
+          "rows": 10
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "All",
+        "Overdue",
+        "Issued",
+        "Partially received",
+        "Received",
+        "Purchase order"
+      ],
+      "description": "Deliveries. Track supplier fulfillment, partial receipts, overdue orders and completed deliveries. Data table with columns Purchase order, Supplier, Expected delivery, Status, Value, Actions (10 rows shown). Actions: Refresh, Export CSV, All, Overdue, Issued.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1215,
+      "cropped": false
+    },
+    {
+      "route": "/demand-consolidation",
+      "target": "/demand-consolidation",
+      "area": "staff",
+      "file": "screenshots/staff/30-demand-consolidation.png",
+      "title": "Demand consolidation",
+      "eyebrow": "Strategic sourcing",
+      "intro": "Detect similar demand across departments, estimate purchasing leverage and turn approved demand bundles into sourcing opportunities.",
+      "sections": [
+        "Consolidation opportunities",
+        "Demand bundles"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Bundle",
+            "Category",
+            "Demand",
+            "Departments",
+            "Leverage",
+            "Expected savings",
+            "Status",
+            "Target sourcing"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Build bundle"
+      ],
+      "description": "Demand consolidation. Detect similar demand across departments, estimate purchasing leverage and turn approved demand bundles into sourcing opportunities. Sections: Consolidation opportunities, Demand bundles. Data table with columns Bundle, Category, Demand, Departments, Leverage, Expected savings (1 rows shown). Actions: Build bundle.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1068,
+      "cropped": false
+    },
+    {
+      "route": "/demand-consolidation/new",
+      "target": "/demand-consolidation/new",
+      "area": "staff",
+      "file": "screenshots/staff/31-demand-consolidation-new.png",
+      "title": "Build demand bundle",
+      "eyebrow": "Strategic sourcing",
+      "intro": "Select a detected cross-department demand group, choose the intakes to consolidate and prepare it for sourcing governance.",
+      "sections": [],
+      "tables": [],
+      "actions": [],
+      "description": "Build demand bundle. Select a detected cross-department demand group, choose the intakes to consolidate and prepare it for sourcing governance.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/demo",
+      "target": "/demo",
+      "area": "staff",
+      "file": "screenshots/staff/32-demo.png",
+      "title": "Enterprise procurement, engineered end to end.",
+      "eyebrow": "",
+      "intro": "ProcureIQ · Portfolio Demo Release",
+      "sections": [
+        "Built beyond the prototype stage.",
+        "Tell one complete procurement story.",
+        "Explore the platform.",
+        "A production-oriented full-stack structure.",
+        "Six capabilities worth presenting.",
+        "ProcureIQ is ready to showcase."
+      ],
+      "tables": [],
+      "actions": [],
+      "description": "Enterprise procurement, engineered end to end. ProcureIQ · Portfolio Demo Release. Sections: Built beyond the prototype stage., Tell one complete procurement story., Explore the platform., A production-oriented full-stack structure., Six capabilities worth presenting., ProcureIQ is ready to showcase..",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": null,
+      "pageHeight": 5715,
+      "cropped": true
+    },
+    {
+      "route": "/executive-cockpit",
+      "target": "/executive-cockpit",
+      "area": "staff",
+      "file": "screenshots/staff/33-executive-cockpit.png",
+      "title": "Procurement cockpit",
+      "eyebrow": "Executive intelligence",
+      "intro": "Prioritize cross-functional procurement risks and value opportunities using explainable early-warning signals from operations, suppliers, contracts, invoices, negotiations and sourcing demand.",
+      "sections": [
+        "Cross-module signals",
+        "Recommended actions",
+        "Executive status",
+        "Management warnings",
+        "Rule configuration"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Rule",
+            "Signal",
+            "Default severity",
+            "Threshold",
+            "Lookahead",
+            "State",
+            "Actions"
+          ],
+          "rows": 10
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "Open · 0",
+        "Acknowledged · 0",
+        "All",
+        "Rule",
+        "Signal",
+        "Default severity"
+      ],
+      "description": "Procurement cockpit. Prioritize cross-functional procurement risks and value opportunities using explainable early-warning signals from operations, suppliers, contracts, invoices, negotiations and sourcing demand. Sections: Cross-module signals, Recommended actions, Executive status, Management warnings, Rule configuration. Data table with columns Rule, Signal, Default severity, Threshold, Lookahead, State (10 rows shown). Actions: Refresh, Export CSV, Open · 0, Acknowledged · 0, All.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 2503,
+      "cropped": true
+    },
+    {
+      "route": "/flywheel-allocation",
+      "target": "/flywheel-allocation",
+      "area": "staff",
+      "file": "screenshots/staff/34-flywheel-allocation.png",
+      "title": "Capital mandates",
+      "eyebrow": "Authorized capital planning",
+      "intro": "Convert approved Step 67 portfolio priorities into explicit allocation mandates. This stage authorizes capital capacity but does not release or move funds.",
+      "sections": [
+        "Eligible strategies",
+        "Create allocation mandate",
+        "Allocation mandates"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Strategy",
+            "Currency",
+            "FY",
+            "Prioritized capacity",
+            "Prioritized items",
+            "Avg priority",
+            "Owner"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Mandate",
+            "Status",
+            "Strategy",
+            "Requested",
+            "Available",
+            "Utilization",
+            "Items"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Create mandate"
+      ],
+      "description": "Capital mandates. Convert approved Step 67 portfolio priorities into explicit allocation mandates. This stage authorizes capital capacity but does not release or move funds. Sections: Eligible strategies, Create allocation mandate, Allocation mandates. Data table with columns Strategy, Currency, FY, Prioritized capacity, Prioritized items, Avg priority (1 rows shown). Actions: Create mandate.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1735,
+      "cropped": false
+    },
+    {
+      "route": "/flywheel-continuation-outcomes",
+      "target": "/flywheel-continuation-outcomes",
+      "area": "staff",
+      "file": "screenshots/staff/35-flywheel-continuation-outcomes.png",
+      "title": "Continuation outcomes",
+      "eyebrow": "",
+      "intro": "Request failed with status 404",
+      "sections": [],
+      "tables": [],
+      "actions": [],
+      "description": "Continuation outcomes. Request failed with status 404.",
+      "flags": {
+        "error": true,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/flywheel-continuation-rollovers",
+      "target": "/flywheel-continuation-rollovers",
+      "area": "staff",
+      "file": "screenshots/staff/36-flywheel-continuation-rollovers.png",
+      "title": "Residual cycle rollovers",
+      "eyebrow": "",
+      "intro": "Request failed with status 404",
+      "sections": [],
+      "tables": [],
+      "actions": [],
+      "description": "Residual cycle rollovers. Request failed with status 404.",
+      "flags": {
+        "error": true,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/flywheel-release",
+      "target": "/flywheel-release",
+      "area": "staff",
+      "file": "screenshots/staff/37-flywheel-release.png",
+      "title": "Capital release",
+      "eyebrow": "Governed capital execution",
+      "intro": "Execute authorized Step 68 mandate capacity through explicit release records, evidence references and manager confirmation. ProcureIQ does not connect to a bank or move cash in this step.",
+      "sections": [
+        "Eligible mandates",
+        "Create release batch",
+        "Release batches"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Mandate",
+            "Currency",
+            "Authorized",
+            "Released",
+            "Remaining",
+            "Items"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Release",
+            "Status",
+            "Mandate",
+            "Planned",
+            "Released",
+            "Remaining mandate",
+            "Items"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Create release batch"
+      ],
+      "description": "Capital release. Execute authorized Step 68 mandate capacity through explicit release records, evidence references and manager confirmation. ProcureIQ does not connect to a bank or move cash in this step. Sections: Eligible mandates, Create release batch, Release batches. Data table with columns Mandate, Currency, Authorized, Released, Remaining, Items (1 rows shown). Actions: Create release batch.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1760,
+      "cropped": false
+    },
+    {
+      "route": "/flywheel-remediation",
+      "target": "/flywheel-remediation",
+      "area": "staff",
+      "file": "screenshots/staff/38-flywheel-remediation.png",
+      "title": "Residual exposure remediation",
+      "eyebrow": "",
+      "intro": "Request failed with status 404",
+      "sections": [],
+      "tables": [],
+      "actions": [],
+      "description": "Residual exposure remediation. Request failed with status 404.",
+      "flags": {
+        "error": true,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/flywheel-remediation-continuations",
+      "target": "/flywheel-remediation-continuations",
+      "area": "staff",
+      "file": "screenshots/staff/39-flywheel-remediation-continuations.png",
+      "title": "Residual continuations",
+      "eyebrow": "",
+      "intro": "Request failed with status 404",
+      "sections": [],
+      "tables": [],
+      "actions": [],
+      "description": "Residual continuations. Request failed with status 404.",
+      "flags": {
+        "error": true,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/flywheel-remediation-outcomes",
+      "target": "/flywheel-remediation-outcomes",
+      "area": "staff",
+      "file": "screenshots/staff/40-flywheel-remediation-outcomes.png",
+      "title": "Remediation outcomes",
+      "eyebrow": "",
+      "intro": "Request failed with status 404",
+      "sections": [],
+      "tables": [],
+      "actions": [],
+      "description": "Remediation outcomes. Request failed with status 404.",
+      "flags": {
+        "error": true,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/flywheel-rollover-outcomes",
+      "target": "/flywheel-rollover-outcomes",
+      "area": "staff",
+      "file": "screenshots/staff/41-flywheel-rollover-outcomes.png",
+      "title": "Rollover outcomes",
+      "eyebrow": "",
+      "intro": "Request failed with status 404",
+      "sections": [],
+      "tables": [],
+      "actions": [],
+      "description": "Rollover outcomes. Request failed with status 404.",
+      "flags": {
+        "error": true,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/flywheel-settlement",
+      "target": "/flywheel-settlement",
+      "area": "staff",
+      "file": "screenshots/staff/42-flywheel-settlement.png",
+      "title": "Settlement evidence",
+      "eyebrow": "Post-release financial evidence",
+      "intro": "Reconcile finalized internal capital-release records against external settlement evidence. Evidence is entered manually; this module does not connect to a bank or payment provider.",
+      "sections": [
+        "Releases awaiting reconciliation",
+        "Create reconciliation case",
+        "Reconciliation cases"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Release",
+            "Status",
+            "Currency",
+            "Released amount",
+            "Released items",
+            "Owner"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Case",
+            "Status",
+            "Release",
+            "Released",
+            "Settled",
+            "Variance",
+            "Settlement"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Create reconciliation case"
+      ],
+      "description": "Settlement evidence. Reconcile finalized internal capital-release records against external settlement evidence. Evidence is entered manually; this module does not connect to a bank or payment provider. Sections: Releases awaiting reconciliation, Create reconciliation case, Reconciliation cases. Data table with columns Release, Status, Currency, Released amount, Released items, Owner (1 rows shown). Actions: Create reconciliation case.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1713,
+      "cropped": false
+    },
+    {
+      "route": "/flywheel-strategy",
+      "target": "/flywheel-strategy",
+      "area": "staff",
+      "file": "screenshots/staff/43-flywheel-strategy.png",
+      "title": "Flywheel strategy",
+      "eyebrow": "Enterprise capital flywheel governance",
+      "intro": "Compare approved Step 66 next-cycle lineages inside constrained currency-specific capital envelopes. Priority scores are advisory. Final allocation decisions remain explicit human governance decisions.",
+      "sections": [
+        "Eligible strategy candidates",
+        "Create strategy portfolio",
+        "Strategy portfolios",
+        "Recent snapshots"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Lineage",
+            "Currency",
+            "Cycles",
+            "Capital reference",
+            "Cumulative",
+            "Marginal",
+            "Retention",
+            "Priority",
+            "Advisory"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Portfolio",
+            "Status",
+            "Currency",
+            "Year",
+            "Envelope",
+            "Prioritized",
+            "Remaining",
+            "Utilization",
+            "Items"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Snapshot",
+            "Portfolio",
+            "Status",
+            "Items",
+            "Prioritized",
+            "Utilization",
+            "Captured"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "Create strategy portfolio"
+      ],
+      "description": "Flywheel strategy. Compare approved Step 66 next-cycle lineages inside constrained currency-specific capital envelopes. Priority scores are advisory. Final allocation decisions remain explicit human governance decisions. Sections: Eligible strategy candidates, Create strategy portfolio, Strategy portfolios, Recent snapshots. Data table with columns Lineage, Currency, Cycles, Capital reference, Cumulative, Marginal (1 rows shown). Actions: Create strategy portfolio.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1862,
+      "cropped": false
+    },
+    {
+      "route": "/flywheel-variance",
+      "target": "/flywheel-variance",
+      "area": "staff",
+      "file": "screenshots/staff/44-flywheel-variance.png",
+      "title": "Variance resolution",
+      "eyebrow": "Post-settlement variance governance",
+      "intro": "Turn partial and unresolved settlement variance into an explicit recovery, write-off, or investigation decision. Approval here governs the treatment only; it does not execute collections or accounting entries.",
+      "sections": [
+        "Variance awaiting governance",
+        "Create resolution plan",
+        "Variance plans"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Settlement",
+            "Status",
+            "Released",
+            "Settled",
+            "Variance",
+            "Partial",
+            "Unresolved"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Plan",
+            "Status",
+            "Variance",
+            "Recovery",
+            "Write-off",
+            "Investigation",
+            "Coverage"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Create resolution plan"
+      ],
+      "description": "Variance resolution. Turn partial and unresolved settlement variance into an explicit recovery, write-off, or investigation decision. Approval here governs the treatment only; it does not execute collections or accounting entries. Sections: Variance awaiting governance, Create resolution plan, Variance plans. Data table with columns Settlement, Status, Released, Settled, Variance, Partial (1 rows shown). Actions: Create resolution plan.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1713,
+      "cropped": false
+    },
+    {
+      "route": "/flywheel-variance-execution",
+      "target": "/flywheel-variance-execution",
+      "area": "staff",
+      "file": "screenshots/staff/45-flywheel-variance-execution.png",
+      "title": "Treatment execution",
+      "eyebrow": "Approved variance treatment evidence",
+      "intro": "Record auditable evidence that approved Step 73 recovery, write-off, or investigation decisions were carried out externally. ProcureIQ records and verifies the evidence; it does not perform the financial action.",
+      "sections": [
+        "Plans awaiting execution evidence",
+        "Create execution case",
+        "Treatment execution cases",
+        "Financial residual and evidence coverage"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Plan",
+            "Status",
+            "Variance",
+            "Recover",
+            "Write-off",
+            "Investigate",
+            "Items"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Case",
+            "Status",
+            "Variance",
+            "Recovered",
+            "Written off",
+            "Investigation complete",
+            "Financial residual",
+            "Treatment completion"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Create execution case"
+      ],
+      "description": "Treatment execution. Record auditable evidence that approved Step 73 recovery, write-off, or investigation decisions were carried out externally. ProcureIQ records and verifies the evidence; it does not perform the financial action. Sections: Plans awaiting execution evidence, Create execution case, Treatment execution cases, Financial residual and evidence coverage. Data table with columns Plan, Status, Variance, Recover, Write-off, Investigate (1 rows shown). Actions: Create execution case.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1953,
+      "cropped": false
+    },
+    {
+      "route": "/funding-execution",
+      "target": "/funding-execution",
+      "area": "staff",
+      "file": "screenshots/staff/46-funding-execution.png",
+      "title": "Funding execution",
+      "eyebrow": "Authorized capital execution",
+      "intro": "Convert approved Step 57 FUND decisions into governed funding commitments, evidence- gated release tranches and immutable capital authorization records.",
+      "sections": [
+        "Approved FUND decisions",
+        "Funding commitments",
+        "Funding snapshots"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Initiative",
+            "Cycle",
+            "Capital ceiling",
+            "Priority",
+            "ROI",
+            "Persistence",
+            "Net value"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Commitment",
+            "Status",
+            "Owner",
+            "Authorized",
+            "Committed",
+            "Released",
+            "Release %",
+            "Remaining",
+            "Gates"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Snapshot",
+            "Commitment",
+            "Status",
+            "Committed",
+            "Released",
+            "Release %",
+            "Remaining",
+            "Pending gates",
+            "Captured"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [],
+      "description": "Funding execution. Convert approved Step 57 FUND decisions into governed funding commitments, evidence- gated release tranches and immutable capital authorization records. Sections: Approved FUND decisions, Funding commitments, Funding snapshots. Data table with columns Initiative, Cycle, Capital ceiling, Priority, ROI, Persistence (1 rows shown).",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1126,
+      "cropped": false
+    },
+    {
+      "route": "/governance-reviews",
+      "target": "/governance-reviews",
+      "area": "staff",
+      "file": "screenshots/staff/47-governance-reviews.png",
+      "title": "Governance reviews",
+      "eyebrow": "Executive procurement governance",
+      "intro": "Freeze procurement performance into a board-ready review period, resolve formal decisions and track management actions without rewriting operational source systems.",
+      "sections": [
+        "Executive governance reviews"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Review",
+            "Period",
+            "Status",
+            "Target",
+            "Validated",
+            "At risk",
+            "Decisions",
+            "Actions"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "New review"
+      ],
+      "description": "Governance reviews. Freeze procurement performance into a board-ready review period, resolve formal decisions and track management actions without rewriting operational source systems. Sections: Executive governance reviews. Data table with columns Review, Period, Status, Target, Validated, At risk (1 rows shown). Actions: New review.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 912,
+      "cropped": false
+    },
+    {
+      "route": "/governance-reviews/new",
+      "target": "/governance-reviews/new",
+      "area": "staff",
+      "file": "screenshots/staff/48-governance-reviews-new.png",
+      "title": "New governance review",
+      "eyebrow": "Executive review cycle",
+      "intro": "Define the review period, executive ownership and management narrative before freezing the point-in-time procurement snapshot.",
+      "sections": [
+        "Board review setup"
+      ],
+      "tables": [],
+      "actions": [
+        "Create draft review"
+      ],
+      "description": "New governance review. Define the review period, executive ownership and management narrative before freezing the point-in-time procurement snapshot. Sections: Board review setup. Actions: Create draft review.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 975,
+      "cropped": false
+    },
+    {
+      "route": "/guided-buying",
+      "target": "/guided-buying",
+      "area": "staff",
+      "file": "screenshots/staff/49-guided-buying.png",
+      "title": "Guided buying",
+      "eyebrow": "Procurement intake",
+      "intro": "Guide business users toward compliant buying routes, reusable request templates and preferred suppliers before procurement work begins.",
+      "sections": [
+        "Buying templates",
+        "Preferred suppliers"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Intake",
+            "Department",
+            "Category",
+            "Estimate",
+            "Guided route",
+            "Status",
+            "Requester",
+            "Actions"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "Preferred supplier",
+        "New template",
+        "New intake",
+        "All",
+        "Draft",
+        "Ready"
+      ],
+      "description": "Guided buying. Guide business users toward compliant buying routes, reusable request templates and preferred suppliers before procurement work begins. Sections: Buying templates, Preferred suppliers. Data table with columns Intake, Department, Category, Estimate, Guided route, Status (1 rows shown). Actions: Refresh, Export CSV, Preferred supplier, New template, New intake.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1294,
+      "cropped": false
+    },
+    {
+      "route": "/guided-buying/new",
+      "target": "/guided-buying/new",
+      "area": "staff",
+      "file": "screenshots/staff/50-guided-buying-new.png",
+      "title": "New guided-buying intake",
+      "eyebrow": "Procurement intake",
+      "intro": "Describe the business need, select an optional template or supplier, and let ProcureIQ determine the policy-aware buying route.",
+      "sections": [
+        "Intake details"
+      ],
+      "tables": [],
+      "actions": [
+        "Preview route",
+        "Create intake"
+      ],
+      "description": "New guided-buying intake. Describe the business need, select an optional template or supplier, and let ProcureIQ determine the policy-aware buying route. Sections: Intake details. Actions: Preview route, Create intake.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1084,
+      "cropped": false
+    },
+    {
+      "route": "/guided-buying/preferred/new",
+      "target": "/guided-buying/preferred/new",
+      "area": "staff",
+      "file": "screenshots/staff/51-guided-buying-preferred-new.png",
+      "title": "Add preferred supplier",
+      "eyebrow": "Preferred supply",
+      "intro": "Associate an active supplier with a buying category and define its recommendation priority.",
+      "sections": [
+        "Supplier preference"
+      ],
+      "tables": [],
+      "actions": [
+        "Add preferred supplier"
+      ],
+      "description": "Add preferred supplier. Associate an active supplier with a buying category and define its recommendation priority. Sections: Supplier preference. Actions: Add preferred supplier.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/guided-buying/templates/new",
+      "target": "/guided-buying/templates/new",
+      "area": "staff",
+      "file": "screenshots/staff/52-guided-buying-templates-new.png",
+      "title": "New buying template",
+      "eyebrow": "Reusable intake",
+      "intro": "Create a reusable intake starting point for recurring procurement categories and business needs.",
+      "sections": [
+        "Default buying context"
+      ],
+      "tables": [],
+      "actions": [
+        "Create template"
+      ],
+      "description": "New buying template. Create a reusable intake starting point for recurring procurement categories and business needs. Sections: Default buying context. Actions: Create template.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 961,
+      "cropped": false
+    },
+    {
+      "route": "/intervention-execution",
+      "target": "/intervention-execution",
+      "area": "staff",
+      "file": "screenshots/staff/53-intervention-execution.png",
+      "title": "Intervention execution",
+      "eyebrow": "Approved intervention implementation",
+      "intro": "Track implementation of approved Step 60 continue, hold, reduction and reallocation decisions without rewriting historical Step 57 allocations or Step 58 releases.",
+      "sections": [
+        "Execution candidates",
+        "Execution cases",
+        "Execution snapshots"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Intervention",
+            "Action",
+            "Approved affected",
+            "Released capital",
+            "Current remaining",
+            "Target"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Case",
+            "Status",
+            "Health",
+            "Action",
+            "Approved",
+            "Implemented",
+            "Remaining",
+            "Implementation",
+            "Variance"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Snapshot",
+            "Cases",
+            "Active",
+            "Ready",
+            "Verified",
+            "Remediation",
+            "Approved",
+            "Implemented",
+            "Remaining",
+            "Avg %"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "Capture snapshot"
+      ],
+      "description": "Intervention execution. Track implementation of approved Step 60 continue, hold, reduction and reallocation decisions without rewriting historical Step 57 allocations or Step 58 releases. Sections: Execution candidates, Execution cases, Execution snapshots. Data table with columns Intervention, Action, Approved affected, Released capital, Current remaining, Target (1 rows shown). Actions: Capture snapshot.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1126,
+      "cropped": false
+    },
+    {
+      "route": "/investment-interventions",
+      "target": "/investment-interventions",
+      "area": "staff",
+      "file": "screenshots/staff/54-investment-interventions.png",
+      "title": "Investment intervention",
+      "eyebrow": "Capital intervention governance",
+      "intro": "Govern continue, hold, reduce and reallocation proposals using Step 59 realized performance while protecting Step 58 released capital and keeping upstream funding authorities read-only.",
+      "sections": [
+        "Intervention candidates",
+        "Governance cases",
+        "Portfolio snapshots"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Investment",
+            "Health",
+            "Released",
+            "Unreleased",
+            "Baseline ROI",
+            "Realized ROI",
+            "ROI variance",
+            "Efficiency",
+            "Recommendation",
+            "Affected"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Case",
+            "Status",
+            "Current health",
+            "Remaining",
+            "ROI variance",
+            "Recommendation",
+            "Approved action",
+            "Approved affected"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Snapshot",
+            "Cases",
+            "Open",
+            "In review",
+            "Approved",
+            "Underperforming",
+            "Remaining",
+            "Affected",
+            "Reallocation"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "Capture snapshot"
+      ],
+      "description": "Investment intervention. Govern continue, hold, reduce and reallocation proposals using Step 59 realized performance while protecting Step 58 released capital and keeping upstream funding authorities read-only. Sections: Intervention candidates, Governance cases, Portfolio snapshots. Data table with columns Investment, Health, Released, Unreleased, Baseline ROI, Realized ROI (1 rows shown). Actions: Capture snapshot.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1126,
+      "cropped": false
+    },
+    {
+      "route": "/investment-performance",
+      "target": "/investment-performance",
+      "area": "staff",
+      "file": "screenshots/staff/55-investment-performance.png",
+      "title": "Investment performance",
+      "eyebrow": "Post-funding economics",
+      "intro": "Compare actual released capital against independently validated realized value, distinguish Step 56 ROI assumptions from realized economics and govern underperforming investments.",
+      "sections": [
+        "Performance candidates",
+        "Performance cases",
+        "Performance snapshots"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Initiative",
+            "Funding",
+            "Released",
+            "Release %",
+            "Step 56 investment",
+            "Baseline ROI",
+            "Durable value"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Case",
+            "Status",
+            "Health",
+            "Released",
+            "Baseline ROI",
+            "Realized ROI",
+            "ROI variance",
+            "Funding variance",
+            "Efficiency",
+            "Value variance"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Snapshot",
+            "Cases",
+            "Assessed",
+            "Outperforming",
+            "On track",
+            "Watch",
+            "Underperforming",
+            "Realized ROI",
+            "ROI variance",
+            "Efficiency"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "Capture snapshot"
+      ],
+      "description": "Investment performance. Compare actual released capital against independently validated realized value, distinguish Step 56 ROI assumptions from realized economics and govern underperforming investments. Sections: Performance candidates, Performance cases, Performance snapshots. Data table with columns Initiative, Funding, Released, Release %, Step 56 investment, Baseline ROI (1 rows shown). Actions: Capture snapshot.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1126,
+      "cropped": false
+    },
+    {
+      "route": "/invoice-control",
+      "target": "/invoice-control",
+      "area": "staff",
+      "file": "screenshots/staff/56-invoice-control.png",
+      "title": "Invoice control",
+      "eyebrow": "Procure-to-pay control",
+      "intro": "Intake supplier invoices, execute PO/receipt/invoice matching, manage payment exceptions and control accounts-payable exposure.",
+      "sections": [],
+      "tables": [
+        {
+          "columns": [
+            "Invoice",
+            "Supplier",
+            "PO",
+            "Total",
+            "Match",
+            "Status",
+            "Due",
+            "Aging",
+            "Actions"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "New invoice",
+        "Invoice",
+        "Supplier",
+        "PO",
+        "Total",
+        "Match"
+      ],
+      "description": "Invoice control. Intake supplier invoices, execute PO/receipt/invoice matching, manage payment exceptions and control accounts-payable exposure. Data table with columns Invoice, Supplier, PO, Total, Match, Status (1 rows shown). Actions: Refresh, Export CSV, New invoice, Invoice, Supplier.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1009,
+      "cropped": false
+    },
+    {
+      "route": "/invoice-control/new",
+      "target": "/invoice-control/new",
+      "area": "staff",
+      "file": "screenshots/staff/57-invoice-control-new.png",
+      "title": "New supplier invoice",
+      "eyebrow": "Procure-to-pay",
+      "intro": "Capture invoice lines against an existing purchase order. ProcureIQ will immediately run duplicate, commercial and receipt-state matching.",
+      "sections": [
+        "Supplier document",
+        "Line-item value"
+      ],
+      "tables": [],
+      "actions": [
+        "Add line",
+        "Create & run match"
+      ],
+      "description": "New supplier invoice. Capture invoice lines against an existing purchase order. ProcureIQ will immediately run duplicate, commercial and receipt-state matching. Sections: Supplier document, Line-item value. Actions: Add line, Create & run match.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1097,
+      "cropped": false
+    },
+    {
+      "route": "/negotiations",
+      "target": "/negotiations",
+      "area": "staff",
+      "file": "screenshots/staff/58-negotiations.png",
+      "title": "Negotiations",
+      "eyebrow": "Strategic sourcing",
+      "intro": "Model commercial targets, define walk-away positions, compare supplier scenarios and capture negotiation rounds before final award.",
+      "sections": [],
+      "tables": [
+        {
+          "columns": [
+            "Negotiation",
+            "RFQ",
+            "Supplier",
+            "Baseline",
+            "Target",
+            "Agreed",
+            "Savings",
+            "Status",
+            "Actions"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "New negotiation",
+        "All",
+        "Draft",
+        "Active",
+        "Agreed",
+        "Closed"
+      ],
+      "description": "Negotiations. Model commercial targets, define walk-away positions, compare supplier scenarios and capture negotiation rounds before final award. Data table with columns Negotiation, RFQ, Supplier, Baseline, Target, Agreed (1 rows shown). Actions: Refresh, Export CSV, New negotiation, All, Draft.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 997,
+      "cropped": false
+    },
+    {
+      "route": "/negotiations/new",
+      "target": "/negotiations/new",
+      "area": "staff",
+      "file": "screenshots/staff/59-negotiations-new.png",
+      "title": "New negotiation workspace",
+      "eyebrow": "Strategic sourcing",
+      "intro": "Select a submitted supplier quotation as the commercial baseline, assign an owner and begin scenario modeling.",
+      "sections": [
+        "Supplier quotation"
+      ],
+      "tables": [],
+      "actions": [
+        "Create workspace"
+      ],
+      "description": "New negotiation workspace. Select a submitted supplier quotation as the commercial baseline, assign an owner and begin scenario modeling. Sections: Supplier quotation. Actions: Create workspace.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/operating-rhythm",
+      "target": "/operating-rhythm",
+      "area": "staff",
+      "file": "screenshots/staff/60-operating-rhythm.png",
+      "title": "Operating rhythm",
+      "eyebrow": "Procurement operating system",
+      "intro": "Measure how effectively the procurement control tower converts exceptions into accountable, SLA-governed resolution.",
+      "sections": [
+        "Capture performance snapshot",
+        "Performance by domain",
+        "Owner workload",
+        "Performance snapshots"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Owner",
+            "Active",
+            "Share",
+            "SLA late",
+            "Persistent",
+            "Resolved",
+            "Avg resolve"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Snapshot",
+            "Period",
+            "Backlog",
+            "SLA overdue",
+            "Persistent",
+            "Resolved",
+            "SLA attainment",
+            "Avg resolve"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Capture immutable snapshot"
+      ],
+      "description": "Operating rhythm. Measure how effectively the procurement control tower converts exceptions into accountable, SLA-governed resolution. Sections: Capture performance snapshot, Performance by domain, Owner workload, Performance snapshots. Data table with columns Owner, Active, Share, SLA late, Persistent, Resolved. Actions: Capture immutable snapshot.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1244,
+      "cropped": false
+    },
+    {
+      "route": "/outcome-persistence",
+      "target": "/outcome-persistence",
+      "area": "staff",
+      "file": "screenshots/staff/61-outcome-persistence.png",
+      "title": "Outcome persistence",
+      "eyebrow": "Durable strategic value",
+      "intro": "Test whether Step 53 validated contribution persists after delivery, distinguish durable value from temporary success, and govern remediation when realized benefits decay.",
+      "sections": [
+        "Validated outcomes eligible for observation",
+        "Governed observation plans",
+        "Persistence reviews"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Outcome",
+            "Roadmap",
+            "Owner",
+            "Completed",
+            "Validated value"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Plan",
+            "Status",
+            "Owner",
+            "Baseline",
+            "Current",
+            "Persistence",
+            "Health",
+            "Decay",
+            "Controls"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Review",
+            "Health",
+            "Persistence",
+            "Baseline",
+            "Current",
+            "Decay",
+            "Decayed plans",
+            "Overdue controls",
+            "Captured"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "Capture review"
+      ],
+      "description": "Outcome persistence. Test whether Step 53 validated contribution persists after delivery, distinguish durable value from temporary success, and govern remediation when realized benefits decay. Sections: Validated outcomes eligible for observation, Governed observation plans, Persistence reviews. Data table with columns Outcome, Roadmap, Owner, Completed, Validated value (1 rows shown). Actions: Capture review.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1135,
+      "cropped": false
+    },
+    {
+      "route": "/planning",
+      "target": "/planning",
+      "area": "staff",
+      "file": "screenshots/staff/62-planning.png",
+      "title": "Procurement planning",
+      "eyebrow": "Strategic procurement",
+      "intro": "Build annual sourcing plans, forecast upcoming demand and compare planned procurement value with actual purchase requests.",
+      "sections": [
+        "Monthly plan vs actual",
+        "Planning variance",
+        "Upcoming sourcing demand",
+        "Procurement plan portfolio"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Initiative",
+            "Plan",
+            "Department",
+            "Category",
+            "Priority",
+            "Planned value",
+            "Target"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "New plan"
+      ],
+      "description": "Procurement planning. Build annual sourcing plans, forecast upcoming demand and compare planned procurement value with actual purchase requests. Sections: Monthly plan vs actual, Planning variance, Upcoming sourcing demand, Procurement plan portfolio. Data table with columns Initiative, Plan, Department, Category, Priority, Planned value (1 rows shown). Actions: New plan.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1315,
+      "cropped": false
+    },
+    {
+      "route": "/planning/new",
+      "target": "/planning/new",
+      "area": "staff",
+      "file": "screenshots/staff/63-planning-new.png",
+      "title": "New procurement plan",
+      "eyebrow": "Strategic planning",
+      "intro": "Establish the annual procurement planning authority before adding department and category demand initiatives.",
+      "sections": [
+        "Planning authority"
+      ],
+      "tables": [],
+      "actions": [
+        "Create planning draft"
+      ],
+      "description": "New procurement plan. Establish the annual procurement planning authority before adding department and category demand initiatives. Sections: Planning authority. Actions: Create planning draft.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/portfolio-optimization",
+      "target": "/portfolio-optimization",
+      "area": "staff",
+      "file": "screenshots/staff/64-portfolio-optimization.png",
+      "title": "Portfolio optimization",
+      "eyebrow": "Executive portfolio planning",
+      "intro": "Compare procurement scenarios under explicit budget, capacity and risk constraints, with transparent initiative scores and selection reasons.",
+      "sections": [
+        "Executive portfolio scenarios"
+      ],
+      "tables": [],
+      "actions": [
+        "New scenario"
+      ],
+      "description": "Portfolio optimization. Compare procurement scenarios under explicit budget, capacity and risk constraints, with transparent initiative scores and selection reasons. Sections: Executive portfolio scenarios. Actions: New scenario.",
+      "flags": {
+        "error": false,
+        "empty": true,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/portfolio-optimization/new",
+      "target": "/portfolio-optimization/new",
+      "area": "staff",
+      "file": "screenshots/staff/65-portfolio-optimization-new.png",
+      "title": "New portfolio scenario",
+      "eyebrow": "What-if planning",
+      "intro": "Define the hard constraints that ProcureIQ must respect when selecting sourcing and category initiatives.",
+      "sections": [
+        "Scenario definition"
+      ],
+      "tables": [],
+      "actions": [
+        "Create scenario"
+      ],
+      "description": "New portfolio scenario. Define the hard constraints that ProcureIQ must respect when selecting sourcing and category initiatives. Sections: Scenario definition. Actions: Create scenario.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 964,
+      "cropped": false
+    },
+    {
+      "route": "/process-mining",
+      "target": "/process-mining",
+      "area": "staff",
+      "file": "screenshots/staff/66-process-mining.png",
+      "title": "Process mining",
+      "eyebrow": "Operational intelligence",
+      "intro": "Measure procurement cycle-time, identify stalled stages, detect process deviations and focus teams on the largest operational bottlenecks.",
+      "sections": [
+        "Stage duration",
+        "Recommendations",
+        "Active bottlenecks",
+        "Department performance",
+        "Category performance",
+        "Deviations",
+        "Stage SLA targets",
+        "Recent process events"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Entity",
+            "Reference",
+            "Stage",
+            "Department",
+            "Category",
+            "Age",
+            "Target",
+            "Severity"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Time",
+            "Entity",
+            "Reference",
+            "Previous",
+            "Current",
+            "Source"
+          ],
+          "rows": 25
+        }
+      ],
+      "actions": [
+        "Save SLA target",
+        "Export CSV"
+      ],
+      "description": "Process mining. Measure procurement cycle-time, identify stalled stages, detect process deviations and focus teams on the largest operational bottlenecks. Sections: Stage duration, Recommendations, Active bottlenecks, Department performance, Category performance, Deviations. Data table with columns Entity, Reference, Stage, Department, Category, Age (1 rows shown). Actions: Save SLA target, Export CSV.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 3935,
+      "cropped": true
+    },
+    {
+      "route": "/purchase-orders",
+      "target": "/purchase-orders",
+      "area": "staff",
+      "file": "screenshots/staff/67-purchase-orders.png",
+      "title": "Purchase orders",
+      "eyebrow": "Procure-to-order",
+      "intro": "Convert awarded sourcing decisions into controlled supplier purchase orders.",
+      "sections": [],
+      "tables": [
+        {
+          "columns": [
+            "Purchase order",
+            "Supplier",
+            "Source RFQ",
+            "Delivery",
+            "Status",
+            "Value",
+            "Created by",
+            "Actions"
+          ],
+          "rows": 10
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "New purchase order",
+        "All",
+        "Draft",
+        "Issued",
+        "Rejected by supplier",
+        "Partially received"
+      ],
+      "description": "Purchase orders. Convert awarded sourcing decisions into controlled supplier purchase orders. Data table with columns Purchase order, Supplier, Source RFQ, Delivery, Status, Value (10 rows shown). Actions: Refresh, Export CSV, New purchase order, All, Draft.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1355,
+      "cropped": false
+    },
+    {
+      "route": "/purchase-orders/[id]",
+      "target": "/purchase-orders/2be3b770-a16a-4b56-ba6e-a6f24b385b3b",
+      "area": "staff",
+      "file": "screenshots/staff/68-purchase-orders-id.png",
+      "title": "Atlas Office Solutions SARL",
+      "eyebrow": "",
+      "intro": "Purchase commitment generated from awarded sourcing event RFQ-2026-00020.",
+      "sections": [
+        "Purchase order lines",
+        "Delivery tracking",
+        "Goods receipts",
+        "Receiving information"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Line",
+            "Item",
+            "Category",
+            "Qty",
+            "Unit price",
+            "Total"
+          ],
+          "rows": 2
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Reopen for revision",
+        "Cancel PO",
+        "Line",
+        "Item",
+        "Category",
+        "Qty",
+        "Unit price"
+      ],
+      "description": "Atlas Office Solutions SARL. Purchase commitment generated from awarded sourcing event RFQ-2026-00020. Sections: Purchase order lines, Delivery tracking, Goods receipts, Receiving information. Data table with columns Line, Item, Category, Qty, Unit price, Total (2 rows shown). Actions: Refresh, Reopen for revision, Cancel PO, Line, Item.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": "/purchase-orders/2be3b770-a16a-4b56-ba6e-a6f24b385b3b",
+      "pageHeight": 1974,
+      "cropped": false
+    },
+    {
+      "route": "/purchase-orders/new",
+      "target": "/purchase-orders/new",
+      "area": "staff",
+      "file": "screenshots/staff/69-purchase-orders-new.png",
+      "title": "Create purchase order",
+      "eyebrow": "Award-to-order",
+      "intro": "Convert a completed sourcing award into an operational supplier commitment.",
+      "sections": [
+        "Source award",
+        "Delivery instructions"
+      ],
+      "tables": [],
+      "actions": [
+        "Create PO draft"
+      ],
+      "description": "Create purchase order. Convert a completed sourcing award into an operational supplier commitment. Sections: Source award, Delivery instructions. Actions: Create PO draft.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": null,
+      "pageHeight": 1054,
+      "cropped": false
+    },
+    {
+      "route": "/purchase-requests",
+      "target": "/purchase-requests",
+      "area": "staff",
+      "file": "screenshots/staff/70-purchase-requests.png",
+      "title": "Purchase requests",
+      "eyebrow": "Procure-to-request",
+      "intro": "Capture purchasing demand, estimate cost and submit requirements into the ProcureIQ governance flow.",
+      "sections": [],
+      "tables": [
+        {
+          "columns": [
+            "Request",
+            "Requester",
+            "Department",
+            "Cost center",
+            "Delivery",
+            "Status",
+            "Amount",
+            "Actions"
+          ],
+          "rows": 10
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "New request",
+        "All",
+        "Draft",
+        "Submitted",
+        "Approved",
+        "Rejected"
+      ],
+      "description": "Purchase requests. Capture purchasing demand, estimate cost and submit requirements into the ProcureIQ governance flow. Data table with columns Request, Requester, Department, Cost center, Delivery, Status (10 rows shown). Actions: Refresh, Export CSV, New request, All, Draft.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": null,
+      "pageHeight": 1292,
+      "cropped": false
+    },
+    {
+      "route": "/purchase-requests/[id]",
+      "target": "/purchase-requests/b39f5139-e505-42a1-9c58-92ee612eaa4f",
+      "area": "staff",
+      "file": "screenshots/staff/71-purchase-requests-id.png",
+      "title": "DEMO 2026-10-10 19:04 Ergonomic chairs and footrests",
+      "eyebrow": "",
+      "intro": "Created by the demo seed script.",
+      "sections": [
+        "Approval history",
+        "Request justification",
+        "Line items"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Line",
+            "Item",
+            "Category",
+            "Qty",
+            "Unit",
+            "Unit price",
+            "Total"
+          ],
+          "rows": 2
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Line",
+        "Item",
+        "Category",
+        "Qty",
+        "Unit",
+        "Unit price",
+        "Total"
+      ],
+      "description": "DEMO 2026-10-10 19:04 Ergonomic chairs and footrests. Created by the demo seed script. Sections: Approval history, Request justification, Line items. Data table with columns Line, Item, Category, Qty, Unit, Unit price (2 rows shown). Actions: Refresh, Line, Item, Category, Qty.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": "/purchase-requests/b39f5139-e505-42a1-9c58-92ee612eaa4f",
+      "pageHeight": 1290,
+      "cropped": false
+    },
+    {
+      "route": "/purchase-requests/new",
+      "target": "/purchase-requests/new",
+      "area": "staff",
+      "file": "screenshots/staff/72-purchase-requests-new.png",
+      "title": "Create purchase request",
+      "eyebrow": "New procurement demand",
+      "intro": "Build the requirement as a draft. You can review it before submitting it into procurement governance.",
+      "sections": [
+        "Business requirement",
+        "Line items"
+      ],
+      "tables": [],
+      "actions": [
+        "Add line",
+        "Create draft"
+      ],
+      "description": "Create purchase request. Build the requirement as a draft. You can review it before submitting it into procurement governance. Sections: Business requirement, Line items. Actions: Add line, Create draft.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1413,
+      "cropped": false
+    },
+    {
+      "route": "/reinvestment-performance",
+      "target": "/reinvestment-performance",
+      "area": "staff",
+      "file": "screenshots/staff/73-reinvestment-performance.png",
+      "title": "Reinvestment performance",
+      "eyebrow": "Post-redeployment outcomes",
+      "intro": "Measure whether fully verified Step 63 redeployed capital actually creates the expected value at the Step 62 target, without rewriting upstream investment or funding records.",
+      "sections": [
+        "Performance candidates",
+        "Performance cases",
+        "Performance snapshots"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Target",
+            "Redeployment",
+            "Capital",
+            "Target ROI",
+            "Persistence",
+            "Target net value",
+            "Target health"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Target",
+            "Status",
+            "Health",
+            "Capital",
+            "Target ROI",
+            "Realized ROI",
+            "ROI variance",
+            "Realization",
+            "Value variance"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Snapshot",
+            "Cases",
+            "Assessed",
+            "Outperforming",
+            "On track",
+            "Watch",
+            "Underperforming",
+            "Realized ROI",
+            "ROI variance",
+            "Realization"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "Capture snapshot"
+      ],
+      "description": "Reinvestment performance. Measure whether fully verified Step 63 redeployed capital actually creates the expected value at the Step 62 target, without rewriting upstream investment or funding records. Sections: Performance candidates, Performance cases, Performance snapshots. Data table with columns Target, Redeployment, Capital, Target ROI, Persistence, Target net value (1 rows shown). Actions: Capture snapshot.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1126,
+      "cropped": false
+    },
+    {
+      "route": "/reinvestment-persistence",
+      "target": "/reinvestment-persistence",
+      "area": "staff",
+      "file": "screenshots/staff/74-reinvestment-persistence.png",
+      "title": "Reinvestment persistence",
+      "eyebrow": "Longitudinal recycled-capital value",
+      "intro": "Determine whether value created by recycled capital persists, compounds or decays after the initial Step 64 performance assessment.",
+      "sections": [
+        "Persistence candidates",
+        "Persistence cases",
+        "Persistence snapshots"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Target",
+            "Step 64 health",
+            "Capital",
+            "Annualized value",
+            "Horizon value",
+            "Net value",
+            "ROI",
+            "Realization"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Target",
+            "Status",
+            "Health",
+            "Baseline ROI",
+            "Projected ROI",
+            "Persistence",
+            "Efficiency retention",
+            "Compounding",
+            "Decay"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Snapshot",
+            "Cases",
+            "Compounding",
+            "Sustained",
+            "Watch",
+            "Decaying",
+            "Regressed",
+            "Persistence",
+            "Efficiency",
+            "Projected ROI"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "Capture snapshot"
+      ],
+      "description": "Reinvestment persistence. Determine whether value created by recycled capital persists, compounds or decays after the initial Step 64 performance assessment. Sections: Persistence candidates, Persistence cases, Persistence snapshots. Data table with columns Target, Step 64 health, Capital, Annualized value, Horizon value, Net value (1 rows shown). Actions: Capture snapshot.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1126,
+      "cropped": false
+    },
+    {
+      "route": "/reports",
+      "target": "/reports",
+      "area": "staff",
+      "file": "screenshots/staff/75-reports.png",
+      "title": "Procurement reports",
+      "eyebrow": "Management reporting",
+      "intro": "Build date-range executive reports, export procurement datasets and preserve management snapshots.",
+      "sections": [
+        "CSV report library",
+        "Supplier spend",
+        "Category spend",
+        "Award savings",
+        "Purchase orders",
+        "Deliveries",
+        "Report snapshots"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "RFQ",
+            "Supplier",
+            "Selected",
+            "Highest offer",
+            "Savings",
+            "Award date"
+          ],
+          "rows": 13
+        },
+        {
+          "columns": [
+            "PO",
+            "Supplier",
+            "Status",
+            "Value",
+            "Delivery",
+            "Issued"
+          ],
+          "rows": 10
+        },
+        {
+          "columns": [
+            "PO",
+            "Supplier",
+            "Expected",
+            "Last receipt",
+            "Fulfillment",
+            "Timing"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "Apply period",
+        "Executive KPIsDownload CSV",
+        "Supplier spendDownload CSV",
+        "Category spendDownload CSV",
+        "Sourcing savingsDownload CSV",
+        "Purchase ordersDownload CSV",
+        "DeliveriesDownload CSV",
+        "Export CSV"
+      ],
+      "description": "Procurement reports. Build date-range executive reports, export procurement datasets and preserve management snapshots. Sections: CSV report library, Supplier spend, Category spend, Award savings, Purchase orders, Deliveries. Data table with columns RFQ, Supplier, Selected, Highest offer, Savings, Award date (13 rows shown). Actions: Apply period, Executive KPIsDownload CSV, Supplier spendDownload CSV, Category spendDownload CSV, Sourcing savingsDownload CSV.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 2942,
+      "cropped": true
+    },
+    {
+      "route": "/rfqs",
+      "target": "/rfqs",
+      "area": "staff",
+      "file": "screenshots/staff/76-rfqs.png",
+      "title": "RFQs & sourcing",
+      "eyebrow": "Strategic sourcing",
+      "intro": "Convert approved purchasing demand into competitive sourcing events and invite qualified suppliers.",
+      "sections": [],
+      "tables": [
+        {
+          "columns": [
+            "RFQ",
+            "Source request",
+            "Suppliers",
+            "Deadline",
+            "Value",
+            "Status",
+            "Owner",
+            "Actions"
+          ],
+          "rows": 10
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "New RFQ",
+        "All",
+        "Draft",
+        "Published",
+        "Awarded",
+        "Closed"
+      ],
+      "description": "RFQs & sourcing. Convert approved purchasing demand into competitive sourcing events and invite qualified suppliers. Data table with columns RFQ, Source request, Suppliers, Deadline, Value, Status (10 rows shown). Actions: Refresh, Export CSV, New RFQ, All, Draft.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": null,
+      "pageHeight": 1292,
+      "cropped": false
+    },
+    {
+      "route": "/rfqs/[id]",
+      "target": "/rfqs/dc3e031a-2548-4e6c-b9fd-67cbb798c476",
+      "area": "staff",
+      "file": "screenshots/staff/77-rfqs-id.png",
+      "title": "DEMO 2026-10-10 19:04 Ergonomic chairs and footrests",
+      "eyebrow": "",
+      "intro": "Created by the demo seed script.",
+      "sections": [
+        "RFQ line items",
+        "Commercial responses",
+        "Invited suppliers"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Line",
+            "Item",
+            "Category",
+            "Quantity",
+            "Unit"
+          ],
+          "rows": 2
+        },
+        {
+          "columns": [
+            "Supplier",
+            "Country",
+            "Category",
+            "Invitation"
+          ],
+          "rows": 2
+        }
+      ],
+      "actions": [
+        "Evaluate suppliers",
+        "Create purchase order",
+        "Line",
+        "Item",
+        "Category",
+        "Quantity",
+        "Unit",
+        "Compare quotations"
+      ],
+      "description": "DEMO 2026-10-10 19:04 Ergonomic chairs and footrests. Created by the demo seed script. Sections: RFQ line items, Commercial responses, Invited suppliers. Data table with columns Line, Item, Category, Quantity, Unit (2 rows shown). Actions: Evaluate suppliers, Create purchase order, Line, Item, Category.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": "/rfqs/dc3e031a-2548-4e6c-b9fd-67cbb798c476",
+      "pageHeight": 1474,
+      "cropped": false
+    },
+    {
+      "route": "/rfqs/[id]/compare",
+      "target": "/rfqs/dc3e031a-2548-4e6c-b9fd-67cbb798c476/compare",
+      "area": "staff",
+      "file": "screenshots/staff/78-rfqs-id-compare.png",
+      "title": "Quotation comparison",
+      "eyebrow": "Commercial intelligence",
+      "intro": "Compare submitted supplier pricing, delivery terms and commercial exposure for DEMO 2026-10-10 19:04 Ergonomic chairs and footrests.",
+      "sections": [
+        "Offers against the highest quotation",
+        "Quotations by total cost",
+        "Unit-price comparison",
+        "Supplier conditions"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Rank",
+            "Supplier",
+            "Total",
+            "Against the lowest",
+            "Lead time"
+          ],
+          "rows": 2
+        },
+        {
+          "columns": [
+            "RFQ line",
+            "Quantity",
+            "Atlas Office Solutions SARL",
+            "Helios Technology Systems GmbH"
+          ],
+          "rows": 2
+        },
+        {
+          "columns": [
+            "Supplier",
+            "Subtotal",
+            "Discount",
+            "Shipping",
+            "Tax",
+            "Final total",
+            "Lead time",
+            "Payment terms",
+            "Valid until"
+          ],
+          "rows": 2
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Open RFQ",
+        "Rank",
+        "Supplier",
+        "Total",
+        "Against the lowest",
+        "Lead time",
+        "RFQ line"
+      ],
+      "description": "Quotation comparison. Compare submitted supplier pricing, delivery terms and commercial exposure for DEMO 2026-10-10 19:04 Ergonomic chairs and footrests. Sections: Offers against the highest quotation, Quotations by total cost, Unit-price comparison, Supplier conditions. Data table with columns Rank, Supplier, Total, Against the lowest, Lead time (2 rows shown). Actions: Refresh, Open RFQ, Rank, Supplier, Total.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": "/rfqs/dc3e031a-2548-4e6c-b9fd-67cbb798c476",
+      "pageHeight": 1985,
+      "cropped": false
+    },
+    {
+      "route": "/rfqs/[id]/evaluate",
+      "target": "/rfqs/dc3e031a-2548-4e6c-b9fd-67cbb798c476/evaluate",
+      "area": "staff",
+      "file": "screenshots/staff/79-rfqs-id-evaluate.png",
+      "title": "Evaluation & award",
+      "eyebrow": "Supplier selection",
+      "intro": "Score submitted suppliers using commercial, delivery, performance, risk and quality criteria.",
+      "sections": [
+        "Weighted ranking",
+        "Atlas Office Solutions SARL"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Rank",
+            "Supplier",
+            "Price",
+            "Delivery",
+            "Rating",
+            "Risk",
+            "Quality",
+            "Weighted score"
+          ],
+          "rows": 2
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Rank",
+        "Supplier",
+        "Price",
+        "Delivery",
+        "Rating",
+        "Risk",
+        "Quality"
+      ],
+      "description": "Evaluation & award. Score submitted suppliers using commercial, delivery, performance, risk and quality criteria. Sections: Weighted ranking, Atlas Office Solutions SARL. Data table with columns Rank, Supplier, Price, Delivery, Rating, Risk (2 rows shown). Actions: Refresh, Rank, Supplier, Price, Delivery.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": "/rfqs/dc3e031a-2548-4e6c-b9fd-67cbb798c476",
+      "pageHeight": 1087,
+      "cropped": false
+    },
+    {
+      "route": "/rfqs/new",
+      "target": "/rfqs/new",
+      "area": "staff",
+      "file": "screenshots/staff/80-rfqs-new.png",
+      "title": "Create RFQ",
+      "eyebrow": "New sourcing event",
+      "intro": "Select an approved purchase request, invite suppliers and prepare the sourcing event before publication.",
+      "sections": [
+        "Source purchase request",
+        "RFQ configuration",
+        "Invite suppliers"
+      ],
+      "tables": [],
+      "actions": [
+        "Create RFQ draft"
+      ],
+      "description": "Create RFQ. Select an approved purchase request, invite suppliers and prepare the sourcing event before publication. Sections: Source purchase request, RFQ configuration, Invite suppliers. Actions: Create RFQ draft.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": null,
+      "pageHeight": 1506,
+      "cropped": false
+    },
+    {
+      "route": "/risks",
+      "target": "/risks",
+      "area": "staff",
+      "file": "screenshots/staff/81-risks.png",
+      "title": "Risk register",
+      "eyebrow": "Procurement governance",
+      "intro": "Centralize procurement exceptions, score exposure, assign ownership, track mitigation and control resolution.",
+      "sections": [],
+      "tables": [
+        {
+          "columns": [
+            "Risk",
+            "Context",
+            "Category",
+            "Score",
+            "Severity",
+            "Status",
+            "Owner",
+            "Due",
+            "Actions"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Export CSV",
+        "Refresh exceptions",
+        "New risk",
+        "Risk",
+        "Context",
+        "Category",
+        "Score",
+        "Severity"
+      ],
+      "description": "Risk register. Centralize procurement exceptions, score exposure, assign ownership, track mitigation and control resolution. Data table with columns Risk, Context, Category, Score, Severity, Status (1 rows shown). Actions: Export CSV, Refresh exceptions, New risk, Risk, Context.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/risks/new",
+      "target": "/risks/new",
+      "area": "staff",
+      "file": "screenshots/staff/82-risks-new.png",
+      "title": "New procurement risk",
+      "eyebrow": "Exception management",
+      "intro": "Register an exposure, quantify likelihood and impact, assign ownership and link the risk to its operational context.",
+      "sections": [
+        "Exposure details"
+      ],
+      "tables": [],
+      "actions": [
+        "Create risk case"
+      ],
+      "description": "New procurement risk. Register an exposure, quantify likelihood and impact, assign ownership and link the risk to its operational context. Sections: Exposure details. Actions: Create risk case.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": null,
+      "pageHeight": 1139,
+      "cropped": false
+    },
+    {
+      "route": "/savings",
+      "target": "/savings",
+      "area": "staff",
+      "file": "screenshots/staff/83-savings.png",
+      "title": "Savings & value",
+      "eyebrow": "Value realization",
+      "intro": "Discover sourcing savings, validate procurement value, track PO realization and attribute value to suppliers and spend categories.",
+      "sections": [
+        "Monthly realized savings",
+        "Savings mix",
+        "Supplier attribution",
+        "Category attribution"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Initiative",
+            "Supplier",
+            "Type",
+            "Target",
+            "Realized",
+            "Rate",
+            "Status",
+            "Owner",
+            "Actions"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "Discover awards",
+        "New initiative",
+        "Initiative",
+        "Supplier",
+        "Type",
+        "Target"
+      ],
+      "description": "Savings & value. Discover sourcing savings, validate procurement value, track PO realization and attribute value to suppliers and spend categories. Sections: Monthly realized savings, Savings mix, Supplier attribution, Category attribution. Data table with columns Initiative, Supplier, Type, Target, Realized, Rate (1 rows shown). Actions: Refresh, Export CSV, Discover awards, New initiative, Initiative.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1509,
+      "cropped": false
+    },
+    {
+      "route": "/savings/new",
+      "target": "/savings/new",
+      "area": "staff",
+      "file": "screenshots/staff/84-savings-new.png",
+      "title": "New savings initiative",
+      "eyebrow": "Value management",
+      "intro": "Define the baseline, negotiated value, ownership and procurement context for a savings opportunity.",
+      "sections": [
+        "Initiative details"
+      ],
+      "tables": [],
+      "actions": [
+        "Create initiative"
+      ],
+      "description": "New savings initiative. Define the baseline, negotiated value, ownership and procurement context for a savings opportunity. Sections: Initiative details. Actions: Create initiative.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": null,
+      "pageHeight": 1103,
+      "cropped": false
+    },
+    {
+      "route": "/strategic-alignment",
+      "target": "/strategic-alignment",
+      "area": "staff",
+      "file": "screenshots/staff/85-strategic-alignment.png",
+      "title": "Strategic alignment",
+      "eyebrow": "Strategy-to-execution",
+      "intro": "Connect procurement OKRs to category work, improvement initiatives, value-delivery portfolios and supplier-risk mitigation while exposing strategic gaps and conflicting commitments.",
+      "sections": [
+        "Strategy-to-work mapping",
+        "Execution portfolio",
+        "Immutable alignment reviews"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Objective",
+            "OKR progress",
+            "Health",
+            "Linked work",
+            "Value aligned",
+            "Risk covered",
+            "Schedule conflicts"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Work item",
+            "Type",
+            "Status",
+            "Allocation",
+            "Objectives",
+            "Value",
+            "Risk exposure",
+            "Deadline conflicts"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Review",
+            "Score",
+            "Health",
+            "Aligned",
+            "Unaligned",
+            "Conflicts",
+            "Captured"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Capture review"
+      ],
+      "description": "Strategic alignment. Connect procurement OKRs to category work, improvement initiatives, value-delivery portfolios and supplier-risk mitigation while exposing strategic gaps and conflicting commitments. Sections: Strategy-to-work mapping, Execution portfolio, Immutable alignment reviews. Data table with columns Objective, OKR progress, Health, Linked work, Value aligned, Risk covered. Actions: Capture review.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1133,
+      "cropped": false
+    },
+    {
+      "route": "/strategic-objectives",
+      "target": "/strategic-objectives",
+      "area": "staff",
+      "file": "screenshots/staff/86-strategic-objectives.png",
+      "title": "Strategic objectives",
+      "eyebrow": "Procurement strategy execution",
+      "intro": "Translate procurement strategy into measurable annual and quarterly objectives backed by live ProcureIQ authorities and immutable executive progress snapshots.",
+      "sections": [
+        "Procurement OKRs"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Objective",
+            "Period",
+            "Status",
+            "KR coverage",
+            "Progress",
+            "Health",
+            "Confidence",
+            "Snapshots"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "New objective"
+      ],
+      "description": "Strategic objectives. Translate procurement strategy into measurable annual and quarterly objectives backed by live ProcureIQ authorities and immutable executive progress snapshots. Sections: Procurement OKRs. Data table with columns Objective, Period, Status, KR coverage, Progress, Health (1 rows shown). Actions: New objective.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 910,
+      "cropped": false
+    },
+    {
+      "route": "/strategic-objectives/new",
+      "target": "/strategic-objectives/new",
+      "area": "staff",
+      "file": "screenshots/staff/87-strategic-objectives-new.png",
+      "title": "New strategic objective",
+      "eyebrow": "Procurement strategy",
+      "intro": "Define the objective period, executive owner and strategic outcome. Key results are added after the objective is created.",
+      "sections": [
+        "Objective"
+      ],
+      "tables": [],
+      "actions": [
+        "Create objective"
+      ],
+      "description": "New strategic objective. Define the objective period, executive owner and strategic outcome. Key results are added after the objective is created. Sections: Objective. Actions: Create objective.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 942,
+      "cropped": false
+    },
+    {
+      "route": "/strategic-value",
+      "target": "/strategic-value",
+      "area": "staff",
+      "file": "screenshots/staff/88-strategic-value.png",
+      "title": "Strategic value portfolio",
+      "eyebrow": "Durable value economics",
+      "intro": "Govern financial investment assumptions separately from Step 53 contribution points, apply Step 55 persistence to durable value, and measure long-term ROI, payback and value at risk.",
+      "sections": [
+        "Eligible durable-value candidates",
+        "Strategic ROI portfolio",
+        "Value portfolio reviews"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Outcome",
+            "Persistence",
+            "Health",
+            "Step 53 validated",
+            "Current persistent",
+            "Decay"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Case",
+            "Status",
+            "Health",
+            "Persistence",
+            "Investment",
+            "Durable value",
+            "Decay / VAR",
+            "Net value",
+            "ROI",
+            "Payback"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Review",
+            "Health",
+            "Cases",
+            "Verified",
+            "Investment",
+            "Durable value",
+            "Decay",
+            "Net value",
+            "ROI",
+            "Captured"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "Capture review"
+      ],
+      "description": "Strategic value portfolio. Govern financial investment assumptions separately from Step 53 contribution points, apply Step 55 persistence to durable value, and measure long-term ROI, payback and value at risk. Sections: Eligible durable-value candidates, Strategic ROI portfolio, Value portfolio reviews. Data table with columns Outcome, Persistence, Health, Step 53 validated, Current persistent, Decay (1 rows shown). Actions: Capture review.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1135,
+      "cropped": false
+    },
+    {
+      "route": "/strategy-cockpit",
+      "target": "/strategy-cockpit",
+      "area": "staff",
+      "file": "screenshots/staff/89-strategy-cockpit.png",
+      "title": "Strategy cockpit",
+      "eyebrow": "Enterprise procurement strategy",
+      "intro": "One board-level view of procurement objectives, strategic alignment, resource capacity, capability readiness and succession resilience.",
+      "sections": [
+        "Board summary",
+        "Strategic exceptions",
+        "Capture board pack",
+        "Board scorecard history"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Board pack",
+            "Score",
+            "Health",
+            "Movement",
+            "Delta",
+            "Exceptions",
+            "Critical",
+            "Captured"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Capture immutable board pack"
+      ],
+      "description": "Strategy cockpit. One board-level view of procurement objectives, strategic alignment, resource capacity, capability readiness and succession resilience. Sections: Board summary, Strategic exceptions, Capture board pack, Board scorecard history. Data table with columns Board pack, Score, Health, Movement, Delta, Exceptions (1 rows shown). Actions: Capture immutable board pack.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1779,
+      "cropped": false
+    },
+    {
+      "route": "/strategy-execution",
+      "target": "/strategy-execution",
+      "area": "staff",
+      "file": "screenshots/staff/90-strategy-execution.png",
+      "title": "Strategic execution",
+      "eyebrow": "Strategy-to-outcome governance",
+      "intro": "Convert active roadmap initiatives into governed execution commitments and keep planned, reported and validated contribution strictly separated.",
+      "sections": [
+        "Strategic execution portfolio",
+        "Execution reviews"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Commitment",
+            "Roadmap",
+            "Owner",
+            "Status",
+            "Health",
+            "Progress",
+            "Forecast",
+            "Planned",
+            "Reported",
+            "Validated"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Review",
+            "Roadmap",
+            "Score",
+            "Health",
+            "Completed",
+            "Blocked",
+            "Validated",
+            "VAR",
+            "Captured"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "Import commitments",
+        "Capture review"
+      ],
+      "description": "Strategic execution. Convert active roadmap initiatives into governed execution commitments and keep planned, reported and validated contribution strictly separated. Sections: Strategic execution portfolio, Execution reviews. Data table with columns Commitment, Roadmap, Owner, Status, Health, Progress (1 rows shown). Actions: Import commitments, Capture review.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 983,
+      "cropped": false
+    },
+    {
+      "route": "/strategy-recovery",
+      "target": "/strategy-recovery",
+      "area": "staff",
+      "file": "screenshots/staff/91-strategy-recovery.png",
+      "title": "Execution recovery",
+      "eyebrow": "Strategic delivery recovery",
+      "intro": "Detect delivery variance from Step 53 evidence, govern corrective actions, verify recovery effectiveness and escalate unresolved strategic execution risk.",
+      "sections": [
+        "Recovery candidates",
+        "Governed recovery cases",
+        "Recovery reviews"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Commitment",
+            "Health",
+            "Severity",
+            "Progress",
+            "Forecast",
+            "Blockers",
+            "VAR",
+            "Risk score"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Recovery case",
+            "Severity",
+            "Status",
+            "Owner",
+            "Baseline risk",
+            "Current risk",
+            "Effectiveness",
+            "VAR",
+            "Actions"
+          ],
+          "rows": 0
+        },
+        {
+          "columns": [
+            "Review",
+            "Health",
+            "Effectiveness",
+            "Recovery score",
+            "Current VAR",
+            "Critical",
+            "Escalations",
+            "Captured"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "Capture review"
+      ],
+      "description": "Execution recovery. Detect delivery variance from Step 53 evidence, govern corrective actions, verify recovery effectiveness and escalate unresolved strategic execution risk. Sections: Recovery candidates, Governed recovery cases, Recovery reviews. Data table with columns Commitment, Health, Severity, Progress, Forecast, Blockers (1 rows shown). Actions: Capture review.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1135,
+      "cropped": false
+    },
+    {
+      "route": "/strategy-roadmaps",
+      "target": "/strategy-roadmaps",
+      "area": "staff",
+      "file": "screenshots/staff/92-strategy-roadmaps.png",
+      "title": "Strategy roadmaps",
+      "eyebrow": "Scenario-to-execution planning",
+      "intro": "Convert an approved Step 51 planning scenario into a governed initiative roadmap with owners, dependencies, milestones, gates and immutable readiness evidence.",
+      "sections": [],
+      "tables": [
+        {
+          "columns": [
+            "Roadmap",
+            "Status",
+            "Scenario",
+            "Scenario delta",
+            "Initiatives",
+            "Blocked",
+            "Readiness",
+            "Health",
+            "Actions"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "New roadmap",
+        "Roadmap",
+        "Status",
+        "Scenario",
+        "Scenario delta",
+        "Initiatives"
+      ],
+      "description": "Strategy roadmaps. Convert an approved Step 51 planning scenario into a governed initiative roadmap with owners, dependencies, milestones, gates and immutable readiness evidence. Data table with columns Roadmap, Status, Scenario, Scenario delta, Initiatives, Blocked (1 rows shown). Actions: Refresh, Export CSV, New roadmap, Roadmap, Status.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/strategy-roadmaps/new",
+      "target": "/strategy-roadmaps/new",
+      "area": "staff",
+      "file": "screenshots/staff/93-strategy-roadmaps-new.png",
+      "title": "New strategy roadmap",
+      "eyebrow": "Scenario-to-roadmap governance",
+      "intro": "Only an approved Step 51 scenario without an existing roadmap can be selected.",
+      "sections": [],
+      "tables": [],
+      "actions": [
+        "Create roadmap"
+      ],
+      "description": "New strategy roadmap. Only an approved Step 51 scenario without an existing roadmap can be selected. Actions: Create roadmap.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/strategy-scenarios",
+      "target": "/strategy-scenarios",
+      "area": "staff",
+      "file": "screenshots/staff/94-strategy-scenarios.png",
+      "title": "Strategy scenarios",
+      "eyebrow": "What-if planning",
+      "intro": "Explore explicit changes to procurement strategy without altering real objectives, alignment, resources, capabilities or succession authorities.",
+      "sections": [
+        "Ranked what-if alternatives"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Rank",
+            "Scenario",
+            "Status",
+            "Baseline",
+            "Simulated",
+            "Delta",
+            "Movement",
+            "Assumptions"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "New scenario"
+      ],
+      "description": "Strategy scenarios. Explore explicit changes to procurement strategy without altering real objectives, alignment, resources, capabilities or succession authorities. Sections: Ranked what-if alternatives. Data table with columns Rank, Scenario, Status, Baseline, Simulated, Delta (1 rows shown). Actions: New scenario.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/strategy-scenarios/new",
+      "target": "/strategy-scenarios/new",
+      "area": "staff",
+      "file": "screenshots/staff/95-strategy-scenarios-new.png",
+      "title": "New strategy scenario",
+      "eyebrow": "What-if planning",
+      "intro": "The current Step 50 board scorecard will be frozen as this scenario's baseline.",
+      "sections": [],
+      "tables": [],
+      "actions": [
+        "Create scenario"
+      ],
+      "description": "New strategy scenario. The current Step 50 board scorecard will be frozen as this scenario's baseline. Actions: Create scenario.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/succession-planning",
+      "target": "/succession-planning",
+      "area": "staff",
+      "file": "screenshots/staff/96-succession-planning.png",
+      "title": "Succession planning",
+      "eyebrow": "Workforce resilience",
+      "intro": "Govern critical procurement capabilities, expose single-person dependencies, measure backup depth and manage evidence-based succession candidates.",
+      "sections": [
+        "Workforce resilience",
+        "Define critical capability",
+        "Immutable succession snapshots"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Capability",
+            "Criticality",
+            "Required",
+            "Target depth",
+            "Ready people",
+            "Ready bench",
+            "Strategic work",
+            "Coverage",
+            "Health"
+          ],
+          "rows": 1
+        },
+        {
+          "columns": [
+            "Snapshot",
+            "Score",
+            "Health",
+            "SPOF",
+            "Critical exposure",
+            "Ready candidates",
+            "Captured"
+          ],
+          "rows": 0
+        }
+      ],
+      "actions": [
+        "Capture snapshot",
+        "Create critical-capability policy"
+      ],
+      "description": "Succession planning. Govern critical procurement capabilities, expose single-person dependencies, measure backup depth and manage evidence-based succession candidates. Sections: Workforce resilience, Define critical capability, Immutable succession snapshots. Data table with columns Capability, Criticality, Required, Target depth, Ready people, Ready bench (1 rows shown). Actions: Capture snapshot, Create critical-capability policy.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1401,
+      "cropped": false
+    },
+    {
+      "route": "/supplier-collaboration",
+      "target": "/supplier-collaboration",
+      "area": "staff",
+      "file": "screenshots/staff/97-supplier-collaboration.png",
+      "title": "Supplier collaboration",
+      "eyebrow": "Supplier engagement",
+      "intro": "Coordinate supplier clarifications, purchase orders, deliveries, documents, issues and response SLAs while keeping internal notes separated from supplier-shared communication.",
+      "sections": [
+        "Supplier workspaces",
+        "Collaboration performance"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Workspace",
+            "Supplier",
+            "Type",
+            "Context",
+            "Status",
+            "Priority",
+            "Response SLA",
+            "Actions"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "New workspace"
+      ],
+      "description": "Supplier collaboration. Coordinate supplier clarifications, purchase orders, deliveries, documents, issues and response SLAs while keeping internal notes separated from supplier-shared communication. Sections: Supplier workspaces, Collaboration performance. Data table with columns Workspace, Supplier, Type, Context, Status, Priority (1 rows shown). Actions: New workspace.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1150,
+      "cropped": false
+    },
+    {
+      "route": "/supplier-collaboration/new",
+      "target": "/supplier-collaboration/new",
+      "area": "staff",
+      "file": "screenshots/staff/98-supplier-collaboration-new.png",
+      "title": "New collaboration workspace",
+      "eyebrow": "Supplier engagement",
+      "intro": "Open a governed topic for sourcing clarification, purchase-order acknowledgement, delivery, documents or supplier issue resolution.",
+      "sections": [
+        "Collaboration setup"
+      ],
+      "tables": [],
+      "actions": [
+        "Create workspace"
+      ],
+      "description": "New collaboration workspace. Open a governed topic for sourcing clarification, purchase-order acknowledgement, delivery, documents or supplier issue resolution. Sections: Collaboration setup. Actions: Create workspace.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1067,
+      "cropped": false
+    },
+    {
+      "route": "/supplier-document-vault",
+      "target": "/supplier-document-vault",
+      "area": "staff",
+      "file": "screenshots/staff/99-supplier-document-vault.png",
+      "title": "Document vault",
+      "eyebrow": "Supplier compliance",
+      "intro": "Govern supplier compliance documents, immutable version history, expiry, renewal, category-specific requirements and onboarding / ESG readiness.",
+      "sections": [
+        "Supplier documents",
+        "Add compliance requirement"
+      ],
+      "tables": [],
+      "actions": [
+        "Add requirement"
+      ],
+      "description": "Document vault. Govern supplier compliance documents, immutable version history, expiry, renewal, category-specific requirements and onboarding / ESG readiness. Sections: Supplier documents, Add compliance requirement. Actions: Add requirement.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 5772,
+      "cropped": true
+    },
+    {
+      "route": "/supplier-onboarding",
+      "target": "/supplier-onboarding",
+      "area": "staff",
+      "file": "screenshots/staff/100-supplier-onboarding.png",
+      "title": "Supplier onboarding",
+      "eyebrow": "Supplier governance",
+      "intro": "Qualify suppliers through mandatory questionnaires, evidence validation, risk-based approvals, activation gates and recurring requalification.",
+      "sections": [],
+      "tables": [
+        {
+          "columns": [
+            "Case",
+            "Supplier",
+            "Risk",
+            "Status",
+            "Qualification",
+            "Evidence",
+            "Approvals",
+            "Gate",
+            "SLA",
+            "Actions"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "New onboarding case",
+        "Case",
+        "Supplier",
+        "Risk",
+        "Status",
+        "Qualification"
+      ],
+      "description": "Supplier onboarding. Qualify suppliers through mandatory questionnaires, evidence validation, risk-based approvals, activation gates and recurring requalification. Data table with columns Case, Supplier, Risk, Status, Qualification, Evidence (1 rows shown). Actions: Refresh, Export CSV, New onboarding case, Case, Supplier.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1080,
+      "cropped": false
+    },
+    {
+      "route": "/supplier-onboarding/new",
+      "target": "/supplier-onboarding/new",
+      "area": "staff",
+      "file": "screenshots/staff/101-supplier-onboarding-new.png",
+      "title": "New onboarding case",
+      "eyebrow": "Supplier governance",
+      "intro": "Create an initial qualification or recurring requalification case with a risk-based SLA and approval route.",
+      "sections": [
+        "Onboarding setup"
+      ],
+      "tables": [],
+      "actions": [
+        "Create qualification case"
+      ],
+      "description": "New onboarding case. Create an initial qualification or recurring requalification case with a risk-based SLA and approval route. Sections: Onboarding setup. Actions: Create qualification case.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 900,
+      "cropped": false
+    },
+    {
+      "route": "/supplier-performance",
+      "target": "/supplier-performance",
+      "area": "staff",
+      "file": "screenshots/staff/102-supplier-performance.png",
+      "title": "Supplier performance",
+      "eyebrow": "Supplier governance",
+      "intro": "Run periodic supplier scorecards, approve performance reviews and manage corrective actions through measurable improvement plans.",
+      "sections": [
+        "Approved reviews by band"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Review",
+            "Supplier",
+            "Period",
+            "Score",
+            "Band",
+            "Status",
+            "CAPA",
+            "Owner",
+            "Actions"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "New review",
+        "All · 0",
+        "Draft · 0",
+        "Submitted · 0",
+        "Approved · 0",
+        "Rejected · 0"
+      ],
+      "description": "Supplier performance. Run periodic supplier scorecards, approve performance reviews and manage corrective actions through measurable improvement plans. Sections: Approved reviews by band. Data table with columns Review, Supplier, Period, Score, Band, Status (1 rows shown). Actions: Refresh, Export CSV, New review, All · 0, Draft · 0.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1084,
+      "cropped": false
+    },
+    {
+      "route": "/supplier-performance/new",
+      "target": "/supplier-performance/new",
+      "area": "staff",
+      "file": "screenshots/staff/103-supplier-performance-new.png",
+      "title": "New performance review",
+      "eyebrow": "Supplier governance",
+      "intro": "Capture a weighted supplier scorecard across quality, delivery, commercial, service and compliance performance.",
+      "sections": [
+        "Supplier & review period",
+        "Performance dimensions"
+      ],
+      "tables": [],
+      "actions": [
+        "Create review draft"
+      ],
+      "description": "New performance review. Capture a weighted supplier scorecard across quality, delivery, commercial, service and compliance performance. Sections: Supplier & review period, Performance dimensions. Actions: Create review draft.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1155,
+      "cropped": false
+    },
+    {
+      "route": "/supplier-portal-admin",
+      "target": "/supplier-portal-admin",
+      "area": "staff",
+      "file": "screenshots/staff/104-supplier-portal-admin.png",
+      "title": "Supplier portal access",
+      "eyebrow": "External supplier access",
+      "intro": "Invite supplier contacts, govern external access and revoke sessions without creating internal ProcureIQ users.",
+      "sections": [
+        "Invite supplier contact",
+        "Supplier portal accounts"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Supplier",
+            "Contact",
+            "Email",
+            "Status",
+            "Activated",
+            "Last login"
+          ],
+          "rows": 22
+        }
+      ],
+      "actions": [
+        "Create invitation",
+        "Export CSV",
+        "Suspend",
+        "Revoke"
+      ],
+      "description": "Supplier portal access. Invite supplier contacts, govern external access and revoke sessions without creating internal ProcureIQ users. Sections: Invite supplier contact, Supplier portal accounts. Data table with columns Supplier, Contact, Email, Status, Activated, Last login (22 rows shown). Actions: Create invitation, Export CSV, Suspend, Revoke.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 2064,
+      "cropped": false
+    },
+    {
+      "route": "/supplier-resilience",
+      "target": "/supplier-resilience",
+      "area": "staff",
+      "file": "screenshots/staff/105-supplier-resilience.png",
+      "title": "Supplier resilience",
+      "eyebrow": "Supply continuity",
+      "intro": "Measure supplier dependency, category and geographic concentration, alternate coverage, capacity risk and continuity mitigation.",
+      "sections": [
+        "Country concentration",
+        "Portfolio signals",
+        "Resilience portfolio"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Supplier",
+            "Category",
+            "Spend",
+            "Category dependency",
+            "Alternates",
+            "Capacity",
+            "Score",
+            "Band"
+          ],
+          "rows": 9
+        }
+      ],
+      "actions": [
+        "Export CSV"
+      ],
+      "description": "Supplier resilience. Measure supplier dependency, category and geographic concentration, alternate coverage, capacity risk and continuity mitigation. Sections: Country concentration, Portfolio signals, Resilience portfolio. Data table with columns Supplier, Category, Spend, Category dependency, Alternates, Capacity (9 rows shown). Actions: Export CSV.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1490,
+      "cropped": false
+    },
+    {
+      "route": "/supplier-risk-monitoring",
+      "target": "/supplier-risk-monitoring",
+      "area": "staff",
+      "file": "screenshots/staff/106-supplier-risk-monitoring.png",
+      "title": "Supplier risk monitoring",
+      "eyebrow": "Continuous supplier assurance",
+      "intro": "Re-evaluate supplier risk using qualification, compliance documents, ESG, anomaly controls, collaboration performance, commercial leakage and spend dependency.",
+      "sections": [
+        "Continuous supplier risk",
+        "Active supplier-risk alerts"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Supplier",
+            "Score",
+            "Band",
+            "Change",
+            "Recommendation",
+            "Spend",
+            "Dependency",
+            "Governance"
+          ],
+          "rows": 1
+        }
+      ],
+      "actions": [
+        "Run risk evaluation"
+      ],
+      "description": "Supplier risk monitoring. Re-evaluate supplier risk using qualification, compliance documents, ESG, anomaly controls, collaboration performance, commercial leakage and spend dependency. Sections: Continuous supplier risk, Active supplier-risk alerts. Data table with columns Supplier, Score, Band, Change, Recommendation, Spend (1 rows shown). Actions: Run risk evaluation.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1156,
+      "cropped": false
+    },
+    {
+      "route": "/suppliers",
+      "target": "/suppliers",
+      "area": "staff",
+      "file": "screenshots/staff/107-suppliers.png",
+      "title": "Supplier portfolio",
+      "eyebrow": "Supplier intelligence",
+      "intro": "Centralize supplier records, qualification, risk and operational performance.",
+      "sections": [],
+      "tables": [
+        {
+          "columns": [
+            "Supplier",
+            "Category",
+            "Location",
+            "Status",
+            "Risk",
+            "Rating",
+            "Delivery",
+            "Spend"
+          ],
+          "rows": 10
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "Add supplier",
+        "Supplier",
+        "Category",
+        "Location",
+        "Status",
+        "Risk"
+      ],
+      "description": "Supplier portfolio. Centralize supplier records, qualification, risk and operational performance. Data table with columns Supplier, Category, Location, Status, Risk, Rating (10 rows shown). Actions: Refresh, Export CSV, Add supplier, Supplier, Category.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1163,
+      "cropped": false
+    },
+    {
+      "route": "/suppliers/[id]",
+      "target": "/suppliers/10000000-0000-0000-0000-000000000003",
+      "area": "staff",
+      "file": "screenshots/staff/108-suppliers-id.png",
+      "title": "Helios Technology Systems GmbH",
+      "eyebrow": "Supplier 360°",
+      "intro": "",
+      "sections": [
+        "12-month spend trend",
+        "Spend mix",
+        "Recent sourcing participation",
+        "Recent wins",
+        "Recent purchase orders",
+        "Recent activity"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "RFQ",
+            "Event",
+            "Invitation",
+            "Quotation",
+            "Quote value",
+            "Deadline"
+          ],
+          "rows": 10
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "RFQ",
+        "Event",
+        "Invitation",
+        "Quotation",
+        "Quote value",
+        "Deadline"
+      ],
+      "description": "Helios Technology Systems GmbH. Sections: 12-month spend trend, Spend mix, Recent sourcing participation, Recent wins, Recent purchase orders, Recent activity. Data table with columns RFQ, Event, Invitation, Quotation, Quote value, Deadline (10 rows shown). Actions: Refresh, RFQ, Event, Invitation, Quotation.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": "/suppliers/10000000-0000-0000-0000-000000000003",
+      "pageHeight": 3093,
+      "cropped": true
+    },
+    {
+      "route": "/sustainability",
+      "target": "/sustainability",
+      "area": "staff",
+      "file": "screenshots/staff/109-sustainability.png",
+      "title": "Sustainability intelligence",
+      "eyebrow": "Responsible procurement",
+      "intro": "Govern supplier ESG performance, responsible- sourcing declarations, improvement actions, reassessment cycles and spend-weighted sustainability exposure.",
+      "sections": [
+        "ESG coverage & exposure",
+        "Sustainability exposure by category"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Supplier",
+            "Category",
+            "Spend",
+            "ESG score",
+            "Rating",
+            "Onboarding",
+            "Responsible sourcing",
+            "Actions"
+          ],
+          "rows": 9
+        }
+      ],
+      "actions": [
+        "New ESG assessment",
+        "Export CSV"
+      ],
+      "description": "Sustainability intelligence. Govern supplier ESG performance, responsible- sourcing declarations, improvement actions, reassessment cycles and spend-weighted sustainability exposure. Sections: ESG coverage & exposure, Sustainability exposure by category. Data table with columns Supplier, Category, Spend, ESG score, Rating, Onboarding (9 rows shown). Actions: New ESG assessment, Export CSV.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1942,
+      "cropped": false
+    },
+    {
+      "route": "/sustainability/new",
+      "target": "/sustainability/new",
+      "area": "staff",
+      "file": "screenshots/staff/110-sustainability-new.png",
+      "title": "New ESG assessment",
+      "eyebrow": "Responsible procurement",
+      "intro": "Score environmental, social and governance performance using ProcureIQ's transparent weighted ESG methodology.",
+      "sections": [
+        "Assessment scores"
+      ],
+      "tables": [],
+      "actions": [
+        "Create ESG assessment"
+      ],
+      "description": "New ESG assessment. Score environmental, social and governance performance using ProcureIQ's transparent weighted ESG methodology. Sections: Assessment scores. Actions: Create ESG assessment.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 927,
+      "cropped": false
+    },
+    {
+      "route": "/team",
+      "target": "/team",
+      "area": "staff",
+      "file": "screenshots/staff/111-team.png",
+      "title": "Team & access",
+      "eyebrow": "Access management",
+      "intro": "Review ProcureIQ users, procurement roles and organizational departments.",
+      "sections": [
+        "Departments"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "User",
+            "Role",
+            "Department",
+            "Job title",
+            "Status"
+          ],
+          "rows": 5
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Export CSV",
+        "User",
+        "Role",
+        "Department",
+        "Job title",
+        "Status"
+      ],
+      "description": "Team & access. Review ProcureIQ users, procurement roles and organizational departments. Sections: Departments. Data table with columns User, Role, Department, Job title, Status (5 rows shown). Actions: Refresh, Export CSV, User, Role, Department.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1266,
+      "cropped": false
+    },
+    {
+      "route": "/supplier-portal/documents",
+      "target": "/supplier-portal/documents",
+      "area": "supplier-portal",
+      "file": "screenshots/supplier-portal/01-supplier-portal-documents.png",
+      "title": "Your documents",
+      "eyebrow": "Compliance vault",
+      "intro": "Submit required compliance documents, renew expiring evidence and review your complete version history.",
+      "sections": [
+        "Compliance documents"
+      ],
+      "tables": [],
+      "actions": [
+        "All · 5",
+        "Needs action · 5",
+        "Submit document"
+      ],
+      "description": "Your documents. Submit required compliance documents, renew expiring evidence and review your complete version history. Sections: Compliance documents. Actions: All · 5, Needs action · 5, Submit document.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1525,
+      "cropped": false
+    },
+    {
+      "route": "/supplier-portal/home",
+      "target": "/supplier-portal/home",
+      "area": "supplier-portal",
+      "file": "screenshots/supplier-portal/02-supplier-portal-home.png",
+      "title": "Atlas Office Solutions SARL",
+      "eyebrow": "Supplier workspace",
+      "intro": "Welcome Demo A (Atlas Office Solutions SARL). This portal shows only supplier-shared ProcureIQ collaboration.",
+      "sections": [
+        "Awaiting your response",
+        "RFQ outcomes",
+        "Your workspaces"
+      ],
+      "tables": [],
+      "actions": [],
+      "description": "Atlas Office Solutions SARL. Welcome Demo A (Atlas Office Solutions SARL). This portal shows only supplier-shared ProcureIQ collaboration. Sections: Awaiting your response, RFQ outcomes, Your workspaces.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": null,
+      "pageHeight": 1659,
+      "cropped": false
+    },
+    {
+      "route": "/supplier-portal/purchase-orders",
+      "target": "/supplier-portal/purchase-orders",
+      "area": "supplier-portal",
+      "file": "screenshots/supplier-portal/03-supplier-portal-purchase-orders.png",
+      "title": "Purchase orders",
+      "eyebrow": "Orders",
+      "intro": "Orders issued to you after an RFQ award. Acknowledge each one, or reject it and tell procurement why.",
+      "sections": [
+        "Awaiting your response",
+        "Other purchase orders"
+      ],
+      "tables": [],
+      "actions": [
+        "Refresh"
+      ],
+      "description": "Purchase orders. Orders issued to you after an RFQ award. Acknowledge each one, or reject it and tell procurement why. Sections: Awaiting your response, Other purchase orders. Actions: Refresh.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": null,
+      "pageHeight": 1006,
+      "cropped": false
+    },
+    {
+      "route": "/supplier-portal/purchase-orders/[id]",
+      "target": "/supplier-portal/purchase-orders/bdaa9faf-c681-44d3-9271-fa355705c46f",
+      "area": "supplier-portal",
+      "file": "screenshots/supplier-portal/04-supplier-portal-purchase-orders-id.png",
+      "title": "Purchase order PO-2026-00005",
+      "eyebrow": "RFQ-2026-00015",
+      "intro": "Awaiting your response",
+      "sections": [
+        "Acknowledge or reject this order",
+        "What the buyer ordered",
+        "Order lines"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "Line",
+            "Item",
+            "Category",
+            "Qty",
+            "Unit price",
+            "Total"
+          ],
+          "rows": 2
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Acknowledge order",
+        "Reject order"
+      ],
+      "description": "Purchase order PO-2026-00005. Awaiting your response. Sections: Acknowledge or reject this order, What the buyer ordered, Order lines. Data table with columns Line, Item, Category, Qty, Unit price, Total (2 rows shown). Actions: Refresh, Acknowledge order, Reject order.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": false
+      },
+      "sampleRecord": "/supplier-portal/purchase-orders/bdaa9faf-c681-44d3-9271-fa355705c46f",
+      "pageHeight": 1067,
+      "cropped": false
+    },
+    {
+      "route": "/supplier-portal/rfqs",
+      "target": "/supplier-portal/rfqs",
+      "area": "supplier-portal",
+      "file": "screenshots/supplier-portal/05-supplier-portal-rfqs.png",
+      "title": "RFQs and quotations",
+      "eyebrow": "Sourcing",
+      "intro": "Requests for quotation you have been invited to. Prepare your prices, submit before the deadline, and withdraw to revise while the RFQ is open.",
+      "sections": [
+        "Open for response",
+        "Declined, closed and past RFQs"
+      ],
+      "tables": [],
+      "actions": [
+        "Refresh"
+      ],
+      "description": "RFQs and quotations. Requests for quotation you have been invited to. Prepare your prices, submit before the deadline, and withdraw to revise while the RFQ is open. Sections: Open for response, Declined, closed and past RFQs. Actions: Refresh.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": null,
+      "pageHeight": 3466,
+      "cropped": true
+    },
+    {
+      "route": "/supplier-portal/rfqs/[id]",
+      "target": "/supplier-portal/rfqs/c1f6e75a-1e6b-4a12-abd4-3cc7bdcce485",
+      "area": "supplier-portal",
+      "file": "screenshots/supplier-portal/06-supplier-portal-rfqs-id.png",
+      "title": "SMOKE 2026-10-10 12:59 RFQ one",
+      "eyebrow": "RFQ-2026-00001",
+      "intro": "Created by the smoke test script.",
+      "sections": [
+        "Not able to quote?",
+        "Items and prices",
+        "Terms and totals"
+      ],
+      "tables": [
+        {
+          "columns": [
+            "#",
+            "Item",
+            "Category",
+            "Quantity",
+            "Unit",
+            "Unit price (EUR)",
+            "Line total"
+          ],
+          "rows": 2
+        }
+      ],
+      "actions": [
+        "Refresh",
+        "Decline this invitation",
+        "Save draft",
+        "Submit quotation"
+      ],
+      "description": "SMOKE 2026-10-10 12:59 RFQ one. Created by the smoke test script. Sections: Not able to quote?, Items and prices, Terms and totals. Data table with columns #, Item, Category, Quantity, Unit, Unit price (EUR) (2 rows shown). Actions: Refresh, Decline this invitation, Save draft, Submit quotation.",
+      "flags": {
+        "error": false,
+        "empty": false,
+        "testData": true
+      },
+      "sampleRecord": "/supplier-portal/rfqs/c1f6e75a-1e6b-4a12-abd4-3cc7bdcce485",
+      "pageHeight": 1194,
+      "cropped": false
+    }
+  ],
+  "skipped": [
+    {
+      "route": "/anomaly-control/[id]",
+      "area": "staff",
+      "reason": "no sample record: /anomaly-control has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/benefits-governance/[id]",
+      "area": "staff",
+      "reason": "no sample record: /benefits-governance has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/capability-planning/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /capability-planning/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/capability-planning/work/[sourceType]/[sourceEntityId]",
+      "area": "staff",
+      "reason": "has more than one dynamic segment"
+    },
+    {
+      "route": "/capacity-planning/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /capacity-planning/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/capacity-planning/work/[id]",
+      "area": "staff",
+      "reason": "no sample record: /capacity-planning/work has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/capital-allocation/[id]",
+      "area": "staff",
+      "reason": "no sample record: /capital-allocation has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/capital-allocation/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /capital-allocation/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/capital-flywheel/[id]",
+      "area": "staff",
+      "reason": "no sample record: /capital-flywheel has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/capital-flywheel/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /capital-flywheel/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/capital-recycling/[id]",
+      "area": "staff",
+      "reason": "no sample record: /capital-recycling has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/capital-recycling/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /capital-recycling/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/capital-redeployment/[id]",
+      "area": "staff",
+      "reason": "no sample record: /capital-redeployment has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/capital-redeployment/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /capital-redeployment/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/category-management/[id]",
+      "area": "staff",
+      "reason": "no sample record: /category-management has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/commercial-governance/[id]",
+      "area": "staff",
+      "reason": "no sample record: /commercial-governance has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/compliance/violations/[id]",
+      "area": "staff",
+      "reason": "no sample record: /compliance/violations has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/continuous-improvement/[id]",
+      "area": "staff",
+      "reason": "no sample record: /continuous-improvement has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/contracts/[id]",
+      "area": "staff",
+      "reason": "no sample record: /contracts has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/control-tower/[id]",
+      "area": "staff",
+      "reason": "no sample record: /control-tower has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/data-quality/[id]",
+      "area": "staff",
+      "reason": "no sample record: /data-quality has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/demand-consolidation/[id]",
+      "area": "staff",
+      "reason": "no sample record: /demand-consolidation has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-allocation/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-allocation has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-allocation/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-allocation/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-continuation-outcomes/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-continuation-outcomes has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-continuation-outcomes/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-continuation-outcomes/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-continuation-rollovers/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-continuation-rollovers has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-continuation-rollovers/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-continuation-rollovers/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-release/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-release has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-release/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-release/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-remediation-continuations/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-remediation-continuations has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-remediation-continuations/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-remediation-continuations/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-remediation-outcomes/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-remediation-outcomes has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-remediation-outcomes/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-remediation-outcomes/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-remediation/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-remediation has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-remediation/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-remediation/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-rollover-outcomes/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-rollover-outcomes has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-rollover-outcomes/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-rollover-outcomes/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-settlement/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-settlement has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-settlement/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-settlement/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-strategy/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-strategy has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-strategy/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-strategy/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-variance-execution/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-variance-execution has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-variance-execution/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-variance-execution/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-variance/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-variance has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/flywheel-variance/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /flywheel-variance/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/funding-execution/[id]",
+      "area": "staff",
+      "reason": "no sample record: /funding-execution has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/funding-execution/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /funding-execution/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/governance-reviews/[id]",
+      "area": "staff",
+      "reason": "no sample record: /governance-reviews has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/governance-reviews/[id]/print",
+      "area": "staff",
+      "reason": "no sample record: /governance-reviews has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/guided-buying/[id]",
+      "area": "staff",
+      "reason": "no sample record: /guided-buying has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/intervention-execution/[id]",
+      "area": "staff",
+      "reason": "no sample record: /intervention-execution has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/intervention-execution/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /intervention-execution/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/investment-interventions/[id]",
+      "area": "staff",
+      "reason": "no sample record: /investment-interventions has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/investment-interventions/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /investment-interventions/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/investment-performance/[id]",
+      "area": "staff",
+      "reason": "no sample record: /investment-performance has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/investment-performance/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /investment-performance/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/invoice-control/[id]",
+      "area": "staff",
+      "reason": "no sample record: /invoice-control has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/negotiations/[id]",
+      "area": "staff",
+      "reason": "no sample record: /negotiations has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/operating-rhythm/[id]",
+      "area": "staff",
+      "reason": "no sample record: /operating-rhythm has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/outcome-persistence/[id]",
+      "area": "staff",
+      "reason": "no sample record: /outcome-persistence has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/outcome-persistence/reviews/[id]",
+      "area": "staff",
+      "reason": "no sample record: /outcome-persistence/reviews has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/planning/[id]",
+      "area": "staff",
+      "reason": "no sample record: /planning has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/portfolio-optimization/[id]",
+      "area": "staff",
+      "reason": "no sample record: /portfolio-optimization has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/reinvestment-performance/[id]",
+      "area": "staff",
+      "reason": "no sample record: /reinvestment-performance has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/reinvestment-performance/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /reinvestment-performance/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/reinvestment-persistence/[id]",
+      "area": "staff",
+      "reason": "no sample record: /reinvestment-persistence has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/reinvestment-persistence/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /reinvestment-persistence/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/risks/[id]",
+      "area": "staff",
+      "reason": "no sample record: /risks has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/savings/[id]",
+      "area": "staff",
+      "reason": "no sample record: /savings has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/strategic-alignment/objectives/[id]",
+      "area": "staff",
+      "reason": "no sample record: /strategic-alignment/objectives has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/strategic-alignment/reviews/[id]",
+      "area": "staff",
+      "reason": "no sample record: /strategic-alignment/reviews has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/strategic-objectives/[id]",
+      "area": "staff",
+      "reason": "no sample record: /strategic-objectives has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/strategic-objectives/snapshots/[snapshotId]",
+      "area": "staff",
+      "reason": "no sample record: /strategic-objectives/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/strategic-value/[id]",
+      "area": "staff",
+      "reason": "no sample record: /strategic-value has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/strategic-value/reviews/[id]",
+      "area": "staff",
+      "reason": "no sample record: /strategic-value/reviews has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/strategy-cockpit/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /strategy-cockpit/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/strategy-execution/[id]",
+      "area": "staff",
+      "reason": "no sample record: /strategy-execution has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/strategy-execution/reviews/[id]",
+      "area": "staff",
+      "reason": "no sample record: /strategy-execution/reviews has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/strategy-recovery/[id]",
+      "area": "staff",
+      "reason": "no sample record: /strategy-recovery has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/strategy-recovery/reviews/[id]",
+      "area": "staff",
+      "reason": "no sample record: /strategy-recovery/reviews has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/strategy-roadmaps/[id]",
+      "area": "staff",
+      "reason": "no sample record: /strategy-roadmaps has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/strategy-roadmaps/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /strategy-roadmaps/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/strategy-scenarios/[id]",
+      "area": "staff",
+      "reason": "no sample record: /strategy-scenarios has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/strategy-scenarios/evaluations/[id]",
+      "area": "staff",
+      "reason": "no sample record: /strategy-scenarios/evaluations has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/succession-planning/policies/[id]",
+      "area": "staff",
+      "reason": "no sample record: /succession-planning/policies has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/succession-planning/snapshots/[id]",
+      "area": "staff",
+      "reason": "no sample record: /succession-planning/snapshots has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/supplier-collaboration/[id]",
+      "area": "staff",
+      "reason": "no sample record: /supplier-collaboration has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/supplier-onboarding/[id]",
+      "area": "staff",
+      "reason": "no sample record: /supplier-onboarding has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/supplier-performance/[id]",
+      "area": "staff",
+      "reason": "no sample record: /supplier-performance has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/supplier-resilience/[id]",
+      "area": "staff",
+      "reason": "no sample record: /supplier-resilience has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/supplier-risk-monitoring/[supplierId]",
+      "area": "staff",
+      "reason": "no sample record: /supplier-risk-monitoring has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/sustainability/[id]",
+      "area": "staff",
+      "reason": "no sample record: /sustainability has nothing to open (empty list or no such page)"
+    },
+    {
+      "route": "/supplier-portal",
+      "area": "supplier-portal",
+      "reason": "redirects to /supplier-portal/home"
+    },
+    {
+      "route": "/supplier-portal/workspaces/[id]",
+      "area": "supplier-portal",
+      "reason": "no sample record: /supplier-portal/workspaces has nothing to open (empty list or no such page)"
+    }
+  ]
+}
